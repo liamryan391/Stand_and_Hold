@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 5: a small, compileable Forge project foundation with persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, and the first military infrastructure block. Gameplay systems such as structure generation, scientists, units, outposts, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
+This repository is currently in Phase 6: a small, compileable Forge project foundation with persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, the first military infrastructure block, and passive point generation from loaded command posts. Gameplay systems such as structure generation, scientists, units, outposts, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
 
 ## Current Scope
 
@@ -25,6 +25,7 @@ This repository is currently in Phase 5: a small, compileable Forge project foun
 - Configurable sample drops from configured entity deaths
 - Field Command Post block and tile entity
 - Persistent Field Command Post position registration
+- Passive Field Command Post point generation
 
 ## Requirements
 
@@ -138,9 +139,23 @@ The `standandhold:field_command_post` block is the first military infrastructure
 
 Right-clicking a Field Command Post shows the current human point total and army stage. It does not generate structures, open a GUI, or drive base mechanics yet.
 
+## Phase 6 Passive Generation
+
+Loaded Field Command Posts generate human points over time using tile-local tick logic. There is no global block scan; each loaded tile only checks its saved `LastPointGenerationTime` against the configured interval.
+
+Config options:
+
+```text
+enableFieldCommandPostPointGeneration=true
+fieldCommandPostPointsPerInterval=1
+fieldCommandPostTickInterval=1200
+```
+
+When points are awarded, the normal `HumanPointManager` path updates `HumanWorldData`, recalculates stages, and marks the world data dirty.
+
 ## Planned Next Phase
 
-Phase 6 should build on the point, sample, research, and command-post systems without jumping into full structure generation:
+Phase 7 should build on the point, sample, research, and command-post systems without jumping into full structure generation:
 
 - Tune point rewards and stage thresholds from playtesting
 - Add first lab/scientist placeholder behavior or simple block interaction
