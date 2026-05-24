@@ -9,6 +9,8 @@ import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
@@ -225,7 +227,7 @@ public final class CommandStandAndHold extends CommandBase {
             throw new CommandException("commands.standandhold.research.complete.usage");
         }
 
-        ResearchManager.CompletionResult result = ResearchManager.completeResearch(sender.getEntityWorld(), args[2]);
+        ResearchManager.CompletionResult result = ResearchManager.completeResearch(sender.getEntityWorld(), args[2], getPlayerSender(sender));
         if (result.getStatus() == ResearchManager.CompletionStatus.UNKNOWN_RESEARCH) {
             throw new CommandException("commands.standandhold.research.complete.unknown", args[2]);
         }
@@ -237,6 +239,10 @@ public final class CommandStandAndHold extends CommandBase {
 
         if (result.getStatus() == ResearchManager.CompletionStatus.MISSING_REQUIREMENTS) {
             throw new CommandException("commands.standandhold.research.complete.missing", entry.getId(), joinStrings(result.getMissingRequirements()));
+        }
+
+        if (result.getStatus() == ResearchManager.CompletionStatus.MISSING_SAMPLES) {
+            throw new CommandException("commands.standandhold.research.complete.samples", entry.getId(), result.getRequiredSamples(), result.getAvailableSamples());
         }
 
         TextComponentTranslation message = new TextComponentTranslation(
@@ -279,10 +285,11 @@ public final class CommandStandAndHold extends CommandBase {
 
     private String formatResearchEntry(ResearchEntry entry, String state) {
         String requirements = entry.hasRequirements() ? " requires " + joinStrings(entry.getRequiredResearchIds()) : "";
+        String sampleCost = entry.getParasiteSampleCost() > 0 ? " samples " + entry.getParasiteSampleCost() : "";
         String reward = entry.getCompletionPointReward() > 0 ? " +" + entry.getCompletionPointReward() + " points" : "";
         return "- " + entry.getId() + " [" + state + "] "
                 + entry.getCategory().getDisplayName() + " - "
-                + entry.getDisplayName() + reward + requirements;
+                + entry.getDisplayName() + reward + sampleCost + requirements;
     }
 
     private String joinStrings(List<String> values) {
@@ -298,5 +305,10 @@ public final class CommandStandAndHold extends CommandBase {
             builder.append(value);
         }
         return builder.toString();
+    }
+
+    private EntityPlayer getPlayerSender(ICommandSender sender) {
+        Entity entity = sender.getCommandSenderEntity();
+        return entity instanceof EntityPlayer ? (EntityPlayer) entity : null;
     }
 }

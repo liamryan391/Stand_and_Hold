@@ -74,6 +74,27 @@ public final class StandAndHoldConfig {
         return 0;
     }
 
+    public static double getParasiteSampleDropChance(ResourceLocation entityRegistryId) {
+        if (!pointSources.enableParasiteSampleDrops || entityRegistryId == null) {
+            return 0.0D;
+        }
+
+        String entityId = entityRegistryId.toString().toLowerCase(Locale.ROOT);
+        String[] dropEntries = pointSources.parasiteSampleDropChances;
+        if (dropEntries == null) {
+            return 0.0D;
+        }
+
+        for (String dropEntry : dropEntries) {
+            ParsedChance parsedChance = parseChanceEntry(dropEntry);
+            if (parsedChance != null && parsedChance.entityId.equals(entityId)) {
+                return parsedChance.chance;
+            }
+        }
+
+        return 0.0D;
+    }
+
     public static boolean isScapeAndRunParasitesLoaded() {
         String modId = pointSources.scapeAndRunParasitesModId;
         return modId != null && !modId.trim().isEmpty() && Loader.isModLoaded(modId.trim());
@@ -97,6 +118,29 @@ public final class StandAndHoldConfig {
         try {
             int points = Integer.parseInt(rewardEntry.substring(separator + 1).trim());
             return points > 0 ? new ParsedReward(entityId, points) : null;
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
+    }
+
+    private static ParsedChance parseChanceEntry(String chanceEntry) {
+        if (chanceEntry == null) {
+            return null;
+        }
+
+        int separator = chanceEntry.indexOf('=');
+        if (separator <= 0 || separator >= chanceEntry.length() - 1) {
+            return null;
+        }
+
+        String entityId = normalizeEntityId(chanceEntry.substring(0, separator));
+        if (entityId == null) {
+            return null;
+        }
+
+        try {
+            double chance = Double.parseDouble(chanceEntry.substring(separator + 1).trim());
+            return chance > 0.0D ? new ParsedChance(entityId, Math.min(chance, 1.0D)) : null;
         } catch (NumberFormatException ignored) {
             return null;
         }
@@ -139,6 +183,20 @@ public final class StandAndHoldConfig {
                 "minecraft:zombie=5"
         };
 
+        @Config.Name("Enable Parasite Sample Drops")
+        @Config.Comment("Allows configured entity registry IDs to drop Parasite Tissue Samples.")
+        public boolean enableParasiteSampleDrops = true;
+
+        @Config.Name("Parasite Sample Drop Chances")
+        @Config.Comment({
+                "Entity registry IDs and sample drop chances for parasite/test kills.",
+                "Use the format modid:entity_registry_name=chance, where chance is 0.0 to 1.0.",
+                "The default minecraft:zombie entry is only a safe test value for early development."
+        })
+        public String[] parasiteSampleDropChances = new String[] {
+                "minecraft:zombie=0.25"
+        };
+
         @Config.Name("Scape and Run Parasites Mod ID")
         @Config.Comment({
                 "Optional mod id used only to detect whether Scape and Run: Parasites is loaded.",
@@ -150,14 +208,15 @@ public final class StandAndHoldConfig {
     public static final class Research {
         @Config.Name("Research Entries")
         @Config.Comment({
-                "Research entries in the format id|category|name|description|pointReward|requiredResearchIds.",
-                "Use comma-separated requiredResearchIds, or leave the final field blank.",
+                "Research entries in the format id|category|name|description|pointReward|requiredResearchIds|sampleCost.",
+                "Use comma-separated requiredResearchIds, or leave that field blank.",
+                "Use 0 for sampleCost when the research should not consume Parasite Tissue Samples.",
                 "Valid default categories are GENERAL, PARASITE_BIOLOGY, MILITARY_LOGISTICS, BASE_INFRASTRUCTURE, FIELD_MEDICINE, and SPECIAL_PROJECTS."
         })
         public String[] researchEntries = new String[] {
-                "parasite_samples|PARASITE_BIOLOGY|Parasite Samples|Catalog recovered parasite tissue and establish basic containment procedures.|25|",
-                "field_communications|MILITARY_LOGISTICS|Field Communications|Coordinate survivor cells and local army response teams across infected territory.|25|",
-                "outpost_doctrine|BASE_INFRASTRUCTURE|Outpost Doctrine|Draft the first defensible outpost standards for later military construction.|50|field_communications"
+                "parasite_samples|PARASITE_BIOLOGY|Parasite Samples|Catalog recovered parasite tissue and establish basic containment procedures.|25||1",
+                "field_communications|MILITARY_LOGISTICS|Field Communications|Coordinate survivor cells and local army response teams across infected territory.|25||0",
+                "outpost_doctrine|BASE_INFRASTRUCTURE|Outpost Doctrine|Draft the first defensible outpost standards for later military construction.|50|field_communications|0"
         };
     }
 
@@ -168,6 +227,16 @@ public final class StandAndHoldConfig {
         private ParsedReward(String entityId, int points) {
             this.entityId = entityId;
             this.points = points;
+        }
+    }
+
+    private static final class ParsedChance {
+        private final String entityId;
+        private final double chance;
+
+        private ParsedChance(String entityId, double chance) {
+            this.entityId = entityId;
+            this.chance = chance;
         }
     }
 }

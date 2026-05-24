@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 3: a small, compileable Forge project foundation with persistent human progression points, stage commands, configurable entity-death point rewards, and a basic data-driven research system. Gameplay systems such as military buildings, scientists, units, outposts, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
+This repository is currently in Phase 4: a small, compileable Forge project foundation with persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, and a basic data-driven research system. Gameplay systems such as military buildings, scientists, units, outposts, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
 
 ## Current Scope
 
@@ -21,6 +21,8 @@ This repository is currently in Phase 3: a small, compileable Forge project foun
 - Optional Scape and Run: Parasites loaded-state detection
 - Data-driven research entries
 - Persistent completed research IDs
+- Basic Parasite Tissue Sample item
+- Configurable sample drops from configured entity deaths
 
 ## Requirements
 
@@ -92,15 +94,27 @@ minecraft:zombie=5
 
 That zombie entry is only a safe test value so the feature can be verified without Scape and Run: Parasites installed. No SRP entity IDs are hardcoded. Once verified, add SRP registry IDs to the config list.
 
+Parasite sample drops are configured separately:
+
+```text
+modid:entity_registry_name=chance
+```
+
+The default sample drop test entry is:
+
+```text
+minecraft:zombie=0.25
+```
+
 ## Phase 3 Research
 
 Research entries are configured as pipe-separated data:
 
 ```text
-id|category|name|description|pointReward|requiredResearchIds
+id|category|name|description|pointReward|requiredResearchIds|sampleCost
 ```
 
-Use comma-separated `requiredResearchIds`, or leave the final field blank.
+Use comma-separated `requiredResearchIds`, or leave that field blank. `sampleCost` consumes Parasite Tissue Samples from the player completing the research command.
 
 Current research commands:
 
@@ -112,10 +126,14 @@ Current research commands:
 
 Completed research IDs are stored in `HumanWorldData`, so they persist with the world save. Later systems can use `ResearchManager.isResearchComplete(world, id)` to gate features.
 
+## Phase 4 Samples
+
+The `standandhold:parasite_tissue_sample` item is the first physical progression item. It appears on the Stand and Hold creative tab and can drop from configured parasite/test entities. The default `parasite_samples` research entry requires one sample.
+
 ## Planned Next Phase
 
-Phase 4 should build on the point and research systems without jumping into full structures or mobs:
+Phase 5 should build on the point, sample, and research systems without jumping into full structures or mobs:
 
 - Tune point rewards and stage thresholds from playtesting
-- Add first sample recovery command or item placeholder
+- Add first lab/scientist placeholder behavior
 - Keep Scape and Run: Parasites compatibility data-driven until entity IDs are verified

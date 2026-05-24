@@ -15,3 +15,6 @@ commands.standandhold.research.complete.success=Completed research %s (%s). Huma
 commands.standandhold.research.complete.unknown=Unknown research id: %s
 commands.standandhold.research.complete.already=Research already completed: %s
 commands.standandhold.research.complete.missing=Research %s requires: %s
+commands.standandhold.research.complete.samples=Research %s requires %s Parasite Tissue Samples. Available: %s
+item.standandhold.parasite_tissue_sample.name=Parasite Tissue Sample
+itemGroup.standandhold=Stand and Hold

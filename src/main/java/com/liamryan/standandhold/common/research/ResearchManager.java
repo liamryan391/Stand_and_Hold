@@ -1,11 +1,15 @@
 package com.liamryan.standandhold.common.research;
 
 import com.liamryan.standandhold.StandAndHold;
+import com.liamryan.standandhold.common.item.ModItems;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -69,6 +73,14 @@ public final class ResearchManager {
     }
 
     public static CompletionResult completeResearch(World world, String id) {
+        return completeResearch(world, id, null, false);
+    }
+
+    public static CompletionResult completeResearch(World world, String id, @Nullable EntityPlayer player) {
+        return completeResearch(world, id, player, player != null);
+    }
+
+    private static CompletionResult completeResearch(World world, String id, @Nullable EntityPlayer player, boolean enforceSampleCost) {
         ResearchEntry entry = getResearchEntry(id);
         if (entry == null) {
             return CompletionResult.unknown();
@@ -84,6 +96,12 @@ public final class ResearchManager {
             return CompletionResult.missingRequirements(entry, missingRequirements);
         }
 
+        int availableSamples = getAvailableParasiteSamples(player);
+        if (enforceSampleCost && entry.getParasiteSampleCost() > 0 && availableSamples < entry.getParasiteSampleCost()) {
+            return CompletionResult.missingSamples(entry, entry.getParasiteSampleCost(), availableSamples);
+        }
+
+        consumeParasiteSamples(player, entry.getParasiteSampleCost());
         data.completeResearch(entry.getId());
         if (entry.getCompletionPointReward() > 0) {
             HumanPointManager.addPoints(world, entry.getCompletionPointReward(), "research completion: " + entry.getId());
@@ -136,11 +154,24 @@ public final class ResearchManager {
                     parts[2],
                     parts[3],
                     parsePointReward(parts[4]),
-                    parseRequirements(parts.length >= 6 ? parts[5] : "")
+                    parseRequirements(parts.length >= 6 ? parts[5] : ""),
+                    parseSampleCost(parts.length >= 7 ? parts[6] : "")
             );
         } catch (IllegalArgumentException exception) {
             StandAndHold.LOGGER.warn("Ignoring invalid research entry '{}': {}", configuredEntry, exception.getMessage());
             return null;
+        }
+    }
+
+    private static int parseSampleCost(String rawSampleCost) {
+        if (rawSampleCost == null || rawSampleCost.trim().isEmpty()) {
+            return 0;
+        }
+
+        try {
+            return Math.max(0, Integer.parseInt(rawSampleCost.trim()));
+        } catch (NumberFormatException ignored) {
+            return 0;
         }
     }
 
@@ -172,31 +203,80 @@ public final class ResearchManager {
         return requirements;
     }
 
+    private static int getAvailableParasiteSamples(@Nullable EntityPlayer player) {
+        if (player == null) {
+            return 0;
+        }
+
+        if (player.capabilities.isCreativeMode) {
+            return Integer.MAX_VALUE;
+        }
+
+        return countParasiteSamples(player);
+    }
+
+    private static int countParasiteSamples(EntityPlayer player) {
+        int count = 0;
+        for (ItemStack stack : player.inventory.mainInventory) {
+            if (!stack.isEmpty() && stack.getItem() == ModItems.PARASITE_TISSUE_SAMPLE) {
+                count += stack.getCount();
+            }
+        }
+        return count;
+    }
+
+    private static void consumeParasiteSamples(@Nullable EntityPlayer player, int sampleCost) {
+        if (player == null || sampleCost <= 0 || player.capabilities.isCreativeMode) {
+            return;
+        }
+
+        int remaining = sampleCost;
+        for (int i = 0; i < player.inventory.mainInventory.size() && remaining > 0; i++) {
+            ItemStack stack = player.inventory.mainInventory.get(i);
+            if (stack.isEmpty() || stack.getItem() != ModItems.PARASITE_TISSUE_SAMPLE) {
+                continue;
+            }
+
+            int consumed = Math.min(remaining, stack.getCount());
+            stack.shrink(consumed);
+            remaining -= consumed;
+        }
+        player.inventory.markDirty();
+    }
+
     public static final class CompletionResult {
         private final CompletionStatus status;
         private final ResearchEntry entry;
         private final List<String> missingRequirements;
+        private final int requiredSamples;
+        private final int availableSamples;
 
-        private CompletionResult(CompletionStatus status, ResearchEntry entry, List<String> missingRequirements) {
+        private CompletionResult(CompletionStatus status, ResearchEntry entry, List<String> missingRequirements, int requiredSamples, int availableSamples) {
             this.status = status;
             this.entry = entry;
             this.missingRequirements = missingRequirements == null ? Collections.<String>emptyList() : Collections.unmodifiableList(missingRequirements);
+            this.requiredSamples = requiredSamples;
+            this.availableSamples = availableSamples;
         }
 
         public static CompletionResult unknown() {
-            return new CompletionResult(CompletionStatus.UNKNOWN_RESEARCH, null, Collections.<String>emptyList());
+            return new CompletionResult(CompletionStatus.UNKNOWN_RESEARCH, null, Collections.<String>emptyList(), 0, 0);
         }
 
         public static CompletionResult alreadyComplete(ResearchEntry entry) {
-            return new CompletionResult(CompletionStatus.ALREADY_COMPLETE, entry, Collections.<String>emptyList());
+            return new CompletionResult(CompletionStatus.ALREADY_COMPLETE, entry, Collections.<String>emptyList(), 0, 0);
         }
 
         public static CompletionResult missingRequirements(ResearchEntry entry, List<String> missingRequirements) {
-            return new CompletionResult(CompletionStatus.MISSING_REQUIREMENTS, entry, missingRequirements);
+            return new CompletionResult(CompletionStatus.MISSING_REQUIREMENTS, entry, missingRequirements, 0, 0);
+        }
+
+        public static CompletionResult missingSamples(ResearchEntry entry, int requiredSamples, int availableSamples) {
+            return new CompletionResult(CompletionStatus.MISSING_SAMPLES, entry, Collections.<String>emptyList(), requiredSamples, availableSamples);
         }
 
         public static CompletionResult completed(ResearchEntry entry) {
-            return new CompletionResult(CompletionStatus.COMPLETED, entry, Collections.<String>emptyList());
+            return new CompletionResult(CompletionStatus.COMPLETED, entry, Collections.<String>emptyList(), 0, 0);
         }
 
         public CompletionStatus getStatus() {
@@ -210,12 +290,21 @@ public final class ResearchManager {
         public List<String> getMissingRequirements() {
             return missingRequirements;
         }
+
+        public int getRequiredSamples() {
+            return requiredSamples;
+        }
+
+        public int getAvailableSamples() {
+            return availableSamples;
+        }
     }
 
     public enum CompletionStatus {
         COMPLETED,
         ALREADY_COMPLETE,
         MISSING_REQUIREMENTS,
+        MISSING_SAMPLES,
         UNKNOWN_RESEARCH
     }
 }
