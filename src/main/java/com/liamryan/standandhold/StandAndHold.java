@@ -1,10 +1,12 @@
 package com.liamryan.standandhold;
 
+import com.liamryan.standandhold.common.command.CommandStandAndHold;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,5 +37,11 @@ public final class StandAndHold {
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event) {
         LOGGER.info("{} post-initialized.", StandAndHoldConstants.MOD_NAME);
+    }
+
+    @Mod.EventHandler
+    public void serverStarting(FMLServerStartingEvent event) {
+        event.registerServerCommand(new CommandStandAndHold());
+        LOGGER.info("Registered Stand and Hold server commands.");
     }
 }

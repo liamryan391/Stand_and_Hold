@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 0: a small, compileable Forge project foundation. Gameplay systems such as human progression points, army stages, research, military buildings, scientists, units, outposts, and Scape and Run: Parasites compatibility are intentionally left for later phases.
+This repository is currently in Phase 1: a small, compileable Forge project foundation with persistent human progression points and stage commands. Gameplay systems such as research, military buildings, scientists, units, outposts, and Scape and Run: Parasites compatibility are intentionally left for later phases.
 
 ## Current Scope
 
@@ -14,6 +14,9 @@ This repository is currently in Phase 0: a small, compileable Forge project foun
 - Basic Log4j logger
 - `mcmod.info`
 - Basic language/resource files
+- Persistent global human progression data
+- Admin/debug progression command
+- Configurable human stage thresholds
 
 ## Requirements
 
@@ -43,19 +46,35 @@ On Windows PowerShell:
 
 The compiled mod jar will be created under `build/libs/`.
 
-## Phase 0 Design Notes
+## Phase 1 Progression Core
 
-The current mod only registers a Forge mod entrypoint and a basic config file. It does not add gameplay behavior yet. That keeps the first pass easy to load, test, and expand.
+Human progression is stored in `HumanWorldData`, a Forge `WorldSavedData` record attached to the overworld save. This keeps the point total and current stage persistent across world saves and reloads.
+
+Stages are recalculated from configurable point thresholds whenever points are added:
+
+- Stage 0: Survivors
+- Stage 1: Local Army Response
+- Stage 2: Organised Military
+- Stage 3: Elite Units
+- Stage 4: Super Elite Units
+- Stage 5: Special Parasite Division
+- Stage 6: Main Base / Endgame Counter-Offensive
+
+Use these commands in a world or dedicated server:
+
+```text
+/standandhold status
+/standandhold addpoints <amount>
+/standandhold setstage <0-6|stage_name>
+```
+
+`status` is available to any command sender. `addpoints` and `setstage` require permission level 2.
 
 ## Planned Next Phase
 
-Phase 1 should add the human progression foundation:
+Phase 2 should add the first safe point sources:
 
-- `HumanWorldData` using `WorldSavedData`
-- `HumanStage` enum
-- `HumanPointManager`
-- Server-side command for status and admin point changes
-- Entity death event hook with configurable test entity matching
-- Configurable stage thresholds and point rewards
-
-The first gameplay pass should still avoid hardcoding Scape and Run: Parasites internals until compatibility has been verified against that mod's public IDs/API behavior.
+- Forge entity death event hook
+- Configurable parasite/test entity ID list
+- Configurable point rewards
+- No hardcoded Scape and Run: Parasites internals until compatibility has been verified against that mod's public IDs/API behavior
