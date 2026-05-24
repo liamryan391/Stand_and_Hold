@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 1: a small, compileable Forge project foundation with persistent human progression points and stage commands. Gameplay systems such as research, military buildings, scientists, units, outposts, and Scape and Run: Parasites compatibility are intentionally left for later phases.
+This repository is currently in Phase 2: a small, compileable Forge project foundation with persistent human progression points, stage commands, and configurable entity-death point rewards. Gameplay systems such as research, military buildings, scientists, units, outposts, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
 
 ## Current Scope
 
@@ -17,6 +17,8 @@ This repository is currently in Phase 1: a small, compileable Forge project foun
 - Persistent global human progression data
 - Admin/debug progression command
 - Configurable human stage thresholds
+- Configurable entity-death point rewards
+- Optional Scape and Run: Parasites loaded-state detection
 
 ## Requirements
 
@@ -70,11 +72,28 @@ Use these commands in a world or dedicated server:
 
 `status` is available to any command sender. `addpoints` and `setstage` require permission level 2.
 
+## Phase 2 Kill Rewards
+
+Stand and Hold listens for Forge `LivingDeathEvent` on the server. When the dead entity's registry ID matches a configured reward entry, the mod adds human progression points through `HumanPointManager`.
+
+Reward entries are configured as:
+
+```text
+modid:entity_registry_name=points
+```
+
+The default config includes:
+
+```text
+minecraft:zombie=5
+```
+
+That zombie entry is only a safe test value so the feature can be verified without Scape and Run: Parasites installed. No SRP entity IDs are hardcoded. Once verified, add SRP registry IDs to the config list.
+
 ## Planned Next Phase
 
-Phase 2 should add the first safe point sources:
+Phase 3 should build on the point system without jumping into full structures or mobs:
 
-- Forge entity death event hook
-- Configurable parasite/test entity ID list
-- Configurable point rewards
-- No hardcoded Scape and Run: Parasites internals until compatibility has been verified against that mod's public IDs/API behavior
+- Tune point rewards and stage thresholds from playtesting
+- Add first research/sample command or item placeholder
+- Keep Scape and Run: Parasites compatibility data-driven until entity IDs are verified

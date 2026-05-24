@@ -1,7 +1,9 @@
 package com.liamryan.standandhold;
 
 import com.liamryan.standandhold.common.command.CommandStandAndHold;
+import com.liamryan.standandhold.common.event.HumanProgressionEventHandler;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -31,11 +33,13 @@ public final class StandAndHold {
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
+        MinecraftForge.EVENT_BUS.register(new HumanProgressionEventHandler());
         LOGGER.info("{} initialized.", StandAndHoldConstants.MOD_NAME);
     }
 
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event) {
+        HumanProgressionEventHandler.logOptionalCompatibilityState();
         LOGGER.info("{} post-initialized.", StandAndHoldConstants.MOD_NAME);
     }
 
