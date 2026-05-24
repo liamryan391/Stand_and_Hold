@@ -1,0 +1,18 @@
+[
+  {
+    "modid": "standandhold",
+    "name": "Stand and Hold",
+    "description": "A human military resistance foundation for parasite-infected Minecraft worlds.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "updateUrl": "",
+    "authorList": [
+      "Liam Ryan"
+    ],
+    "credits": "Inspired by escalation-style parasite survival mods, focused on the human response.",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]

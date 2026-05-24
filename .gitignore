@@ -1,0 +1,16 @@
+.gradle/
+.gradle-home/
+.jdks/
+build/
+run/
+out/
+*.log
+*.iml
+.idea/
+.settings/
+.classpath
+.project
+eclipse/
+*.launch
+
+!gradle/wrapper/gradle-wrapper.jar
