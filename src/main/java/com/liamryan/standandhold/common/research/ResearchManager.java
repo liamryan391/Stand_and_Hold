@@ -1,12 +1,11 @@
 package com.liamryan.standandhold.common.research;
 
 import com.liamryan.standandhold.StandAndHold;
-import com.liamryan.standandhold.common.item.ModItems;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
+import com.liamryan.standandhold.common.util.ParasiteSampleHelper;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -96,12 +95,12 @@ public final class ResearchManager {
             return CompletionResult.missingRequirements(entry, missingRequirements);
         }
 
-        int availableSamples = getAvailableParasiteSamples(player);
+        int availableSamples = ParasiteSampleHelper.getAvailableParasiteSamples(player);
         if (enforceSampleCost && entry.getParasiteSampleCost() > 0 && availableSamples < entry.getParasiteSampleCost()) {
             return CompletionResult.missingSamples(entry, entry.getParasiteSampleCost(), availableSamples);
         }
 
-        consumeParasiteSamples(player, entry.getParasiteSampleCost());
+        ParasiteSampleHelper.consumeParasiteSamples(player, entry.getParasiteSampleCost());
         data.completeResearch(entry.getId());
         if (entry.getCompletionPointReward() > 0) {
             HumanPointManager.addPoints(world, entry.getCompletionPointReward(), "research completion: " + entry.getId());
@@ -201,47 +200,6 @@ public final class ResearchManager {
             }
         }
         return requirements;
-    }
-
-    private static int getAvailableParasiteSamples(@Nullable EntityPlayer player) {
-        if (player == null) {
-            return 0;
-        }
-
-        if (player.capabilities.isCreativeMode) {
-            return Integer.MAX_VALUE;
-        }
-
-        return countParasiteSamples(player);
-    }
-
-    private static int countParasiteSamples(EntityPlayer player) {
-        int count = 0;
-        for (ItemStack stack : player.inventory.mainInventory) {
-            if (!stack.isEmpty() && stack.getItem() == ModItems.PARASITE_TISSUE_SAMPLE) {
-                count += stack.getCount();
-            }
-        }
-        return count;
-    }
-
-    private static void consumeParasiteSamples(@Nullable EntityPlayer player, int sampleCost) {
-        if (player == null || sampleCost <= 0 || player.capabilities.isCreativeMode) {
-            return;
-        }
-
-        int remaining = sampleCost;
-        for (int i = 0; i < player.inventory.mainInventory.size() && remaining > 0; i++) {
-            ItemStack stack = player.inventory.mainInventory.get(i);
-            if (stack.isEmpty() || stack.getItem() != ModItems.PARASITE_TISSUE_SAMPLE) {
-                continue;
-            }
-
-            int consumed = Math.min(remaining, stack.getCount());
-            stack.shrink(consumed);
-            remaining -= consumed;
-        }
-        player.inventory.markDirty();
     }
 
     public static final class CompletionResult {

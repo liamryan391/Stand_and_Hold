@@ -1,9 +1,13 @@
 package com.liamryan.standandhold.common.command;
 
+import com.liamryan.standandhold.common.infrastructure.FieldCommandPostLevel;
+import com.liamryan.standandhold.common.infrastructure.FieldCommandPostUpgradeManager;
+import com.liamryan.standandhold.common.infrastructure.FieldCommandPostUpgradeRequirement;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.progression.HumanStage;
 import com.liamryan.standandhold.common.research.ResearchEntry;
 import com.liamryan.standandhold.common.research.ResearchManager;
+import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraft.command.CommandBase;
@@ -12,6 +16,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -26,12 +31,17 @@ public final class CommandStandAndHold extends CommandBase {
             "status",
             "addpoints",
             "setstage",
-            "research"
+            "research",
+            "commandpost"
     };
     private static final String[] RESEARCH_SUBCOMMANDS = new String[] {
             "list",
             "complete",
             "status"
+    };
+    private static final String[] COMMAND_POST_SUBCOMMANDS = new String[] {
+            "status",
+            "upgrade"
     };
 
     @Override
@@ -73,6 +83,11 @@ public final class CommandStandAndHold extends CommandBase {
             return;
         }
 
+        if ("commandpost".equalsIgnoreCase(args[0])) {
+            executeCommandPost(sender, args);
+            return;
+        }
+
         throw new CommandException("commands.standandhold.usage");
     }
 
@@ -90,8 +105,16 @@ public final class CommandStandAndHold extends CommandBase {
             return getListOfStringsMatchingLastWord(args, RESEARCH_SUBCOMMANDS);
         }
 
+        if (args.length == 2 && "commandpost".equalsIgnoreCase(args[0])) {
+            return getListOfStringsMatchingLastWord(args, COMMAND_POST_SUBCOMMANDS);
+        }
+
         if (args.length == 3 && "research".equalsIgnoreCase(args[0]) && "complete".equalsIgnoreCase(args[1])) {
             return getListOfStringsMatchingLastWord(args, getResearchCompletions());
+        }
+
+        if (args.length > 2 && args.length <= 5 && "commandpost".equalsIgnoreCase(args[0])) {
+            return getTabCompletionCoordinate(args, 2, targetPos);
         }
 
         return super.getTabCompletions(server, sender, args, targetPos);
@@ -252,6 +275,123 @@ public final class CommandStandAndHold extends CommandBase {
                 entry.getCompletionPointReward()
         );
         message.getStyle().setColor(TextFormatting.YELLOW);
+        sender.sendMessage(message);
+    }
+
+    private void executeCommandPost(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length < 2) {
+            throw new CommandException("commands.standandhold.commandpost.usage");
+        }
+
+        if ("status".equalsIgnoreCase(args[1])) {
+            executeCommandPostStatus(sender, args);
+            return;
+        }
+
+        if ("upgrade".equalsIgnoreCase(args[1])) {
+            requireAdmin(sender);
+            executeCommandPostUpgrade(sender, args);
+            return;
+        }
+
+        throw new CommandException("commands.standandhold.commandpost.usage");
+    }
+
+    private void executeCommandPostStatus(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length != 5) {
+            throw new CommandException("commands.standandhold.commandpost.usage");
+        }
+
+        BlockPos pos = parseBlockPos(sender, args, 2, false);
+        TileEntityFieldCommandPost commandPost = getCommandPostAt(sender, pos);
+        HumanWorldData data = HumanPointManager.getData(sender.getEntityWorld());
+        HumanStage stage = data.getStage();
+        FieldCommandPostLevel level = commandPost.getUpgradeLevelInfo();
+        TextComponentTranslation message = new TextComponentTranslation(
+                "commands.standandhold.commandpost.status",
+                pos.getX(),
+                pos.getY(),
+                pos.getZ(),
+                level.getLevel(),
+                level.getDisplayName(),
+                data.getHumanPoints(),
+                stage.getId(),
+                stage.getDisplayName()
+        );
+        message.getStyle().setColor(TextFormatting.GREEN);
+        sender.sendMessage(message);
+    }
+
+    private void executeCommandPostUpgrade(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length != 5) {
+            throw new CommandException("commands.standandhold.commandpost.usage");
+        }
+
+        BlockPos pos = parseBlockPos(sender, args, 2, false);
+        TileEntityFieldCommandPost commandPost = getCommandPostAt(sender, pos);
+        FieldCommandPostUpgradeManager.UpgradeResult result = FieldCommandPostUpgradeManager.tryUpgrade(sender.getEntityWorld(), commandPost, getPlayerSender(sender));
+        sendCommandPostUpgradeResult(sender, result);
+    }
+
+    private TileEntityFieldCommandPost getCommandPostAt(ICommandSender sender, BlockPos pos) throws CommandException {
+        TileEntity tileEntity = sender.getEntityWorld().getTileEntity(pos);
+        if (!(tileEntity instanceof TileEntityFieldCommandPost)) {
+            throw new CommandException("commands.standandhold.commandpost.not_found", pos.getX(), pos.getY(), pos.getZ());
+        }
+
+        return (TileEntityFieldCommandPost) tileEntity;
+    }
+
+    private void sendCommandPostUpgradeResult(ICommandSender sender, FieldCommandPostUpgradeManager.UpgradeResult result) throws CommandException {
+        FieldCommandPostUpgradeRequirement requirement = result.getRequirement();
+        FieldCommandPostLevel level = result.getLevel();
+        TextComponentTranslation message;
+        TextFormatting color = TextFormatting.RED;
+
+        switch (result.getStatus()) {
+            case COMPLETED:
+                color = TextFormatting.YELLOW;
+                message = new TextComponentTranslation(
+                        "commands.standandhold.commandpost.upgrade.success",
+                        level.getLevel(),
+                        level.getDisplayName(),
+                        requirement.getCompletionPointReward()
+                );
+                break;
+            case ALREADY_MAX_LEVEL:
+                message = new TextComponentTranslation(
+                        "commands.standandhold.commandpost.upgrade.max",
+                        level.getLevel(),
+                        level.getDisplayName()
+                );
+                break;
+            case MISSING_CONFIGURATION:
+                throw new CommandException("commands.standandhold.commandpost.upgrade.config", level.getLevel(), level.getDisplayName());
+            case MISSING_POINTS:
+                throw new CommandException(
+                        "commands.standandhold.commandpost.upgrade.points",
+                        level.getLevel(),
+                        requirement.getRequiredHumanPoints(),
+                        result.getCurrentHumanPoints()
+                );
+            case MISSING_RESEARCH:
+                throw new CommandException(
+                        "commands.standandhold.commandpost.upgrade.research",
+                        level.getLevel(),
+                        joinStrings(result.getMissingResearchIds())
+                );
+            case MISSING_SAMPLES:
+                throw new CommandException(
+                        "commands.standandhold.commandpost.upgrade.samples",
+                        level.getLevel(),
+                        requirement.getParasiteSampleCost(),
+                        result.getAvailableSamples()
+                );
+            default:
+                throw new CommandException("commands.standandhold.commandpost.upgrade.config", 0, "unknown");
+        }
+
+        message.getStyle().setColor(color);
         sender.sendMessage(message);
     }
 

@@ -1,6 +1,9 @@
 package com.liamryan.standandhold.common.block;
 
 import com.liamryan.standandhold.StandAndHoldConstants;
+import com.liamryan.standandhold.common.infrastructure.FieldCommandPostLevel;
+import com.liamryan.standandhold.common.infrastructure.FieldCommandPostUpgradeManager;
+import com.liamryan.standandhold.common.infrastructure.FieldCommandPostUpgradeRequirement;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.progression.HumanStage;
 import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
@@ -66,20 +69,103 @@ public final class BlockFieldCommandPost extends Block implements ITileEntityPro
 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        if (world.isRemote) {
+        if (world.isRemote || hand != EnumHand.MAIN_HAND) {
+            return true;
+        }
+
+        TileEntity tileEntity = world.getTileEntity(pos);
+        TileEntityFieldCommandPost commandPost = tileEntity instanceof TileEntityFieldCommandPost ? (TileEntityFieldCommandPost) tileEntity : null;
+        if (commandPost != null && player.isSneaking()) {
+            sendUpgradeResult(player, FieldCommandPostUpgradeManager.tryUpgrade(world, commandPost, player));
             return true;
         }
 
         HumanWorldData data = HumanPointManager.getData(world);
         HumanStage stage = data.getStage();
+        FieldCommandPostLevel level = commandPost == null ? FieldCommandPostLevel.FIELD_CAMP : commandPost.getUpgradeLevelInfo();
         TextComponentTranslation message = new TextComponentTranslation(
                 "message.standandhold.field_command_post.status",
                 data.getHumanPoints(),
                 stage.getId(),
-                stage.getDisplayName()
+                stage.getDisplayName(),
+                level.getLevel(),
+                level.getDisplayName()
         );
         message.getStyle().setColor(TextFormatting.GREEN);
         player.sendMessage(message);
         return true;
+    }
+
+    private void sendUpgradeResult(EntityPlayer player, FieldCommandPostUpgradeManager.UpgradeResult result) {
+        TextComponentTranslation message;
+        TextFormatting color = TextFormatting.RED;
+        FieldCommandPostUpgradeRequirement requirement = result.getRequirement();
+        FieldCommandPostLevel level = result.getLevel();
+
+        switch (result.getStatus()) {
+            case COMPLETED:
+                color = TextFormatting.YELLOW;
+                message = new TextComponentTranslation(
+                        "message.standandhold.field_command_post.upgrade.success",
+                        level.getLevel(),
+                        level.getDisplayName(),
+                        requirement.getCompletionPointReward()
+                );
+                break;
+            case ALREADY_MAX_LEVEL:
+                message = new TextComponentTranslation(
+                        "message.standandhold.field_command_post.upgrade.max",
+                        level.getLevel(),
+                        level.getDisplayName()
+                );
+                break;
+            case MISSING_CONFIGURATION:
+                message = new TextComponentTranslation(
+                        "message.standandhold.field_command_post.upgrade.config",
+                        level.getLevel(),
+                        level.getDisplayName()
+                );
+                break;
+            case MISSING_POINTS:
+                message = new TextComponentTranslation(
+                        "message.standandhold.field_command_post.upgrade.points",
+                        level.getLevel(),
+                        requirement.getRequiredHumanPoints(),
+                        result.getCurrentHumanPoints()
+                );
+                break;
+            case MISSING_RESEARCH:
+                message = new TextComponentTranslation(
+                        "message.standandhold.field_command_post.upgrade.research",
+                        level.getLevel(),
+                        joinStrings(result.getMissingResearchIds())
+                );
+                break;
+            case MISSING_SAMPLES:
+                message = new TextComponentTranslation(
+                        "message.standandhold.field_command_post.upgrade.samples",
+                        level.getLevel(),
+                        requirement.getParasiteSampleCost(),
+                        result.getAvailableSamples()
+                );
+                break;
+            default:
+                message = new TextComponentTranslation("message.standandhold.field_command_post.upgrade.config", 0, "unknown");
+                break;
+        }
+
+        message.getStyle().setColor(color);
+        player.sendMessage(message);
+    }
+
+    private String joinStrings(Iterable<String> values) {
+        StringBuilder builder = new StringBuilder();
+        for (String value : values) {
+            if (builder.length() > 0) {
+                builder.append(", ");
+            }
+            builder.append(value);
+        }
+        return builder.toString();
     }
 }

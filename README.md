@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 6: a small, compileable Forge project foundation with persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, the first military infrastructure block, and passive point generation from loaded command posts. Gameplay systems such as structure generation, scientists, units, outposts, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
+This repository is currently in Phase 7: a small, compileable Forge project foundation with persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, the first military infrastructure block, passive point generation from loaded command posts, and early Field Command Post upgrade levels. Gameplay systems such as structure generation, scientists, units, outposts, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
 
 ## Current Scope
 
@@ -26,6 +26,7 @@ This repository is currently in Phase 6: a small, compileable Forge project foun
 - Field Command Post block and tile entity
 - Persistent Field Command Post position registration
 - Passive Field Command Post point generation
+- Persistent Field Command Post upgrade levels
 
 ## Requirements
 
@@ -153,9 +154,34 @@ fieldCommandPostTickInterval=1200
 
 When points are awarded, the normal `HumanPointManager` path updates `HumanWorldData`, recalculates stages, and marks the world data dirty.
 
+## Phase 7 Building Upgrades
+
+Field Command Posts now save an upgrade level in their tile entity NBT:
+
+- Level 1: Field Camp
+- Level 2: Reinforced Outpost
+- Level 3: Military Outpost
+- Level 4: Fortified Base
+- Level 5: Main Base
+
+Sneak-right-click a Field Command Post to attempt the next upgrade. You can also use the admin command:
+
+```text
+/standandhold commandpost status <x> <y> <z>
+/standandhold commandpost upgrade <x> <y> <z>
+```
+
+Upgrade requirements are configured as:
+
+```text
+targetLevel|requiredHumanPoints|requiredResearchIds|parasiteSampleCost|pointReward
+```
+
+Human points are checked as a progression requirement and are not spent. Parasite Tissue Samples are consumed from the upgrading player unless they are in creative mode. Successful upgrades can award human progression points through `HumanPointManager`.
+
 ## Planned Next Phase
 
-Phase 7 should build on the point, sample, research, and command-post systems without jumping into full structure generation:
+Phase 8 should build on the point, sample, research, and command-post systems without jumping into full structure generation:
 
 - Tune point rewards and stage thresholds from playtesting
 - Add first lab/scientist placeholder behavior or simple block interaction

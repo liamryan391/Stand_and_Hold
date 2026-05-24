@@ -236,6 +236,20 @@ public final class StandAndHoldConfig {
         @Config.Name("Field Command Post Tick Interval")
         @Config.Comment("Ticks between passive point payouts from each loaded Field Command Post. 1200 ticks is about 60 seconds.")
         public int fieldCommandPostTickInterval = 1200;
+
+        @Config.Name("Field Command Post Upgrade Requirements")
+        @Config.Comment({
+                "Upgrade requirements in the format targetLevel|requiredHumanPoints|requiredResearchIds|parasiteSampleCost|pointReward.",
+                "targetLevel must be 2 through 5. Level names are fixed by the mod.",
+                "Use comma-separated requiredResearchIds, or leave that field blank.",
+                "Human points are required as progression, not spent. Parasite samples are consumed from the upgrading player."
+        })
+        public String[] fieldCommandPostUpgradeRequirements = new String[] {
+                "2|100|field_communications|1|25",
+                "3|300|outpost_doctrine|2|50",
+                "4|700|outpost_doctrine,parasite_samples|4|100",
+                "5|1500|outpost_doctrine,parasite_samples|8|200"
+        };
     }
 
     private static final class ParsedReward {
