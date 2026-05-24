@@ -2,6 +2,8 @@ package com.liamryan.standandhold.common.command;
 
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.progression.HumanStage;
+import com.liamryan.standandhold.common.research.ResearchEntry;
+import com.liamryan.standandhold.common.research.ResearchManager;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraft.command.CommandBase;
@@ -9,6 +11,7 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 
@@ -20,7 +23,13 @@ public final class CommandStandAndHold extends CommandBase {
     private static final String[] SUBCOMMANDS = new String[] {
             "status",
             "addpoints",
-            "setstage"
+            "setstage",
+            "research"
+    };
+    private static final String[] RESEARCH_SUBCOMMANDS = new String[] {
+            "list",
+            "complete",
+            "status"
     };
 
     @Override
@@ -57,6 +66,11 @@ public final class CommandStandAndHold extends CommandBase {
             return;
         }
 
+        if ("research".equalsIgnoreCase(args[0])) {
+            executeResearch(sender, args);
+            return;
+        }
+
         throw new CommandException("commands.standandhold.usage");
     }
 
@@ -68,6 +82,14 @@ public final class CommandStandAndHold extends CommandBase {
 
         if (args.length == 2 && "setstage".equalsIgnoreCase(args[0])) {
             return getListOfStringsMatchingLastWord(args, getStageCompletions());
+        }
+
+        if (args.length == 2 && "research".equalsIgnoreCase(args[0])) {
+            return getListOfStringsMatchingLastWord(args, RESEARCH_SUBCOMMANDS);
+        }
+
+        if (args.length == 3 && "research".equalsIgnoreCase(args[0]) && "complete".equalsIgnoreCase(args[1])) {
+            return getListOfStringsMatchingLastWord(args, getResearchCompletions());
         }
 
         return super.getTabCompletions(server, sender, args, targetPos);
@@ -128,6 +150,105 @@ public final class CommandStandAndHold extends CommandBase {
         sender.sendMessage(message);
     }
 
+    private void executeResearch(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length < 2) {
+            throw new CommandException("commands.standandhold.research.usage");
+        }
+
+        if ("list".equalsIgnoreCase(args[1])) {
+            executeResearchList(sender, args);
+            return;
+        }
+
+        if ("status".equalsIgnoreCase(args[1])) {
+            executeResearchStatus(sender, args);
+            return;
+        }
+
+        if ("complete".equalsIgnoreCase(args[1])) {
+            requireAdmin(sender);
+            executeResearchComplete(sender, args);
+            return;
+        }
+
+        throw new CommandException("commands.standandhold.research.usage");
+    }
+
+    private void executeResearchList(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length != 2) {
+            throw new CommandException("commands.standandhold.research.usage");
+        }
+
+        List<ResearchEntry> entries = ResearchManager.getResearchEntries();
+        TextComponentTranslation header = new TextComponentTranslation("commands.standandhold.research.list.header", entries.size());
+        header.getStyle().setColor(TextFormatting.AQUA);
+        sender.sendMessage(header);
+
+        HumanWorldData data = HumanPointManager.getData(sender.getEntityWorld());
+        for (ResearchEntry entry : entries) {
+            TextFormatting color = data.isResearchCompleted(entry.getId()) ? TextFormatting.GREEN : TextFormatting.GRAY;
+            String state = data.isResearchCompleted(entry.getId()) ? "complete" : "open";
+            TextComponentString line = new TextComponentString(formatResearchEntry(entry, state));
+            line.getStyle().setColor(color);
+            sender.sendMessage(line);
+        }
+    }
+
+    private void executeResearchStatus(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length != 2) {
+            throw new CommandException("commands.standandhold.research.usage");
+        }
+
+        int completedCount = ResearchManager.getCompletedResearchCount(sender.getEntityWorld());
+        int totalCount = ResearchManager.getResearchEntries().size();
+        TextComponentTranslation header = new TextComponentTranslation("commands.standandhold.research.status", completedCount, totalCount);
+        header.getStyle().setColor(TextFormatting.AQUA);
+        sender.sendMessage(header);
+
+        List<ResearchEntry> completedEntries = ResearchManager.getCompletedResearchEntries(sender.getEntityWorld());
+        if (completedEntries.isEmpty()) {
+            TextComponentTranslation none = new TextComponentTranslation("commands.standandhold.research.status.none");
+            none.getStyle().setColor(TextFormatting.GRAY);
+            sender.sendMessage(none);
+            return;
+        }
+
+        for (ResearchEntry entry : completedEntries) {
+            TextComponentString line = new TextComponentString("- " + entry.getId() + " (" + entry.getDisplayName() + ")");
+            line.getStyle().setColor(TextFormatting.GREEN);
+            sender.sendMessage(line);
+        }
+    }
+
+    private void executeResearchComplete(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length != 3) {
+            throw new CommandException("commands.standandhold.research.complete.usage");
+        }
+
+        ResearchManager.CompletionResult result = ResearchManager.completeResearch(sender.getEntityWorld(), args[2]);
+        if (result.getStatus() == ResearchManager.CompletionStatus.UNKNOWN_RESEARCH) {
+            throw new CommandException("commands.standandhold.research.complete.unknown", args[2]);
+        }
+
+        ResearchEntry entry = result.getEntry();
+        if (result.getStatus() == ResearchManager.CompletionStatus.ALREADY_COMPLETE) {
+            throw new CommandException("commands.standandhold.research.complete.already", entry.getId());
+        }
+
+        if (result.getStatus() == ResearchManager.CompletionStatus.MISSING_REQUIREMENTS) {
+            throw new CommandException("commands.standandhold.research.complete.missing", entry.getId(), joinStrings(result.getMissingRequirements()));
+        }
+
+        TextComponentTranslation message = new TextComponentTranslation(
+                "commands.standandhold.research.complete.success",
+                entry.getId(),
+                entry.getDisplayName(),
+                entry.getCompletionPointReward()
+        );
+        message.getStyle().setColor(TextFormatting.YELLOW);
+        sender.sendMessage(message);
+    }
+
     private void requireAdmin(ICommandSender sender) throws CommandException {
         if (!sender.canUseCommand(2, getName())) {
             throw new CommandException("commands.generic.permission");
@@ -149,5 +270,33 @@ public final class CommandStandAndHold extends CommandBase {
             completions.add(stage.getCommandName());
         }
         return completions.toArray(new String[completions.size()]);
+    }
+
+    private String[] getResearchCompletions() {
+        List<String> completions = ResearchManager.getResearchIds();
+        return completions.toArray(new String[completions.size()]);
+    }
+
+    private String formatResearchEntry(ResearchEntry entry, String state) {
+        String requirements = entry.hasRequirements() ? " requires " + joinStrings(entry.getRequiredResearchIds()) : "";
+        String reward = entry.getCompletionPointReward() > 0 ? " +" + entry.getCompletionPointReward() + " points" : "";
+        return "- " + entry.getId() + " [" + state + "] "
+                + entry.getCategory().getDisplayName() + " - "
+                + entry.getDisplayName() + reward + requirements;
+    }
+
+    private String joinStrings(List<String> values) {
+        if (values == null || values.isEmpty()) {
+            return "";
+        }
+
+        StringBuilder builder = new StringBuilder();
+        for (String value : values) {
+            if (builder.length() > 0) {
+                builder.append(", ");
+            }
+            builder.append(value);
+        }
+        return builder.toString();
     }
 }

@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 2: a small, compileable Forge project foundation with persistent human progression points, stage commands, and configurable entity-death point rewards. Gameplay systems such as research, military buildings, scientists, units, outposts, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
+This repository is currently in Phase 3: a small, compileable Forge project foundation with persistent human progression points, stage commands, configurable entity-death point rewards, and a basic data-driven research system. Gameplay systems such as military buildings, scientists, units, outposts, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
 
 ## Current Scope
 
@@ -19,6 +19,8 @@ This repository is currently in Phase 2: a small, compileable Forge project foun
 - Configurable human stage thresholds
 - Configurable entity-death point rewards
 - Optional Scape and Run: Parasites loaded-state detection
+- Data-driven research entries
+- Persistent completed research IDs
 
 ## Requirements
 
@@ -90,10 +92,30 @@ minecraft:zombie=5
 
 That zombie entry is only a safe test value so the feature can be verified without Scape and Run: Parasites installed. No SRP entity IDs are hardcoded. Once verified, add SRP registry IDs to the config list.
 
+## Phase 3 Research
+
+Research entries are configured as pipe-separated data:
+
+```text
+id|category|name|description|pointReward|requiredResearchIds
+```
+
+Use comma-separated `requiredResearchIds`, or leave the final field blank.
+
+Current research commands:
+
+```text
+/standandhold research list
+/standandhold research status
+/standandhold research complete <id>
+```
+
+Completed research IDs are stored in `HumanWorldData`, so they persist with the world save. Later systems can use `ResearchManager.isResearchComplete(world, id)` to gate features.
+
 ## Planned Next Phase
 
-Phase 3 should build on the point system without jumping into full structures or mobs:
+Phase 4 should build on the point and research systems without jumping into full structures or mobs:
 
 - Tune point rewards and stage thresholds from playtesting
-- Add first research/sample command or item placeholder
+- Add first sample recovery command or item placeholder
 - Keep Scape and Run: Parasites compatibility data-driven until entity IDs are verified

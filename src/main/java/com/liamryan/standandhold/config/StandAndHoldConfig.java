@@ -32,6 +32,10 @@ public final class StandAndHoldConfig {
     @Config.Comment("Settings for sources that award human progression points.")
     public static final PointSources pointSources = new PointSources();
 
+    @Config.Name("Research")
+    @Config.Comment("Data-driven research entries and rewards.")
+    public static final Research research = new Research();
+
     private StandAndHoldConfig() {
     }
 
@@ -141,6 +145,20 @@ public final class StandAndHoldConfig {
                 "No SRP entity IDs are hardcoded; add verified SRP entity registry IDs to Parasite Kill Rewards."
         })
         public String scapeAndRunParasitesModId = "srparasites";
+    }
+
+    public static final class Research {
+        @Config.Name("Research Entries")
+        @Config.Comment({
+                "Research entries in the format id|category|name|description|pointReward|requiredResearchIds.",
+                "Use comma-separated requiredResearchIds, or leave the final field blank.",
+                "Valid default categories are GENERAL, PARASITE_BIOLOGY, MILITARY_LOGISTICS, BASE_INFRASTRUCTURE, FIELD_MEDICINE, and SPECIAL_PROJECTS."
+        })
+        public String[] researchEntries = new String[] {
+                "parasite_samples|PARASITE_BIOLOGY|Parasite Samples|Catalog recovered parasite tissue and establish basic containment procedures.|25|",
+                "field_communications|MILITARY_LOGISTICS|Field Communications|Coordinate survivor cells and local army response teams across infected territory.|25|",
+                "outpost_doctrine|BASE_INFRASTRUCTURE|Outpost Doctrine|Draft the first defensible outpost standards for later military construction.|50|field_communications"
+        };
     }
 
     private static final class ParsedReward {
