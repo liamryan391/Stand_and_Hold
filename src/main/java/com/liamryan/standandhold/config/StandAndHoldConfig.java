@@ -210,6 +210,26 @@ public final class StandAndHoldConfig {
     }
 
     public static final class Research {
+        @Config.Name("Enable Research Lab Progress")
+        @Config.Comment("Allows loaded Research Labs to generate progress toward the first available incomplete research entry.")
+        public boolean enableResearchLabProgress = true;
+
+        @Config.Name("Research Lab Tick Interval")
+        @Config.Comment("Ticks between passive research progress from each loaded Research Lab. 200 ticks is about 10 seconds.")
+        public int researchLabTickInterval = 200;
+
+        @Config.Name("Research Lab Progress Per Interval")
+        @Config.Comment("Progress added by each loaded Research Lab per interval.")
+        public int researchLabProgressPerInterval = 10;
+
+        @Config.Name("Research Lab Progress Required")
+        @Config.Comment("Progress required for a Research Lab to complete one available research entry.")
+        public int researchLabProgressRequired = 100;
+
+        @Config.Name("Research Lab Max Stored Samples")
+        @Config.Comment("Maximum Parasite Tissue Samples a Research Lab can store for research completion costs.")
+        public int researchLabMaxStoredSamples = 16;
+
         @Config.Name("Research Entries")
         @Config.Comment({
                 "Research entries in the format id|category|name|description|pointReward|requiredResearchIds|sampleCost.",

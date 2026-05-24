@@ -21,11 +21,13 @@ public final class HumanWorldData extends WorldSavedData {
     private static final String TAG_STAGE = "Stage";
     private static final String TAG_COMPLETED_RESEARCH = "CompletedResearch";
     private static final String TAG_FIELD_COMMAND_POSTS = "FieldCommandPosts";
+    private static final String TAG_RESEARCH_LABS = "ResearchLabs";
 
     private int humanPoints;
     private HumanStage stage = HumanStage.SURVIVORS;
     private final Set<String> completedResearchIds = new LinkedHashSet<String>();
     private final Set<String> fieldCommandPostPositions = new LinkedHashSet<String>();
+    private final Set<String> researchLabPositions = new LinkedHashSet<String>();
 
     public HumanWorldData() {
         super(DATA_NAME);
@@ -41,6 +43,7 @@ public final class HumanWorldData extends WorldSavedData {
         stage = HumanStage.byId(compound.getInteger(TAG_STAGE));
         completedResearchIds.clear();
         fieldCommandPostPositions.clear();
+        researchLabPositions.clear();
 
         NBTTagList completedResearchTags = compound.getTagList(TAG_COMPLETED_RESEARCH, Constants.NBT.TAG_STRING);
         for (int i = 0; i < completedResearchTags.tagCount(); i++) {
@@ -55,6 +58,14 @@ public final class HumanWorldData extends WorldSavedData {
             String positionKey = commandPostTags.getStringTagAt(i);
             if (isValidPositionKey(positionKey)) {
                 fieldCommandPostPositions.add(positionKey);
+            }
+        }
+
+        NBTTagList researchLabTags = compound.getTagList(TAG_RESEARCH_LABS, Constants.NBT.TAG_STRING);
+        for (int i = 0; i < researchLabTags.tagCount(); i++) {
+            String positionKey = researchLabTags.getStringTagAt(i);
+            if (isValidPositionKey(positionKey)) {
+                researchLabPositions.add(positionKey);
             }
         }
     }
@@ -75,6 +86,12 @@ public final class HumanWorldData extends WorldSavedData {
             commandPostTags.appendTag(new NBTTagString(positionKey));
         }
         compound.setTag(TAG_FIELD_COMMAND_POSTS, commandPostTags);
+
+        NBTTagList researchLabTags = new NBTTagList();
+        for (String positionKey : researchLabPositions) {
+            researchLabTags.appendTag(new NBTTagString(positionKey));
+        }
+        compound.setTag(TAG_RESEARCH_LABS, researchLabTags);
         return compound;
     }
 
@@ -148,6 +165,28 @@ public final class HumanWorldData extends WorldSavedData {
 
     public Set<String> getFieldCommandPostPositions() {
         return Collections.unmodifiableSet(fieldCommandPostPositions);
+    }
+
+    public boolean registerResearchLab(int dimension, BlockPos pos) {
+        String positionKey = getPositionKey(dimension, pos);
+        if (researchLabPositions.add(positionKey)) {
+            markDirty();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean unregisterResearchLab(int dimension, BlockPos pos) {
+        String positionKey = getPositionKey(dimension, pos);
+        if (researchLabPositions.remove(positionKey)) {
+            markDirty();
+            return true;
+        }
+        return false;
+    }
+
+    public Set<String> getResearchLabPositions() {
+        return Collections.unmodifiableSet(researchLabPositions);
     }
 
     private static String getPositionKey(int dimension, BlockPos pos) {

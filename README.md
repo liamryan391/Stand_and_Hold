@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 7: a small, compileable Forge project foundation with persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, the first military infrastructure block, passive point generation from loaded command posts, and early Field Command Post upgrade levels. Gameplay systems such as structure generation, scientists, units, outposts, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
+This repository is currently in Phase 8: a small, compileable Forge project foundation with persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point generation from loaded command posts, early Field Command Post upgrade levels, and a basic Research Lab. Gameplay systems such as structure generation, full scientist AI, units, outposts, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
 
 ## Current Scope
 
@@ -27,6 +27,8 @@ This repository is currently in Phase 7: a small, compileable Forge project foun
 - Persistent Field Command Post position registration
 - Passive Field Command Post point generation
 - Persistent Field Command Post upgrade levels
+- Research Lab block and tile entity
+- Lab-local saved research progress and stored parasite samples
 
 ## Requirements
 
@@ -179,10 +181,35 @@ targetLevel|requiredHumanPoints|requiredResearchIds|parasiteSampleCost|pointRewa
 
 Human points are checked as a progression requirement and are not spent. Parasite Tissue Samples are consumed from the upgrading player unless they are in creative mode. Successful upgrades can award human progression points through `HumanPointManager`.
 
+## Phase 8 Research Labs
+
+The `standandhold:research_lab` block is the first lab foundation. It has a tile entity that stores:
+
+- Current target research ID
+- Current lab-local research progress
+- Stored Parasite Tissue Sample count
+- Last progress tick time
+
+Right-clicking the lab shows its current target, progress, and stored samples. Right-clicking with a Parasite Tissue Sample stores one sample in the lab. Loaded labs automatically pick the first incomplete research entry whose prerequisite research is complete, then add progress over time.
+
+Config options:
+
+```text
+enableResearchLabProgress=true
+researchLabTickInterval=200
+researchLabProgressPerInterval=10
+researchLabProgressRequired=100
+researchLabMaxStoredSamples=16
+```
+
+When lab progress reaches the configured requirement, the lab completes the target research if it has enough stored samples for that research entry's `sampleCost`. Completion uses the normal `ResearchManager` path, so research IDs persist in `HumanWorldData` and completion point rewards still flow through `HumanPointManager`.
+
+Scientist AI is deferred. Phase 8 includes only a placeholder scientist support class so later phases have a clean place to grow entity behavior.
+
 ## Planned Next Phase
 
-Phase 8 should build on the point, sample, research, and command-post systems without jumping into full structure generation:
+Phase 9 should build on the point, sample, research, lab, and command-post systems without jumping into full structure generation:
 
 - Tune point rewards and stage thresholds from playtesting
-- Add first lab/scientist placeholder behavior or simple block interaction
+- Add scientist entity registration and simple lab-assignment behavior
 - Keep Scape and Run: Parasites compatibility data-driven until entity IDs are verified
