@@ -6,6 +6,7 @@ import com.liamryan.standandhold.common.research.ResearchEntry;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.common.util.Constants;
 
@@ -19,10 +20,12 @@ public final class HumanWorldData extends WorldSavedData {
     private static final String TAG_HUMAN_POINTS = "HumanPoints";
     private static final String TAG_STAGE = "Stage";
     private static final String TAG_COMPLETED_RESEARCH = "CompletedResearch";
+    private static final String TAG_FIELD_COMMAND_POSTS = "FieldCommandPosts";
 
     private int humanPoints;
     private HumanStage stage = HumanStage.SURVIVORS;
     private final Set<String> completedResearchIds = new LinkedHashSet<String>();
+    private final Set<String> fieldCommandPostPositions = new LinkedHashSet<String>();
 
     public HumanWorldData() {
         super(DATA_NAME);
@@ -37,12 +40,21 @@ public final class HumanWorldData extends WorldSavedData {
         humanPoints = Math.max(0, compound.getInteger(TAG_HUMAN_POINTS));
         stage = HumanStage.byId(compound.getInteger(TAG_STAGE));
         completedResearchIds.clear();
+        fieldCommandPostPositions.clear();
 
         NBTTagList completedResearchTags = compound.getTagList(TAG_COMPLETED_RESEARCH, Constants.NBT.TAG_STRING);
         for (int i = 0; i < completedResearchTags.tagCount(); i++) {
             String researchId = ResearchEntry.normalizeId(completedResearchTags.getStringTagAt(i));
             if (!researchId.isEmpty()) {
                 completedResearchIds.add(researchId);
+            }
+        }
+
+        NBTTagList commandPostTags = compound.getTagList(TAG_FIELD_COMMAND_POSTS, Constants.NBT.TAG_STRING);
+        for (int i = 0; i < commandPostTags.tagCount(); i++) {
+            String positionKey = commandPostTags.getStringTagAt(i);
+            if (isValidPositionKey(positionKey)) {
+                fieldCommandPostPositions.add(positionKey);
             }
         }
     }
@@ -57,6 +69,12 @@ public final class HumanWorldData extends WorldSavedData {
             completedResearchTags.appendTag(new NBTTagString(researchId));
         }
         compound.setTag(TAG_COMPLETED_RESEARCH, completedResearchTags);
+
+        NBTTagList commandPostTags = new NBTTagList();
+        for (String positionKey : fieldCommandPostPositions) {
+            commandPostTags.appendTag(new NBTTagString(positionKey));
+        }
+        compound.setTag(TAG_FIELD_COMMAND_POSTS, commandPostTags);
         return compound;
     }
 
@@ -108,5 +126,52 @@ public final class HumanWorldData extends WorldSavedData {
 
     public Set<String> getCompletedResearchIds() {
         return Collections.unmodifiableSet(completedResearchIds);
+    }
+
+    public boolean registerFieldCommandPost(int dimension, BlockPos pos) {
+        String positionKey = getPositionKey(dimension, pos);
+        if (fieldCommandPostPositions.add(positionKey)) {
+            markDirty();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean unregisterFieldCommandPost(int dimension, BlockPos pos) {
+        String positionKey = getPositionKey(dimension, pos);
+        if (fieldCommandPostPositions.remove(positionKey)) {
+            markDirty();
+            return true;
+        }
+        return false;
+    }
+
+    public Set<String> getFieldCommandPostPositions() {
+        return Collections.unmodifiableSet(fieldCommandPostPositions);
+    }
+
+    private static String getPositionKey(int dimension, BlockPos pos) {
+        return dimension + ":" + pos.getX() + ":" + pos.getY() + ":" + pos.getZ();
+    }
+
+    private static boolean isValidPositionKey(String positionKey) {
+        if (positionKey == null || positionKey.trim().isEmpty()) {
+            return false;
+        }
+
+        String[] parts = positionKey.split(":");
+        if (parts.length != 4) {
+            return false;
+        }
+
+        try {
+            Integer.parseInt(parts[0]);
+            Integer.parseInt(parts[1]);
+            Integer.parseInt(parts[2]);
+            Integer.parseInt(parts[3]);
+            return true;
+        } catch (NumberFormatException ignored) {
+            return false;
+        }
     }
 }

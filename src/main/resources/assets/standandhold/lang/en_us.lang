@@ -17,4 +17,6 @@ commands.standandhold.research.complete.already=Research already completed: %s
 commands.standandhold.research.complete.missing=Research %s requires: %s
 commands.standandhold.research.complete.samples=Research %s requires %s Parasite Tissue Samples. Available: %s
 item.standandhold.parasite_tissue_sample.name=Parasite Tissue Sample
+tile.standandhold.field_command_post.name=Field Command Post
 itemGroup.standandhold=Stand and Hold
+message.standandhold.field_command_post.status=Human points: %s | Stage %s: %s

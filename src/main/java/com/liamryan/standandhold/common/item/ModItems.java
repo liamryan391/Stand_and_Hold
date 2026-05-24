@@ -1,6 +1,7 @@
 package com.liamryan.standandhold.common.item;
 
 import com.liamryan.standandhold.StandAndHoldConstants;
+import com.liamryan.standandhold.common.block.ModBlocks;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -13,7 +14,7 @@ public final class ModItems {
     public static final CreativeTabs CREATIVE_TAB = new CreativeTabs(StandAndHoldConstants.MOD_ID) {
         @Override
         public ItemStack createIcon() {
-            return new ItemStack(PARASITE_TISSUE_SAMPLE);
+            return new ItemStack(ModBlocks.FIELD_COMMAND_POST);
         }
     };
 

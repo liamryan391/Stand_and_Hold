@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 4: a small, compileable Forge project foundation with persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, and a basic data-driven research system. Gameplay systems such as military buildings, scientists, units, outposts, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
+This repository is currently in Phase 5: a small, compileable Forge project foundation with persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, and the first military infrastructure block. Gameplay systems such as structure generation, scientists, units, outposts, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
 
 ## Current Scope
 
@@ -23,6 +23,8 @@ This repository is currently in Phase 4: a small, compileable Forge project foun
 - Persistent completed research IDs
 - Basic Parasite Tissue Sample item
 - Configurable sample drops from configured entity deaths
+- Field Command Post block and tile entity
+- Persistent Field Command Post position registration
 
 ## Requirements
 
@@ -130,10 +132,16 @@ Completed research IDs are stored in `HumanWorldData`, so they persist with the 
 
 The `standandhold:parasite_tissue_sample` item is the first physical progression item. It appears on the Stand and Hold creative tab and can drop from configured parasite/test entities. The default `parasite_samples` research entry requires one sample.
 
+## Phase 5 Field Command Post
+
+The `standandhold:field_command_post` block is the first military infrastructure placeholder. It has a basic tile entity, placeholder blockstate/model JSON, and registers its dimension/position in `HumanWorldData` when placed or loaded.
+
+Right-clicking a Field Command Post shows the current human point total and army stage. It does not generate structures, open a GUI, or drive base mechanics yet.
+
 ## Planned Next Phase
 
-Phase 5 should build on the point, sample, and research systems without jumping into full structures or mobs:
+Phase 6 should build on the point, sample, research, and command-post systems without jumping into full structure generation:
 
 - Tune point rewards and stage thresholds from playtesting
-- Add first lab/scientist placeholder behavior
+- Add first lab/scientist placeholder behavior or simple block interaction
 - Keep Scape and Run: Parasites compatibility data-driven until entity IDs are verified
