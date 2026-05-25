@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "standandhold:special_division_leggings"
+    },
+    {
+      "item": "standandhold:parasite_tissue_sample"
+    }
+  ],
+  "result": {
+    "item": "standandhold:special_division_leggings"
+  }
+}

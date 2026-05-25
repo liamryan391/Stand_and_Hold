@@ -7,7 +7,10 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 
@@ -31,9 +34,35 @@ public final class EntityAntiParasiteProjectile extends EntityThrowable {
             Entity hitEntity = result.entityHit;
             if (hitEntity instanceof EntityLivingBase && canDamageEntity(hitEntity)) {
                 EntityLivingBase thrower = getThrower();
-                hitEntity.attackEntityFrom(DamageSource.causeThrownDamage(this, thrower == null ? this : thrower), projectileDamage);
+                float damage = projectileDamage * Math.max(0.0F, StandAndHoldConfig.equipment.prototypeRangedWeaponParasiteDamageMultiplier);
+                hitEntity.attackEntityFrom(DamageSource.causeThrownDamage(this, thrower == null ? this : thrower), damage);
+                world.setEntityState(this, (byte) 3);
+                if (StandAndHoldConfig.equipment.enablePrototypeProjectileHitSound) {
+                    world.playSound(null, posX, posY, posZ, SoundEvents.ENTITY_IRONGOLEM_HURT, SoundCategory.NEUTRAL, 0.35F, 1.6F);
+                }
             }
             setDead();
+        }
+    }
+
+    @Override
+    public void handleStatusUpdate(byte id) {
+        if (id != 3) {
+            super.handleStatusUpdate(id);
+            return;
+        }
+
+        int particleCount = Math.max(0, StandAndHoldConfig.equipment.prototypeProjectileHitParticles);
+        for (int i = 0; i < particleCount; i++) {
+            world.spawnParticle(
+                    EnumParticleTypes.CRIT,
+                    posX,
+                    posY,
+                    posZ,
+                    (rand.nextDouble() - 0.5D) * 0.2D,
+                    (rand.nextDouble() - 0.5D) * 0.2D,
+                    (rand.nextDouble() - 0.5D) * 0.2D
+            );
         }
     }
 

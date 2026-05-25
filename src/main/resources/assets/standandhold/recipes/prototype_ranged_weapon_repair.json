@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "standandhold:prototype_ranged_weapon"
+    },
+    {
+      "item": "standandhold:supply_crate"
+    },
+    {
+      "item": "minecraft:redstone"
+    }
+  ],
+  "result": {
+    "item": "standandhold:prototype_ranged_weapon"
+  }
+}

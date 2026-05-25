@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "standandhold:anti_parasite_blade"
+    },
+    {
+      "item": "standandhold:parasite_tissue_sample"
+    },
+    {
+      "item": "minecraft:iron_ingot"
+    }
+  ],
+  "result": {
+    "item": "standandhold:anti_parasite_blade"
+  }
+}

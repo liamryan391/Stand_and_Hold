@@ -3,6 +3,7 @@ package com.liamryan.standandhold;
 import com.liamryan.standandhold.common.command.CommandStandAndHold;
 import com.liamryan.standandhold.common.entity.ModEntities;
 import com.liamryan.standandhold.common.event.HumanProgressionEventHandler;
+import com.liamryan.standandhold.common.gui.StandAndHoldGuiHandler;
 import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
 import com.liamryan.standandhold.common.tile.TileEntityResearchLab;
 import com.liamryan.standandhold.common.proxy.CommonProxy;
@@ -16,6 +17,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -54,6 +56,7 @@ public final class StandAndHold {
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(new HumanProgressionEventHandler());
+        NetworkRegistry.INSTANCE.registerGuiHandler(instance, new StandAndHoldGuiHandler());
         LOGGER.info("{} initialized.", StandAndHoldConstants.MOD_NAME);
     }
 

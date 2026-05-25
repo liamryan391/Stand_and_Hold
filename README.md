@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 18: a compileable Forge project foundation for a future large-scale Stand and Hold mod. It includes persistent human progression points, supply points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point and supply generation from loaded command posts, Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, persistent Main Base registration/activation, Special Parasite Division gating, regional threat tracking, threat decay, bounded reinforcement triggers, simple human equipment, equipment crafting/unlock gates, and one prototype ranged weapon with a custom projectile. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
+This repository is currently in Phase 19: a compileable Forge project foundation for a future large-scale Stand and Hold mod. It includes persistent human progression points, supply points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point and supply generation from loaded command posts, Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, persistent Main Base registration/activation, Special Parasite Division gating, regional threat tracking, threat decay, bounded reinforcement triggers, simple human equipment, equipment crafting/unlock gates, one prototype ranged weapon with a custom projectile, projectile hit polish, and simple block GUIs. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
 
 ## Current Scope
 
@@ -36,6 +36,8 @@ This repository is currently in Phase 18: a compileable Forge project foundation
 - Basic Anti-Parasite Blade melee weapon
 - Prototype ranged weapon item and custom projectile entity
 - Equipment recipes and stage/research use gates
+- Simple repair recipes for equipment
+- Command Post and Research Lab GUI screens
 - Base human NPC entity class
 - Tiered human unit entities with spawn eggs and simple parasite targeting AI
 - Field Command Post outpost defender spawning with limits
@@ -538,10 +540,13 @@ antiParasiteBladeRequiredResearch=parasite_samples
 prototypeRangedWeaponRequiredStage=1
 prototypeRangedWeaponRequiredResearch=field_communications
 prototypeRangedWeaponDamage=6.0
+prototypeRangedWeaponParasiteDamageMultiplier=1.25
 prototypeRangedWeaponCooldownTicks=24
 prototypeRangedWeaponMaxUses=384
 prototypeRangedWeaponVelocity=2.0
 prototypeRangedWeaponInaccuracy=1.5
+prototypeProjectileHitParticles=8
+enablePrototypeProjectileHitSound=true
 enableArmyRiflemanRangedWeapon=true
 armyRiflemanRangedAttackInterval=40
 armyRiflemanRangedAttackRange=18.0
@@ -549,13 +554,24 @@ armyRiflemanRangedAttackRange=18.0
 
 The Prototype Ranged Weapon fires `EntityAntiParasiteProjectile`, a small custom projectile entity. The projectile only damages configured parasite/test entities, using the same data-driven entity checks as parasite kill rewards and human targeting. Players use a cooldown instead of ammo/reload mechanics, and Army Rifleman NPCs can use the weapon through a simple ranged attack task when enabled.
 
+Phase 19 adds hit feedback for that projectile: configured parasite/test hits can apply a configurable damage multiplier, spawn simple crit particles, and play a light impact sound. It also adds shapeless repair recipes for armour, the Anti-Parasite Blade, and the Prototype Ranged Weapon.
+
+## Phase 19 Basic GUIs
+
+Phase 19 introduces two simple server-opened block GUIs:
+
+- Field Command Post GUI: human points, human stage, command post level, global supplies, and local stockpile.
+- Research Lab GUI: research progress bar, stored parasite samples, and local supplies.
+
+The first GUI pass uses Forge containers for server-client sync. Numeric values are sent through normal container window properties, so no custom packet is needed yet. The screens are intentionally plain and stable so later phases can replace them with richer layouts and controls.
+
 ## Planned Next Phase
 
-Phase 19 should build on the point, sample, supply, research, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, threat-response, equipment, and simple ranged weapon foundations without jumping into the entire final system at once:
+Phase 20 should build on the point, sample, supply, research, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, threat-response, equipment, simple ranged weapon, and GUI foundations without jumping into the entire final system at once:
 
 - Tune point, supply, and threat values from playtesting
-- Add repair rules, more polished equipment assets, or stage/research balancing for equipment
-- Add basic projectile hit effects or anti-parasite damage modifiers while keeping ammo/reload systems deferred
+- Add GUI buttons/actions for upgrades, research selection, or supply transfer
+- Add more polished equipment/projectile assets while keeping ammo/reload systems deferred
 - Add basic logistics routes, convoy placeholders, or more detailed building supply transfer rules
 - Add basic lab-linked scientist behavior or Main Base/Special Division deployment balancing
 - Keep Scape and Run: Parasites compatibility data-driven until entity IDs are verified

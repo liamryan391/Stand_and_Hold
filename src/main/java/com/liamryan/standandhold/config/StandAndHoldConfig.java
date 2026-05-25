@@ -588,6 +588,10 @@ public final class StandAndHoldConfig {
         @Config.Comment("Damage dealt by the prototype ranged weapon projectile to configured parasite/test enemies.")
         public float prototypeRangedWeaponDamage = 6.0F;
 
+        @Config.Name("Prototype Ranged Weapon Parasite Damage Multiplier")
+        @Config.Comment("Multiplier applied when the prototype projectile damages configured parasite/test enemies.")
+        public float prototypeRangedWeaponParasiteDamageMultiplier = 1.25F;
+
         @Config.Name("Prototype Ranged Weapon Cooldown")
         @Config.Comment("Player cooldown in ticks after firing the prototype ranged weapon.")
         public int prototypeRangedWeaponCooldownTicks = 24;
@@ -603,6 +607,14 @@ public final class StandAndHoldConfig {
         @Config.Name("Prototype Ranged Weapon Inaccuracy")
         @Config.Comment("Projectile inaccuracy for the prototype ranged weapon. Lower values are more accurate.")
         public float prototypeRangedWeaponInaccuracy = 1.5F;
+
+        @Config.Name("Prototype Projectile Hit Particles")
+        @Config.Comment("Client-side particles spawned when the prototype projectile hits a configured target.")
+        public int prototypeProjectileHitParticles = 8;
+
+        @Config.Name("Enable Prototype Projectile Hit Sound")
+        @Config.Comment("Plays a simple hit sound when the prototype projectile damages a configured target.")
+        public boolean enablePrototypeProjectileHitSound = true;
 
         @Config.Name("Enable Army Rifleman Ranged Weapon")
         @Config.Comment("Allows Army Rifleman NPCs to use the prototype ranged weapon against configured parasite/test enemies.")

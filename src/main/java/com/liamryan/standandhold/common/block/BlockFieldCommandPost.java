@@ -1,14 +1,14 @@
 package com.liamryan.standandhold.common.block;
 
+import com.liamryan.standandhold.StandAndHold;
 import com.liamryan.standandhold.StandAndHoldConstants;
+import com.liamryan.standandhold.common.gui.GuiIds;
 import com.liamryan.standandhold.common.infrastructure.FieldCommandPostLevel;
 import com.liamryan.standandhold.common.infrastructure.FieldCommandPostUpgradeManager;
 import com.liamryan.standandhold.common.infrastructure.FieldCommandPostUpgradeRequirement;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
-import com.liamryan.standandhold.common.progression.HumanStage;
 import com.liamryan.standandhold.common.supply.SupplyManager;
 import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
-import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.common.item.ModItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
@@ -89,22 +89,7 @@ public final class BlockFieldCommandPost extends Block implements ITileEntityPro
             return true;
         }
 
-        HumanWorldData data = HumanPointManager.getData(world);
-        HumanStage stage = data.getStage();
-        FieldCommandPostLevel level = commandPost == null ? FieldCommandPostLevel.FIELD_CAMP : commandPost.getUpgradeLevelInfo();
-        TextComponentTranslation message = new TextComponentTranslation(
-                "message.standandhold.field_command_post.status",
-                data.getHumanPoints(),
-                stage.getId(),
-                stage.getDisplayName(),
-                level.getLevel(),
-                level.getDisplayName(),
-                data.getSupplyPoints(),
-                commandPost == null ? 0 : commandPost.getStoredSupplies(),
-                commandPost == null ? 0 : commandPost.getMaxStoredSupplies()
-        );
-        message.getStyle().setColor(TextFormatting.GREEN);
-        player.sendMessage(message);
+        player.openGui(StandAndHold.instance, GuiIds.FIELD_COMMAND_POST, world, pos.getX(), pos.getY(), pos.getZ());
         return true;
     }
 

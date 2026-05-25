@@ -1,11 +1,12 @@
 package com.liamryan.standandhold.common.block;
 
+import com.liamryan.standandhold.StandAndHold;
 import com.liamryan.standandhold.StandAndHoldConstants;
+import com.liamryan.standandhold.common.gui.GuiIds;
 import com.liamryan.standandhold.common.item.ModItems;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.supply.SupplyManager;
 import com.liamryan.standandhold.common.tile.TileEntityResearchLab;
-import com.liamryan.standandhold.common.world.HumanWorldData;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
@@ -139,23 +140,7 @@ public final class BlockResearchLab extends Block implements ITileEntityProvider
             return true;
         }
 
-        sendStatus(player, lab);
+        player.openGui(StandAndHold.instance, GuiIds.RESEARCH_LAB, world, pos.getX(), pos.getY(), pos.getZ());
         return true;
-    }
-
-    private void sendStatus(EntityPlayer player, TileEntityResearchLab lab) {
-        TextComponentTranslation message = new TextComponentTranslation(
-                "message.standandhold.research_lab.status",
-                lab.getTargetResearchLabel(),
-                lab.getResearchProgress(),
-                lab.getResearchProgressRequired(),
-                lab.getStoredParasiteSamples(),
-                lab.getMaxStoredParasiteSamples(),
-                lab.getStoredSupplies(),
-                lab.getMaxStoredSupplies(),
-                HumanPointManager.getData(player.world).getSupplyPoints()
-        );
-        message.getStyle().setColor(TextFormatting.AQUA);
-        player.sendMessage(message);
     }
 }
