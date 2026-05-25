@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 22: a compileable Forge project foundation for a future large-scale Stand and Hold mod. It includes persistent human progression points, supply points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point and supply generation from loaded command posts, Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, persistent Main Base registration/activation, Special Parasite Division gating, regional threat tracking, threat decay, bounded reinforcement triggers, simple human equipment, equipment crafting/unlock gates, one prototype ranged weapon with a custom projectile, projectile hit polish, simple block GUIs, a small networking foundation for GUI data/actions, basic local/global supply transfer controls, optional SRP compatibility mappings, and a command-post logistics route placeholder. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, physical convoy entities, and full Scape and Run: Parasites integration are intentionally left for later phases.
+This repository is currently in Phase 23: a compileable Forge project foundation for a future large-scale Stand and Hold mod. It includes persistent human progression points, supply points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point and supply generation from loaded command posts, Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, persistent Main Base registration/activation, Special Parasite Division gating, regional threat tracking, threat decay, bounded reinforcement triggers, simple human equipment, equipment crafting/unlock gates, one prototype ranged weapon with a custom projectile, projectile hit polish, simple block GUIs, a small networking foundation for GUI data/actions, basic local/global supply transfer controls, optional SRP compatibility mappings, a command-post logistics route placeholder, and lightweight dynamic outpost attack/reinforcement events. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, physical convoy entities, complex raid waves, and full Scape and Run: Parasites integration are intentionally left for later phases.
 
 ## Current Scope
 
@@ -44,6 +44,8 @@ This repository is currently in Phase 22: a compileable Forge project foundation
 - Config-backed supply transfer controls for local building stockpiles and global supplies
 - Dedicated optional SRP compatibility helper with config-backed mappings
 - Tile-local logistics route placeholder for loaded Field Command Posts
+- Tile-local dynamic outpost attack and reinforcement events
+- Admin dynamic event debug commands
 - Base human NPC entity class
 - Tiered human unit entities with spawn eggs and simple parasite targeting AI
 - Field Command Post outpost defender spawning with limits
@@ -644,13 +646,52 @@ enableVerifiedSrpDefaultMappings=false
 
 Phase 22 also adds the first logistics route placeholder. Loaded Field Command Posts can periodically export a small amount of local supplies into the global supply pool. This is server-side, tile-local, and bounded by a per-command-post saved cooldown; it does not scan for route endpoints or spawn physical convoy entities yet.
 
+## Phase 23 Dynamic Events and Raids
+
+Phase 23 adds the first lightweight dynamic event layer. Loaded Field Command Posts can periodically roll for a natural event using a saved per-tile cooldown, so there is still no global world scan.
+
+Implemented event types:
+
+- Outpost attack: spawns configured attacker entity registry IDs near the command post and records an outpost attack threat event.
+- Human reinforcement: spawns the strongest currently unlocked human unit tier near the command post and assigns it to defend that outpost.
+
+Event difficulty scales with the current human stage by increasing attacker or reinforcement counts up to configurable caps. Outpost attackers default to `minecraft:zombie` as a safe test value and should be replaced with verified parasite IDs in real packs.
+
+Dynamic event config options:
+
+```text
+enableDynamicEvents=true
+enableNaturalDynamicEvents=true
+dynamicEventIntervalTicks=6000
+dynamicEventChance=4
+outpostAttackWeight=3
+humanReinforcementWeight=1
+dynamicEventSpawnRadius=12
+outpostAttackEntityIds=[minecraft:zombie]
+outpostAttackBaseCount=1
+outpostAttackersPerStage=1
+outpostAttackMaxCount=8
+humanReinforcementBaseCount=1
+humanReinforcementsPerStage=1
+humanReinforcementMaxCount=4
+humanReinforcementPatrolRadius=24
+```
+
+Admin debug commands:
+
+```text
+/standandhold event outpostattack [x] [y] [z]
+/standandhold event reinforcement [x] [y] [z]
+```
+
 ## Planned Next Phase
 
-Phase 23 should build on the point, sample, supply, research, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, threat-response, equipment, simple ranged weapon, GUI, networking, logistics, and SRP compatibility foundations without jumping into the entire final system at once:
+Phase 24 should build on the point, sample, supply, research, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, threat-response, equipment, simple ranged weapon, GUI, networking, logistics, SRP compatibility, and dynamic event foundations without jumping into the entire final system at once:
 
 - Tune point, supply, and threat values from playtesting
 - Add visible logistics route markers or physical convoy entities
 - Add more polished equipment/projectile assets while keeping ammo/reload systems deferred
 - Add more detailed building supply-transfer rules
+- Add richer raid outcomes, warning messages, or cooldown displays
 - Add basic lab-linked scientist behavior or Main Base/Special Division deployment balancing
 - Keep Scape and Run: Parasites compatibility data-driven until entity IDs are verified

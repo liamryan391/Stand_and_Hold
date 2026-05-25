@@ -65,6 +65,10 @@ public final class StandAndHoldConfig {
     @Config.Comment("Settings for regional threat tracking and reinforcement decisions.")
     public static final ThreatResponse threatResponse = new ThreatResponse();
 
+    @Config.Name("Dynamic Events")
+    @Config.Comment("Settings for lightweight outpost attacks and reinforcement events.")
+    public static final DynamicEvents dynamicEvents = new DynamicEvents();
+
     private StandAndHoldConfig() {
     }
 
@@ -842,6 +846,74 @@ public final class StandAndHoldConfig {
         public int[] mainBaseAllowedDimensions = new int[] {
                 0
         };
+    }
+
+    public static final class DynamicEvents {
+        @Config.Name("Enable Dynamic Events")
+        @Config.Comment("Master toggle for Stand and Hold dynamic events and raid debug commands.")
+        public boolean enableDynamicEvents = true;
+
+        @Config.Name("Enable Natural Dynamic Events")
+        @Config.Comment("Allows loaded Field Command Posts to periodically roll for natural outpost attacks or reinforcement events.")
+        public boolean enableNaturalDynamicEvents = true;
+
+        @Config.Name("Dynamic Event Interval")
+        @Config.Comment("Ticks between natural dynamic event rolls per loaded Field Command Post. 6000 ticks is about 5 minutes.")
+        public int dynamicEventIntervalTicks = 6000;
+
+        @Config.Name("Dynamic Event Chance")
+        @Config.Comment("One chance in this many intervals to start a natural event. Higher values are rarer.")
+        public int dynamicEventChance = 4;
+
+        @Config.Name("Outpost Attack Weight")
+        @Config.Comment("Relative weight for natural outpost attack events.")
+        public int outpostAttackWeight = 3;
+
+        @Config.Name("Human Reinforcement Weight")
+        @Config.Comment("Relative weight for natural human reinforcement events.")
+        public int humanReinforcementWeight = 1;
+
+        @Config.Name("Dynamic Event Spawn Radius")
+        @Config.Comment("Horizontal radius around the event anchor used to find safe spawn positions.")
+        public int dynamicEventSpawnRadius = 12;
+
+        @Config.Name("Outpost Attack Entity IDs")
+        @Config.Comment({
+                "Entity registry IDs used as attackers for outpost attack events.",
+                "The default minecraft:zombie entry is a safe test value for early development.",
+                "Use verified parasite registry IDs here once compatibility mappings are confirmed."
+        })
+        public String[] outpostAttackEntityIds = new String[] {
+                "minecraft:zombie"
+        };
+
+        @Config.Name("Outpost Attack Base Count")
+        @Config.Comment("Base attacker count for an outpost attack before stage scaling.")
+        public int outpostAttackBaseCount = 1;
+
+        @Config.Name("Outpost Attackers Per Stage")
+        @Config.Comment("Additional outpost attackers added for each current human stage.")
+        public int outpostAttackersPerStage = 1;
+
+        @Config.Name("Outpost Attack Max Count")
+        @Config.Comment("Maximum attackers spawned by one outpost attack event. Use 0 for no cap.")
+        public int outpostAttackMaxCount = 8;
+
+        @Config.Name("Human Reinforcement Base Count")
+        @Config.Comment("Base reinforcement count before stage scaling.")
+        public int humanReinforcementBaseCount = 1;
+
+        @Config.Name("Human Reinforcements Per Stage")
+        @Config.Comment("Additional reinforcements added for each current human stage.")
+        public int humanReinforcementsPerStage = 1;
+
+        @Config.Name("Human Reinforcement Max Count")
+        @Config.Comment("Maximum human units spawned by one reinforcement event. Use 0 for no cap.")
+        public int humanReinforcementMaxCount = 4;
+
+        @Config.Name("Human Reinforcement Patrol Radius")
+        @Config.Comment("Patrol radius assigned to units spawned by dynamic reinforcement events.")
+        public int humanReinforcementPatrolRadius = 24;
     }
 
     public static final class ThreatResponse {

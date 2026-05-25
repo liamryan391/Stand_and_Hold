@@ -1,5 +1,5 @@
 standandhold.config.title=Stand and Hold
-commands.standandhold.usage=/standandhold <status|addpoints|setstage|research|commandpost|mainbase|threat|supplies|structure>
+commands.standandhold.usage=/standandhold <status|addpoints|setstage|research|commandpost|mainbase|threat|supplies|structure|event>
 commands.standandhold.status=Human points: %s | Stage %s: %s | Next threshold: %s | Supplies: %s
 commands.standandhold.addpoints.usage=/standandhold addpoints <amount>
 commands.standandhold.addpoints.success=Added %s human points. Total: %s | Stage %s: %s
@@ -66,6 +66,9 @@ commands.standandhold.threat.reinforce.failed=Threat reinforcement failed: %s
 commands.standandhold.threat.reinforce.success=Deployed %s reinforcements to threat region dimension %s region %s %s
 commands.standandhold.threat.reset.no_record=No threat record exists for your current region.
 commands.standandhold.threat.reset.success=Reset threat score for region dimension %s region %s %s
+commands.standandhold.event.usage=/standandhold event <outpostattack|reinforcement> [x] [y] [z]
+commands.standandhold.event.success=Triggered %s at %s %s %s. Spawned: %s | Stage: %s
+commands.standandhold.event.failed=Could not trigger %s at %s %s %s: %s
 item.standandhold.parasite_tissue_sample.name=Parasite Tissue Sample
 item.standandhold.army_helmet.name=Army Helmet
 item.standandhold.army_chestplate.name=Army Chestplate

@@ -1,5 +1,6 @@
 package com.liamryan.standandhold.common.command;
 
+import com.liamryan.standandhold.common.dynamic.DynamicEventManager;
 import com.liamryan.standandhold.common.infrastructure.FieldCommandPostLevel;
 import com.liamryan.standandhold.common.infrastructure.FieldCommandPostUpgradeManager;
 import com.liamryan.standandhold.common.infrastructure.FieldCommandPostUpgradeRequirement;
@@ -31,6 +32,7 @@ import net.minecraft.util.text.TextFormatting;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public final class CommandStandAndHold extends CommandBase {
     private static final String[] SUBCOMMANDS = new String[] {
@@ -42,7 +44,8 @@ public final class CommandStandAndHold extends CommandBase {
             "mainbase",
             "threat",
             "supplies",
-            "structure"
+            "structure",
+            "event"
     };
     private static final String[] RESEARCH_SUBCOMMANDS = new String[] {
             "list",
@@ -73,6 +76,10 @@ public final class CommandStandAndHold extends CommandBase {
     private static final String[] SUPPLY_SUBCOMMANDS = new String[] {
             "status",
             "add"
+    };
+    private static final String[] EVENT_SUBCOMMANDS = new String[] {
+            "outpostattack",
+            "reinforcement"
     };
 
     @Override
@@ -142,6 +149,12 @@ public final class CommandStandAndHold extends CommandBase {
             return;
         }
 
+        if ("event".equalsIgnoreCase(args[0])) {
+            requireAdmin(sender);
+            executeDynamicEvent(sender, args);
+            return;
+        }
+
         throw new CommandException("commands.standandhold.usage");
     }
 
@@ -179,6 +192,10 @@ public final class CommandStandAndHold extends CommandBase {
             return getListOfStringsMatchingLastWord(args, SUPPLY_SUBCOMMANDS);
         }
 
+        if (args.length == 2 && "event".equalsIgnoreCase(args[0])) {
+            return getListOfStringsMatchingLastWord(args, EVENT_SUBCOMMANDS);
+        }
+
         if (args.length == 3 && "research".equalsIgnoreCase(args[0]) && "complete".equalsIgnoreCase(args[1])) {
             return getListOfStringsMatchingLastWord(args, getResearchCompletions());
         }
@@ -192,6 +209,10 @@ public final class CommandStandAndHold extends CommandBase {
         if (args.length > 2 && args.length <= 5
                 && "mainbase".equalsIgnoreCase(args[0])
                 && ("status".equalsIgnoreCase(args[1]) || "activate".equalsIgnoreCase(args[1]))) {
+            return getTabCompletionCoordinate(args, 2, targetPos);
+        }
+
+        if (args.length > 2 && args.length <= 5 && "event".equalsIgnoreCase(args[0])) {
             return getTabCompletionCoordinate(args, 2, targetPos);
         }
 
@@ -831,6 +852,45 @@ public final class CommandStandAndHold extends CommandBase {
                 record.getDimension(),
                 record.getRegionX(),
                 record.getRegionZ()
+        );
+        message.getStyle().setColor(TextFormatting.YELLOW);
+        sender.sendMessage(message);
+    }
+
+    private void executeDynamicEvent(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length != 2 && args.length != 5) {
+            throw new CommandException("commands.standandhold.event.usage");
+        }
+
+        BlockPos eventPos = args.length == 5 ? parseBlockPos(sender, args, 2, false) : sender.getPosition();
+        DynamicEventManager.DynamicEventResult result;
+        if ("outpostattack".equalsIgnoreCase(args[1])) {
+            result = DynamicEventManager.triggerOutpostAttack(sender.getEntityWorld(), eventPos, true);
+        } else if ("reinforcement".equalsIgnoreCase(args[1])) {
+            result = DynamicEventManager.triggerHumanReinforcement(sender.getEntityWorld(), eventPos, true);
+        } else {
+            throw new CommandException("commands.standandhold.event.usage");
+        }
+
+        if (result.getStatus() != DynamicEventManager.DynamicEventStatus.STARTED) {
+            throw new CommandException(
+                    "commands.standandhold.event.failed",
+                    result.getType().getDisplayName(),
+                    eventPos.getX(),
+                    eventPos.getY(),
+                    eventPos.getZ(),
+                    result.getStatus().name().toLowerCase(Locale.ROOT)
+            );
+        }
+
+        TextComponentTranslation message = new TextComponentTranslation(
+                "commands.standandhold.event.success",
+                result.getType().getDisplayName(),
+                result.getPos().getX(),
+                result.getPos().getY(),
+                result.getPos().getZ(),
+                result.getSpawnedCount(),
+                result.getStageId()
         );
         message.getStyle().setColor(TextFormatting.YELLOW);
         sender.sendMessage(message);

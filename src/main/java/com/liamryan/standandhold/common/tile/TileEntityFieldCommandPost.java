@@ -3,6 +3,7 @@ package com.liamryan.standandhold.common.tile;
 import com.liamryan.standandhold.common.infrastructure.FieldCommandPostLevel;
 import com.liamryan.standandhold.common.infrastructure.MainBaseManager;
 import com.liamryan.standandhold.common.infrastructure.OutpostDefenseManager;
+import com.liamryan.standandhold.common.dynamic.DynamicEventManager;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.supply.ISupplyStorage;
 import com.liamryan.standandhold.common.supply.LogisticsRouteManager;
@@ -18,6 +19,7 @@ public final class TileEntityFieldCommandPost extends TileEntity implements ITic
     private static final String TAG_LAST_DEFENDER_SPAWN_TIME = "LastDefenderSpawnTime";
     private static final String TAG_LAST_SPECIAL_DIVISION_DEPLOYMENT_TIME = "LastSpecialDivisionDeploymentTime";
     private static final String TAG_LAST_LOGISTICS_ROUTE_TIME = "LastLogisticsRouteTime";
+    private static final String TAG_LAST_DYNAMIC_EVENT_TIME = "LastDynamicEventTime";
     private static final String TAG_UPGRADE_LEVEL = "UpgradeLevel";
     private static final String TAG_STORED_SUPPLIES = "StoredSupplies";
 
@@ -27,6 +29,7 @@ public final class TileEntityFieldCommandPost extends TileEntity implements ITic
     private long lastDefenderSpawnTime = -1L;
     private long lastSpecialDivisionDeploymentTime = -1L;
     private long lastLogisticsRouteTime = -1L;
+    private long lastDynamicEventTime = -1L;
     private int upgradeLevel = FieldCommandPostLevel.FIELD_CAMP.getLevel();
     private int storedSupplies;
 
@@ -59,6 +62,10 @@ public final class TileEntityFieldCommandPost extends TileEntity implements ITic
                 lastLogisticsRouteTime = world.getTotalWorldTime();
                 changed = true;
             }
+            if (lastDynamicEventTime < 0L) {
+                lastDynamicEventTime = world.getTotalWorldTime();
+                changed = true;
+            }
             if (changed) {
                 markDirty();
             }
@@ -74,6 +81,7 @@ public final class TileEntityFieldCommandPost extends TileEntity implements ITic
         updatePointGeneration();
         updateSupplyGeneration();
         LogisticsRouteManager.updateCommandPostRoute(this);
+        DynamicEventManager.updateCommandPostEvents(this);
         OutpostDefenseManager.updateOutpostDefense(this);
         MainBaseManager.updateMainBase(this);
     }
@@ -137,6 +145,7 @@ public final class TileEntityFieldCommandPost extends TileEntity implements ITic
         lastDefenderSpawnTime = compound.hasKey(TAG_LAST_DEFENDER_SPAWN_TIME) ? compound.getLong(TAG_LAST_DEFENDER_SPAWN_TIME) : -1L;
         lastSpecialDivisionDeploymentTime = compound.hasKey(TAG_LAST_SPECIAL_DIVISION_DEPLOYMENT_TIME) ? compound.getLong(TAG_LAST_SPECIAL_DIVISION_DEPLOYMENT_TIME) : -1L;
         lastLogisticsRouteTime = compound.hasKey(TAG_LAST_LOGISTICS_ROUTE_TIME) ? compound.getLong(TAG_LAST_LOGISTICS_ROUTE_TIME) : -1L;
+        lastDynamicEventTime = compound.hasKey(TAG_LAST_DYNAMIC_EVENT_TIME) ? compound.getLong(TAG_LAST_DYNAMIC_EVENT_TIME) : -1L;
         upgradeLevel = compound.hasKey(TAG_UPGRADE_LEVEL) ? FieldCommandPostLevel.byLevel(compound.getInteger(TAG_UPGRADE_LEVEL)).getLevel() : FieldCommandPostLevel.FIELD_CAMP.getLevel();
         storedSupplies = Math.max(0, compound.getInteger(TAG_STORED_SUPPLIES));
     }
@@ -150,6 +159,7 @@ public final class TileEntityFieldCommandPost extends TileEntity implements ITic
         compound.setLong(TAG_LAST_DEFENDER_SPAWN_TIME, lastDefenderSpawnTime);
         compound.setLong(TAG_LAST_SPECIAL_DIVISION_DEPLOYMENT_TIME, lastSpecialDivisionDeploymentTime);
         compound.setLong(TAG_LAST_LOGISTICS_ROUTE_TIME, lastLogisticsRouteTime);
+        compound.setLong(TAG_LAST_DYNAMIC_EVENT_TIME, lastDynamicEventTime);
         compound.setInteger(TAG_UPGRADE_LEVEL, getUpgradeLevelInfo().getLevel());
         compound.setInteger(TAG_STORED_SUPPLIES, getStoredSupplies());
         return compound;
@@ -179,6 +189,10 @@ public final class TileEntityFieldCommandPost extends TileEntity implements ITic
         return lastLogisticsRouteTime;
     }
 
+    public long getLastDynamicEventTime() {
+        return lastDynamicEventTime;
+    }
+
     public void setLastDefenderSpawnTime(long lastDefenderSpawnTime) {
         if (this.lastDefenderSpawnTime != lastDefenderSpawnTime) {
             this.lastDefenderSpawnTime = lastDefenderSpawnTime;
@@ -196,6 +210,13 @@ public final class TileEntityFieldCommandPost extends TileEntity implements ITic
     public void setLastLogisticsRouteTime(long lastLogisticsRouteTime) {
         if (this.lastLogisticsRouteTime != lastLogisticsRouteTime) {
             this.lastLogisticsRouteTime = lastLogisticsRouteTime;
+            markDirty();
+        }
+    }
+
+    public void setLastDynamicEventTime(long lastDynamicEventTime) {
+        if (this.lastDynamicEventTime != lastDynamicEventTime) {
+            this.lastDynamicEventTime = lastDynamicEventTime;
             markDirty();
         }
     }

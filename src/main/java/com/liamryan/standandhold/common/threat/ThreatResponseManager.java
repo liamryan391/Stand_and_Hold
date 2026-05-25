@@ -37,6 +37,10 @@ public final class ThreatResponseManager {
         recordThreat(world, unit.getAssignedOutpostPos(), ThreatEventType.OUTPOST_ATTACK);
     }
 
+    public static void recordOutpostAttackAt(World world, BlockPos outpostPos) {
+        recordThreat(world, outpostPos, ThreatEventType.OUTPOST_ATTACK);
+    }
+
     @Nullable
     public static ThreatRecord getThreatRecordAt(World world, BlockPos pos, boolean create) {
         if (world == null || pos == null) {
