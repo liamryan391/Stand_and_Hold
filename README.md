@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 21: a compileable Forge project foundation for a future large-scale Stand and Hold mod. It includes persistent human progression points, supply points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point and supply generation from loaded command posts, Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, persistent Main Base registration/activation, Special Parasite Division gating, regional threat tracking, threat decay, bounded reinforcement triggers, simple human equipment, equipment crafting/unlock gates, one prototype ranged weapon with a custom projectile, projectile hit polish, simple block GUIs, a small networking foundation for GUI data/actions, and basic local/global supply transfer controls. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
+This repository is currently in Phase 22: a compileable Forge project foundation for a future large-scale Stand and Hold mod. It includes persistent human progression points, supply points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point and supply generation from loaded command posts, Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, persistent Main Base registration/activation, Special Parasite Division gating, regional threat tracking, threat decay, bounded reinforcement triggers, simple human equipment, equipment crafting/unlock gates, one prototype ranged weapon with a custom projectile, projectile hit polish, simple block GUIs, a small networking foundation for GUI data/actions, basic local/global supply transfer controls, optional SRP compatibility mappings, and a command-post logistics route placeholder. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, physical convoy entities, and full Scape and Run: Parasites integration are intentionally left for later phases.
 
 ## Current Scope
 
@@ -42,6 +42,8 @@ This repository is currently in Phase 21: a compileable Forge project foundation
 - Server-to-client progression and tile data sync packets
 - Server-authoritative GUI actions for command post upgrades and lab research selection/completion
 - Config-backed supply transfer controls for local building stockpiles and global supplies
+- Dedicated optional SRP compatibility helper with config-backed mappings
+- Tile-local logistics route placeholder for loaded Field Command Posts
 - Base human NPC entity class
 - Tiered human unit entities with spawn eggs and simple parasite targeting AI
 - Field Command Post outpost defender spawning with limits
@@ -120,7 +122,7 @@ The default config includes:
 minecraft:zombie=5
 ```
 
-That zombie entry is only a safe test value so the feature can be verified without Scape and Run: Parasites installed. No SRP entity IDs are hardcoded. Once verified, add SRP registry IDs to the config list.
+That zombie entry is only a safe test value so the feature can be verified without Scape and Run: Parasites installed. No SRP entity IDs are hardcoded. Once verified, add SRP registry IDs to the normal reward lists or to the dedicated SRP compatibility mapping list.
 
 Parasite sample drops are configured separately:
 
@@ -274,7 +276,7 @@ humanUnitStats=[
 ]
 ```
 
-The default `minecraft:zombie` target is only for safe testing without Scape and Run: Parasites installed. Add verified SRP registry IDs to `humanUnitTargetEntityIds` later.
+The default `minecraft:zombie` target is only for safe testing without Scape and Run: Parasites installed. Add verified SRP registry IDs to `humanUnitTargetEntityIds` or the dedicated SRP compatibility mapping list later.
 
 Stage unlocks are enforced when units spawn. If a unit is spawned before the world's human stage meets that tier's `requiredHumanStage`, the entity is removed immediately instead of joining the world. Special Parasite Division Operatives are additionally clamped to Stage 5 or higher.
 
@@ -495,6 +497,10 @@ commandPostSuppliesPerInterval=1
 commandPostSupplyTickInterval=2400
 enableGuiSupplyTransfers=true
 guiSupplyTransferAmount=10
+enableCommandPostLogisticsRoute=true
+commandPostLogisticsRouteInterval=2400
+commandPostLogisticsRouteTransferAmount=5
+commandPostLogisticsRouteMinimumLocalSupplies=10
 ```
 
 Supply spending currently draws from the saved global supply pool. Building-local stockpiles can be exported into that global pool from the building GUIs, which keeps the first logistics layer explicit without scanning the world.
@@ -609,12 +615,41 @@ enableGuiSupplyTransfers=true
 guiSupplyTransferAmount=10
 ```
 
+## Phase 22 SRP Compatibility and Logistics Placeholder
+
+Phase 22 adds `SRPCompat`, a dedicated optional compatibility helper for Scape and Run: Parasites. It only uses `Loader.isModLoaded` and registry ID strings; it does not import or reference SRP classes, so Stand and Hold still loads normally when SRP is missing.
+
+SRP mappings are configurable as:
+
+```text
+entityId|killReward|sampleDropChance|humanTarget
+```
+
+Example after verifying an entity registry ID in the exact SRP build being used:
+
+```text
+srparasites:example_parasite|25|0.35|true
+```
+
+No built-in SRP entity IDs are enabled yet because the registry IDs have not been verified in this repository. Existing fallback/test entries such as `minecraft:zombie=5` still work without SRP.
+
+Compatibility config options:
+
+```text
+enableScapeAndRunParasitesCompatibility=true
+scapeAndRunParasitesModId=srparasites
+srpParasiteMappings=[]
+enableVerifiedSrpDefaultMappings=false
+```
+
+Phase 22 also adds the first logistics route placeholder. Loaded Field Command Posts can periodically export a small amount of local supplies into the global supply pool. This is server-side, tile-local, and bounded by a per-command-post saved cooldown; it does not scan for route endpoints or spawn physical convoy entities yet.
+
 ## Planned Next Phase
 
-Phase 22 should build on the point, sample, supply, research, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, threat-response, equipment, simple ranged weapon, GUI, networking, and logistics foundations without jumping into the entire final system at once:
+Phase 23 should build on the point, sample, supply, research, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, threat-response, equipment, simple ranged weapon, GUI, networking, logistics, and SRP compatibility foundations without jumping into the entire final system at once:
 
 - Tune point, supply, and threat values from playtesting
-- Add basic logistics routes or convoy placeholders
+- Add visible logistics route markers or physical convoy entities
 - Add more polished equipment/projectile assets while keeping ammo/reload systems deferred
 - Add more detailed building supply-transfer rules
 - Add basic lab-linked scientist behavior or Main Base/Special Division deployment balancing

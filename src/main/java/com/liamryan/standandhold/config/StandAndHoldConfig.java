@@ -1,11 +1,11 @@
 package com.liamryan.standandhold.config;
 
 import com.liamryan.standandhold.StandAndHoldConstants;
+import com.liamryan.standandhold.common.compat.SRPCompat;
 import com.liamryan.standandhold.common.entity.HumanUnitTier;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
-import net.minecraftforge.fml.common.Loader;
 
 import java.util.Locale;
 
@@ -32,6 +32,10 @@ public final class StandAndHoldConfig {
     @Config.Name("Point Sources")
     @Config.Comment("Settings for sources that award human progression points.")
     public static final PointSources pointSources = new PointSources();
+
+    @Config.Name("Compatibility")
+    @Config.Comment("Optional integration settings for other mods. These settings never create a hard dependency.")
+    public static final Compatibility compatibility = new Compatibility();
 
     @Config.Name("Research")
     @Config.Comment("Data-driven research entries and rewards.")
@@ -86,7 +90,7 @@ public final class StandAndHoldConfig {
         String entityId = entityRegistryId.toString().toLowerCase(Locale.ROOT);
         String[] rewardEntries = pointSources.parasiteKillRewards;
         if (rewardEntries == null) {
-            return 0;
+            return SRPCompat.getKillReward(entityRegistryId);
         }
 
         for (String rewardEntry : rewardEntries) {
@@ -96,7 +100,7 @@ public final class StandAndHoldConfig {
             }
         }
 
-        return 0;
+        return SRPCompat.getKillReward(entityRegistryId);
     }
 
     public static double getParasiteSampleDropChance(ResourceLocation entityRegistryId) {
@@ -107,7 +111,7 @@ public final class StandAndHoldConfig {
         String entityId = entityRegistryId.toString().toLowerCase(Locale.ROOT);
         String[] dropEntries = pointSources.parasiteSampleDropChances;
         if (dropEntries == null) {
-            return 0.0D;
+            return SRPCompat.getSampleDropChance(entityRegistryId);
         }
 
         for (String dropEntry : dropEntries) {
@@ -117,12 +121,11 @@ public final class StandAndHoldConfig {
             }
         }
 
-        return 0.0D;
+        return SRPCompat.getSampleDropChance(entityRegistryId);
     }
 
     public static boolean isScapeAndRunParasitesLoaded() {
-        String modId = pointSources.scapeAndRunParasitesModId;
-        return modId != null && !modId.trim().isEmpty() && Loader.isModLoaded(modId.trim());
+        return SRPCompat.isLoaded();
     }
 
     public static boolean isHumanUnitTargetEntity(ResourceLocation entityRegistryId) {
@@ -133,7 +136,7 @@ public final class StandAndHoldConfig {
         String entityId = entityRegistryId.toString().toLowerCase(Locale.ROOT);
         String[] targetEntries = humanNpcs.humanUnitTargetEntityIds;
         if (targetEntries == null) {
-            return false;
+            return SRPCompat.isMappedHumanTargetEntity(entityRegistryId);
         }
 
         for (String targetEntry : targetEntries) {
@@ -143,7 +146,7 @@ public final class StandAndHoldConfig {
             }
         }
 
-        return false;
+        return SRPCompat.isMappedHumanTargetEntity(entityRegistryId);
     }
 
     public static boolean isConfiguredParasiteEntity(ResourceLocation entityRegistryId) {
@@ -176,7 +179,7 @@ public final class StandAndHoldConfig {
             }
         }
 
-        return false;
+        return SRPCompat.isMappedParasiteEntity(entityRegistryId);
     }
 
     public static boolean isSoldierTargetEntity(ResourceLocation entityRegistryId) {
@@ -341,12 +344,36 @@ public final class StandAndHoldConfig {
                 "minecraft:zombie=0.25"
         };
 
-        @Config.Name("Scape and Run Parasites Mod ID")
+    }
+
+    public static final class Compatibility {
+        @Config.Name("Enable Scape and Run Parasites Compatibility")
         @Config.Comment({
-                "Optional mod id used only to detect whether Scape and Run: Parasites is loaded.",
-                "No SRP entity IDs are hardcoded; add verified SRP entity registry IDs to Parasite Kill Rewards."
+                "Enables optional Scape and Run: Parasites compatibility when that mod is installed.",
+                "This only performs Loader.isModLoaded checks and configurable registry ID matching.",
+                "Stand and Hold does not reference SRP classes, so SRP remains optional."
         })
+        public boolean enableScapeAndRunParasitesCompatibility = true;
+
+        @Config.Name("Scape and Run Parasites Mod ID")
+        @Config.Comment("Mod id used for the optional SRP loaded check. Change only if your SRP build uses a different mod id.")
         public String scapeAndRunParasitesModId = "srparasites";
+
+        @Config.Name("SRP Parasite Mappings")
+        @Config.Comment({
+                "Optional SRP entity registry mappings in the format entityId|killReward|sampleDropChance|humanTarget.",
+                "Example after verifying an entity id: srparasites:example_parasite|25|0.35|true.",
+                "killReward awards human points, sampleDropChance controls Parasite Tissue Sample drops, and humanTarget lets human units attack it.",
+                "No SRP entity IDs are enabled by default until verified against the exact SRP build being used."
+        })
+        public String[] srpParasiteMappings = new String[0];
+
+        @Config.Name("Enable Verified SRP Default Mappings")
+        @Config.Comment({
+                "Enables built-in SRP mappings only when this codebase has verified registry IDs.",
+                "The current foundation intentionally ships with no built-in SRP entity IDs."
+        })
+        public boolean enableVerifiedSrpDefaultMappings = false;
     }
 
     public static final class Research {
@@ -473,6 +500,26 @@ public final class StandAndHoldConfig {
         @Config.Name("GUI Supply Transfer Amount")
         @Config.Comment("Supply points moved by each Import or Export button press in building GUIs.")
         public int guiSupplyTransferAmount = 10;
+
+        @Config.Name("Enable Command Post Logistics Route")
+        @Config.Comment({
+                "Enables the first logistics route placeholder for loaded Field Command Posts.",
+                "When enabled, each loaded command post can periodically export local supplies into the saved global supply pool.",
+                "This is tile-local and server-side; it does not scan the world for routes or spawn convoy entities yet."
+        })
+        public boolean enableCommandPostLogisticsRoute = true;
+
+        @Config.Name("Command Post Logistics Route Interval")
+        @Config.Comment("Ticks between logistics route export checks for each loaded Field Command Post.")
+        public int commandPostLogisticsRouteInterval = 2400;
+
+        @Config.Name("Command Post Logistics Route Transfer Amount")
+        @Config.Comment("Local supplies exported to global supplies by each successful command post logistics route check.")
+        public int commandPostLogisticsRouteTransferAmount = 5;
+
+        @Config.Name("Command Post Logistics Route Minimum Local Supplies")
+        @Config.Comment("Minimum local supplies a Field Command Post must store before its logistics route can export supplies.")
+        public int commandPostLogisticsRouteMinimumLocalSupplies = 10;
     }
 
     public static final class Equipment {

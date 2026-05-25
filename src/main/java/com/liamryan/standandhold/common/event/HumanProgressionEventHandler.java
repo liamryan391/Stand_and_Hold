@@ -1,6 +1,7 @@
 package com.liamryan.standandhold.common.event;
 
 import com.liamryan.standandhold.StandAndHold;
+import com.liamryan.standandhold.common.compat.SRPCompat;
 import com.liamryan.standandhold.common.entity.EntityHumanNpc;
 import com.liamryan.standandhold.common.equipment.EquipmentUnlockManager;
 import com.liamryan.standandhold.common.item.ModItems;
@@ -116,8 +117,10 @@ public final class HumanProgressionEventHandler {
     }
 
     public static void logOptionalCompatibilityState() {
-        if (StandAndHoldConfig.isScapeAndRunParasitesLoaded()) {
-            StandAndHold.LOGGER.info("Scape and Run: Parasites detected. Stand and Hold will use configured SRP entity reward entries when present.");
+        if (SRPCompat.isLoaded()) {
+            StandAndHold.LOGGER.info("Scape and Run: Parasites detected. Stand and Hold has {} configured SRP parasite mappings.", SRPCompat.getConfiguredMappingCount());
+        } else if (SRPCompat.hasConfiguredMappings()) {
+            StandAndHold.LOGGER.info("Scape and Run: Parasites not detected. Configured SRP mappings are dormant until SRP is installed.");
         } else {
             StandAndHold.LOGGER.info("Scape and Run: Parasites not detected. Stand and Hold parasite kill rewards will use configured fallback/test entries only.");
         }

@@ -44,6 +44,10 @@ public final class SupplyTransferManager {
             return TransferResult.disabled(storage);
         }
 
+        return exportLocalSupplies(world, storage, getTransferAmount(), "building supply export: " + getStoragePos(storage));
+    }
+
+    public static TransferResult exportLocalSupplies(World world, ISupplyStorage storage, int requestedAmount, String source) {
         if (world == null || world.isRemote || storage == null) {
             return TransferResult.noTransfer(TransferStatus.NO_STORAGE, storage);
         }
@@ -53,13 +57,17 @@ public final class SupplyTransferManager {
             return TransferResult.noTransfer(TransferStatus.LOCAL_EMPTY, storage);
         }
 
-        int moved = storage.removeStoredSupplies(Math.min(getTransferAmount(), localSupplies));
+        int moved = storage.removeStoredSupplies(Math.min(Math.max(1, requestedAmount), localSupplies));
         if (moved <= 0) {
             return TransferResult.noTransfer(TransferStatus.LOCAL_EMPTY, storage);
         }
 
-        int globalSupplies = SupplyManager.addSupplies(world, moved, "building supply export: " + storage.getPos());
+        int globalSupplies = SupplyManager.addSupplies(world, moved, source == null ? "building supply export: " + storage.getPos() : source);
         return TransferResult.transferred(TransferStatus.TRANSFERRED_TO_GLOBAL, moved, storage, globalSupplies);
+    }
+
+    private static String getStoragePos(ISupplyStorage storage) {
+        return storage == null ? "unknown" : String.valueOf(storage.getPos());
     }
 
     private static int getTransferAmount() {
