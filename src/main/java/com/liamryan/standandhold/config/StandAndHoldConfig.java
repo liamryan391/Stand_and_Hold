@@ -462,6 +462,48 @@ public final class StandAndHoldConfig {
         public int[] armyCheckpointAllowedDimensions = new int[] {
                 0
         };
+
+        @Config.Name("Enable Main Base Generation")
+        @Config.Comment("Allows rare Main Base foundations to generate during terrain generation.")
+        public boolean enableMainBaseGeneration = true;
+
+        @Config.Name("Main Base Spawn Chance")
+        @Config.Comment("One chance in this many chunks to try generating a Main Base. Higher values are rarer.")
+        public int mainBaseSpawnChance = 2400;
+
+        @Config.Name("Main Base Width")
+        @Config.Comment("Main Base width in blocks. Values are clamped to a safe in-chunk range.")
+        public int mainBaseWidth = 15;
+
+        @Config.Name("Main Base Depth")
+        @Config.Comment("Main Base depth in blocks. Values are clamped to a safe in-chunk range.")
+        public int mainBaseDepth = 15;
+
+        @Config.Name("Main Base Wall Height")
+        @Config.Comment("Perimeter wall height for generated Main Bases.")
+        public int mainBaseWallHeight = 3;
+
+        @Config.Name("Main Base Max Terrain Height Difference")
+        @Config.Comment("Maximum height difference allowed across the Main Base footprint before generation is skipped.")
+        public int mainBaseMaxTerrainHeightDifference = 2;
+
+        @Config.Name("Main Base Activation Stage")
+        @Config.Comment("Minimum human stage required for a generated Main Base to fully activate. Stage 5 is Special Parasite Division.")
+        public int mainBaseActivationStage = 5;
+
+        @Config.Name("Main Base Initial Defenders")
+        @Config.Comment("Number of defenders spawned on Main Base defender pads when the base generates while activated.")
+        public int mainBaseInitialDefenders = 4;
+
+        @Config.Name("Main Base Defender Patrol Radius")
+        @Config.Comment("Patrol radius assigned to defenders spawned by activated Main Bases.")
+        public int mainBaseDefenderPatrolRadius = 24;
+
+        @Config.Name("Main Base Allowed Dimensions")
+        @Config.Comment("Dimension IDs where Main Bases can generate. Default is overworld only.")
+        public int[] mainBaseAllowedDimensions = new int[] {
+                0
+        };
     }
 
     private static final class ParsedReward {

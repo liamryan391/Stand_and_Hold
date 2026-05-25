@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 12: a small, compileable Forge project foundation with persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point generation from loaded command posts, early Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, and one simple generated Small Army Checkpoint. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
+This repository is currently in Phase 13: a small, compileable Forge project foundation with persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point generation from loaded command posts, early Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, a rare Main Base foundation, and admin structure debug tools. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
 
 ## Current Scope
 
@@ -33,6 +33,8 @@ This repository is currently in Phase 12: a small, compileable Forge project fou
 - Tiered human unit entities with spawn eggs and simple parasite targeting AI
 - Field Command Post outpost defender spawning with limits
 - Small Army Checkpoint world generation
+- Rare Main Base foundation generation
+- Admin outpost and structure debug commands
 
 ## Requirements
 
@@ -175,6 +177,8 @@ Sneak-right-click a Field Command Post to attempt the next upgrade. You can also
 ```text
 /standandhold commandpost status <x> <y> <z>
 /standandhold commandpost upgrade <x> <y> <z>
+/standandhold commandpost list
+/standandhold commandpost nearest
 ```
 
 Upgrade requirements are configured as:
@@ -300,10 +304,47 @@ armyCheckpointMaxTerrainHeightDifference=2
 armyCheckpointAllowedDimensions=[0]
 ```
 
+Admins can force-test checkpoint placement in the current chunk:
+
+```text
+/standandhold structure checkpoint
+```
+
+The debug command ignores the configured spawn chance but still uses the same safe terrain checks.
+
+## Phase 13 Main Base Foundation
+
+Main Bases are rare, chunk-local generated foundations for late-game human escalation. The first version is intentionally small and procedural: a fortified stone footprint with a central Stand and Hold Field Command Post, marked defender spawn pads, and Research Lab blocks in the lab areas.
+
+Main Bases do not use vanilla `minecraft:command_block`. The command center is built from this mod's `standandhold:field_command_post`.
+
+Activation is based on the current human stage. If a Main Base generates while the world is at or above the configured activation stage, its central Field Command Post is set to Main Base level and a small initial defender group can spawn on the marked pads. Below that stage, the base still generates as a dormant foundation.
+
+Config options:
+
+```text
+enableMainBaseGeneration=true
+mainBaseSpawnChance=2400
+mainBaseWidth=15
+mainBaseDepth=15
+mainBaseWallHeight=3
+mainBaseMaxTerrainHeightDifference=2
+mainBaseActivationStage=5
+mainBaseInitialDefenders=4
+mainBaseDefenderPatrolRadius=24
+mainBaseAllowedDimensions=[0]
+```
+
+Admins can force-test Main Base placement in the current chunk:
+
+```text
+/standandhold structure mainbase
+```
+
 ## Planned Next Phase
 
-Phase 13 should build on the point, sample, research, lab, command-post, unit-tier, outpost-defence, and first checkpoint-generation systems without jumping into a large structure framework:
+Phase 14 should build on the point, sample, research, lab, command-post, unit-tier, outpost-defence, checkpoint, and Main Base foundations without jumping into a large structure framework:
 
 - Tune point rewards and stage thresholds from playtesting
-- Add basic lab-linked scientist behavior, outpost status/admin commands, or checkpoint spawn balancing
+- Add basic lab-linked scientist behavior, Main Base activation polish, or checkpoint/main-base spawn balancing
 - Keep Scape and Run: Parasites compatibility data-driven until entity IDs are verified

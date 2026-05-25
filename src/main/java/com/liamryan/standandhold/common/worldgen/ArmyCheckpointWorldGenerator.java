@@ -23,13 +23,24 @@ public final class ArmyCheckpointWorldGenerator implements IWorldGenerator {
 
     @Override
     public void generate(Random random, int chunkX, int chunkZ, World world, IChunkGenerator chunkGenerator, IChunkProvider chunkProvider) {
-        if (!StandAndHoldConfig.worldGeneration.enableArmyCheckpointGeneration || !isAllowedDimension(world.provider.getDimension())) {
-            return;
+        BlockPos origin = tryGenerateAtChunk(world, random, chunkX, chunkZ, false);
+        if (origin != null && StandAndHoldConfig.debugLogging) {
+            StandAndHold.LOGGER.info("Generated Small Army Checkpoint at {}.", origin);
+        }
+    }
+
+    public static BlockPos forceGenerateAtChunk(World world, int chunkX, int chunkZ) {
+        return tryGenerateAtChunk(world, world.rand, chunkX, chunkZ, true);
+    }
+
+    private static BlockPos tryGenerateAtChunk(World world, Random random, int chunkX, int chunkZ, boolean force) {
+        if (!force && (!StandAndHoldConfig.worldGeneration.enableArmyCheckpointGeneration || !isAllowedDimension(world.provider.getDimension()))) {
+            return null;
         }
 
         int spawnChance = Math.max(1, StandAndHoldConfig.worldGeneration.armyCheckpointSpawnChance);
-        if (spawnChance > 1 && random.nextInt(spawnChance) != 0) {
-            return;
+        if (!force && spawnChance > 1 && random.nextInt(spawnChance) != 0) {
+            return null;
         }
 
         int width = clamp(StandAndHoldConfig.worldGeneration.armyCheckpointWidth, 5, 14);
@@ -40,13 +51,11 @@ public final class ArmyCheckpointWorldGenerator implements IWorldGenerator {
 
         BlockPos origin = findSafeOrigin(world, originX, originZ, width, depth);
         if (origin == null) {
-            return;
+            return null;
         }
 
         generateCheckpoint(world, origin, width, depth, wallHeight);
-        if (StandAndHoldConfig.debugLogging) {
-            StandAndHold.LOGGER.info("Generated Small Army Checkpoint at {}.", origin);
-        }
+        return origin;
     }
 
     private static BlockPos findSafeOrigin(World world, int originX, int originZ, int width, int depth) {

@@ -9,6 +9,8 @@ import com.liamryan.standandhold.common.research.ResearchEntry;
 import com.liamryan.standandhold.common.research.ResearchManager;
 import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
 import com.liamryan.standandhold.common.world.HumanWorldData;
+import com.liamryan.standandhold.common.worldgen.ArmyCheckpointWorldGenerator;
+import com.liamryan.standandhold.common.worldgen.MainBaseWorldGenerator;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -32,7 +34,8 @@ public final class CommandStandAndHold extends CommandBase {
             "addpoints",
             "setstage",
             "research",
-            "commandpost"
+            "commandpost",
+            "structure"
     };
     private static final String[] RESEARCH_SUBCOMMANDS = new String[] {
             "list",
@@ -40,8 +43,14 @@ public final class CommandStandAndHold extends CommandBase {
             "status"
     };
     private static final String[] COMMAND_POST_SUBCOMMANDS = new String[] {
+            "list",
+            "nearest",
             "status",
             "upgrade"
+    };
+    private static final String[] STRUCTURE_SUBCOMMANDS = new String[] {
+            "checkpoint",
+            "mainbase"
     };
 
     @Override
@@ -88,6 +97,12 @@ public final class CommandStandAndHold extends CommandBase {
             return;
         }
 
+        if ("structure".equalsIgnoreCase(args[0])) {
+            requireAdmin(sender);
+            executeStructure(sender, args);
+            return;
+        }
+
         throw new CommandException("commands.standandhold.usage");
     }
 
@@ -109,11 +124,17 @@ public final class CommandStandAndHold extends CommandBase {
             return getListOfStringsMatchingLastWord(args, COMMAND_POST_SUBCOMMANDS);
         }
 
+        if (args.length == 2 && "structure".equalsIgnoreCase(args[0])) {
+            return getListOfStringsMatchingLastWord(args, STRUCTURE_SUBCOMMANDS);
+        }
+
         if (args.length == 3 && "research".equalsIgnoreCase(args[0]) && "complete".equalsIgnoreCase(args[1])) {
             return getListOfStringsMatchingLastWord(args, getResearchCompletions());
         }
 
-        if (args.length > 2 && args.length <= 5 && "commandpost".equalsIgnoreCase(args[0])) {
+        if (args.length > 2 && args.length <= 5
+                && "commandpost".equalsIgnoreCase(args[0])
+                && ("status".equalsIgnoreCase(args[1]) || "upgrade".equalsIgnoreCase(args[1]))) {
             return getTabCompletionCoordinate(args, 2, targetPos);
         }
 
@@ -283,6 +304,18 @@ public final class CommandStandAndHold extends CommandBase {
             throw new CommandException("commands.standandhold.commandpost.usage");
         }
 
+        if ("list".equalsIgnoreCase(args[1])) {
+            requireAdmin(sender);
+            executeCommandPostList(sender, args);
+            return;
+        }
+
+        if ("nearest".equalsIgnoreCase(args[1])) {
+            requireAdmin(sender);
+            executeCommandPostNearest(sender, args);
+            return;
+        }
+
         if ("status".equalsIgnoreCase(args[1])) {
             executeCommandPostStatus(sender, args);
             return;
@@ -295,6 +328,96 @@ public final class CommandStandAndHold extends CommandBase {
         }
 
         throw new CommandException("commands.standandhold.commandpost.usage");
+    }
+
+    private void executeCommandPostList(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length != 2) {
+            throw new CommandException("commands.standandhold.commandpost.usage");
+        }
+
+        HumanWorldData data = HumanPointManager.getData(sender.getEntityWorld());
+        int total = data.getFieldCommandPostPositions().size();
+        TextComponentTranslation header = new TextComponentTranslation("commands.standandhold.commandpost.list.header", total);
+        header.getStyle().setColor(TextFormatting.AQUA);
+        sender.sendMessage(header);
+
+        if (total == 0) {
+            TextComponentTranslation none = new TextComponentTranslation("commands.standandhold.commandpost.list.none");
+            none.getStyle().setColor(TextFormatting.GRAY);
+            sender.sendMessage(none);
+            return;
+        }
+
+        int shown = 0;
+        int limit = 10;
+        for (String positionKey : data.getFieldCommandPostPositions()) {
+            PositionRecord record = PositionRecord.parse(positionKey);
+            if (record == null) {
+                continue;
+            }
+
+            TextComponentTranslation line = new TextComponentTranslation(
+                    "commands.standandhold.commandpost.list.entry",
+                    record.dimension,
+                    record.pos.getX(),
+                    record.pos.getY(),
+                    record.pos.getZ()
+            );
+            line.getStyle().setColor(TextFormatting.GRAY);
+            sender.sendMessage(line);
+            shown++;
+            if (shown >= limit) {
+                break;
+            }
+        }
+
+        if (total > shown) {
+            TextComponentTranslation more = new TextComponentTranslation("commands.standandhold.commandpost.list.more", total - shown);
+            more.getStyle().setColor(TextFormatting.DARK_GRAY);
+            sender.sendMessage(more);
+        }
+    }
+
+    private void executeCommandPostNearest(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length != 2) {
+            throw new CommandException("commands.standandhold.commandpost.usage");
+        }
+
+        HumanWorldData data = HumanPointManager.getData(sender.getEntityWorld());
+        int currentDimension = sender.getEntityWorld().provider.getDimension();
+        BlockPos senderPos = sender.getPosition();
+        PositionRecord nearest = null;
+        long nearestDistance = Long.MAX_VALUE;
+
+        for (String positionKey : data.getFieldCommandPostPositions()) {
+            PositionRecord record = PositionRecord.parse(positionKey);
+            if (record == null || record.dimension != currentDimension) {
+                continue;
+            }
+
+            long distance = distanceSq(senderPos, record.pos);
+            if (distance < nearestDistance) {
+                nearestDistance = distance;
+                nearest = record;
+            }
+        }
+
+        if (nearest == null) {
+            TextComponentTranslation none = new TextComponentTranslation("commands.standandhold.commandpost.nearest.none", currentDimension);
+            none.getStyle().setColor(TextFormatting.GRAY);
+            sender.sendMessage(none);
+            return;
+        }
+
+        TextComponentTranslation message = new TextComponentTranslation(
+                "commands.standandhold.commandpost.nearest",
+                nearest.pos.getX(),
+                nearest.pos.getY(),
+                nearest.pos.getZ(),
+                Math.round(Math.sqrt(nearestDistance))
+        );
+        message.getStyle().setColor(TextFormatting.GREEN);
+        sender.sendMessage(message);
     }
 
     private void executeCommandPostStatus(ICommandSender sender, String[] args) throws CommandException {
@@ -331,6 +454,55 @@ public final class CommandStandAndHold extends CommandBase {
         TileEntityFieldCommandPost commandPost = getCommandPostAt(sender, pos);
         FieldCommandPostUpgradeManager.UpgradeResult result = FieldCommandPostUpgradeManager.tryUpgrade(sender.getEntityWorld(), commandPost, getPlayerSender(sender));
         sendCommandPostUpgradeResult(sender, result);
+    }
+
+    private void executeStructure(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length != 2) {
+            throw new CommandException("commands.standandhold.structure.usage");
+        }
+
+        BlockPos senderPos = sender.getPosition();
+        int chunkX = senderPos.getX() >> 4;
+        int chunkZ = senderPos.getZ() >> 4;
+
+        if ("checkpoint".equalsIgnoreCase(args[1])) {
+            BlockPos origin = ArmyCheckpointWorldGenerator.forceGenerateAtChunk(sender.getEntityWorld(), chunkX, chunkZ);
+            if (origin == null) {
+                throw new CommandException("commands.standandhold.structure.generate.failed", "Small Army Checkpoint", "unsafe terrain");
+            }
+
+            TextComponentTranslation message = new TextComponentTranslation(
+                    "commands.standandhold.structure.generate.checkpoint",
+                    origin.getX(),
+                    origin.getY(),
+                    origin.getZ()
+            );
+            message.getStyle().setColor(TextFormatting.YELLOW);
+            sender.sendMessage(message);
+            return;
+        }
+
+        if ("mainbase".equalsIgnoreCase(args[1])) {
+            MainBaseWorldGenerator.GenerationResult result = MainBaseWorldGenerator.forceGenerateAtChunk(sender.getEntityWorld(), chunkX, chunkZ);
+            if (!result.isGenerated()) {
+                throw new CommandException("commands.standandhold.structure.generate.failed", "Main Base", result.getReason());
+            }
+
+            BlockPos origin = result.getOrigin();
+            TextComponentTranslation message = new TextComponentTranslation(
+                    "commands.standandhold.structure.generate.mainbase",
+                    origin.getX(),
+                    origin.getY(),
+                    origin.getZ(),
+                    result.isActive() ? "active" : "dormant",
+                    result.getDefendersSpawned()
+            );
+            message.getStyle().setColor(TextFormatting.YELLOW);
+            sender.sendMessage(message);
+            return;
+        }
+
+        throw new CommandException("commands.standandhold.structure.usage");
     }
 
     private TileEntityFieldCommandPost getCommandPostAt(ICommandSender sender, BlockPos pos) throws CommandException {
@@ -395,6 +567,13 @@ public final class CommandStandAndHold extends CommandBase {
         sender.sendMessage(message);
     }
 
+    private long distanceSq(BlockPos first, BlockPos second) {
+        long dx = first.getX() - second.getX();
+        long dy = first.getY() - second.getY();
+        long dz = first.getZ() - second.getZ();
+        return dx * dx + dy * dy + dz * dz;
+    }
+
     private void requireAdmin(ICommandSender sender) throws CommandException {
         if (!sender.canUseCommand(2, getName())) {
             throw new CommandException("commands.generic.permission");
@@ -450,5 +629,37 @@ public final class CommandStandAndHold extends CommandBase {
     private EntityPlayer getPlayerSender(ICommandSender sender) {
         Entity entity = sender.getCommandSenderEntity();
         return entity instanceof EntityPlayer ? (EntityPlayer) entity : null;
+    }
+
+    private static final class PositionRecord {
+        private final int dimension;
+        private final BlockPos pos;
+
+        private PositionRecord(int dimension, BlockPos pos) {
+            this.dimension = dimension;
+            this.pos = pos;
+        }
+
+        @Nullable
+        private static PositionRecord parse(String positionKey) {
+            if (positionKey == null || positionKey.trim().isEmpty()) {
+                return null;
+            }
+
+            String[] parts = positionKey.split(":");
+            if (parts.length != 4) {
+                return null;
+            }
+
+            try {
+                int dimension = Integer.parseInt(parts[0]);
+                int x = Integer.parseInt(parts[1]);
+                int y = Integer.parseInt(parts[2]);
+                int z = Integer.parseInt(parts[3]);
+                return new PositionRecord(dimension, new BlockPos(x, y, z));
+            } catch (NumberFormatException ignored) {
+                return null;
+            }
+        }
     }
 }
