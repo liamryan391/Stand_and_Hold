@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 25: a compileable Forge project foundation for a future large-scale Stand and Hold mod. It includes persistent human progression points, supply points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, a basic mission/objective system with automatic progress hooks, military infrastructure blocks, passive point and supply generation from loaded command posts, Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, persistent Main Base registration/activation, Special Parasite Division gating, regional threat tracking, threat decay, bounded reinforcement triggers, simple human equipment, equipment crafting/unlock gates, one prototype ranged weapon with a custom projectile, projectile hit polish, simple block GUIs, a small networking foundation for GUI data/actions, basic local/global supply transfer controls, optional SRP compatibility mappings, a command-post logistics route placeholder, lightweight dynamic outpost attack/reinforcement events, dynamic event cooldown/status visibility, and more conservative default balancing. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, physical convoy entities, complex raid waves, mission GUIs, and full Scape and Run: Parasites integration are intentionally left for later phases.
+This repository is currently in Phase 26: a compileable Forge project foundation for a future large-scale Stand and Hold mod. It includes persistent human progression points, supply points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, a basic mission/objective system with automatic progress hooks, military infrastructure blocks, passive point and supply generation from loaded command posts, Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, persistent Main Base registration/activation, Special Parasite Division gating, regional threat tracking, threat decay, bounded reinforcement triggers, simple human equipment, equipment crafting/unlock gates, one prototype ranged weapon with a custom projectile, projectile hit polish, simple block GUIs, a small networking foundation for GUI data/actions, basic local/global supply transfer controls, optional SRP compatibility mappings, a command-post logistics route placeholder, lightweight dynamic outpost attack/reinforcement events, dynamic event cooldown/status visibility, more conservative default balancing, and a first performance pass over ticking, parsing, spawning, and entity queries. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, physical convoy entities, complex raid waves, mission GUIs, and full Scape and Run: Parasites integration are intentionally left for later phases.
 
 ## Current Scope
 
@@ -50,6 +50,7 @@ This repository is currently in Phase 25: a compileable Forge project foundation
 - Tile-local dynamic outpost attack and reinforcement events
 - Admin dynamic event debug commands
 - Dynamic event cooldown/status command and nearby warning messages
+- Throttled command-post manager checks and cached config parsing
 - Base human NPC entity class
 - Tiered human unit entities with spawn eggs and simple parasite targeting AI
 - Field Command Post outpost defender spawning with limits
@@ -748,9 +749,22 @@ Balance assumptions:
 - Special Parasite Division remains strong and stage/research-gated; it is the main long-term counterweight for verified high-power parasite mappings.
 - SRP compatibility remains data-driven. Verified SRP mappings should tune kill rewards, sample rates, and human targeting per parasite tier instead of relying on one universal reward value.
 
+## Phase 26 Performance Review
+
+Phase 26 keeps gameplay behavior intact while reducing avoidable server work:
+
+- Field Command Posts still tick because they own local storage and timers, but heavier manager checks for logistics, dynamic events, outpost defence, and Main Base activation are now staggered to once per second per tile.
+- Main Bases no longer scan for nearby Special Parasite Division operatives every tick. The entity query now runs only after deployment cooldown and chance checks pass.
+- Research and mission config entries are cached behind lightweight array hashes, so labs, commands, and mission hooks do not repeatedly parse the same config strings.
+- Dynamic outpost attacks now perform one nearby-human target query per event instead of one query per spawned attacker.
+- Spawn limits remain enforced by existing caps: outpost defender counts, Main Base operative limits, threat reinforcement region caps, and dynamic event max counts.
+- World generation remains chance-gated, dimension-gated, and footprint-limited. The current generated structures still validate surface terrain before placing blocks.
+
+The remaining intentional scans are bounded and event-driven: command/debug listing commands inspect saved position sets, threat commands inspect saved threat records, and generated structures only examine their small configured footprints.
+
 ## Planned Next Phase
 
-Phase 26 should build on the point, sample, supply, research, mission, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, threat-response, equipment, simple ranged weapon, GUI, networking, logistics, SRP compatibility, dynamic event, and balance foundations without jumping into the entire final system at once:
+Phase 27 should build on the point, sample, supply, research, mission, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, threat-response, equipment, simple ranged weapon, GUI, networking, logistics, SRP compatibility, dynamic event, balance, and performance foundations without jumping into the entire final system at once:
 
 - Tune point, supply, and threat values from playtesting
 - Add visible logistics route markers or physical convoy entities

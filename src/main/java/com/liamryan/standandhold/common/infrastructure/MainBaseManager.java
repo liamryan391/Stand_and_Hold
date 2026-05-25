@@ -164,7 +164,7 @@ public final class MainBaseManager {
         }
 
         int maxOperatives = Math.max(0, StandAndHoldConfig.humanNpcs.specialParasiteDivisionMaxOperativesPerMainBase);
-        if (maxOperatives <= 0 || countAssignedSpecialOperatives(world, commandPost.getPos()) >= maxOperatives) {
+        if (maxOperatives <= 0) {
             return;
         }
 
@@ -183,6 +183,10 @@ public final class MainBaseManager {
         commandPost.setLastSpecialDivisionDeploymentTime(worldTime);
         int deploymentChance = Math.max(1, StandAndHoldConfig.humanNpcs.specialParasiteDivisionDeploymentChance);
         if (deploymentChance > 1 && world.rand.nextInt(deploymentChance) != 0) {
+            return;
+        }
+
+        if (countAssignedSpecialOperatives(world, commandPost.getPos()) >= maxOperatives) {
             return;
         }
 

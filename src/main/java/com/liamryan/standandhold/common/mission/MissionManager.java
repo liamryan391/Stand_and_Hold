@@ -13,12 +13,16 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 public final class MissionManager {
+    private static int cachedMissionEntriesHash = Integer.MIN_VALUE;
+    private static List<Mission> cachedMissions = Collections.emptyList();
+
     private MissionManager() {
     }
 
@@ -26,6 +30,11 @@ public final class MissionManager {
         String[] configuredEntries = StandAndHoldConfig.missions.missionEntries;
         if (configuredEntries == null || configuredEntries.length == 0) {
             return Collections.emptyList();
+        }
+
+        int entriesHash = Arrays.hashCode(configuredEntries);
+        if (entriesHash == cachedMissionEntriesHash) {
+            return cachedMissions;
         }
 
         List<Mission> missions = new ArrayList<Mission>();
@@ -42,7 +51,9 @@ public final class MissionManager {
                 StandAndHold.LOGGER.warn("Ignoring duplicate mission id '{}'.", mission.getId());
             }
         }
-        return Collections.unmodifiableList(missions);
+        cachedMissionEntriesHash = entriesHash;
+        cachedMissions = Collections.unmodifiableList(missions);
+        return cachedMissions;
     }
 
     @Nullable

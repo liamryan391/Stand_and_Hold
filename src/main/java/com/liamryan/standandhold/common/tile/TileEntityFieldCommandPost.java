@@ -13,6 +13,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 
 public final class TileEntityFieldCommandPost extends TileEntity implements ITickable, ISupplyStorage {
+    private static final int MANAGER_CHECK_INTERVAL_TICKS = 20;
+
     private static final String TAG_PLACED_WORLD_TIME = "PlacedWorldTime";
     private static final String TAG_LAST_POINT_GENERATION_TIME = "LastPointGenerationTime";
     private static final String TAG_LAST_SUPPLY_GENERATION_TIME = "LastSupplyGenerationTime";
@@ -80,10 +82,20 @@ public final class TileEntityFieldCommandPost extends TileEntity implements ITic
 
         updatePointGeneration();
         updateSupplyGeneration();
+        if (!shouldRunManagerChecks()) {
+            return;
+        }
+
         LogisticsRouteManager.updateCommandPostRoute(this);
         DynamicEventManager.updateCommandPostEvents(this);
         OutpostDefenseManager.updateOutpostDefense(this);
         MainBaseManager.updateMainBase(this);
+    }
+
+    private boolean shouldRunManagerChecks() {
+        long worldTime = world.getTotalWorldTime();
+        int offset = Math.floorMod(pos.getX() * 31 + pos.getY() * 17 + pos.getZ(), MANAGER_CHECK_INTERVAL_TICKS);
+        return worldTime % MANAGER_CHECK_INTERVAL_TICKS == offset;
     }
 
     private void updatePointGeneration() {

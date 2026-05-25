@@ -11,12 +11,16 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 public final class ResearchManager {
+    private static int cachedResearchEntriesHash = Integer.MIN_VALUE;
+    private static List<ResearchEntry> cachedResearchEntries = Collections.emptyList();
+
     private ResearchManager() {
     }
 
@@ -24,6 +28,11 @@ public final class ResearchManager {
         String[] configuredEntries = StandAndHoldConfig.research.researchEntries;
         if (configuredEntries == null || configuredEntries.length == 0) {
             return Collections.emptyList();
+        }
+
+        int entriesHash = Arrays.hashCode(configuredEntries);
+        if (entriesHash == cachedResearchEntriesHash) {
+            return cachedResearchEntries;
         }
 
         List<ResearchEntry> entries = new ArrayList<ResearchEntry>();
@@ -41,7 +50,9 @@ public final class ResearchManager {
             }
         }
 
-        return Collections.unmodifiableList(entries);
+        cachedResearchEntriesHash = entriesHash;
+        cachedResearchEntries = Collections.unmodifiableList(entries);
+        return cachedResearchEntries;
     }
 
     public static ResearchEntry getResearchEntry(String id) {

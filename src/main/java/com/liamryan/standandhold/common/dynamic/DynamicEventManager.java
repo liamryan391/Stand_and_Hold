@@ -113,10 +113,11 @@ public final class DynamicEventManager {
         }
 
         int spawned = 0;
+        EntityLivingBase attackTarget = findNearestHumanTarget(world, outpostPos);
         for (int i = 0; i < requestedAttackers; i++) {
             ResourceLocation attackerEntityId = attackerEntityIds.get(world.rand.nextInt(attackerEntityIds.size()));
             BlockPos spawnPos = findSpawnPosition(world, outpostPos);
-            if (spawnPos != null && spawnAttackEntity(world, attackerEntityId, spawnPos, outpostPos)) {
+            if (spawnPos != null && spawnAttackEntity(world, attackerEntityId, spawnPos, attackTarget)) {
                 spawned++;
             }
         }
@@ -262,7 +263,7 @@ public final class DynamicEventManager {
         }
     }
 
-    private static boolean spawnAttackEntity(World world, ResourceLocation entityId, BlockPos spawnPos, BlockPos outpostPos) {
+    private static boolean spawnAttackEntity(World world, ResourceLocation entityId, BlockPos spawnPos, @Nullable EntityLivingBase attackTarget) {
         Entity entity = EntityList.createEntityByIDFromName(entityId, world);
         if (entity == null) {
             return false;
@@ -278,9 +279,8 @@ public final class DynamicEventManager {
         if (entity instanceof EntityLiving) {
             EntityLiving living = (EntityLiving) entity;
             living.onInitialSpawn(world.getDifficultyForLocation(spawnPos), null);
-            EntityLivingBase target = findNearestHumanTarget(world, outpostPos);
-            if (target != null) {
-                living.setAttackTarget(target);
+            if (attackTarget != null) {
+                living.setAttackTarget(attackTarget);
             }
         }
         return world.spawnEntity(entity);
