@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 16: a compileable Forge project foundation for a future large-scale Stand and Hold mod. It includes persistent human progression points, supply points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point and supply generation from loaded command posts, Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, persistent Main Base registration/activation, Special Parasite Division gating, regional threat tracking, threat decay, and bounded reinforcement triggers. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
+This repository is currently in Phase 17: a compileable Forge project foundation for a future large-scale Stand and Hold mod. It includes persistent human progression points, supply points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point and supply generation from loaded command posts, Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, persistent Main Base registration/activation, Special Parasite Division gating, regional threat tracking, threat decay, bounded reinforcement triggers, and the first simple human equipment items. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex gun mechanics, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
 
 ## Current Scope
 
@@ -32,6 +32,8 @@ This repository is currently in Phase 16: a compileable Forge project foundation
 - Research Lab block and tile entity
 - Lab-local saved research progress, stored parasite samples, and stored supplies
 - Supply Crate block/item form for recovering supplies
+- Army, Elite, and Special Division armour item sets
+- Basic Anti-Parasite Blade melee weapon
 - Base human NPC entity class
 - Tiered human unit entities with spawn eggs and simple parasite targeting AI
 - Field Command Post outpost defender spawning with limits
@@ -487,11 +489,49 @@ commandPostSupplyTickInterval=2400
 
 Supply spending currently draws from the saved global supply pool. Building-local stockpiles are saved and displayed as an expandable foundation for later logistics networks, routes, and supply-transfer rules.
 
+## Phase 17 Basic Human Equipment
+
+Phase 17 adds simple equipment items without starting firearm mechanics.
+
+Added equipment:
+
+- Army armour set
+- Elite armour set
+- Special Division armour set
+- Anti-Parasite Blade melee weapon
+
+The equipment is registered as normal Forge items and appears in the Stand and Hold creative tab. The first pass uses vanilla model/armour texture references as placeholders so the items are compileable and testable before custom art is added.
+
+Config-backed equipment values:
+
+```text
+armyArmorDurability=18
+armyArmorReductions=[2,5,6,2]
+armyArmorEnchantability=9
+armyArmorToughness=0.0
+eliteArmorDurability=28
+eliteArmorReductions=[3,6,8,3]
+eliteArmorEnchantability=10
+eliteArmorToughness=1.0
+specialDivisionArmorDurability=36
+specialDivisionArmorReductions=[3,6,8,3]
+specialDivisionArmorEnchantability=14
+specialDivisionArmorToughness=2.0
+antiParasiteBladeHarvestLevel=2
+antiParasiteBladeMaxUses=320
+antiParasiteBladeEfficiency=6.0
+antiParasiteBladeAttackDamage=5.0
+antiParasiteBladeEnchantability=12
+```
+
+Recipes are intentionally deferred or can be added as simple JSON recipes later. The acceptance requirement is satisfied by creative-tab entries and registered item models.
+
 ## Planned Next Phase
 
-Phase 17 should build on the point, sample, supply, research, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, and threat-response foundations without jumping into the entire final system at once:
+Phase 18 should build on the point, sample, supply, research, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, threat-response, and equipment foundations without jumping into the entire final system at once:
 
 - Tune point, supply, and threat values from playtesting
+- Add basic crafting recipes, repair rules, or stage/research gates for equipment
 - Add basic logistics routes, convoy placeholders, or more detailed building supply transfer rules
 - Add basic lab-linked scientist behavior or Main Base/Special Division deployment balancing
 - Keep Scape and Run: Parasites compatibility data-driven until entity IDs are verified

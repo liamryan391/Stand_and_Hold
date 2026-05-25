@@ -45,6 +45,10 @@ public final class StandAndHoldConfig {
     @Config.Comment("Settings for the basic human supply economy.")
     public static final Supply supply = new Supply();
 
+    @Config.Name("Equipment")
+    @Config.Comment("Settings for the first simple human equipment items.")
+    public static final Equipment equipment = new Equipment();
+
     @Config.Name("Human NPCs")
     @Config.Comment("Settings for early human NPC entities.")
     public static final HumanNpcs humanNpcs = new HumanNpcs();
@@ -454,6 +458,91 @@ public final class StandAndHoldConfig {
         @Config.Name("Command Post Supply Tick Interval")
         @Config.Comment("Ticks between passive supply generation from each loaded Field Command Post. 2400 ticks is about 2 minutes.")
         public int commandPostSupplyTickInterval = 2400;
+    }
+
+    public static final class Equipment {
+        @Config.Name("Army Armour Durability")
+        @Config.Comment("Base durability multiplier for the Army armour material.")
+        public int armyArmorDurability = 18;
+
+        @Config.Name("Army Armour Reductions")
+        @Config.Comment("Damage reduction values for Army armour in boots, leggings, chestplate, helmet order.")
+        public int[] armyArmorReductions = new int[] {
+                2,
+                5,
+                6,
+                2
+        };
+
+        @Config.Name("Army Armour Enchantability")
+        @Config.Comment("Enchantability for the Army armour material.")
+        public int armyArmorEnchantability = 9;
+
+        @Config.Name("Army Armour Toughness")
+        @Config.Comment("Armour toughness for the Army armour material.")
+        public float armyArmorToughness = 0.0F;
+
+        @Config.Name("Elite Armour Durability")
+        @Config.Comment("Base durability multiplier for the Elite armour material.")
+        public int eliteArmorDurability = 28;
+
+        @Config.Name("Elite Armour Reductions")
+        @Config.Comment("Damage reduction values for Elite armour in boots, leggings, chestplate, helmet order.")
+        public int[] eliteArmorReductions = new int[] {
+                3,
+                6,
+                8,
+                3
+        };
+
+        @Config.Name("Elite Armour Enchantability")
+        @Config.Comment("Enchantability for the Elite armour material.")
+        public int eliteArmorEnchantability = 10;
+
+        @Config.Name("Elite Armour Toughness")
+        @Config.Comment("Armour toughness for the Elite armour material.")
+        public float eliteArmorToughness = 1.0F;
+
+        @Config.Name("Special Division Armour Durability")
+        @Config.Comment("Base durability multiplier for the Special Division armour material.")
+        public int specialDivisionArmorDurability = 36;
+
+        @Config.Name("Special Division Armour Reductions")
+        @Config.Comment("Damage reduction values for Special Division armour in boots, leggings, chestplate, helmet order.")
+        public int[] specialDivisionArmorReductions = new int[] {
+                3,
+                6,
+                8,
+                3
+        };
+
+        @Config.Name("Special Division Armour Enchantability")
+        @Config.Comment("Enchantability for the Special Division armour material.")
+        public int specialDivisionArmorEnchantability = 14;
+
+        @Config.Name("Special Division Armour Toughness")
+        @Config.Comment("Armour toughness for the Special Division armour material.")
+        public float specialDivisionArmorToughness = 2.0F;
+
+        @Config.Name("Anti-Parasite Blade Harvest Level")
+        @Config.Comment("Tool harvest level used by the basic anti-parasite melee weapon.")
+        public int antiParasiteBladeHarvestLevel = 2;
+
+        @Config.Name("Anti-Parasite Blade Max Uses")
+        @Config.Comment("Durability for the basic anti-parasite melee weapon.")
+        public int antiParasiteBladeMaxUses = 320;
+
+        @Config.Name("Anti-Parasite Blade Efficiency")
+        @Config.Comment("Tool efficiency for the basic anti-parasite melee weapon.")
+        public float antiParasiteBladeEfficiency = 6.0F;
+
+        @Config.Name("Anti-Parasite Blade Attack Damage")
+        @Config.Comment("Tool material attack damage. Minecraft swords add their normal sword bonus on top of this value.")
+        public float antiParasiteBladeAttackDamage = 5.0F;
+
+        @Config.Name("Anti-Parasite Blade Enchantability")
+        @Config.Comment("Enchantability for the basic anti-parasite melee weapon.")
+        public int antiParasiteBladeEnchantability = 12;
     }
 
     public static final class HumanNpcs {
