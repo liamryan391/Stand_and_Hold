@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 13: a small, compileable Forge project foundation with persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point generation from loaded command posts, early Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, a rare Main Base foundation, and admin structure debug tools. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
+This repository is currently in Phase 14: a compileable Forge project foundation for a future large-scale Stand and Hold mod. It includes persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point generation from loaded command posts, Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, persistent Main Base registration/activation, Special Parasite Division gating, and admin structure debug tools. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
 
 ## Current Scope
 
@@ -34,6 +34,8 @@ This repository is currently in Phase 13: a small, compileable Forge project fou
 - Field Command Post outpost defender spawning with limits
 - Small Army Checkpoint world generation
 - Rare Main Base foundation generation
+- Persistent Main Base registration and activation state
+- Special Parasite Division Operative stage/research gating
 - Admin outpost and structure debug commands
 
 ## Requirements
@@ -260,7 +262,7 @@ humanUnitStats=[
 
 The default `minecraft:zombie` target is only for safe testing without Scape and Run: Parasites installed. Add verified SRP registry IDs to `humanUnitTargetEntityIds` later.
 
-Stage unlocks are enforced when units spawn. If a unit is spawned before the world's human stage meets that tier's `requiredHumanStage`, the entity is removed immediately instead of joining the world.
+Stage unlocks are enforced when units spawn. If a unit is spawned before the world's human stage meets that tier's `requiredHumanStage`, the entity is removed immediately instead of joining the world. Special Parasite Division Operatives are additionally clamped to Stage 5 or higher.
 
 ## Phase 11 Outpost Defence
 
@@ -341,10 +343,49 @@ Admins can force-test Main Base placement in the current chunk:
 /standandhold structure mainbase
 ```
 
+## Phase 14 Main Base Activation and Special Parasite Division
+
+Generated Main Bases are now registered in `HumanWorldData` using their central Field Command Post position. Active Main Bases are tracked separately, so dormant bases persist across saves and can activate later.
+
+Admin commands:
+
+```text
+/standandhold mainbase list
+/standandhold mainbase status <x> <y> <z>
+/standandhold mainbase activate <x> <y> <z>
+```
+
+Loaded dormant Main Bases can activate once the world reaches the configured activation stage, clamped to Stage 5 or higher. Activation upgrades the central Field Command Post to Main Base level and can spawn a small, bounded defender group.
+
+Special Parasite Division Operatives now require:
+
+- Human Stage 5 or higher
+- `special_division_training` research, unless the config gate is disabled
+
+The default research list includes:
+
+```text
+special_division_training|SPECIAL_PROJECTS|Special Division Training|Train select operatives for anti-parasite rapid deployment and containment work.|150|parasite_samples,outpost_doctrine|3
+```
+
+Active loaded Main Bases can rarely deploy Special Parasite Division Operatives. Deployment is bounded per Main Base, uses tile-local cooldowns, and only spawns operatives assigned to that base.
+
+Config options:
+
+```text
+enableSpecialParasiteDivisionResearchGate=true
+specialParasiteDivisionTrainingResearchId=special_division_training
+enableSpecialParasiteDivisionDeployments=true
+specialParasiteDivisionDeploymentInterval=12000
+specialParasiteDivisionDeploymentChance=4
+specialParasiteDivisionMaxOperativesPerMainBase=2
+specialParasiteDivisionDeploymentRadius=8
+```
+
 ## Planned Next Phase
 
-Phase 14 should build on the point, sample, research, lab, command-post, unit-tier, outpost-defence, checkpoint, and Main Base foundations without jumping into a large structure framework:
+Phase 15 should build on the point, sample, research, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, and Special Parasite Division foundations without jumping into the entire final system at once:
 
 - Tune point rewards and stage thresholds from playtesting
-- Add basic lab-linked scientist behavior, Main Base activation polish, or checkpoint/main-base spawn balancing
+- Add basic lab-linked scientist behavior, high-threat area tracking, or Main Base/Special Division deployment balancing
 - Keep Scape and Run: Parasites compatibility data-driven until entity IDs are verified

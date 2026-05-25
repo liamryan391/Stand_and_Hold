@@ -92,6 +92,10 @@ public final class OutpostDefenseManager {
         int currentStage = HumanPointManager.getData(world).getStage().getId();
         HumanUnitTier selectedTier = HumanUnitTier.getLowestTier();
         for (HumanUnitTier tier : HumanUnitTier.values()) {
+            if (tier == HumanUnitTier.SPECIAL_PARASITE_DIVISION_OPERATIVE && !MainBaseManager.isSpecialParasiteDivisionUnlocked(world)) {
+                continue;
+            }
+
             if (StandAndHoldConfig.getHumanUnitRequiredStage(tier) <= currentStage) {
                 selectedTier = tier;
             }

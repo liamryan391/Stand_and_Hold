@@ -22,12 +22,16 @@ public final class HumanWorldData extends WorldSavedData {
     private static final String TAG_COMPLETED_RESEARCH = "CompletedResearch";
     private static final String TAG_FIELD_COMMAND_POSTS = "FieldCommandPosts";
     private static final String TAG_RESEARCH_LABS = "ResearchLabs";
+    private static final String TAG_MAIN_BASES = "MainBases";
+    private static final String TAG_ACTIVE_MAIN_BASES = "ActiveMainBases";
 
     private int humanPoints;
     private HumanStage stage = HumanStage.SURVIVORS;
     private final Set<String> completedResearchIds = new LinkedHashSet<String>();
     private final Set<String> fieldCommandPostPositions = new LinkedHashSet<String>();
     private final Set<String> researchLabPositions = new LinkedHashSet<String>();
+    private final Set<String> mainBasePositions = new LinkedHashSet<String>();
+    private final Set<String> activeMainBasePositions = new LinkedHashSet<String>();
 
     public HumanWorldData() {
         super(DATA_NAME);
@@ -44,6 +48,8 @@ public final class HumanWorldData extends WorldSavedData {
         completedResearchIds.clear();
         fieldCommandPostPositions.clear();
         researchLabPositions.clear();
+        mainBasePositions.clear();
+        activeMainBasePositions.clear();
 
         NBTTagList completedResearchTags = compound.getTagList(TAG_COMPLETED_RESEARCH, Constants.NBT.TAG_STRING);
         for (int i = 0; i < completedResearchTags.tagCount(); i++) {
@@ -66,6 +72,22 @@ public final class HumanWorldData extends WorldSavedData {
             String positionKey = researchLabTags.getStringTagAt(i);
             if (isValidPositionKey(positionKey)) {
                 researchLabPositions.add(positionKey);
+            }
+        }
+
+        NBTTagList mainBaseTags = compound.getTagList(TAG_MAIN_BASES, Constants.NBT.TAG_STRING);
+        for (int i = 0; i < mainBaseTags.tagCount(); i++) {
+            String positionKey = mainBaseTags.getStringTagAt(i);
+            if (isValidPositionKey(positionKey)) {
+                mainBasePositions.add(positionKey);
+            }
+        }
+
+        NBTTagList activeMainBaseTags = compound.getTagList(TAG_ACTIVE_MAIN_BASES, Constants.NBT.TAG_STRING);
+        for (int i = 0; i < activeMainBaseTags.tagCount(); i++) {
+            String positionKey = activeMainBaseTags.getStringTagAt(i);
+            if (isValidPositionKey(positionKey) && mainBasePositions.contains(positionKey)) {
+                activeMainBasePositions.add(positionKey);
             }
         }
     }
@@ -92,6 +114,18 @@ public final class HumanWorldData extends WorldSavedData {
             researchLabTags.appendTag(new NBTTagString(positionKey));
         }
         compound.setTag(TAG_RESEARCH_LABS, researchLabTags);
+
+        NBTTagList mainBaseTags = new NBTTagList();
+        for (String positionKey : mainBasePositions) {
+            mainBaseTags.appendTag(new NBTTagString(positionKey));
+        }
+        compound.setTag(TAG_MAIN_BASES, mainBaseTags);
+
+        NBTTagList activeMainBaseTags = new NBTTagList();
+        for (String positionKey : activeMainBasePositions) {
+            activeMainBaseTags.appendTag(new NBTTagString(positionKey));
+        }
+        compound.setTag(TAG_ACTIVE_MAIN_BASES, activeMainBaseTags);
         return compound;
     }
 
@@ -187,6 +221,47 @@ public final class HumanWorldData extends WorldSavedData {
 
     public Set<String> getResearchLabPositions() {
         return Collections.unmodifiableSet(researchLabPositions);
+    }
+
+    public boolean registerMainBase(int dimension, BlockPos commandPostPos, boolean active) {
+        String positionKey = getPositionKey(dimension, commandPostPos);
+        boolean changed = mainBasePositions.add(positionKey);
+        if (active) {
+            changed |= activeMainBasePositions.add(positionKey);
+        }
+        if (changed) {
+            markDirty();
+        }
+        return changed;
+    }
+
+    public boolean isMainBaseRegistered(int dimension, BlockPos commandPostPos) {
+        return mainBasePositions.contains(getPositionKey(dimension, commandPostPos));
+    }
+
+    public boolean isMainBaseActive(int dimension, BlockPos commandPostPos) {
+        return activeMainBasePositions.contains(getPositionKey(dimension, commandPostPos));
+    }
+
+    public boolean setMainBaseActive(int dimension, BlockPos commandPostPos, boolean active) {
+        String positionKey = getPositionKey(dimension, commandPostPos);
+        if (!mainBasePositions.contains(positionKey)) {
+            return false;
+        }
+
+        boolean changed = active ? activeMainBasePositions.add(positionKey) : activeMainBasePositions.remove(positionKey);
+        if (changed) {
+            markDirty();
+        }
+        return changed;
+    }
+
+    public Set<String> getMainBasePositions() {
+        return Collections.unmodifiableSet(mainBasePositions);
+    }
+
+    public Set<String> getActiveMainBasePositions() {
+        return Collections.unmodifiableSet(activeMainBasePositions);
     }
 
     private static String getPositionKey(int dimension, BlockPos pos) {

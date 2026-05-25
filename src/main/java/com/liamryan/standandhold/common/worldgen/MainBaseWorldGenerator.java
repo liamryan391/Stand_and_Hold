@@ -2,26 +2,18 @@ package com.liamryan.standandhold.common.worldgen;
 
 import com.liamryan.standandhold.StandAndHold;
 import com.liamryan.standandhold.common.block.ModBlocks;
-import com.liamryan.standandhold.common.entity.EntityHumanNpc;
-import com.liamryan.standandhold.common.entity.HumanUnitTier;
-import com.liamryan.standandhold.common.entity.ModEntities;
-import com.liamryan.standandhold.common.infrastructure.FieldCommandPostLevel;
+import com.liamryan.standandhold.common.infrastructure.MainBaseManager;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
-import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.IChunkGenerator;
 import net.minecraftforge.fml.common.IWorldGenerator;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 public final class MainBaseWorldGenerator implements IWorldGenerator {
@@ -126,18 +118,21 @@ public final class MainBaseWorldGenerator implements IWorldGenerator {
             }
         }
 
-        List<BlockPos> defenderPads = getDefenderPads(origin, width, depth);
-        for (BlockPos defenderPad : defenderPads) {
+        BlockPos commandPostPos = origin.add(width / 2, 1, depth / 2);
+        for (BlockPos defenderPad : MainBaseManager.getDefenderPads(commandPostPos)) {
             world.setBlockState(defenderPad, SPAWN_PAD, 2);
         }
 
         placeLabs(world, origin, width, depth);
         placeLights(world, origin, width, depth, wallHeight);
+        placeCommandPost(world, commandPostPos);
 
-        boolean active = isMainBaseActive(world);
-        BlockPos commandPostPos = origin.add(width / 2, 1, depth / 2);
-        placeCommandPost(world, commandPostPos, active);
-        int defendersSpawned = active ? spawnInitialDefenders(world, commandPostPos, defenderPads) : 0;
+        HumanPointManager.getData(world).registerMainBase(world.provider.getDimension(), commandPostPos, false);
+        MainBaseManager.ActivationResult activationResult = MainBaseManager.canActivateMainBase(world)
+                ? MainBaseManager.tryActivateMainBase(world, commandPostPos, true)
+                : null;
+        boolean active = activationResult != null && activationResult.getStatus() == MainBaseManager.ActivationStatus.ACTIVATED;
+        int defendersSpawned = activationResult == null ? 0 : activationResult.getDefendersSpawned();
         return GenerationResult.generated(origin, active, defendersSpawned);
     }
 
@@ -156,76 +151,8 @@ public final class MainBaseWorldGenerator implements IWorldGenerator {
         world.setBlockState(origin.add(width - 1, y, depth - 1), LIGHT, 2);
     }
 
-    private static void placeCommandPost(World world, BlockPos pos, boolean active) {
+    private static void placeCommandPost(World world, BlockPos pos) {
         world.setBlockState(pos, ModBlocks.FIELD_COMMAND_POST.getDefaultState(), 2);
-        if (!active) {
-            return;
-        }
-
-        TileEntity tileEntity = world.getTileEntity(pos);
-        if (tileEntity instanceof TileEntityFieldCommandPost) {
-            ((TileEntityFieldCommandPost) tileEntity).setUpgradeLevel(FieldCommandPostLevel.MAIN_BASE.getLevel());
-        }
-    }
-
-    private static int spawnInitialDefenders(World world, BlockPos commandPostPos, List<BlockPos> defenderPads) {
-        int maxDefenders = Math.min(defenderPads.size(), Math.max(0, StandAndHoldConfig.worldGeneration.mainBaseInitialDefenders));
-        if (maxDefenders <= 0) {
-            return 0;
-        }
-
-        int patrolRadius = Math.max(8, StandAndHoldConfig.worldGeneration.mainBaseDefenderPatrolRadius);
-        HumanUnitTier tier = getDefenderTierForCurrentStage(world);
-        int spawned = 0;
-        for (BlockPos defenderPad : defenderPads) {
-            if (spawned >= maxDefenders) {
-                break;
-            }
-
-            BlockPos spawnPos = defenderPad.up();
-            if (!canSpawnAt(world, spawnPos)) {
-                continue;
-            }
-
-            EntityHumanNpc defender = ModEntities.createHumanUnit(world, tier);
-            if (defender == null) {
-                continue;
-            }
-
-            defender.setLocationAndAngles(
-                    spawnPos.getX() + 0.5D,
-                    spawnPos.getY(),
-                    spawnPos.getZ() + 0.5D,
-                    world.rand.nextFloat() * 360.0F,
-                    0.0F
-            );
-            defender.assignToOutpost(world.provider.getDimension(), commandPostPos, patrolRadius);
-            defender.onInitialSpawn(world.getDifficultyForLocation(spawnPos), null);
-            if (!defender.isDead && world.spawnEntity(defender)) {
-                spawned++;
-            }
-        }
-        return spawned;
-    }
-
-    private static HumanUnitTier getDefenderTierForCurrentStage(World world) {
-        int currentStage = HumanPointManager.getData(world).getStage().getId();
-        HumanUnitTier selectedTier = HumanUnitTier.getLowestTier();
-        for (HumanUnitTier tier : HumanUnitTier.values()) {
-            if (StandAndHoldConfig.getHumanUnitRequiredStage(tier) <= currentStage) {
-                selectedTier = tier;
-            }
-        }
-        return selectedTier;
-    }
-
-    private static List<BlockPos> getDefenderPads(BlockPos origin, int width, int depth) {
-        List<BlockPos> pads = new ArrayList<BlockPos>();
-        pads.add(origin.add(width / 2, 1, 3));
-        pads.add(origin.add(width - 4, 1, depth / 2));
-        pads.add(origin.add(width / 2, 1, depth - 4));
-        pads.add(origin.add(3, 1, depth / 2));
-        return pads;
     }
 
     private static void fillSupportToFloor(World world, BlockPos floorPos) {
@@ -242,18 +169,6 @@ public final class MainBaseWorldGenerator implements IWorldGenerator {
                 world.setBlockState(clearPos, AIR, 2);
             }
         }
-    }
-
-    private static boolean canSpawnAt(World world, BlockPos pos) {
-        return world.isAirBlock(pos)
-                && world.isAirBlock(pos.up())
-                && !world.isAirBlock(pos.down())
-                && world.getBlockState(pos.down()).isSideSolid(world, pos.down(), EnumFacing.UP);
-    }
-
-    private static boolean isMainBaseActive(World world) {
-        int activationStage = clamp(StandAndHoldConfig.worldGeneration.mainBaseActivationStage, 0, 6);
-        return HumanPointManager.getData(world).getStage().getId() >= activationStage;
     }
 
     private static boolean isPerimeter(int x, int z, int width, int depth) {

@@ -3,6 +3,7 @@ package com.liamryan.standandhold.common.command;
 import com.liamryan.standandhold.common.infrastructure.FieldCommandPostLevel;
 import com.liamryan.standandhold.common.infrastructure.FieldCommandPostUpgradeManager;
 import com.liamryan.standandhold.common.infrastructure.FieldCommandPostUpgradeRequirement;
+import com.liamryan.standandhold.common.infrastructure.MainBaseManager;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.progression.HumanStage;
 import com.liamryan.standandhold.common.research.ResearchEntry;
@@ -35,6 +36,7 @@ public final class CommandStandAndHold extends CommandBase {
             "setstage",
             "research",
             "commandpost",
+            "mainbase",
             "structure"
     };
     private static final String[] RESEARCH_SUBCOMMANDS = new String[] {
@@ -51,6 +53,11 @@ public final class CommandStandAndHold extends CommandBase {
     private static final String[] STRUCTURE_SUBCOMMANDS = new String[] {
             "checkpoint",
             "mainbase"
+    };
+    private static final String[] MAIN_BASE_SUBCOMMANDS = new String[] {
+            "list",
+            "status",
+            "activate"
     };
 
     @Override
@@ -97,6 +104,12 @@ public final class CommandStandAndHold extends CommandBase {
             return;
         }
 
+        if ("mainbase".equalsIgnoreCase(args[0])) {
+            requireAdmin(sender);
+            executeMainBase(sender, args);
+            return;
+        }
+
         if ("structure".equalsIgnoreCase(args[0])) {
             requireAdmin(sender);
             executeStructure(sender, args);
@@ -128,6 +141,10 @@ public final class CommandStandAndHold extends CommandBase {
             return getListOfStringsMatchingLastWord(args, STRUCTURE_SUBCOMMANDS);
         }
 
+        if (args.length == 2 && "mainbase".equalsIgnoreCase(args[0])) {
+            return getListOfStringsMatchingLastWord(args, MAIN_BASE_SUBCOMMANDS);
+        }
+
         if (args.length == 3 && "research".equalsIgnoreCase(args[0]) && "complete".equalsIgnoreCase(args[1])) {
             return getListOfStringsMatchingLastWord(args, getResearchCompletions());
         }
@@ -135,6 +152,12 @@ public final class CommandStandAndHold extends CommandBase {
         if (args.length > 2 && args.length <= 5
                 && "commandpost".equalsIgnoreCase(args[0])
                 && ("status".equalsIgnoreCase(args[1]) || "upgrade".equalsIgnoreCase(args[1]))) {
+            return getTabCompletionCoordinate(args, 2, targetPos);
+        }
+
+        if (args.length > 2 && args.length <= 5
+                && "mainbase".equalsIgnoreCase(args[0])
+                && ("status".equalsIgnoreCase(args[1]) || "activate".equalsIgnoreCase(args[1]))) {
             return getTabCompletionCoordinate(args, 2, targetPos);
         }
 
@@ -454,6 +477,143 @@ public final class CommandStandAndHold extends CommandBase {
         TileEntityFieldCommandPost commandPost = getCommandPostAt(sender, pos);
         FieldCommandPostUpgradeManager.UpgradeResult result = FieldCommandPostUpgradeManager.tryUpgrade(sender.getEntityWorld(), commandPost, getPlayerSender(sender));
         sendCommandPostUpgradeResult(sender, result);
+    }
+
+    private void executeMainBase(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length < 2) {
+            throw new CommandException("commands.standandhold.mainbase.usage");
+        }
+
+        if ("list".equalsIgnoreCase(args[1])) {
+            executeMainBaseList(sender, args);
+            return;
+        }
+
+        if ("status".equalsIgnoreCase(args[1])) {
+            executeMainBaseStatus(sender, args);
+            return;
+        }
+
+        if ("activate".equalsIgnoreCase(args[1])) {
+            executeMainBaseActivate(sender, args);
+            return;
+        }
+
+        throw new CommandException("commands.standandhold.mainbase.usage");
+    }
+
+    private void executeMainBaseList(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length != 2) {
+            throw new CommandException("commands.standandhold.mainbase.usage");
+        }
+
+        HumanWorldData data = HumanPointManager.getData(sender.getEntityWorld());
+        int total = data.getMainBasePositions().size();
+        int active = data.getActiveMainBasePositions().size();
+        TextComponentTranslation header = new TextComponentTranslation("commands.standandhold.mainbase.list.header", total, active);
+        header.getStyle().setColor(TextFormatting.AQUA);
+        sender.sendMessage(header);
+
+        if (total == 0) {
+            TextComponentTranslation none = new TextComponentTranslation("commands.standandhold.mainbase.list.none");
+            none.getStyle().setColor(TextFormatting.GRAY);
+            sender.sendMessage(none);
+            return;
+        }
+
+        int shown = 0;
+        int limit = 10;
+        for (String positionKey : data.getMainBasePositions()) {
+            PositionRecord record = PositionRecord.parse(positionKey);
+            if (record == null) {
+                continue;
+            }
+
+            TextComponentTranslation line = new TextComponentTranslation(
+                    "commands.standandhold.mainbase.list.entry",
+                    record.dimension,
+                    record.pos.getX(),
+                    record.pos.getY(),
+                    record.pos.getZ(),
+                    data.isMainBaseActive(record.dimension, record.pos) ? "active" : "dormant"
+            );
+            line.getStyle().setColor(TextFormatting.GRAY);
+            sender.sendMessage(line);
+            shown++;
+            if (shown >= limit) {
+                break;
+            }
+        }
+
+        if (total > shown) {
+            TextComponentTranslation more = new TextComponentTranslation("commands.standandhold.mainbase.list.more", total - shown);
+            more.getStyle().setColor(TextFormatting.DARK_GRAY);
+            sender.sendMessage(more);
+        }
+    }
+
+    private void executeMainBaseStatus(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length != 5) {
+            throw new CommandException("commands.standandhold.mainbase.usage");
+        }
+
+        BlockPos pos = parseBlockPos(sender, args, 2, false);
+        HumanWorldData data = HumanPointManager.getData(sender.getEntityWorld());
+        int dimension = sender.getEntityWorld().provider.getDimension();
+        if (!data.isMainBaseRegistered(dimension, pos)) {
+            throw new CommandException("commands.standandhold.mainbase.not_found", pos.getX(), pos.getY(), pos.getZ());
+        }
+
+        boolean active = data.isMainBaseActive(dimension, pos);
+        boolean activationReady = MainBaseManager.canActivateMainBase(sender.getEntityWorld());
+        boolean specialReady = MainBaseManager.isSpecialParasiteDivisionUnlocked(sender.getEntityWorld());
+        int specialOperatives = sender.getEntityWorld().isBlockLoaded(pos) ? MainBaseManager.countAssignedSpecialOperatives(sender.getEntityWorld(), pos) : 0;
+        TextComponentTranslation message = new TextComponentTranslation(
+                "commands.standandhold.mainbase.status",
+                pos.getX(),
+                pos.getY(),
+                pos.getZ(),
+                active ? "active" : "dormant",
+                activationReady ? "ready" : "locked",
+                specialReady ? "unlocked" : "locked",
+                specialOperatives
+        );
+        message.getStyle().setColor(TextFormatting.GREEN);
+        sender.sendMessage(message);
+    }
+
+    private void executeMainBaseActivate(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length != 5) {
+            throw new CommandException("commands.standandhold.mainbase.usage");
+        }
+
+        BlockPos pos = parseBlockPos(sender, args, 2, false);
+        MainBaseManager.ActivationResult result = MainBaseManager.tryActivateMainBase(sender.getEntityWorld(), pos, true);
+        switch (result.getStatus()) {
+            case ACTIVATED:
+                TextComponentTranslation message = new TextComponentTranslation(
+                        "commands.standandhold.mainbase.activate.success",
+                        pos.getX(),
+                        pos.getY(),
+                        pos.getZ(),
+                        result.getDefendersSpawned()
+                );
+                message.getStyle().setColor(TextFormatting.YELLOW);
+                sender.sendMessage(message);
+                return;
+            case ALREADY_ACTIVE:
+                throw new CommandException("commands.standandhold.mainbase.activate.already", pos.getX(), pos.getY(), pos.getZ());
+            case LOCKED:
+                throw new CommandException("commands.standandhold.mainbase.activate.locked", Math.max(5, StandAndHoldConfig.worldGeneration.mainBaseActivationStage));
+            case NOT_REGISTERED:
+                throw new CommandException("commands.standandhold.mainbase.not_found", pos.getX(), pos.getY(), pos.getZ());
+            case NOT_LOADED:
+                throw new CommandException("commands.standandhold.mainbase.activate.not_loaded", pos.getX(), pos.getY(), pos.getZ());
+            case MISSING_COMMAND_POST:
+                throw new CommandException("commands.standandhold.mainbase.activate.missing_command_post", pos.getX(), pos.getY(), pos.getZ());
+            default:
+                throw new CommandException("commands.standandhold.mainbase.activate.failed", pos.getX(), pos.getY(), pos.getZ());
+        }
     }
 
     private void executeStructure(ICommandSender sender, String[] args) throws CommandException {

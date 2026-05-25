@@ -150,7 +150,13 @@ public final class StandAndHoldConfig {
 
     public static int getHumanUnitRequiredStage(HumanUnitTier tier) {
         ParsedHumanUnitStats stats = getHumanUnitStats(tier);
-        return Math.max(0, Math.min(6, stats.requiredStage));
+        int requiredStage = Math.max(0, Math.min(6, stats.requiredStage));
+        return tier == HumanUnitTier.SPECIAL_PARASITE_DIVISION_OPERATIVE ? Math.max(5, requiredStage) : requiredStage;
+    }
+
+    public static String getSpecialParasiteDivisionTrainingResearchId() {
+        String researchId = humanNpcs.specialParasiteDivisionTrainingResearchId;
+        return researchId == null || researchId.trim().isEmpty() ? "special_division_training" : researchId.trim();
     }
 
     private static ParsedReward parseRewardEntry(String rewardEntry) {
@@ -329,7 +335,8 @@ public final class StandAndHoldConfig {
         public String[] researchEntries = new String[] {
                 "parasite_samples|PARASITE_BIOLOGY|Parasite Samples|Catalog recovered parasite tissue and establish basic containment procedures.|25||1",
                 "field_communications|MILITARY_LOGISTICS|Field Communications|Coordinate survivor cells and local army response teams across infected territory.|25||0",
-                "outpost_doctrine|BASE_INFRASTRUCTURE|Outpost Doctrine|Draft the first defensible outpost standards for later military construction.|50|field_communications|0"
+                "outpost_doctrine|BASE_INFRASTRUCTURE|Outpost Doctrine|Draft the first defensible outpost standards for later military construction.|50|field_communications|0",
+                "special_division_training|SPECIAL_PROJECTS|Special Division Training|Train select operatives for anti-parasite rapid deployment and containment work.|150|parasite_samples,outpost_doctrine|3"
         };
     }
 
@@ -400,7 +407,7 @@ public final class StandAndHoldConfig {
         @Config.Comment({
                 "Human unit tier stats in the format unitId|health|damage|requiredHumanStage.",
                 "Valid unit IDs: survivor_defender, army_rifleman, heavy_soldier, elite_soldier, super_elite_soldier, special_parasite_division_operative.",
-                "Required human stage gates spawning for that unit tier."
+                "Required human stage gates spawning for that unit tier. Special Parasite Division Operatives are always clamped to at least Stage 5."
         })
         public String[] humanUnitStats = new String[] {
                 "survivor_defender|16|2|0",
@@ -408,8 +415,36 @@ public final class StandAndHoldConfig {
                 "heavy_soldier|28|6|2",
                 "elite_soldier|36|8|3",
                 "super_elite_soldier|48|11|4",
-                "special_parasite_division_operative|60|14|5"
+                "special_parasite_division_operative|72|18|5"
         };
+
+        @Config.Name("Enable Special Parasite Division Research Gate")
+        @Config.Comment("Requires configured research before Special Parasite Division Operatives can spawn or deploy.")
+        public boolean enableSpecialParasiteDivisionResearchGate = true;
+
+        @Config.Name("Special Parasite Division Training Research ID")
+        @Config.Comment("Research ID required to unlock Special Parasite Division Operatives.")
+        public String specialParasiteDivisionTrainingResearchId = "special_division_training";
+
+        @Config.Name("Enable Special Parasite Division Deployments")
+        @Config.Comment("Allows active Main Bases to rarely deploy Special Parasite Division Operatives.")
+        public boolean enableSpecialParasiteDivisionDeployments = true;
+
+        @Config.Name("Special Parasite Division Deployment Interval")
+        @Config.Comment("Ticks between Special Parasite Division deployment checks per loaded active Main Base.")
+        public int specialParasiteDivisionDeploymentInterval = 12000;
+
+        @Config.Name("Special Parasite Division Deployment Chance")
+        @Config.Comment("One chance in this many deployment intervals to deploy an operative from an active Main Base.")
+        public int specialParasiteDivisionDeploymentChance = 4;
+
+        @Config.Name("Special Parasite Division Max Operatives Per Main Base")
+        @Config.Comment("Maximum living Special Parasite Division Operatives assigned to each active Main Base.")
+        public int specialParasiteDivisionMaxOperativesPerMainBase = 2;
+
+        @Config.Name("Special Parasite Division Deployment Radius")
+        @Config.Comment("Horizontal radius around a Main Base command post used to find deployment positions.")
+        public int specialParasiteDivisionDeploymentRadius = 8;
 
         @Config.Name("Base Human NPC Movement Speed")
         @Config.Comment("Base movement speed for early human NPCs.")

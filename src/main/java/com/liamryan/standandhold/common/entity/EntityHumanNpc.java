@@ -2,6 +2,7 @@ package com.liamryan.standandhold.common.entity;
 
 import com.google.common.base.Predicate;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
+import com.liamryan.standandhold.common.research.ResearchManager;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityList;
@@ -75,12 +76,12 @@ public abstract class EntityHumanNpc extends EntityCreature {
 
     @Override
     public boolean getCanSpawnHere() {
-        return super.getCanSpawnHere() && isHumanStageUnlocked();
+        return super.getCanSpawnHere() && isHumanUnitUnlocked();
     }
 
     @Override
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingData) {
-        if (!isHumanStageUnlocked()) {
+        if (!isHumanUnitUnlocked()) {
             setDead();
             return livingData;
         }
@@ -140,12 +141,21 @@ public abstract class EntityHumanNpc extends EntityCreature {
         }
     }
 
-    private boolean isHumanStageUnlocked() {
+    private boolean isHumanUnitUnlocked() {
         if (world == null || world.isRemote || world.getMinecraftServer() == null) {
             return true;
         }
 
-        return HumanPointManager.getData(world).getStage().getId() >= getRequiredHumanStage();
+        if (HumanPointManager.getData(world).getStage().getId() < getRequiredHumanStage()) {
+            return false;
+        }
+
+        if (getUnitTier() == HumanUnitTier.SPECIAL_PARASITE_DIVISION_OPERATIVE
+                && StandAndHoldConfig.humanNpcs.enableSpecialParasiteDivisionResearchGate) {
+            return ResearchManager.isResearchComplete(world, StandAndHoldConfig.getSpecialParasiteDivisionTrainingResearchId());
+        }
+
+        return true;
     }
 
     private static final class ConfiguredParasiteTargetPredicate implements Predicate<EntityLivingBase> {
