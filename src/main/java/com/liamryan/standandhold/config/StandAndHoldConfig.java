@@ -45,6 +45,10 @@ public final class StandAndHoldConfig {
     @Config.Comment("Settings for early human NPC entities.")
     public static final HumanNpcs humanNpcs = new HumanNpcs();
 
+    @Config.Name("World Generation")
+    @Config.Comment("Settings for generated Stand and Hold structures.")
+    public static final WorldGeneration worldGeneration = new WorldGeneration();
+
     private StandAndHoldConfig() {
     }
 
@@ -426,6 +430,38 @@ public final class StandAndHoldConfig {
         @Config.Name("Human Unit Target Chance")
         @Config.Comment("How often human combat units run nearest-target checks. Lower values react faster; 10 is the vanilla-style default.")
         public int humanUnitTargetChance = 10;
+    }
+
+    public static final class WorldGeneration {
+        @Config.Name("Enable Army Checkpoint Generation")
+        @Config.Comment("Allows Small Army Checkpoints to generate during terrain generation.")
+        public boolean enableArmyCheckpointGeneration = true;
+
+        @Config.Name("Army Checkpoint Spawn Chance")
+        @Config.Comment("One chance in this many chunks to try generating a Small Army Checkpoint. Higher values are rarer.")
+        public int armyCheckpointSpawnChance = 120;
+
+        @Config.Name("Army Checkpoint Width")
+        @Config.Comment("Checkpoint width in blocks. Values are clamped to a safe in-chunk range.")
+        public int armyCheckpointWidth = 9;
+
+        @Config.Name("Army Checkpoint Depth")
+        @Config.Comment("Checkpoint depth in blocks. Values are clamped to a safe in-chunk range.")
+        public int armyCheckpointDepth = 9;
+
+        @Config.Name("Army Checkpoint Wall Height")
+        @Config.Comment("Low perimeter wall height for generated checkpoints.")
+        public int armyCheckpointWallHeight = 2;
+
+        @Config.Name("Army Checkpoint Max Terrain Height Difference")
+        @Config.Comment("Maximum height difference allowed across the checkpoint footprint before generation is skipped.")
+        public int armyCheckpointMaxTerrainHeightDifference = 2;
+
+        @Config.Name("Army Checkpoint Allowed Dimensions")
+        @Config.Comment("Dimension IDs where Small Army Checkpoints can generate. Default is overworld only.")
+        public int[] armyCheckpointAllowedDimensions = new int[] {
+                0
+        };
     }
 
     private static final class ParsedReward {

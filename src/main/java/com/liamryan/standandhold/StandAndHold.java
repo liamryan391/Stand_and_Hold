@@ -6,6 +6,7 @@ import com.liamryan.standandhold.common.event.HumanProgressionEventHandler;
 import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
 import com.liamryan.standandhold.common.tile.TileEntityResearchLab;
 import com.liamryan.standandhold.common.proxy.CommonProxy;
+import com.liamryan.standandhold.common.worldgen.ArmyCheckpointWorldGenerator;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
@@ -41,6 +42,7 @@ public final class StandAndHold {
     public void preInit(FMLPreInitializationEvent event) {
         StandAndHoldConfig.sync();
         ModEntities.registerEntities();
+        GameRegistry.registerWorldGenerator(new ArmyCheckpointWorldGenerator(), 0);
         GameRegistry.registerTileEntity(TileEntityFieldCommandPost.class, StandAndHoldConstants.MOD_ID + ":field_command_post");
         GameRegistry.registerTileEntity(TileEntityResearchLab.class, StandAndHoldConstants.MOD_ID + ":research_lab");
         proxy.preInit(event);

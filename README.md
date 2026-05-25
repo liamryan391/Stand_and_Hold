@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 11: a small, compileable Forge project foundation with persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point generation from loaded command posts, early Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, and bounded outpost defender spawning. Gameplay systems such as structure generation, full scientist AI, advanced weapons, generated outposts, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
+This repository is currently in Phase 12: a small, compileable Forge project foundation with persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point generation from loaded command posts, early Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, and one simple generated Small Army Checkpoint. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
 
 ## Current Scope
 
@@ -32,6 +32,7 @@ This repository is currently in Phase 11: a small, compileable Forge project fou
 - Base human NPC entity class
 - Tiered human unit entities with spawn eggs and simple parasite targeting AI
 - Field Command Post outpost defender spawning with limits
+- Small Army Checkpoint world generation
 
 ## Requirements
 
@@ -281,10 +282,28 @@ outpostDefenderPatrolRadius=16
 outpostDefenderSpawnSearchRadius=4
 ```
 
+## Phase 12 Structure Generation
+
+Small Army Checkpoints are the first generated structure. They are intentionally simple: a small stone platform with low cobblestone walls, a front opening, torches, and a Field Command Post anchor in the middle.
+
+Generation is chunk-local and conservative. The generator checks the configured dimension, applies a per-chunk chance, clamps dimensions to fit safely inside one chunk, and skips terrain that is too uneven or unsafe. It does not use global scans or template systems yet.
+
+Config options:
+
+```text
+enableArmyCheckpointGeneration=true
+armyCheckpointSpawnChance=120
+armyCheckpointWidth=9
+armyCheckpointDepth=9
+armyCheckpointWallHeight=2
+armyCheckpointMaxTerrainHeightDifference=2
+armyCheckpointAllowedDimensions=[0]
+```
+
 ## Planned Next Phase
 
-Phase 12 should build on the point, sample, research, lab, command-post, unit-tier, and outpost-defence systems without jumping into full structure generation:
+Phase 13 should build on the point, sample, research, lab, command-post, unit-tier, outpost-defence, and first checkpoint-generation systems without jumping into a large structure framework:
 
 - Tune point rewards and stage thresholds from playtesting
-- Add basic lab-linked scientist behavior or outpost status/admin commands
+- Add basic lab-linked scientist behavior, outpost status/admin commands, or checkpoint spawn balancing
 - Keep Scape and Run: Parasites compatibility data-driven until entity IDs are verified
