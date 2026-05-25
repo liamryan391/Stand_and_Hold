@@ -3,6 +3,7 @@ package com.liamryan.standandhold.common.world;
 import com.liamryan.standandhold.StandAndHoldConstants;
 import com.liamryan.standandhold.common.progression.HumanStage;
 import com.liamryan.standandhold.common.research.ResearchEntry;
+import com.liamryan.standandhold.common.threat.ThreatRecord;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
@@ -10,8 +11,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.common.util.Constants;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 public final class HumanWorldData extends WorldSavedData {
@@ -24,6 +29,7 @@ public final class HumanWorldData extends WorldSavedData {
     private static final String TAG_RESEARCH_LABS = "ResearchLabs";
     private static final String TAG_MAIN_BASES = "MainBases";
     private static final String TAG_ACTIVE_MAIN_BASES = "ActiveMainBases";
+    private static final String TAG_THREAT_RECORDS = "ThreatRecords";
 
     private int humanPoints;
     private HumanStage stage = HumanStage.SURVIVORS;
@@ -32,6 +38,7 @@ public final class HumanWorldData extends WorldSavedData {
     private final Set<String> researchLabPositions = new LinkedHashSet<String>();
     private final Set<String> mainBasePositions = new LinkedHashSet<String>();
     private final Set<String> activeMainBasePositions = new LinkedHashSet<String>();
+    private final Map<String, ThreatRecord> threatRecords = new LinkedHashMap<String, ThreatRecord>();
 
     public HumanWorldData() {
         super(DATA_NAME);
@@ -50,6 +57,7 @@ public final class HumanWorldData extends WorldSavedData {
         researchLabPositions.clear();
         mainBasePositions.clear();
         activeMainBasePositions.clear();
+        threatRecords.clear();
 
         NBTTagList completedResearchTags = compound.getTagList(TAG_COMPLETED_RESEARCH, Constants.NBT.TAG_STRING);
         for (int i = 0; i < completedResearchTags.tagCount(); i++) {
@@ -90,6 +98,12 @@ public final class HumanWorldData extends WorldSavedData {
                 activeMainBasePositions.add(positionKey);
             }
         }
+
+        NBTTagList threatRecordTags = compound.getTagList(TAG_THREAT_RECORDS, Constants.NBT.TAG_COMPOUND);
+        for (int i = 0; i < threatRecordTags.tagCount(); i++) {
+            ThreatRecord record = ThreatRecord.readFromNBT(threatRecordTags.getCompoundTagAt(i));
+            threatRecords.put(record.getKey(), record);
+        }
     }
 
     @Override
@@ -126,6 +140,12 @@ public final class HumanWorldData extends WorldSavedData {
             activeMainBaseTags.appendTag(new NBTTagString(positionKey));
         }
         compound.setTag(TAG_ACTIVE_MAIN_BASES, activeMainBaseTags);
+
+        NBTTagList threatRecordTags = new NBTTagList();
+        for (ThreatRecord record : threatRecords.values()) {
+            threatRecordTags.appendTag(record.writeToNBT());
+        }
+        compound.setTag(TAG_THREAT_RECORDS, threatRecordTags);
         return compound;
     }
 
@@ -262,6 +282,39 @@ public final class HumanWorldData extends WorldSavedData {
 
     public Set<String> getActiveMainBasePositions() {
         return Collections.unmodifiableSet(activeMainBasePositions);
+    }
+
+    public ThreatRecord getOrCreateThreatRecord(int dimension, int regionX, int regionZ) {
+        String key = ThreatRecord.getKey(dimension, regionX, regionZ);
+        ThreatRecord record = threatRecords.get(key);
+        if (record == null) {
+            record = new ThreatRecord(dimension, regionX, regionZ);
+            threatRecords.put(key, record);
+            markDirty();
+        }
+        return record;
+    }
+
+    public ThreatRecord getThreatRecord(int dimension, int regionX, int regionZ) {
+        return threatRecords.get(ThreatRecord.getKey(dimension, regionX, regionZ));
+    }
+
+    public Collection<ThreatRecord> getThreatRecords() {
+        return Collections.unmodifiableCollection(threatRecords.values());
+    }
+
+    public void pruneThreatRecords(int maxRecords) {
+        int safeMaxRecords = Math.max(1, maxRecords);
+        if (threatRecords.size() <= safeMaxRecords) {
+            return;
+        }
+
+        Iterator<String> iterator = threatRecords.keySet().iterator();
+        while (threatRecords.size() > safeMaxRecords && iterator.hasNext()) {
+            iterator.next();
+            iterator.remove();
+        }
+        markDirty();
     }
 
     private static String getPositionKey(int dimension, BlockPos pos) {

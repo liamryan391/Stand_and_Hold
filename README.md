@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 14: a compileable Forge project foundation for a future large-scale Stand and Hold mod. It includes persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point generation from loaded command posts, Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, persistent Main Base registration/activation, Special Parasite Division gating, and admin structure debug tools. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
+This repository is currently in Phase 15: a compileable Forge project foundation for a future large-scale Stand and Hold mod. It includes persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point generation from loaded command posts, Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, persistent Main Base registration/activation, Special Parasite Division gating, regional threat tracking, and bounded reinforcement triggers. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
 
 ## Current Scope
 
@@ -36,6 +36,7 @@ This repository is currently in Phase 14: a compileable Forge project foundation
 - Rare Main Base foundation generation
 - Persistent Main Base registration and activation state
 - Special Parasite Division Operative stage/research gating
+- Regional threat response records and reinforcement triggers
 - Admin outpost and structure debug commands
 
 ## Requirements
@@ -382,10 +383,62 @@ specialParasiteDivisionMaxOperativesPerMainBase=2
 specialParasiteDivisionDeploymentRadius=8
 ```
 
+## Phase 15 Threat Response
+
+Threat response is the first foundation for humanity reacting to parasite pressure. Threat is tracked by configurable chunk regions and persisted in `HumanWorldData`.
+
+Tracked events:
+
+- Configured parasite/test entity deaths
+- Stand and Hold human unit losses
+- Assigned outpost defenders being attacked by configured parasite/test entities
+
+Threat records store:
+
+- Threat score and threat level
+- Parasite kills
+- Human losses
+- Outpost attacks
+- Reinforcements sent
+- Last event and last reinforcement world times
+
+Admin commands:
+
+```text
+/standandhold threat status
+/standandhold threat list
+/standandhold threat reinforce
+```
+
+Automatic reinforcement triggers require an active loaded Main Base, a loaded threat target region, the configured threat threshold, and the region cooldown. Manual reinforcement uses the current threat region and bypasses threshold/cooldown, but still respects loaded chunks, active Main Base availability, spawn safety, and per-region reinforcement caps.
+
+Config options:
+
+```text
+enableThreatTracking=true
+enableThreatReinforcements=true
+threatRegionChunkSize=4
+threatLevelThresholds=[0,10,25,50]
+parasiteKillThreatIncrease=2
+humanLossThreatIncrease=10
+outpostAttackThreatIncrease=6
+outpostAttackThreatCooldownTicks=200
+threatReinforcementThreshold=25
+reinforcementCooldownTicks=12000
+reinforcementUnitsPerTrigger=2
+maxReinforcementsPerThreatRegion=6
+reinforcementSpawnRadius=8
+reinforcementPatrolRadius=32
+maxThreatScore=100
+maxThreatRecords=128
+```
+
+Special Parasite Division deployments now prefer loaded high-threat regions when available, while still falling back to the Main Base area.
+
 ## Planned Next Phase
 
-Phase 15 should build on the point, sample, research, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, and Special Parasite Division foundations without jumping into the entire final system at once:
+Phase 16 should build on the point, sample, research, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, and threat-response foundations without jumping into the entire final system at once:
 
 - Tune point rewards and stage thresholds from playtesting
-- Add basic lab-linked scientist behavior, high-threat area tracking, or Main Base/Special Division deployment balancing
+- Add basic lab-linked scientist behavior, threat decay, patrol orders, or Main Base/Special Division deployment balancing
 - Keep Scape and Run: Parasites compatibility data-driven until entity IDs are verified

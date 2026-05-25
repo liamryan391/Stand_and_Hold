@@ -8,6 +8,8 @@ import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.progression.HumanStage;
 import com.liamryan.standandhold.common.research.ResearchEntry;
 import com.liamryan.standandhold.common.research.ResearchManager;
+import com.liamryan.standandhold.common.threat.ThreatRecord;
+import com.liamryan.standandhold.common.threat.ThreatResponseManager;
 import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.common.worldgen.ArmyCheckpointWorldGenerator;
@@ -37,6 +39,7 @@ public final class CommandStandAndHold extends CommandBase {
             "research",
             "commandpost",
             "mainbase",
+            "threat",
             "structure"
     };
     private static final String[] RESEARCH_SUBCOMMANDS = new String[] {
@@ -58,6 +61,11 @@ public final class CommandStandAndHold extends CommandBase {
             "list",
             "status",
             "activate"
+    };
+    private static final String[] THREAT_SUBCOMMANDS = new String[] {
+            "status",
+            "list",
+            "reinforce"
     };
 
     @Override
@@ -110,6 +118,12 @@ public final class CommandStandAndHold extends CommandBase {
             return;
         }
 
+        if ("threat".equalsIgnoreCase(args[0])) {
+            requireAdmin(sender);
+            executeThreat(sender, args);
+            return;
+        }
+
         if ("structure".equalsIgnoreCase(args[0])) {
             requireAdmin(sender);
             executeStructure(sender, args);
@@ -143,6 +157,10 @@ public final class CommandStandAndHold extends CommandBase {
 
         if (args.length == 2 && "mainbase".equalsIgnoreCase(args[0])) {
             return getListOfStringsMatchingLastWord(args, MAIN_BASE_SUBCOMMANDS);
+        }
+
+        if (args.length == 2 && "threat".equalsIgnoreCase(args[0])) {
+            return getListOfStringsMatchingLastWord(args, THREAT_SUBCOMMANDS);
         }
 
         if (args.length == 3 && "research".equalsIgnoreCase(args[0]) && "complete".equalsIgnoreCase(args[1])) {
@@ -616,6 +634,118 @@ public final class CommandStandAndHold extends CommandBase {
         }
     }
 
+    private void executeThreat(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length < 2) {
+            throw new CommandException("commands.standandhold.threat.usage");
+        }
+
+        if ("status".equalsIgnoreCase(args[1])) {
+            executeThreatStatus(sender, args);
+            return;
+        }
+
+        if ("list".equalsIgnoreCase(args[1])) {
+            executeThreatList(sender, args);
+            return;
+        }
+
+        if ("reinforce".equalsIgnoreCase(args[1])) {
+            executeThreatReinforce(sender, args);
+            return;
+        }
+
+        throw new CommandException("commands.standandhold.threat.usage");
+    }
+
+    private void executeThreatStatus(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length != 2) {
+            throw new CommandException("commands.standandhold.threat.usage");
+        }
+
+        ThreatRecord record = ThreatResponseManager.getThreatRecordAt(sender.getEntityWorld(), sender.getPosition(), false);
+        if (record == null) {
+            TextComponentTranslation none = new TextComponentTranslation("commands.standandhold.threat.status.none");
+            none.getStyle().setColor(TextFormatting.GRAY);
+            sender.sendMessage(none);
+            return;
+        }
+
+        sendThreatStatus(sender, record);
+    }
+
+    private void executeThreatList(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length != 2) {
+            throw new CommandException("commands.standandhold.threat.usage");
+        }
+
+        List<ThreatRecord> records = ThreatResponseManager.getThreatRecordsSorted(sender.getEntityWorld());
+        TextComponentTranslation header = new TextComponentTranslation("commands.standandhold.threat.list.header", records.size());
+        header.getStyle().setColor(TextFormatting.AQUA);
+        sender.sendMessage(header);
+
+        if (records.isEmpty()) {
+            TextComponentTranslation none = new TextComponentTranslation("commands.standandhold.threat.list.none");
+            none.getStyle().setColor(TextFormatting.GRAY);
+            sender.sendMessage(none);
+            return;
+        }
+
+        int shown = 0;
+        int limit = 10;
+        for (ThreatRecord record : records) {
+            TextComponentTranslation line = new TextComponentTranslation(
+                    "commands.standandhold.threat.list.entry",
+                    record.getDimension(),
+                    record.getRegionX(),
+                    record.getRegionZ(),
+                    record.getThreatScore(),
+                    record.getThreatLevel().getDisplayName(),
+                    record.getParasiteKills(),
+                    record.getHumanLosses(),
+                    record.getOutpostAttacks(),
+                    record.getReinforcementsSent()
+            );
+            line.getStyle().setColor(record.getThreatLevel().getId() >= 2 ? TextFormatting.RED : TextFormatting.GRAY);
+            sender.sendMessage(line);
+            shown++;
+            if (shown >= limit) {
+                break;
+            }
+        }
+
+        if (records.size() > shown) {
+            TextComponentTranslation more = new TextComponentTranslation("commands.standandhold.threat.list.more", records.size() - shown);
+            more.getStyle().setColor(TextFormatting.DARK_GRAY);
+            sender.sendMessage(more);
+        }
+    }
+
+    private void executeThreatReinforce(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length != 2) {
+            throw new CommandException("commands.standandhold.threat.usage");
+        }
+
+        ThreatRecord record = ThreatResponseManager.getThreatRecordAt(sender.getEntityWorld(), sender.getPosition(), false);
+        if (record == null) {
+            throw new CommandException("commands.standandhold.threat.reinforce.no_record");
+        }
+
+        ThreatResponseManager.ReinforcementResult result = ThreatResponseManager.triggerReinforcement(sender.getEntityWorld(), record, true);
+        if (result.getStatus() != ThreatResponseManager.ReinforcementStatus.DEPLOYED) {
+            throw new CommandException("commands.standandhold.threat.reinforce.failed", result.getStatus().name().toLowerCase());
+        }
+
+        TextComponentTranslation message = new TextComponentTranslation(
+                "commands.standandhold.threat.reinforce.success",
+                result.getUnitsSpawned(),
+                record.getDimension(),
+                record.getRegionX(),
+                record.getRegionZ()
+        );
+        message.getStyle().setColor(TextFormatting.YELLOW);
+        sender.sendMessage(message);
+    }
+
     private void executeStructure(ICommandSender sender, String[] args) throws CommandException {
         if (args.length != 2) {
             throw new CommandException("commands.standandhold.structure.usage");
@@ -724,6 +854,23 @@ public final class CommandStandAndHold extends CommandBase {
         }
 
         message.getStyle().setColor(color);
+        sender.sendMessage(message);
+    }
+
+    private void sendThreatStatus(ICommandSender sender, ThreatRecord record) {
+        TextComponentTranslation message = new TextComponentTranslation(
+                "commands.standandhold.threat.status",
+                record.getDimension(),
+                record.getRegionX(),
+                record.getRegionZ(),
+                record.getThreatScore(),
+                record.getThreatLevel().getDisplayName(),
+                record.getParasiteKills(),
+                record.getHumanLosses(),
+                record.getOutpostAttacks(),
+                record.getReinforcementsSent()
+        );
+        message.getStyle().setColor(record.getThreatLevel().getId() >= 2 ? TextFormatting.RED : TextFormatting.GREEN);
         sender.sendMessage(message);
     }
 

@@ -49,6 +49,10 @@ public final class StandAndHoldConfig {
     @Config.Comment("Settings for generated Stand and Hold structures.")
     public static final WorldGeneration worldGeneration = new WorldGeneration();
 
+    @Config.Name("Threat Response")
+    @Config.Comment("Settings for regional threat tracking and reinforcement decisions.")
+    public static final ThreatResponse threatResponse = new ThreatResponse();
+
     private StandAndHoldConfig() {
     }
 
@@ -128,6 +132,39 @@ public final class StandAndHoldConfig {
             String configuredEntityId = normalizeEntityId(targetEntry);
             if (configuredEntityId != null && configuredEntityId.equals(entityId)) {
                 return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean isConfiguredParasiteEntity(ResourceLocation entityRegistryId) {
+        if (entityRegistryId == null) {
+            return false;
+        }
+
+        if (isHumanUnitTargetEntity(entityRegistryId)) {
+            return true;
+        }
+
+        String entityId = entityRegistryId.toString().toLowerCase(Locale.ROOT);
+        String[] rewardEntries = pointSources.parasiteKillRewards;
+        if (rewardEntries != null) {
+            for (String rewardEntry : rewardEntries) {
+                ParsedReward parsedReward = parseRewardEntry(rewardEntry);
+                if (parsedReward != null && parsedReward.entityId.equals(entityId)) {
+                    return true;
+                }
+            }
+        }
+
+        String[] sampleEntries = pointSources.parasiteSampleDropChances;
+        if (sampleEntries != null) {
+            for (String sampleEntry : sampleEntries) {
+                ParsedChance parsedChance = parseChanceEntry(sampleEntry);
+                if (parsedChance != null && parsedChance.entityId.equals(entityId)) {
+                    return true;
+                }
             }
         }
 
@@ -539,6 +576,77 @@ public final class StandAndHoldConfig {
         public int[] mainBaseAllowedDimensions = new int[] {
                 0
         };
+    }
+
+    public static final class ThreatResponse {
+        @Config.Name("Enable Threat Tracking")
+        @Config.Comment("Tracks regional threat from configured parasite deaths, human losses, and outpost attacks.")
+        public boolean enableThreatTracking = true;
+
+        @Config.Name("Enable Threat Reinforcements")
+        @Config.Comment("Allows high-threat regions to trigger bounded human reinforcements from active Main Bases.")
+        public boolean enableThreatReinforcements = true;
+
+        @Config.Name("Threat Region Chunk Size")
+        @Config.Comment("Threat region width/depth in chunks. Larger values merge more events into fewer records.")
+        public int threatRegionChunkSize = 4;
+
+        @Config.Name("Threat Level Thresholds")
+        @Config.Comment("Threat score thresholds for Low, Guarded, High, and Critical levels.")
+        public int[] threatLevelThresholds = new int[] {
+                0,
+                10,
+                25,
+                50
+        };
+
+        @Config.Name("Parasite Kill Threat Increase")
+        @Config.Comment("Threat score added when a configured parasite/test entity dies in a region.")
+        public int parasiteKillThreatIncrease = 2;
+
+        @Config.Name("Human Loss Threat Increase")
+        @Config.Comment("Threat score added when a Stand and Hold human unit dies in a region.")
+        public int humanLossThreatIncrease = 10;
+
+        @Config.Name("Outpost Attack Threat Increase")
+        @Config.Comment("Threat score added when an assigned outpost defender is attacked by a configured parasite/test entity.")
+        public int outpostAttackThreatIncrease = 6;
+
+        @Config.Name("Outpost Attack Threat Cooldown")
+        @Config.Comment("Ticks before repeated outpost attack threat can be counted again in the same region.")
+        public int outpostAttackThreatCooldownTicks = 200;
+
+        @Config.Name("Threat Reinforcement Threshold")
+        @Config.Comment("Threat score required before automatic reinforcements can be considered.")
+        public int threatReinforcementThreshold = 25;
+
+        @Config.Name("Reinforcement Cooldown")
+        @Config.Comment("Ticks between automatic reinforcement deployments per threat region.")
+        public int reinforcementCooldownTicks = 12000;
+
+        @Config.Name("Reinforcement Units Per Trigger")
+        @Config.Comment("Maximum human units spawned when a threat region triggers reinforcements.")
+        public int reinforcementUnitsPerTrigger = 2;
+
+        @Config.Name("Max Reinforcements Per Threat Region")
+        @Config.Comment("Maximum total reinforcement units a single threat region can receive. Use 0 for no cap.")
+        public int maxReinforcementsPerThreatRegion = 6;
+
+        @Config.Name("Reinforcement Spawn Radius")
+        @Config.Comment("Horizontal radius around a threat region center used to find reinforcement spawn positions.")
+        public int reinforcementSpawnRadius = 8;
+
+        @Config.Name("Reinforcement Patrol Radius")
+        @Config.Comment("Patrol radius assigned to threat-response reinforcements around their source Main Base.")
+        public int reinforcementPatrolRadius = 32;
+
+        @Config.Name("Max Threat Score")
+        @Config.Comment("Maximum stored threat score per region.")
+        public int maxThreatScore = 100;
+
+        @Config.Name("Max Threat Records")
+        @Config.Comment("Maximum number of regional threat records persisted in the world save.")
+        public int maxThreatRecords = 128;
     }
 
     private static final class ParsedReward {

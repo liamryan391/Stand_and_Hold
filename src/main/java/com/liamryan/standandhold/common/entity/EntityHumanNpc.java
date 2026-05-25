@@ -110,6 +110,19 @@ public abstract class EntityHumanNpc extends EntityCreature {
                 && assignedOutpostPos.equals(outpostPos);
     }
 
+    public boolean hasAssignedOutpost() {
+        return assignedOutpostPos != null;
+    }
+
+    public int getAssignedOutpostDimension() {
+        return assignedOutpostDimension;
+    }
+
+    @Nullable
+    public BlockPos getAssignedOutpostPos() {
+        return assignedOutpostPos;
+    }
+
     @Override
     public void writeEntityToNBT(NBTTagCompound compound) {
         super.writeEntityToNBT(compound);

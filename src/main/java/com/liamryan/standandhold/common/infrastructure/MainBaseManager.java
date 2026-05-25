@@ -7,6 +7,7 @@ import com.liamryan.standandhold.common.entity.HumanUnitTier;
 import com.liamryan.standandhold.common.entity.ModEntities;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.research.ResearchManager;
+import com.liamryan.standandhold.common.threat.ThreatResponseManager;
 import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
@@ -234,17 +235,28 @@ public final class MainBaseManager {
     }
 
     private static BlockPos findDeploymentPosition(World world, BlockPos commandPostPos) {
+        BlockPos deploymentCenter = ThreatResponseManager.getHighestLoadedThreatTarget(world);
+        if (deploymentCenter == null) {
+            deploymentCenter = commandPostPos;
+        }
+
         int radius = Math.max(1, StandAndHoldConfig.humanNpcs.specialParasiteDivisionDeploymentRadius);
         for (int attempt = 0; attempt < 24; attempt++) {
             int offsetX = world.rand.nextInt(radius * 2 + 1) - radius;
             int offsetZ = world.rand.nextInt(radius * 2 + 1) - radius;
-            BlockPos candidate = commandPostPos.add(offsetX, 1, offsetZ);
+            int x = deploymentCenter.getX() + offsetX;
+            int z = deploymentCenter.getZ() + offsetZ;
+            if (!world.isBlockLoaded(new BlockPos(x, deploymentCenter.getY(), z))) {
+                continue;
+            }
+
+            BlockPos candidate = new BlockPos(x, world.getHeight(x, z), z);
             if (canSpawnAt(world, candidate)) {
                 return candidate;
             }
         }
 
-        BlockPos fallback = commandPostPos.up();
+        BlockPos fallback = new BlockPos(deploymentCenter.getX(), world.getHeight(deploymentCenter.getX(), deploymentCenter.getZ()), deploymentCenter.getZ());
         return canSpawnAt(world, fallback) ? fallback : null;
     }
 
