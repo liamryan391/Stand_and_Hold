@@ -10,6 +10,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class TileEntityResearchLab extends TileEntity implements ITickable {
@@ -175,6 +176,32 @@ public final class TileEntityResearchLab extends TileEntity implements ITickable
         return false;
     }
 
+    public boolean selectNextAvailableResearch() {
+        if (world == null || world.isRemote) {
+            return false;
+        }
+
+        HumanWorldData data = HumanPointManager.getData(world);
+        List<ResearchEntry> availableTargets = getAvailableResearchTargets(data);
+        if (availableTargets.isEmpty()) {
+            if (!targetResearchId.isEmpty() || researchProgress != 0) {
+                targetResearchId = "";
+                researchProgress = 0;
+                markDirty();
+            }
+            return false;
+        }
+
+        int currentIndex = getTargetIndex(availableTargets, targetResearchId);
+        ResearchEntry nextTarget = availableTargets.get((currentIndex + 1) % availableTargets.size());
+        if (!targetResearchId.equals(nextTarget.getId())) {
+            targetResearchId = nextTarget.getId();
+            researchProgress = 0;
+            markDirty();
+        }
+        return true;
+    }
+
     public String getTargetResearchLabel() {
         ResearchEntry target = getOrSelectTargetResearch();
         if (target == null) {
@@ -230,12 +257,28 @@ public final class TileEntityResearchLab extends TileEntity implements ITickable
     }
 
     private ResearchEntry getNextAvailableResearch(HumanWorldData data) {
+        List<ResearchEntry> availableTargets = getAvailableResearchTargets(data);
+        return availableTargets.isEmpty() ? null : availableTargets.get(0);
+    }
+
+    private List<ResearchEntry> getAvailableResearchTargets(HumanWorldData data) {
+        List<ResearchEntry> availableTargets = new ArrayList<ResearchEntry>();
         for (ResearchEntry entry : ResearchManager.getResearchEntries()) {
             if (isValidTarget(data, entry)) {
-                return entry;
+                availableTargets.add(entry);
             }
         }
-        return null;
+        return availableTargets;
+    }
+
+    private int getTargetIndex(List<ResearchEntry> availableTargets, String researchId) {
+        String normalizedId = ResearchEntry.normalizeId(researchId);
+        for (int i = 0; i < availableTargets.size(); i++) {
+            if (availableTargets.get(i).getId().equals(normalizedId)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private boolean isValidTarget(HumanWorldData data, ResearchEntry entry) {

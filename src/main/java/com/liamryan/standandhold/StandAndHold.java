@@ -4,6 +4,7 @@ import com.liamryan.standandhold.common.command.CommandStandAndHold;
 import com.liamryan.standandhold.common.entity.ModEntities;
 import com.liamryan.standandhold.common.event.HumanProgressionEventHandler;
 import com.liamryan.standandhold.common.gui.StandAndHoldGuiHandler;
+import com.liamryan.standandhold.common.network.StandAndHoldNetwork;
 import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
 import com.liamryan.standandhold.common.tile.TileEntityResearchLab;
 import com.liamryan.standandhold.common.proxy.CommonProxy;
@@ -44,6 +45,7 @@ public final class StandAndHold {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         StandAndHoldConfig.sync();
+        StandAndHoldNetwork.registerMessages();
         ModEntities.registerEntities();
         GameRegistry.registerWorldGenerator(new ArmyCheckpointWorldGenerator(), 0);
         GameRegistry.registerWorldGenerator(new MainBaseWorldGenerator(), 1);

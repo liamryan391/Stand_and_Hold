@@ -1,10 +1,13 @@
 package com.liamryan.standandhold.common.gui;
 
+import com.liamryan.standandhold.common.network.StandAndHoldNetwork;
 import com.liamryan.standandhold.common.tile.TileEntityResearchLab;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IContainerListener;
+import net.minecraft.util.math.BlockPos;
 
 public final class ContainerResearchLab extends Container {
     private static final int FIELD_PROGRESS = 0;
@@ -37,16 +40,20 @@ public final class ContainerResearchLab extends Container {
     @Override
     public void detectAndSendChanges() {
         super.detectAndSendChanges();
-        if (researchLab == null) {
+        if (researchLab == null || researchLab.getWorld() == null || researchLab.getWorld().isRemote) {
             return;
         }
 
-        syncField(FIELD_PROGRESS, researchLab.getResearchProgress());
-        syncField(FIELD_PROGRESS_REQUIRED, researchLab.getResearchProgressRequired());
-        syncField(FIELD_STORED_SAMPLES, researchLab.getStoredParasiteSamples());
-        syncField(FIELD_MAX_STORED_SAMPLES, researchLab.getMaxStoredParasiteSamples());
-        syncField(FIELD_STORED_SUPPLIES, researchLab.getStoredSupplies());
-        syncField(FIELD_MAX_STORED_SUPPLIES, researchLab.getMaxStoredSupplies());
+        boolean changed = false;
+        changed |= syncField(FIELD_PROGRESS, researchLab.getResearchProgress());
+        changed |= syncField(FIELD_PROGRESS_REQUIRED, researchLab.getResearchProgressRequired());
+        changed |= syncField(FIELD_STORED_SAMPLES, researchLab.getStoredParasiteSamples());
+        changed |= syncField(FIELD_MAX_STORED_SAMPLES, researchLab.getMaxStoredParasiteSamples());
+        changed |= syncField(FIELD_STORED_SUPPLIES, researchLab.getStoredSupplies());
+        changed |= syncField(FIELD_MAX_STORED_SUPPLIES, researchLab.getMaxStoredSupplies());
+        if (changed) {
+            sendNetworkSync();
+        }
     }
 
     @Override
@@ -99,14 +106,27 @@ public final class ContainerResearchLab extends Container {
         return maxStoredSupplies;
     }
 
-    private void syncField(int id, int value) {
+    public BlockPos getPos() {
+        return researchLab.getPos();
+    }
+
+    private boolean syncField(int id, int value) {
         if (getCachedValue(id) == value) {
-            return;
+            return false;
         }
 
         setCachedValue(id, value);
         for (IContainerListener listener : listeners) {
             listener.sendWindowProperty(this, id, value);
+        }
+        return true;
+    }
+
+    private void sendNetworkSync() {
+        for (IContainerListener listener : listeners) {
+            if (listener instanceof EntityPlayerMP) {
+                StandAndHoldNetwork.sendGuiSync((EntityPlayerMP) listener, researchLab.getWorld(), researchLab.getPos());
+            }
         }
     }
 

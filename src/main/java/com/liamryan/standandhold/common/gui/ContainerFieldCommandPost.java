@@ -1,12 +1,15 @@
 package com.liamryan.standandhold.common.gui;
 
+import com.liamryan.standandhold.common.network.StandAndHoldNetwork;
 import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IContainerListener;
+import net.minecraft.util.math.BlockPos;
 
 public final class ContainerFieldCommandPost extends Container {
     private static final int FIELD_HUMAN_POINTS = 0;
@@ -39,17 +42,21 @@ public final class ContainerFieldCommandPost extends Container {
     @Override
     public void detectAndSendChanges() {
         super.detectAndSendChanges();
-        if (commandPost == null || commandPost.getWorld() == null) {
+        if (commandPost == null || commandPost.getWorld() == null || commandPost.getWorld().isRemote) {
             return;
         }
 
         HumanWorldData data = HumanPointManager.getData(commandPost.getWorld());
-        syncField(FIELD_HUMAN_POINTS, data.getHumanPoints());
-        syncField(FIELD_STAGE_ID, data.getStage().getId());
-        syncField(FIELD_SUPPLY_POINTS, data.getSupplyPoints());
-        syncField(FIELD_UPGRADE_LEVEL, commandPost.getUpgradeLevel());
-        syncField(FIELD_STORED_SUPPLIES, commandPost.getStoredSupplies());
-        syncField(FIELD_MAX_STORED_SUPPLIES, commandPost.getMaxStoredSupplies());
+        boolean changed = false;
+        changed |= syncField(FIELD_HUMAN_POINTS, data.getHumanPoints());
+        changed |= syncField(FIELD_STAGE_ID, data.getStage().getId());
+        changed |= syncField(FIELD_SUPPLY_POINTS, data.getSupplyPoints());
+        changed |= syncField(FIELD_UPGRADE_LEVEL, commandPost.getUpgradeLevel());
+        changed |= syncField(FIELD_STORED_SUPPLIES, commandPost.getStoredSupplies());
+        changed |= syncField(FIELD_MAX_STORED_SUPPLIES, commandPost.getMaxStoredSupplies());
+        if (changed) {
+            sendNetworkSync();
+        }
     }
 
     @Override
@@ -102,14 +109,27 @@ public final class ContainerFieldCommandPost extends Container {
         return maxStoredSupplies;
     }
 
-    private void syncField(int id, int value) {
+    public BlockPos getPos() {
+        return commandPost.getPos();
+    }
+
+    private boolean syncField(int id, int value) {
         if (getCachedValue(id) == value) {
-            return;
+            return false;
         }
 
         setCachedValue(id, value);
         for (IContainerListener listener : listeners) {
             listener.sendWindowProperty(this, id, value);
+        }
+        return true;
+    }
+
+    private void sendNetworkSync() {
+        for (IContainerListener listener : listeners) {
+            if (listener instanceof EntityPlayerMP) {
+                StandAndHoldNetwork.sendGuiSync((EntityPlayerMP) listener, commandPost.getWorld(), commandPost.getPos());
+            }
         }
     }
 

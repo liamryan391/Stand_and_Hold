@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 19: a compileable Forge project foundation for a future large-scale Stand and Hold mod. It includes persistent human progression points, supply points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point and supply generation from loaded command posts, Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, persistent Main Base registration/activation, Special Parasite Division gating, regional threat tracking, threat decay, bounded reinforcement triggers, simple human equipment, equipment crafting/unlock gates, one prototype ranged weapon with a custom projectile, projectile hit polish, and simple block GUIs. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
+This repository is currently in Phase 20: a compileable Forge project foundation for a future large-scale Stand and Hold mod. It includes persistent human progression points, supply points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point and supply generation from loaded command posts, Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, persistent Main Base registration/activation, Special Parasite Division gating, regional threat tracking, threat decay, bounded reinforcement triggers, simple human equipment, equipment crafting/unlock gates, one prototype ranged weapon with a custom projectile, projectile hit polish, simple block GUIs, and a small networking foundation for GUI data/actions. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
 
 ## Current Scope
 
@@ -38,6 +38,9 @@ This repository is currently in Phase 19: a compileable Forge project foundation
 - Equipment recipes and stage/research use gates
 - Simple repair recipes for equipment
 - Command Post and Research Lab GUI screens
+- SimpleNetworkWrapper packet channel
+- Server-to-client progression and tile data sync packets
+- Server-authoritative GUI actions for command post upgrades and lab research selection/completion
 - Base human NPC entity class
 - Tiered human unit entities with spawn eggs and simple parasite targeting AI
 - Field Command Post outpost defender spawning with limits
@@ -563,15 +566,25 @@ Phase 19 introduces two simple server-opened block GUIs:
 - Field Command Post GUI: human points, human stage, command post level, global supplies, and local stockpile.
 - Research Lab GUI: research progress bar, stored parasite samples, and local supplies.
 
-The first GUI pass uses Forge containers for server-client sync. Numeric values are sent through normal container window properties, so no custom packet is needed yet. The screens are intentionally plain and stable so later phases can replace them with richer layouts and controls.
+The first GUI pass uses Forge containers for server-client sync. Numeric values are sent through normal container window properties. The screens are intentionally plain and stable so later phases can replace them with richer layouts and controls.
+
+## Phase 20 Networking and GUI Actions
+
+Phase 20 adds a small `SimpleNetworkWrapper` channel for Stand and Hold GUI data. The first packets are deliberately narrow:
+
+- `PacketSyncHumanProgression` sends human points, stage, and supply points from the server to the client.
+- `PacketSyncTileData` sends Field Command Post or Research Lab tile data needed by the current GUI.
+- `PacketGuiAction` lets GUI buttons request server-side actions.
+
+The Field Command Post GUI now has an `Upgrade` button that calls the existing server-side upgrade manager. The Research Lab GUI now shows the currently selected research target and has `Next` and `Complete` buttons for cycling available research and attempting completion. The client only sends requests; the server validates range, tile type, requirements, costs, and saved world data before applying changes.
 
 ## Planned Next Phase
 
-Phase 20 should build on the point, sample, supply, research, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, threat-response, equipment, simple ranged weapon, and GUI foundations without jumping into the entire final system at once:
+Phase 21 should build on the point, sample, supply, research, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, threat-response, equipment, simple ranged weapon, GUI, and networking foundations without jumping into the entire final system at once:
 
 - Tune point, supply, and threat values from playtesting
-- Add GUI buttons/actions for upgrades, research selection, or supply transfer
+- Add supply transfer controls or basic logistics routes
 - Add more polished equipment/projectile assets while keeping ammo/reload systems deferred
-- Add basic logistics routes, convoy placeholders, or more detailed building supply transfer rules
+- Add convoy placeholders or more detailed building supply-transfer rules
 - Add basic lab-linked scientist behavior or Main Base/Special Division deployment balancing
 - Keep Scape and Run: Parasites compatibility data-driven until entity IDs are verified

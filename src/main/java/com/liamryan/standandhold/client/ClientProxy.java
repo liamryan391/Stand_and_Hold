@@ -6,9 +6,12 @@ import com.liamryan.standandhold.client.render.ModEntityRenderers;
 import com.liamryan.standandhold.common.gui.ContainerFieldCommandPost;
 import com.liamryan.standandhold.common.gui.ContainerResearchLab;
 import com.liamryan.standandhold.common.gui.GuiIds;
+import com.liamryan.standandhold.common.network.PacketSyncHumanProgression;
+import com.liamryan.standandhold.common.network.PacketSyncTileData;
 import com.liamryan.standandhold.common.proxy.CommonProxy;
 import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
 import com.liamryan.standandhold.common.tile.TileEntityResearchLab;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -36,5 +39,20 @@ public final class ClientProxy extends CommonProxy {
         }
 
         return null;
+    }
+
+    @Override
+    public void scheduleClientTask(Runnable task) {
+        Minecraft.getMinecraft().addScheduledTask(task);
+    }
+
+    @Override
+    public void handleHumanProgressionSync(PacketSyncHumanProgression message) {
+        ClientSyncedData.setProgression(message.getHumanPoints(), message.getStageId(), message.getSupplyPoints());
+    }
+
+    @Override
+    public void handleTileDataSync(PacketSyncTileData message) {
+        ClientSyncedData.setTileData(message);
     }
 }

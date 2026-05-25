@@ -3,13 +3,12 @@ package com.liamryan.standandhold.common.block;
 import com.liamryan.standandhold.StandAndHold;
 import com.liamryan.standandhold.StandAndHoldConstants;
 import com.liamryan.standandhold.common.gui.GuiIds;
-import com.liamryan.standandhold.common.infrastructure.FieldCommandPostLevel;
 import com.liamryan.standandhold.common.infrastructure.FieldCommandPostUpgradeManager;
-import com.liamryan.standandhold.common.infrastructure.FieldCommandPostUpgradeRequirement;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.supply.SupplyManager;
 import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
 import com.liamryan.standandhold.common.item.ModItems;
+import com.liamryan.standandhold.common.util.CommandPostMessageHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
@@ -85,7 +84,7 @@ public final class BlockFieldCommandPost extends Block implements ITileEntityPro
         }
 
         if (commandPost != null && player.isSneaking()) {
-            sendUpgradeResult(player, FieldCommandPostUpgradeManager.tryUpgrade(world, commandPost, player));
+            CommandPostMessageHelper.sendUpgradeResult(player, FieldCommandPostUpgradeManager.tryUpgrade(world, commandPost, player));
             return true;
         }
 
@@ -126,86 +125,5 @@ public final class BlockFieldCommandPost extends Block implements ITileEntityPro
         );
         message.getStyle().setColor(TextFormatting.YELLOW);
         player.sendMessage(message);
-    }
-
-    private void sendUpgradeResult(EntityPlayer player, FieldCommandPostUpgradeManager.UpgradeResult result) {
-        TextComponentTranslation message;
-        TextFormatting color = TextFormatting.RED;
-        FieldCommandPostUpgradeRequirement requirement = result.getRequirement();
-        FieldCommandPostLevel level = result.getLevel();
-
-        switch (result.getStatus()) {
-            case COMPLETED:
-                color = TextFormatting.YELLOW;
-                message = new TextComponentTranslation(
-                        "message.standandhold.field_command_post.upgrade.success",
-                        level.getLevel(),
-                        level.getDisplayName(),
-                        requirement.getCompletionPointReward()
-                );
-                break;
-            case ALREADY_MAX_LEVEL:
-                message = new TextComponentTranslation(
-                        "message.standandhold.field_command_post.upgrade.max",
-                        level.getLevel(),
-                        level.getDisplayName()
-                );
-                break;
-            case MISSING_CONFIGURATION:
-                message = new TextComponentTranslation(
-                        "message.standandhold.field_command_post.upgrade.config",
-                        level.getLevel(),
-                        level.getDisplayName()
-                );
-                break;
-            case MISSING_POINTS:
-                message = new TextComponentTranslation(
-                        "message.standandhold.field_command_post.upgrade.points",
-                        level.getLevel(),
-                        requirement.getRequiredHumanPoints(),
-                        result.getCurrentHumanPoints()
-                );
-                break;
-            case MISSING_RESEARCH:
-                message = new TextComponentTranslation(
-                        "message.standandhold.field_command_post.upgrade.research",
-                        level.getLevel(),
-                        joinStrings(result.getMissingResearchIds())
-                );
-                break;
-            case MISSING_SAMPLES:
-                message = new TextComponentTranslation(
-                        "message.standandhold.field_command_post.upgrade.samples",
-                        level.getLevel(),
-                        requirement.getParasiteSampleCost(),
-                        result.getAvailableSamples()
-                );
-                break;
-            case MISSING_SUPPLIES:
-                message = new TextComponentTranslation(
-                        "message.standandhold.field_command_post.upgrade.supplies",
-                        level.getLevel(),
-                        requirement.getSupplyCost(),
-                        result.getAvailableSupplies()
-                );
-                break;
-            default:
-                message = new TextComponentTranslation("message.standandhold.field_command_post.upgrade.config", 0, "unknown");
-                break;
-        }
-
-        message.getStyle().setColor(color);
-        player.sendMessage(message);
-    }
-
-    private String joinStrings(Iterable<String> values) {
-        StringBuilder builder = new StringBuilder();
-        for (String value : values) {
-            if (builder.length() > 0) {
-                builder.append(", ");
-            }
-            builder.append(value);
-        }
-        return builder.toString();
     }
 }
