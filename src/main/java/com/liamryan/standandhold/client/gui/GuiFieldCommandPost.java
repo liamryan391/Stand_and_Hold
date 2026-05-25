@@ -12,20 +12,24 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 
 public final class GuiFieldCommandPost extends GuiContainer {
     private static final int BUTTON_UPGRADE = 0;
+    private static final int BUTTON_IMPORT_SUPPLIES = 1;
+    private static final int BUTTON_EXPORT_SUPPLIES = 2;
 
     private final ContainerFieldCommandPost container;
 
     public GuiFieldCommandPost(ContainerFieldCommandPost container) {
         super(container);
         this.container = container;
-        xSize = 210;
-        ySize = 152;
+        xSize = 220;
+        ySize = 164;
     }
 
     @Override
     public void initGui() {
         super.initGui();
-        buttonList.add(new GuiButton(BUTTON_UPGRADE, guiLeft + 10, guiTop + 110, 82, 20, "Upgrade"));
+        buttonList.add(new GuiButton(BUTTON_UPGRADE, guiLeft + 10, guiTop + 110, 62, 20, "Upgrade"));
+        buttonList.add(new GuiButton(BUTTON_IMPORT_SUPPLIES, guiLeft + 78, guiTop + 110, 62, 20, "Import"));
+        buttonList.add(new GuiButton(BUTTON_EXPORT_SUPPLIES, guiLeft + 146, guiTop + 110, 62, 20, "Export"));
         StandAndHoldNetwork.sendToServer(new PacketGuiAction(PacketGuiAction.ACTION_REQUEST_SYNC, container.getPos()));
     }
 
@@ -33,6 +37,10 @@ public final class GuiFieldCommandPost extends GuiContainer {
     protected void actionPerformed(GuiButton button) {
         if (button.id == BUTTON_UPGRADE) {
             StandAndHoldNetwork.sendToServer(new PacketGuiAction(PacketGuiAction.ACTION_COMMAND_POST_UPGRADE, container.getPos()));
+        } else if (button.id == BUTTON_IMPORT_SUPPLIES) {
+            StandAndHoldNetwork.sendToServer(new PacketGuiAction(PacketGuiAction.ACTION_SUPPLIES_TO_LOCAL, container.getPos()));
+        } else if (button.id == BUTTON_EXPORT_SUPPLIES) {
+            StandAndHoldNetwork.sendToServer(new PacketGuiAction(PacketGuiAction.ACTION_SUPPLIES_TO_GLOBAL, container.getPos()));
         }
     }
 

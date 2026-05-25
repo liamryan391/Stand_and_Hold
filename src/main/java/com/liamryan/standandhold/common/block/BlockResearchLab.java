@@ -94,7 +94,6 @@ public final class BlockResearchLab extends Block implements ITileEntityProvider
                 return true;
             }
 
-            int totalSupplies = SupplyManager.addSupplies(world, acceptedSupplies, "supply crate deposited into research lab: " + pos);
             if (!player.capabilities.isCreativeMode) {
                 heldStack.shrink(1);
                 player.inventory.markDirty();
@@ -104,8 +103,7 @@ public final class BlockResearchLab extends Block implements ITileEntityProvider
                     "message.standandhold.research_lab.supply_inserted",
                     acceptedSupplies,
                     lab.getStoredSupplies(),
-                    lab.getMaxStoredSupplies(),
-                    totalSupplies
+                    lab.getMaxStoredSupplies()
             );
             message.getStyle().setColor(TextFormatting.YELLOW);
             player.sendMessage(message);

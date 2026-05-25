@@ -11,6 +11,8 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 public final class GuiResearchLab extends GuiContainer {
     private static final int BUTTON_NEXT_RESEARCH = 0;
     private static final int BUTTON_COMPLETE_RESEARCH = 1;
+    private static final int BUTTON_IMPORT_SUPPLIES = 2;
+    private static final int BUTTON_EXPORT_SUPPLIES = 3;
 
     private final ContainerResearchLab container;
 
@@ -18,7 +20,7 @@ public final class GuiResearchLab extends GuiContainer {
         super(container);
         this.container = container;
         xSize = 220;
-        ySize = 164;
+        ySize = 190;
     }
 
     @Override
@@ -26,6 +28,8 @@ public final class GuiResearchLab extends GuiContainer {
         super.initGui();
         buttonList.add(new GuiButton(BUTTON_NEXT_RESEARCH, guiLeft + 10, guiTop + 124, 78, 20, "Next"));
         buttonList.add(new GuiButton(BUTTON_COMPLETE_RESEARCH, guiLeft + 96, guiTop + 124, 92, 20, "Complete"));
+        buttonList.add(new GuiButton(BUTTON_IMPORT_SUPPLIES, guiLeft + 10, guiTop + 150, 78, 20, "Import"));
+        buttonList.add(new GuiButton(BUTTON_EXPORT_SUPPLIES, guiLeft + 96, guiTop + 150, 92, 20, "Export"));
         StandAndHoldNetwork.sendToServer(new PacketGuiAction(PacketGuiAction.ACTION_REQUEST_SYNC, container.getPos()));
     }
 
@@ -35,6 +39,10 @@ public final class GuiResearchLab extends GuiContainer {
             StandAndHoldNetwork.sendToServer(new PacketGuiAction(PacketGuiAction.ACTION_RESEARCH_LAB_NEXT, container.getPos()));
         } else if (button.id == BUTTON_COMPLETE_RESEARCH) {
             StandAndHoldNetwork.sendToServer(new PacketGuiAction(PacketGuiAction.ACTION_RESEARCH_LAB_COMPLETE, container.getPos()));
+        } else if (button.id == BUTTON_IMPORT_SUPPLIES) {
+            StandAndHoldNetwork.sendToServer(new PacketGuiAction(PacketGuiAction.ACTION_SUPPLIES_TO_LOCAL, container.getPos()));
+        } else if (button.id == BUTTON_EXPORT_SUPPLIES) {
+            StandAndHoldNetwork.sendToServer(new PacketGuiAction(PacketGuiAction.ACTION_SUPPLIES_TO_GLOBAL, container.getPos()));
         }
     }
 
@@ -55,6 +63,7 @@ public final class GuiResearchLab extends GuiContainer {
         fontRenderer.drawString("Research progress: " + progress + "/" + required, 10, 44, 0x37474F);
         fontRenderer.drawString("Parasite samples: " + safeValue(storedSamples) + "/" + safeValue(maxStoredSamples), 10, 76, 0x37474F);
         fontRenderer.drawString("Local supplies: " + safeValue(storedSupplies) + "/" + safeValue(maxStoredSupplies), 10, 90, 0x37474F);
+        fontRenderer.drawString("Global supplies: " + safeValue(ClientSyncedData.getSupplyPoints(0)), 10, 104, 0x37474F);
 
         int barLeft = 10;
         int barTop = 59;

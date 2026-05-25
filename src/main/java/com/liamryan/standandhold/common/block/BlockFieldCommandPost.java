@@ -110,7 +110,6 @@ public final class BlockFieldCommandPost extends Block implements ITileEntityPro
             return;
         }
 
-        int totalSupplies = SupplyManager.addSupplies(world, acceptedSupplies, "supply crate deposited into field command post: " + commandPost.getPos());
         if (!player.capabilities.isCreativeMode) {
             heldStack.shrink(1);
             player.inventory.markDirty();
@@ -120,8 +119,7 @@ public final class BlockFieldCommandPost extends Block implements ITileEntityPro
                 "message.standandhold.field_command_post.supply_inserted",
                 acceptedSupplies,
                 commandPost.getStoredSupplies(),
-                commandPost.getMaxStoredSupplies(),
-                totalSupplies
+                commandPost.getMaxStoredSupplies()
         );
         message.getStyle().setColor(TextFormatting.YELLOW);
         player.sendMessage(message);

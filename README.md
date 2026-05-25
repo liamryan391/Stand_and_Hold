@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 20: a compileable Forge project foundation for a future large-scale Stand and Hold mod. It includes persistent human progression points, supply points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point and supply generation from loaded command posts, Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, persistent Main Base registration/activation, Special Parasite Division gating, regional threat tracking, threat decay, bounded reinforcement triggers, simple human equipment, equipment crafting/unlock gates, one prototype ranged weapon with a custom projectile, projectile hit polish, simple block GUIs, and a small networking foundation for GUI data/actions. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
+This repository is currently in Phase 21: a compileable Forge project foundation for a future large-scale Stand and Hold mod. It includes persistent human progression points, supply points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point and supply generation from loaded command posts, Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, persistent Main Base registration/activation, Special Parasite Division gating, regional threat tracking, threat decay, bounded reinforcement triggers, simple human equipment, equipment crafting/unlock gates, one prototype ranged weapon with a custom projectile, projectile hit polish, simple block GUIs, a small networking foundation for GUI data/actions, and basic local/global supply transfer controls. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
 
 ## Current Scope
 
@@ -41,6 +41,7 @@ This repository is currently in Phase 20: a compileable Forge project foundation
 - SimpleNetworkWrapper packet channel
 - Server-to-client progression and tile data sync packets
 - Server-authoritative GUI actions for command post upgrades and lab research selection/completion
+- Config-backed supply transfer controls for local building stockpiles and global supplies
 - Base human NPC entity class
 - Tiered human unit entities with spawn eggs and simple parasite targeting AI
 - Field Command Post outpost defender spawning with limits
@@ -455,14 +456,14 @@ Special Parasite Division deployments now prefer loaded high-threat regions when
 
 ## Phase 16 Supply Economy and Threat Refinement
 
-Phase 16 adds the first lightweight supply economy. Supplies are stored globally in `HumanWorldData`, and loaded buildings also save local supply stockpile counters for later expansion.
+Phase 16 adds the first lightweight supply economy. Supplies are stored globally in `HumanWorldData`, and loaded buildings also save local supply stockpile counters. Phase 21 makes those local counters part of the first logistics loop through GUI import/export controls.
 
 Current supply sources:
 
-- Placing and right-clicking a Supply Crate block
-- Depositing a Supply Crate item/block into a Field Command Post
-- Depositing a Supply Crate item/block into a Research Lab
-- Passive Field Command Post supply generation over a configurable interval
+- Placing and right-clicking a Supply Crate block adds global supplies
+- Depositing a Supply Crate item/block into a Field Command Post adds local building supplies
+- Depositing a Supply Crate item/block into a Research Lab adds local building supplies
+- Passive Field Command Post supply generation adds local building supplies over a configurable interval
 
 Supply commands:
 
@@ -492,9 +493,11 @@ researchLabMaxStoredSupplies=32
 enableCommandPostSupplyGeneration=true
 commandPostSuppliesPerInterval=1
 commandPostSupplyTickInterval=2400
+enableGuiSupplyTransfers=true
+guiSupplyTransferAmount=10
 ```
 
-Supply spending currently draws from the saved global supply pool. Building-local stockpiles are saved and displayed as an expandable foundation for later logistics networks, routes, and supply-transfer rules.
+Supply spending currently draws from the saved global supply pool. Building-local stockpiles can be exported into that global pool from the building GUIs, which keeps the first logistics layer explicit without scanning the world.
 
 ## Phase 17 Basic Human Equipment
 
@@ -578,13 +581,41 @@ Phase 20 adds a small `SimpleNetworkWrapper` channel for Stand and Hold GUI data
 
 The Field Command Post GUI now has an `Upgrade` button that calls the existing server-side upgrade manager. The Research Lab GUI now shows the currently selected research target and has `Next` and `Complete` buttons for cycling available research and attempting completion. The client only sends requests; the server validates range, tile type, requirements, costs, and saved world data before applying changes.
 
+## Phase 21 Balancing Config and Supply Transfers
+
+Important gameplay values are config-backed and documented with Forge config comments:
+
+- Stage thresholds
+- Configured parasite/test kill point rewards and sample drop chances
+- Data-driven research rewards, prerequisites, sample costs, and supply costs
+- Field Command Post upgrade requirements and rewards
+- Passive building point/supply intervals
+- Outpost defender spawn limits and intervals
+- Structure generation chances, dimensions, and allowed dimensions
+- Unit health, damage, targeting, deployment, and reinforcement values
+- Equipment stats, unlock gates, projectile damage, cooldown, and polish values
+
+Phase 21 also makes the first logistics loop explicit. Supply Crates deposited into a Field Command Post or Research Lab now fill that building's local stockpile. Field Command Post passive supply generation also fills local storage. The building GUIs include `Import` and `Export` buttons:
+
+- `Import` moves a configurable amount from global supplies into the open building's local storage.
+- `Export` moves a configurable amount from the open building's local storage into global supplies.
+
+Transfers are handled by the server through `PacketGuiAction`, validate the open tile entity and player range, and only touch the open building. There are no global block scans.
+
+New supply config options:
+
+```text
+enableGuiSupplyTransfers=true
+guiSupplyTransferAmount=10
+```
+
 ## Planned Next Phase
 
-Phase 21 should build on the point, sample, supply, research, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, threat-response, equipment, simple ranged weapon, GUI, and networking foundations without jumping into the entire final system at once:
+Phase 22 should build on the point, sample, supply, research, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, threat-response, equipment, simple ranged weapon, GUI, networking, and logistics foundations without jumping into the entire final system at once:
 
 - Tune point, supply, and threat values from playtesting
-- Add supply transfer controls or basic logistics routes
+- Add basic logistics routes or convoy placeholders
 - Add more polished equipment/projectile assets while keeping ammo/reload systems deferred
-- Add convoy placeholders or more detailed building supply-transfer rules
+- Add more detailed building supply-transfer rules
 - Add basic lab-linked scientist behavior or Main Base/Special Division deployment balancing
 - Keep Scape and Run: Parasites compatibility data-driven until entity IDs are verified

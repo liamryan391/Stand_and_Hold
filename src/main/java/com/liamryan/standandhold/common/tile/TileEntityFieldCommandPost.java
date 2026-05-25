@@ -4,13 +4,13 @@ import com.liamryan.standandhold.common.infrastructure.FieldCommandPostLevel;
 import com.liamryan.standandhold.common.infrastructure.MainBaseManager;
 import com.liamryan.standandhold.common.infrastructure.OutpostDefenseManager;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
-import com.liamryan.standandhold.common.supply.SupplyManager;
+import com.liamryan.standandhold.common.supply.ISupplyStorage;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 
-public final class TileEntityFieldCommandPost extends TileEntity implements ITickable {
+public final class TileEntityFieldCommandPost extends TileEntity implements ITickable, ISupplyStorage {
     private static final String TAG_PLACED_WORLD_TIME = "PlacedWorldTime";
     private static final String TAG_LAST_POINT_GENERATION_TIME = "LastPointGenerationTime";
     private static final String TAG_LAST_SUPPLY_GENERATION_TIME = "LastSupplyGenerationTime";
@@ -114,10 +114,7 @@ public final class TileEntityFieldCommandPost extends TileEntity implements ITic
         }
 
         if (worldTime - lastSupplyGenerationTime >= tickInterval) {
-            int acceptedSupplies = addStoredSupplies(suppliesPerInterval);
-            if (acceptedSupplies > 0) {
-                SupplyManager.addSupplies(world, acceptedSupplies, "field command post supply generation: " + pos);
-            }
+            addStoredSupplies(suppliesPerInterval);
             lastSupplyGenerationTime = worldTime;
             markDirty();
         }
@@ -198,6 +195,7 @@ public final class TileEntityFieldCommandPost extends TileEntity implements ITic
         }
     }
 
+    @Override
     public int addStoredSupplies(int amount) {
         if (amount <= 0) {
             return 0;
@@ -214,10 +212,29 @@ public final class TileEntityFieldCommandPost extends TileEntity implements ITic
         return accepted;
     }
 
+    @Override
+    public int removeStoredSupplies(int amount) {
+        if (amount <= 0) {
+            return 0;
+        }
+
+        int availableSupplies = getStoredSupplies();
+        if (availableSupplies <= 0) {
+            return 0;
+        }
+
+        int removed = Math.min(amount, availableSupplies);
+        storedSupplies = availableSupplies - removed;
+        markDirty();
+        return removed;
+    }
+
+    @Override
     public int getStoredSupplies() {
         return Math.min(storedSupplies, getMaxStoredSupplies());
     }
 
+    @Override
     public int getMaxStoredSupplies() {
         return Math.max(0, StandAndHoldConfig.supply.commandPostMaxStoredSupplies);
     }

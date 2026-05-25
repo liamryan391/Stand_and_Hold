@@ -4,6 +4,7 @@ import com.liamryan.standandhold.StandAndHold;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.research.ResearchEntry;
 import com.liamryan.standandhold.common.research.ResearchManager;
+import com.liamryan.standandhold.common.supply.ISupplyStorage;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraft.nbt.NBTTagCompound;
@@ -13,7 +14,7 @@ import net.minecraft.util.ITickable;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class TileEntityResearchLab extends TileEntity implements ITickable {
+public final class TileEntityResearchLab extends TileEntity implements ITickable, ISupplyStorage {
     private static final String TAG_PLACED_WORLD_TIME = "PlacedWorldTime";
     private static final String TAG_LAST_PROGRESS_TIME = "LastProgressTime";
     private static final String TAG_TARGET_RESEARCH_ID = "TargetResearchId";
@@ -124,6 +125,7 @@ public final class TileEntityResearchLab extends TileEntity implements ITickable
         return true;
     }
 
+    @Override
     public int addStoredSupplies(int amount) {
         if (amount <= 0) {
             return 0;
@@ -138,6 +140,23 @@ public final class TileEntityResearchLab extends TileEntity implements ITickable
         storedSupplies += accepted;
         markDirty();
         return accepted;
+    }
+
+    @Override
+    public int removeStoredSupplies(int amount) {
+        if (amount <= 0) {
+            return 0;
+        }
+
+        int availableSupplies = getStoredSupplies();
+        if (availableSupplies <= 0) {
+            return 0;
+        }
+
+        int removed = Math.min(amount, availableSupplies);
+        storedSupplies = availableSupplies - removed;
+        markDirty();
+        return removed;
     }
 
     public boolean tryCompleteCurrentResearch() {
@@ -231,6 +250,7 @@ public final class TileEntityResearchLab extends TileEntity implements ITickable
         return Math.min(storedSupplies, getMaxStoredSupplies());
     }
 
+    @Override
     public int getMaxStoredSupplies() {
         return Math.max(0, StandAndHoldConfig.supply.researchLabMaxStoredSupplies);
     }

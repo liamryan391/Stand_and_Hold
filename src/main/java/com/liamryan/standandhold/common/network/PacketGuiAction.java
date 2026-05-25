@@ -1,6 +1,8 @@
 package com.liamryan.standandhold.common.network;
 
 import com.liamryan.standandhold.common.infrastructure.FieldCommandPostUpgradeManager;
+import com.liamryan.standandhold.common.supply.ISupplyStorage;
+import com.liamryan.standandhold.common.supply.SupplyTransferManager;
 import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
 import com.liamryan.standandhold.common.tile.TileEntityResearchLab;
 import com.liamryan.standandhold.common.util.CommandPostMessageHelper;
@@ -20,6 +22,8 @@ public final class PacketGuiAction implements IMessage {
     public static final int ACTION_COMMAND_POST_UPGRADE = 1;
     public static final int ACTION_RESEARCH_LAB_NEXT = 2;
     public static final int ACTION_RESEARCH_LAB_COMPLETE = 3;
+    public static final int ACTION_SUPPLIES_TO_LOCAL = 4;
+    public static final int ACTION_SUPPLIES_TO_GLOBAL = 5;
 
     private int actionId;
     private BlockPos pos = BlockPos.ORIGIN;
@@ -89,6 +93,12 @@ public final class PacketGuiAction implements IMessage {
                 case ACTION_RESEARCH_LAB_COMPLETE:
                     handleResearchLabComplete(pos, tileEntity, player);
                     break;
+                case ACTION_SUPPLIES_TO_LOCAL:
+                    handleSupplyTransfer(world, tileEntity, player, true);
+                    break;
+                case ACTION_SUPPLIES_TO_GLOBAL:
+                    handleSupplyTransfer(world, tileEntity, player, false);
+                    break;
                 default:
                     return;
             }
@@ -140,6 +150,66 @@ public final class PacketGuiAction implements IMessage {
                 message.getStyle().setColor(TextFormatting.RED);
                 player.sendMessage(message);
             }
+        }
+
+        private void handleSupplyTransfer(World world, TileEntity tileEntity, EntityPlayerMP player, boolean toLocal) {
+            if (!(tileEntity instanceof ISupplyStorage)) {
+                return;
+            }
+
+            SupplyTransferManager.TransferResult result = toLocal
+                    ? SupplyTransferManager.transferToLocal(world, (ISupplyStorage) tileEntity)
+                    : SupplyTransferManager.transferToGlobal(world, (ISupplyStorage) tileEntity);
+            sendSupplyTransferResult(player, result);
+        }
+
+        private void sendSupplyTransferResult(EntityPlayerMP player, SupplyTransferManager.TransferResult result) {
+            TextComponentTranslation message;
+            TextFormatting color = TextFormatting.RED;
+            switch (result.getStatus()) {
+                case TRANSFERRED_TO_LOCAL:
+                    color = TextFormatting.YELLOW;
+                    message = new TextComponentTranslation(
+                            "message.standandhold.supplies.transfer.to_local",
+                            result.getMovedSupplies(),
+                            result.getStoredSupplies(),
+                            result.getMaxStoredSupplies(),
+                            result.getGlobalSupplies()
+                    );
+                    break;
+                case TRANSFERRED_TO_GLOBAL:
+                    color = TextFormatting.YELLOW;
+                    message = new TextComponentTranslation(
+                            "message.standandhold.supplies.transfer.to_global",
+                            result.getMovedSupplies(),
+                            result.getStoredSupplies(),
+                            result.getMaxStoredSupplies(),
+                            result.getGlobalSupplies()
+                    );
+                    break;
+                case DISABLED:
+                    message = new TextComponentTranslation("message.standandhold.supplies.transfer.disabled");
+                    break;
+                case GLOBAL_EMPTY:
+                    message = new TextComponentTranslation("message.standandhold.supplies.transfer.global_empty");
+                    break;
+                case LOCAL_EMPTY:
+                    message = new TextComponentTranslation("message.standandhold.supplies.transfer.local_empty");
+                    break;
+                case LOCAL_FULL:
+                    message = new TextComponentTranslation(
+                            "message.standandhold.supplies.transfer.local_full",
+                            result.getStoredSupplies(),
+                            result.getMaxStoredSupplies()
+                    );
+                    break;
+                default:
+                    message = new TextComponentTranslation("message.standandhold.supplies.transfer.no_storage");
+                    break;
+            }
+
+            message.getStyle().setColor(color);
+            player.sendMessage(message);
         }
     }
 }
