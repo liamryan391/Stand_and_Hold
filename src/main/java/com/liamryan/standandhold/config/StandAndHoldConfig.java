@@ -40,6 +40,10 @@ public final class StandAndHoldConfig {
     @Config.Comment("Settings for military infrastructure blocks.")
     public static final Infrastructure infrastructure = new Infrastructure();
 
+    @Config.Name("Human NPCs")
+    @Config.Comment("Settings for early human NPC entities.")
+    public static final HumanNpcs humanNpcs = new HumanNpcs();
+
     private StandAndHoldConfig() {
     }
 
@@ -102,6 +106,27 @@ public final class StandAndHoldConfig {
     public static boolean isScapeAndRunParasitesLoaded() {
         String modId = pointSources.scapeAndRunParasitesModId;
         return modId != null && !modId.trim().isEmpty() && Loader.isModLoaded(modId.trim());
+    }
+
+    public static boolean isSoldierTargetEntity(ResourceLocation entityRegistryId) {
+        if (!humanNpcs.enableSoldierParasiteTargeting || entityRegistryId == null) {
+            return false;
+        }
+
+        String entityId = entityRegistryId.toString().toLowerCase(Locale.ROOT);
+        String[] targetEntries = humanNpcs.soldierTargetEntityIds;
+        if (targetEntries == null) {
+            return false;
+        }
+
+        for (String targetEntry : targetEntries) {
+            String configuredEntityId = normalizeEntityId(targetEntry);
+            if (configuredEntityId != null && configuredEntityId.equals(entityId)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static ParsedReward parseRewardEntry(String rewardEntry) {
@@ -270,6 +295,50 @@ public final class StandAndHoldConfig {
                 "4|700|outpost_doctrine,parasite_samples|4|100",
                 "5|1500|outpost_doctrine,parasite_samples|8|200"
         };
+    }
+
+    public static final class HumanNpcs {
+        @Config.Name("Enable Soldier Parasite Targeting")
+        @Config.Comment("Allows Soldiers to attack configured parasite/test entity registry IDs.")
+        public boolean enableSoldierParasiteTargeting = true;
+
+        @Config.Name("Soldier Target Entity IDs")
+        @Config.Comment({
+                "Entity registry IDs Soldiers are allowed to target.",
+                "Use verified parasite registry IDs here. The default minecraft:zombie entry is only a safe test value.",
+                "Players and Stand and Hold human NPCs are always ignored by default."
+        })
+        public String[] soldierTargetEntityIds = new String[] {
+                "minecraft:zombie"
+        };
+
+        @Config.Name("Base Human NPC Max Health")
+        @Config.Comment("Maximum health for early human NPCs.")
+        public double baseHumanNpcMaxHealth = 20.0D;
+
+        @Config.Name("Base Human NPC Movement Speed")
+        @Config.Comment("Base movement speed for early human NPCs.")
+        public double baseHumanNpcMovementSpeed = 0.28D;
+
+        @Config.Name("Base Human NPC Follow Range")
+        @Config.Comment("Target search and awareness range for early human NPCs.")
+        public double baseHumanNpcFollowRange = 24.0D;
+
+        @Config.Name("Base Human NPC Attack Damage")
+        @Config.Comment("Base melee attack damage for early human NPCs.")
+        public double baseHumanNpcAttackDamage = 4.0D;
+
+        @Config.Name("Soldier Attack Move Speed")
+        @Config.Comment("Movement speed multiplier used by Soldiers while attacking.")
+        public double soldierAttackMoveSpeed = 1.1D;
+
+        @Config.Name("Soldier Wander Speed")
+        @Config.Comment("Movement speed multiplier used by Soldiers while wandering.")
+        public double soldierWanderSpeed = 0.8D;
+
+        @Config.Name("Soldier Target Chance")
+        @Config.Comment("How often Soldiers run nearest-target checks. Lower values react faster; 10 is the vanilla-style default.")
+        public int soldierTargetChance = 10;
     }
 
     private static final class ParsedReward {

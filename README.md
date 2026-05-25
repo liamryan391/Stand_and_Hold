@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 8: a small, compileable Forge project foundation with persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point generation from loaded command posts, early Field Command Post upgrade levels, and a basic Research Lab. Gameplay systems such as structure generation, full scientist AI, units, outposts, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
+This repository is currently in Phase 9: a small, compileable Forge project foundation with persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point generation from loaded command posts, early Field Command Post upgrade levels, a basic Research Lab, and the first test human NPC. Gameplay systems such as structure generation, full scientist AI, advanced units, outposts, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
 
 ## Current Scope
 
@@ -29,6 +29,8 @@ This repository is currently in Phase 8: a small, compileable Forge project foun
 - Persistent Field Command Post upgrade levels
 - Research Lab block and tile entity
 - Lab-local saved research progress and stored parasite samples
+- Base human NPC entity class
+- Basic Soldier entity with spawn egg and simple parasite targeting AI
 
 ## Requirements
 
@@ -206,10 +208,35 @@ When lab progress reaches the configured requirement, the lab completes the targ
 
 Scientist AI is deferred. Phase 8 includes only a placeholder scientist support class so later phases have a clean place to grow entity behavior.
 
+## Phase 9 Human NPC Foundation
+
+The first human NPC foundation adds:
+
+- `EntityHumanNpc`, a base class for future human units
+- `EntitySoldier`, a basic melee soldier
+- Forge entity registration with a spawn egg for testing
+- Client renderer using a vanilla humanoid model/texture
+
+Soldiers use simple, stable AI only:
+
+- Swim
+- Wander
+- Watch nearby players
+- Melee attack configured parasite/test entity IDs
+
+Soldiers do not target players by default, and they ignore other Stand and Hold human NPCs. Targeting is controlled by config:
+
+```text
+enableSoldierParasiteTargeting=true
+soldierTargetEntityIds=["minecraft:zombie"]
+```
+
+The default `minecraft:zombie` target is only for safe testing without Scape and Run: Parasites installed. Add verified SRP registry IDs to `soldierTargetEntityIds` later.
+
 ## Planned Next Phase
 
-Phase 9 should build on the point, sample, research, lab, and command-post systems without jumping into full structure generation:
+Phase 10 should build on the point, sample, research, lab, command-post, and Soldier systems without jumping into full structure generation:
 
 - Tune point rewards and stage thresholds from playtesting
-- Add scientist entity registration and simple lab-assignment behavior
+- Add basic military unit variants or lab-linked scientist behavior
 - Keep Scape and Run: Parasites compatibility data-driven until entity IDs are verified

@@ -1,12 +1,15 @@
 package com.liamryan.standandhold;
 
 import com.liamryan.standandhold.common.command.CommandStandAndHold;
+import com.liamryan.standandhold.common.entity.ModEntities;
 import com.liamryan.standandhold.common.event.HumanProgressionEventHandler;
 import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
 import com.liamryan.standandhold.common.tile.TileEntityResearchLab;
+import com.liamryan.standandhold.common.proxy.CommonProxy;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -28,11 +31,19 @@ public final class StandAndHold {
     @Mod.Instance(StandAndHoldConstants.MOD_ID)
     public static StandAndHold instance;
 
+    @SidedProxy(
+            clientSide = "com.liamryan.standandhold.client.ClientProxy",
+            serverSide = "com.liamryan.standandhold.common.proxy.CommonProxy"
+    )
+    public static CommonProxy proxy;
+
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         StandAndHoldConfig.sync();
+        ModEntities.registerEntities();
         GameRegistry.registerTileEntity(TileEntityFieldCommandPost.class, StandAndHoldConstants.MOD_ID + ":field_command_post");
         GameRegistry.registerTileEntity(TileEntityResearchLab.class, StandAndHoldConstants.MOD_ID + ":research_lab");
+        proxy.preInit(event);
         LOGGER.info("{} {} pre-initialized.", StandAndHoldConstants.MOD_NAME, StandAndHoldConstants.VERSION);
     }
 
