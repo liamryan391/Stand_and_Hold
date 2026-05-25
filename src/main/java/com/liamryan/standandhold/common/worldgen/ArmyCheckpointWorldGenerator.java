@@ -2,6 +2,8 @@ package com.liamryan.standandhold.common.worldgen;
 
 import com.liamryan.standandhold.StandAndHold;
 import com.liamryan.standandhold.common.block.ModBlocks;
+import com.liamryan.standandhold.common.mission.MissionManager;
+import com.liamryan.standandhold.common.mission.MissionObjectiveType;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -55,6 +57,7 @@ public final class ArmyCheckpointWorldGenerator implements IWorldGenerator {
         }
 
         generateCheckpoint(world, origin, width, depth, wallHeight);
+        MissionManager.recordStructureDiscovery(world, MissionObjectiveType.DISCOVER_CHECKPOINT);
         return origin;
     }
 

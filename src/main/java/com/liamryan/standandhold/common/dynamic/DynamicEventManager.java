@@ -5,6 +5,7 @@ import com.liamryan.standandhold.common.entity.EntityHumanNpc;
 import com.liamryan.standandhold.common.entity.HumanUnitTier;
 import com.liamryan.standandhold.common.entity.ModEntities;
 import com.liamryan.standandhold.common.infrastructure.MainBaseManager;
+import com.liamryan.standandhold.common.mission.MissionManager;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.threat.ThreatResponseManager;
 import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
@@ -13,10 +14,13 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -58,12 +62,33 @@ public final class DynamicEventManager {
         }
 
         DynamicEventResult result = triggerWeightedNaturalEvent(world, commandPost.getPos());
-        if (result.getStatus() == DynamicEventStatus.STARTED && StandAndHoldConfig.debugLogging) {
-            StandAndHold.LOGGER.info("Dynamic event started at {}: {} spawned {} entities.",
-                    commandPost.getPos(),
-                    result.getType().getDisplayName(),
-                    result.getSpawnedCount());
+        if (result.getStatus() == DynamicEventStatus.STARTED) {
+            sendNaturalEventWarning(world, commandPost.getPos(), result);
+            if (StandAndHoldConfig.debugLogging) {
+                StandAndHold.LOGGER.info("Dynamic event started at {}: {} spawned {} entities.",
+                        commandPost.getPos(),
+                        result.getType().getDisplayName(),
+                        result.getSpawnedCount());
+            }
         }
+    }
+
+    public static long getCooldownRemainingTicks(TileEntityFieldCommandPost commandPost) {
+        if (commandPost == null || commandPost.getWorld() == null) {
+            return 0L;
+        }
+
+        long lastEventTime = commandPost.getLastDynamicEventTime();
+        if (lastEventTime < 0L) {
+            return 0L;
+        }
+
+        long elapsed = commandPost.getWorld().getTotalWorldTime() - lastEventTime;
+        return Math.max(0L, getNaturalEventIntervalTicks() - elapsed);
+    }
+
+    public static int getNaturalEventIntervalTicks() {
+        return Math.max(1, StandAndHoldConfig.dynamicEvents.dynamicEventIntervalTicks);
     }
 
     public static DynamicEventResult triggerOutpostAttack(World world, BlockPos outpostPos, boolean forced) {
@@ -101,6 +126,7 @@ public final class DynamicEventManager {
         }
 
         ThreatResponseManager.recordOutpostAttackAt(world, outpostPos);
+        MissionManager.recordOutpostDefense(world);
         return DynamicEventResult.started(DynamicEventType.OUTPOST_ATTACK, outpostPos, stageId, spawned);
     }
 
@@ -150,6 +176,40 @@ public final class DynamicEventManager {
             return triggerOutpostAttack(world, outpostPos, false);
         }
         return triggerHumanReinforcement(world, outpostPos, false);
+    }
+
+    private static void sendNaturalEventWarning(World world, BlockPos outpostPos, DynamicEventResult result) {
+        if (!StandAndHoldConfig.dynamicEvents.enableDynamicEventWarnings || result == null) {
+            return;
+        }
+
+        String translationKey;
+        if (result.getType() == DynamicEventType.OUTPOST_ATTACK) {
+            translationKey = "message.standandhold.event.outpost_attack.warning";
+        } else if (result.getType() == DynamicEventType.HUMAN_REINFORCEMENT) {
+            translationKey = "message.standandhold.event.reinforcement.warning";
+        } else {
+            return;
+        }
+
+        int radius = Math.max(1, StandAndHoldConfig.dynamicEvents.dynamicEventWarningRadius);
+        double radiusSq = radius * radius;
+        for (EntityPlayer player : world.playerEntities) {
+            if (player == null || player.getDistanceSq(outpostPos.getX() + 0.5D, outpostPos.getY() + 0.5D, outpostPos.getZ() + 0.5D) > radiusSq) {
+                continue;
+            }
+
+            TextComponentTranslation message = new TextComponentTranslation(
+                    translationKey,
+                    outpostPos.getX(),
+                    outpostPos.getY(),
+                    outpostPos.getZ(),
+                    result.getSpawnedCount(),
+                    result.getStageId()
+            );
+            message.getStyle().setColor(result.getType() == DynamicEventType.OUTPOST_ATTACK ? TextFormatting.RED : TextFormatting.YELLOW);
+            player.sendMessage(message);
+        }
     }
 
     private static boolean canStart(World world, BlockPos pos, boolean forced) {

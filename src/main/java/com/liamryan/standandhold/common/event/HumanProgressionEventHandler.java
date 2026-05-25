@@ -5,6 +5,7 @@ import com.liamryan.standandhold.common.compat.SRPCompat;
 import com.liamryan.standandhold.common.entity.EntityHumanNpc;
 import com.liamryan.standandhold.common.equipment.EquipmentUnlockManager;
 import com.liamryan.standandhold.common.item.ModItems;
+import com.liamryan.standandhold.common.mission.MissionManager;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.threat.ThreatResponseManager;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
@@ -19,6 +20,8 @@ import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public final class HumanProgressionEventHandler {
@@ -101,6 +104,21 @@ public final class HumanProgressionEventHandler {
             event.setCanceled(true);
             EquipmentUnlockManager.sendLockedMessage(player, heldStack);
         }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onEntityItemPickup(EntityItemPickupEvent event) {
+        EntityPlayer player = event.getEntityPlayer();
+        if (event.isCanceled() || player == null || player.world.isRemote) {
+            return;
+        }
+
+        ItemStack stack = event.getItem().getItem();
+        if (stack.isEmpty() || stack.getItem() != ModItems.PARASITE_TISSUE_SAMPLE) {
+            return;
+        }
+
+        MissionManager.recordParasiteSampleRecovery(player.world, player, stack.getCount());
     }
 
     private void tryDropParasiteSample(EntityLivingBase entity, ResourceLocation entityId) {

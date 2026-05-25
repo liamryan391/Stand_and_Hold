@@ -72,6 +72,24 @@ public final class ResearchManager {
         return entry != null && HumanPointManager.getData(world).isResearchCompleted(entry.getId());
     }
 
+    public static boolean completeResearchAsReward(World world, String id, String source) {
+        ResearchEntry entry = getResearchEntry(id);
+        if (entry == null) {
+            return false;
+        }
+
+        HumanWorldData data = HumanPointManager.getData(world);
+        if (!data.completeResearch(entry.getId())) {
+            return false;
+        }
+
+        if (entry.getCompletionPointReward() > 0) {
+            HumanPointManager.addPoints(world, entry.getCompletionPointReward(), source + " research reward: " + entry.getId());
+        }
+        StandAndHold.LOGGER.info("Research completed as reward from {}: {}.", source, entry.getId());
+        return true;
+    }
+
     public static CompletionResult completeResearch(World world, String id) {
         return completeResearch(world, id, null, false);
     }

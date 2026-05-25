@@ -13,12 +13,12 @@ import java.util.Locale;
 public final class StandAndHoldConfig {
     private static final int[] DEFAULT_STAGE_THRESHOLDS = new int[] {
             0,
-            100,
-            300,
-            700,
-            1500,
-            3000,
-            6000
+            150,
+            500,
+            1200,
+            2600,
+            5200,
+            10000
     };
 
     @Config.Name("Debug Logging")
@@ -40,6 +40,10 @@ public final class StandAndHoldConfig {
     @Config.Name("Research")
     @Config.Comment("Data-driven research entries and rewards.")
     public static final Research research = new Research();
+
+    @Config.Name("Missions")
+    @Config.Comment("Basic mission and objective definitions.")
+    public static final Missions missions = new Missions();
 
     @Config.Name("Infrastructure")
     @Config.Comment("Settings for military infrastructure blocks.")
@@ -331,7 +335,7 @@ public final class StandAndHoldConfig {
                 "The default minecraft:zombie entry is only a safe test value for early development."
         })
         public String[] parasiteKillRewards = new String[] {
-                "minecraft:zombie=5"
+                "minecraft:zombie=3"
         };
 
         @Config.Name("Enable Parasite Sample Drops")
@@ -345,7 +349,7 @@ public final class StandAndHoldConfig {
                 "The default minecraft:zombie entry is only a safe test value for early development."
         })
         public String[] parasiteSampleDropChances = new String[] {
-                "minecraft:zombie=0.25"
+                "minecraft:zombie=0.15"
         };
 
     }
@@ -386,20 +390,20 @@ public final class StandAndHoldConfig {
         public boolean enableResearchLabProgress = true;
 
         @Config.Name("Research Lab Tick Interval")
-        @Config.Comment("Ticks between passive research progress from each loaded Research Lab. 200 ticks is about 10 seconds.")
-        public int researchLabTickInterval = 200;
+        @Config.Comment("Ticks between passive research progress from each loaded Research Lab. 400 ticks is about 20 seconds.")
+        public int researchLabTickInterval = 400;
 
         @Config.Name("Research Lab Progress Per Interval")
         @Config.Comment("Progress added by each loaded Research Lab per interval.")
-        public int researchLabProgressPerInterval = 10;
+        public int researchLabProgressPerInterval = 8;
 
         @Config.Name("Research Lab Progress Required")
         @Config.Comment("Progress required for a Research Lab to complete one available research entry.")
-        public int researchLabProgressRequired = 100;
+        public int researchLabProgressRequired = 160;
 
         @Config.Name("Research Lab Max Stored Samples")
         @Config.Comment("Maximum Parasite Tissue Samples a Research Lab can store for research completion costs.")
-        public int researchLabMaxStoredSamples = 16;
+        public int researchLabMaxStoredSamples = 12;
 
         @Config.Name("Research Entries")
         @Config.Comment({
@@ -410,10 +414,23 @@ public final class StandAndHoldConfig {
                 "Valid default categories are GENERAL, PARASITE_BIOLOGY, MILITARY_LOGISTICS, BASE_INFRASTRUCTURE, FIELD_MEDICINE, and SPECIAL_PROJECTS."
         })
         public String[] researchEntries = new String[] {
-                "parasite_samples|PARASITE_BIOLOGY|Parasite Samples|Catalog recovered parasite tissue and establish basic containment procedures.|25||1|0",
-                "field_communications|MILITARY_LOGISTICS|Field Communications|Coordinate survivor cells and local army response teams across infected territory.|25||0|10",
-                "outpost_doctrine|BASE_INFRASTRUCTURE|Outpost Doctrine|Draft the first defensible outpost standards for later military construction.|50|field_communications|0|25",
-                "special_division_training|SPECIAL_PROJECTS|Special Division Training|Train select operatives for anti-parasite rapid deployment and containment work.|150|parasite_samples,outpost_doctrine|3|50"
+                "parasite_samples|PARASITE_BIOLOGY|Parasite Samples|Catalog recovered parasite tissue and establish basic containment procedures.|15||1|0",
+                "field_communications|MILITARY_LOGISTICS|Field Communications|Coordinate survivor cells and local army response teams across infected territory.|20||0|20",
+                "outpost_doctrine|BASE_INFRASTRUCTURE|Outpost Doctrine|Draft the first defensible outpost standards for later military construction.|35|field_communications|0|50",
+                "special_division_training|SPECIAL_PROJECTS|Special Division Training|Train select operatives for anti-parasite rapid deployment and containment work.|100|parasite_samples,outpost_doctrine|4|120"
+        };
+    }
+
+    public static final class Missions {
+        @Config.Name("Mission Entries")
+        @Config.Comment({
+                "Mission definitions in the format id|name|description|objectiveType|requiredCount|pointReward|supplyReward|researchRewardIds.",
+                "Use comma-separated researchRewardIds, or leave the final field blank.",
+                "Current objective types: RECOVER_PARASITE_SAMPLE, DEFEND_OUTPOST, DISCOVER_STRUCTURE, DISCOVER_CHECKPOINT, DISCOVER_MAIN_BASE, and MANUAL.",
+                "The first mission uses Parasite Tissue Samples as the tracked objective."
+        })
+        public String[] missionEntries = new String[] {
+                "recover_parasite_sample|Recover Parasite Sample|Recover and catalog the first parasite tissue sample for the human resistance.|RECOVER_PARASITE_SAMPLE|1|30|15|parasite_samples"
         };
     }
 
@@ -427,8 +444,8 @@ public final class StandAndHoldConfig {
         public int fieldCommandPostPointsPerInterval = 1;
 
         @Config.Name("Field Command Post Tick Interval")
-        @Config.Comment("Ticks between passive point payouts from each loaded Field Command Post. 1200 ticks is about 60 seconds.")
-        public int fieldCommandPostTickInterval = 1200;
+        @Config.Comment("Ticks between passive point payouts from each loaded Field Command Post. 2400 ticks is about 2 minutes.")
+        public int fieldCommandPostTickInterval = 2400;
 
         @Config.Name("Field Command Post Upgrade Requirements")
         @Config.Comment({
@@ -438,10 +455,10 @@ public final class StandAndHoldConfig {
                 "Human points are required as progression, not spent. Parasite samples and supply points are consumed."
         })
         public String[] fieldCommandPostUpgradeRequirements = new String[] {
-                "2|100|field_communications|1|20|25",
-                "3|300|outpost_doctrine|2|50|50",
-                "4|700|outpost_doctrine,parasite_samples|4|100|100",
-                "5|1500|outpost_doctrine,parasite_samples|8|200|200"
+                "2|150|field_communications|1|30|15",
+                "3|500|outpost_doctrine|2|80|30",
+                "4|1200|outpost_doctrine,parasite_samples|5|160|60",
+                "5|2600|outpost_doctrine,parasite_samples|10|320|100"
         };
 
         @Config.Name("Enable Outpost Defender Spawning")
@@ -450,11 +467,11 @@ public final class StandAndHoldConfig {
 
         @Config.Name("Outpost Max Defenders")
         @Config.Comment("Maximum living defenders assigned to each loaded outpost anchor.")
-        public int outpostMaxDefenders = 3;
+        public int outpostMaxDefenders = 2;
 
         @Config.Name("Outpost Defender Spawn Interval")
-        @Config.Comment("Ticks between defender spawn attempts per loaded outpost anchor. 2400 ticks is about 2 minutes.")
-        public int outpostDefenderSpawnInterval = 2400;
+        @Config.Comment("Ticks between defender spawn attempts per loaded outpost anchor. 3600 ticks is about 3 minutes.")
+        public int outpostDefenderSpawnInterval = 3600;
 
         @Config.Name("Outpost Defender Patrol Radius")
         @Config.Comment("Radius assigned defenders try to stay within around their outpost anchor.")
@@ -472,15 +489,15 @@ public final class StandAndHoldConfig {
                 "Claiming a Supply Crate block adds this to global supplies.",
                 "Depositing a Supply Crate into a building adds this to that building's local stockpile."
         })
-        public int supplyCrateValue = 10;
+        public int supplyCrateValue = 8;
 
         @Config.Name("Command Post Max Stored Supplies")
         @Config.Comment("Maximum local supplies a loaded Field Command Post can store.")
-        public int commandPostMaxStoredSupplies = 64;
+        public int commandPostMaxStoredSupplies = 48;
 
         @Config.Name("Research Lab Max Stored Supplies")
         @Config.Comment("Maximum local supplies a Research Lab can store.")
-        public int researchLabMaxStoredSupplies = 32;
+        public int researchLabMaxStoredSupplies = 24;
 
         @Config.Name("Enable Command Post Supply Generation")
         @Config.Comment("Allows loaded Field Command Posts to generate local supply stockpile points over time.")
@@ -491,8 +508,8 @@ public final class StandAndHoldConfig {
         public int commandPostSuppliesPerInterval = 1;
 
         @Config.Name("Command Post Supply Tick Interval")
-        @Config.Comment("Ticks between passive supply generation from each loaded Field Command Post. 2400 ticks is about 2 minutes.")
-        public int commandPostSupplyTickInterval = 2400;
+        @Config.Comment("Ticks between passive supply generation from each loaded Field Command Post. 3600 ticks is about 3 minutes.")
+        public int commandPostSupplyTickInterval = 3600;
 
         @Config.Name("Enable GUI Supply Transfers")
         @Config.Comment({
@@ -515,15 +532,15 @@ public final class StandAndHoldConfig {
 
         @Config.Name("Command Post Logistics Route Interval")
         @Config.Comment("Ticks between logistics route export checks for each loaded Field Command Post.")
-        public int commandPostLogisticsRouteInterval = 2400;
+        public int commandPostLogisticsRouteInterval = 3600;
 
         @Config.Name("Command Post Logistics Route Transfer Amount")
         @Config.Comment("Local supplies exported to global supplies by each successful command post logistics route check.")
-        public int commandPostLogisticsRouteTransferAmount = 5;
+        public int commandPostLogisticsRouteTransferAmount = 4;
 
         @Config.Name("Command Post Logistics Route Minimum Local Supplies")
         @Config.Comment("Minimum local supplies a Field Command Post must store before its logistics route can export supplies.")
-        public int commandPostLogisticsRouteMinimumLocalSupplies = 10;
+        public int commandPostLogisticsRouteMinimumLocalSupplies = 12;
     }
 
     public static final class Equipment {
@@ -652,15 +669,15 @@ public final class StandAndHoldConfig {
 
         @Config.Name("Prototype Ranged Weapon Damage")
         @Config.Comment("Damage dealt by the prototype ranged weapon projectile to configured parasite/test enemies.")
-        public float prototypeRangedWeaponDamage = 6.0F;
+        public float prototypeRangedWeaponDamage = 5.0F;
 
         @Config.Name("Prototype Ranged Weapon Parasite Damage Multiplier")
         @Config.Comment("Multiplier applied when the prototype projectile damages configured parasite/test enemies.")
-        public float prototypeRangedWeaponParasiteDamageMultiplier = 1.25F;
+        public float prototypeRangedWeaponParasiteDamageMultiplier = 1.15F;
 
         @Config.Name("Prototype Ranged Weapon Cooldown")
         @Config.Comment("Player cooldown in ticks after firing the prototype ranged weapon.")
-        public int prototypeRangedWeaponCooldownTicks = 24;
+        public int prototypeRangedWeaponCooldownTicks = 30;
 
         @Config.Name("Prototype Ranged Weapon Max Uses")
         @Config.Comment("Durability for the prototype ranged weapon.")
@@ -688,11 +705,11 @@ public final class StandAndHoldConfig {
 
         @Config.Name("Army Rifleman Ranged Attack Interval")
         @Config.Comment("Ticks between Army Rifleman ranged attacks.")
-        public int armyRiflemanRangedAttackInterval = 40;
+        public int armyRiflemanRangedAttackInterval = 50;
 
         @Config.Name("Army Rifleman Ranged Attack Range")
         @Config.Comment("Maximum ranged attack distance for Army Riflemen.")
-        public float armyRiflemanRangedAttackRange = 18.0F;
+        public float armyRiflemanRangedAttackRange = 16.0F;
     }
 
     public static final class HumanNpcs {
@@ -719,10 +736,10 @@ public final class StandAndHoldConfig {
         public String[] humanUnitStats = new String[] {
                 "survivor_defender|16|2|0",
                 "army_rifleman|20|4|1",
-                "heavy_soldier|28|6|2",
-                "elite_soldier|36|8|3",
-                "super_elite_soldier|48|11|4",
-                "special_parasite_division_operative|72|18|5"
+                "heavy_soldier|26|5|2",
+                "elite_soldier|34|7|3",
+                "super_elite_soldier|44|10|4",
+                "special_parasite_division_operative|68|16|5"
         };
 
         @Config.Name("Enable Special Parasite Division Research Gate")
@@ -781,7 +798,7 @@ public final class StandAndHoldConfig {
 
         @Config.Name("Army Checkpoint Spawn Chance")
         @Config.Comment("One chance in this many chunks to try generating a Small Army Checkpoint. Higher values are rarer.")
-        public int armyCheckpointSpawnChance = 120;
+        public int armyCheckpointSpawnChance = 180;
 
         @Config.Name("Army Checkpoint Width")
         @Config.Comment("Checkpoint width in blocks. Values are clamped to a safe in-chunk range.")
@@ -811,7 +828,7 @@ public final class StandAndHoldConfig {
 
         @Config.Name("Main Base Spawn Chance")
         @Config.Comment("One chance in this many chunks to try generating a Main Base. Higher values are rarer.")
-        public int mainBaseSpawnChance = 2400;
+        public int mainBaseSpawnChance = 3600;
 
         @Config.Name("Main Base Width")
         @Config.Comment("Main Base width in blocks. Values are clamped to a safe in-chunk range.")
@@ -835,7 +852,7 @@ public final class StandAndHoldConfig {
 
         @Config.Name("Main Base Initial Defenders")
         @Config.Comment("Number of defenders spawned on Main Base defender pads when the base generates while activated.")
-        public int mainBaseInitialDefenders = 4;
+        public int mainBaseInitialDefenders = 3;
 
         @Config.Name("Main Base Defender Patrol Radius")
         @Config.Comment("Patrol radius assigned to defenders spawned by activated Main Bases.")
@@ -858,12 +875,12 @@ public final class StandAndHoldConfig {
         public boolean enableNaturalDynamicEvents = true;
 
         @Config.Name("Dynamic Event Interval")
-        @Config.Comment("Ticks between natural dynamic event rolls per loaded Field Command Post. 6000 ticks is about 5 minutes.")
-        public int dynamicEventIntervalTicks = 6000;
+        @Config.Comment("Ticks between natural dynamic event rolls per loaded Field Command Post. 12000 ticks is about 10 minutes.")
+        public int dynamicEventIntervalTicks = 12000;
 
         @Config.Name("Dynamic Event Chance")
         @Config.Comment("One chance in this many intervals to start a natural event. Higher values are rarer.")
-        public int dynamicEventChance = 4;
+        public int dynamicEventChance = 5;
 
         @Config.Name("Outpost Attack Weight")
         @Config.Comment("Relative weight for natural outpost attack events.")
@@ -876,6 +893,14 @@ public final class StandAndHoldConfig {
         @Config.Name("Dynamic Event Spawn Radius")
         @Config.Comment("Horizontal radius around the event anchor used to find safe spawn positions.")
         public int dynamicEventSpawnRadius = 12;
+
+        @Config.Name("Enable Dynamic Event Warnings")
+        @Config.Comment("Sends a simple chat warning to nearby players when a natural dynamic event starts.")
+        public boolean enableDynamicEventWarnings = true;
+
+        @Config.Name("Dynamic Event Warning Radius")
+        @Config.Comment("Radius around a command post where players receive natural event warning messages.")
+        public int dynamicEventWarningRadius = 64;
 
         @Config.Name("Outpost Attack Entity IDs")
         @Config.Comment({
@@ -897,7 +922,7 @@ public final class StandAndHoldConfig {
 
         @Config.Name("Outpost Attack Max Count")
         @Config.Comment("Maximum attackers spawned by one outpost attack event. Use 0 for no cap.")
-        public int outpostAttackMaxCount = 8;
+        public int outpostAttackMaxCount = 6;
 
         @Config.Name("Human Reinforcement Base Count")
         @Config.Comment("Base reinforcement count before stage scaling.")
@@ -905,11 +930,11 @@ public final class StandAndHoldConfig {
 
         @Config.Name("Human Reinforcements Per Stage")
         @Config.Comment("Additional reinforcements added for each current human stage.")
-        public int humanReinforcementsPerStage = 1;
+        public int humanReinforcementsPerStage = 0;
 
         @Config.Name("Human Reinforcement Max Count")
         @Config.Comment("Maximum human units spawned by one reinforcement event. Use 0 for no cap.")
-        public int humanReinforcementMaxCount = 4;
+        public int humanReinforcementMaxCount = 2;
 
         @Config.Name("Human Reinforcement Patrol Radius")
         @Config.Comment("Patrol radius assigned to units spawned by dynamic reinforcement events.")
@@ -933,9 +958,9 @@ public final class StandAndHoldConfig {
         @Config.Comment("Threat score thresholds for Low, Guarded, High, and Critical levels.")
         public int[] threatLevelThresholds = new int[] {
                 0,
-                10,
-                25,
-                50
+                12,
+                35,
+                70
         };
 
         @Config.Name("Parasite Kill Threat Increase")
@@ -956,19 +981,19 @@ public final class StandAndHoldConfig {
 
         @Config.Name("Threat Reinforcement Threshold")
         @Config.Comment("Threat score required before automatic reinforcements can be considered.")
-        public int threatReinforcementThreshold = 25;
+        public int threatReinforcementThreshold = 35;
 
         @Config.Name("Reinforcement Cooldown")
         @Config.Comment("Ticks between automatic reinforcement deployments per threat region.")
-        public int reinforcementCooldownTicks = 12000;
+        public int reinforcementCooldownTicks = 18000;
 
         @Config.Name("Reinforcement Units Per Trigger")
         @Config.Comment("Maximum human units spawned when a threat region triggers reinforcements.")
-        public int reinforcementUnitsPerTrigger = 2;
+        public int reinforcementUnitsPerTrigger = 1;
 
         @Config.Name("Max Reinforcements Per Threat Region")
         @Config.Comment("Maximum total reinforcement units a single threat region can receive. Use 0 for no cap.")
-        public int maxReinforcementsPerThreatRegion = 6;
+        public int maxReinforcementsPerThreatRegion = 4;
 
         @Config.Name("Reinforcement Spawn Radius")
         @Config.Comment("Horizontal radius around a threat region center used to find reinforcement spawn positions.")

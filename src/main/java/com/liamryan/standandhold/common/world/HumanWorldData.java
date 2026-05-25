@@ -1,6 +1,8 @@
 package com.liamryan.standandhold.common.world;
 
 import com.liamryan.standandhold.StandAndHoldConstants;
+import com.liamryan.standandhold.common.mission.Mission;
+import com.liamryan.standandhold.common.mission.MissionProgress;
 import com.liamryan.standandhold.common.progression.HumanStage;
 import com.liamryan.standandhold.common.research.ResearchEntry;
 import com.liamryan.standandhold.common.threat.ThreatRecord;
@@ -31,6 +33,7 @@ public final class HumanWorldData extends WorldSavedData {
     private static final String TAG_MAIN_BASES = "MainBases";
     private static final String TAG_ACTIVE_MAIN_BASES = "ActiveMainBases";
     private static final String TAG_THREAT_RECORDS = "ThreatRecords";
+    private static final String TAG_MISSIONS = "Missions";
 
     private int humanPoints;
     private int supplyPoints;
@@ -41,6 +44,7 @@ public final class HumanWorldData extends WorldSavedData {
     private final Set<String> mainBasePositions = new LinkedHashSet<String>();
     private final Set<String> activeMainBasePositions = new LinkedHashSet<String>();
     private final Map<String, ThreatRecord> threatRecords = new LinkedHashMap<String, ThreatRecord>();
+    private final Map<String, MissionProgress> missionProgressRecords = new LinkedHashMap<String, MissionProgress>();
 
     public HumanWorldData() {
         super(DATA_NAME);
@@ -61,6 +65,7 @@ public final class HumanWorldData extends WorldSavedData {
         mainBasePositions.clear();
         activeMainBasePositions.clear();
         threatRecords.clear();
+        missionProgressRecords.clear();
 
         NBTTagList completedResearchTags = compound.getTagList(TAG_COMPLETED_RESEARCH, Constants.NBT.TAG_STRING);
         for (int i = 0; i < completedResearchTags.tagCount(); i++) {
@@ -107,6 +112,14 @@ public final class HumanWorldData extends WorldSavedData {
             ThreatRecord record = ThreatRecord.readFromNBT(threatRecordTags.getCompoundTagAt(i));
             threatRecords.put(record.getKey(), record);
         }
+
+        NBTTagList missionTags = compound.getTagList(TAG_MISSIONS, Constants.NBT.TAG_COMPOUND);
+        for (int i = 0; i < missionTags.tagCount(); i++) {
+            MissionProgress progress = MissionProgress.readFromNBT(missionTags.getCompoundTagAt(i));
+            if (!progress.getMissionId().isEmpty()) {
+                missionProgressRecords.put(progress.getMissionId(), progress);
+            }
+        }
     }
 
     @Override
@@ -150,6 +163,12 @@ public final class HumanWorldData extends WorldSavedData {
             threatRecordTags.appendTag(record.writeToNBT());
         }
         compound.setTag(TAG_THREAT_RECORDS, threatRecordTags);
+
+        NBTTagList missionTags = new NBTTagList();
+        for (MissionProgress progress : missionProgressRecords.values()) {
+            missionTags.appendTag(progress.writeToNBT());
+        }
+        compound.setTag(TAG_MISSIONS, missionTags);
         return compound;
     }
 
@@ -363,6 +382,63 @@ public final class HumanWorldData extends WorldSavedData {
             iterator.remove();
         }
         markDirty();
+    }
+
+    public MissionProgress getMissionProgress(String missionId) {
+        return missionProgressRecords.get(Mission.normalizeId(missionId));
+    }
+
+    public Collection<MissionProgress> getMissionProgressRecords() {
+        return Collections.unmodifiableCollection(missionProgressRecords.values());
+    }
+
+    public boolean startMission(String missionId, long worldTime) {
+        String normalizedMissionId = Mission.normalizeId(missionId);
+        if (normalizedMissionId.isEmpty() || missionProgressRecords.containsKey(normalizedMissionId)) {
+            return false;
+        }
+
+        missionProgressRecords.put(normalizedMissionId, new MissionProgress(normalizedMissionId, worldTime));
+        markDirty();
+        return true;
+    }
+
+    public boolean setMissionProgress(String missionId, int progress) {
+        MissionProgress record = getMissionProgress(missionId);
+        if (record == null || record.isCompleted()) {
+            return false;
+        }
+
+        int safeProgress = Math.max(0, progress);
+        if (record.getProgress() == safeProgress) {
+            return false;
+        }
+
+        record.setProgress(safeProgress);
+        markDirty();
+        return true;
+    }
+
+    public boolean addMissionProgress(String missionId, int amount) {
+        MissionProgress record = getMissionProgress(missionId);
+        if (record == null || record.isCompleted() || amount <= 0) {
+            return false;
+        }
+
+        record.addProgress(amount);
+        markDirty();
+        return true;
+    }
+
+    public boolean completeMission(String missionId, long worldTime) {
+        MissionProgress record = getMissionProgress(missionId);
+        if (record == null || record.isCompleted()) {
+            return false;
+        }
+
+        record.complete(worldTime);
+        markDirty();
+        return true;
     }
 
     private static String getPositionKey(int dimension, BlockPos pos) {

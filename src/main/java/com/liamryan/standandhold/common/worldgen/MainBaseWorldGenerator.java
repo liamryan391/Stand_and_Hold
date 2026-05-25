@@ -3,6 +3,8 @@ package com.liamryan.standandhold.common.worldgen;
 import com.liamryan.standandhold.StandAndHold;
 import com.liamryan.standandhold.common.block.ModBlocks;
 import com.liamryan.standandhold.common.infrastructure.MainBaseManager;
+import com.liamryan.standandhold.common.mission.MissionManager;
+import com.liamryan.standandhold.common.mission.MissionObjectiveType;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraft.block.material.Material;
@@ -133,6 +135,7 @@ public final class MainBaseWorldGenerator implements IWorldGenerator {
                 : null;
         boolean active = activationResult != null && activationResult.getStatus() == MainBaseManager.ActivationStatus.ACTIVATED;
         int defendersSpawned = activationResult == null ? 0 : activationResult.getDefendersSpawned();
+        MissionManager.recordStructureDiscovery(world, MissionObjectiveType.DISCOVER_MAIN_BASE);
         return GenerationResult.generated(origin, active, defendersSpawned);
     }
 

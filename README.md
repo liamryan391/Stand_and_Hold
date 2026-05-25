@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 23: a compileable Forge project foundation for a future large-scale Stand and Hold mod. It includes persistent human progression points, supply points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point and supply generation from loaded command posts, Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, persistent Main Base registration/activation, Special Parasite Division gating, regional threat tracking, threat decay, bounded reinforcement triggers, simple human equipment, equipment crafting/unlock gates, one prototype ranged weapon with a custom projectile, projectile hit polish, simple block GUIs, a small networking foundation for GUI data/actions, basic local/global supply transfer controls, optional SRP compatibility mappings, a command-post logistics route placeholder, and lightweight dynamic outpost attack/reinforcement events. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, physical convoy entities, complex raid waves, and full Scape and Run: Parasites integration are intentionally left for later phases.
+This repository is currently in Phase 25: a compileable Forge project foundation for a future large-scale Stand and Hold mod. It includes persistent human progression points, supply points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, a basic mission/objective system with automatic progress hooks, military infrastructure blocks, passive point and supply generation from loaded command posts, Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, persistent Main Base registration/activation, Special Parasite Division gating, regional threat tracking, threat decay, bounded reinforcement triggers, simple human equipment, equipment crafting/unlock gates, one prototype ranged weapon with a custom projectile, projectile hit polish, simple block GUIs, a small networking foundation for GUI data/actions, basic local/global supply transfer controls, optional SRP compatibility mappings, a command-post logistics route placeholder, lightweight dynamic outpost attack/reinforcement events, dynamic event cooldown/status visibility, and more conservative default balancing. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, physical convoy entities, complex raid waves, mission GUIs, and full Scape and Run: Parasites integration are intentionally left for later phases.
 
 ## Current Scope
 
@@ -22,6 +22,9 @@ This repository is currently in Phase 23: a compileable Forge project foundation
 - Optional Scape and Run: Parasites loaded-state detection
 - Data-driven research entries
 - Persistent completed research IDs
+- Config-backed mission entries with persistent objective progress
+- Automatic mission progress hooks for parasite samples, outpost defence, and structure discovery
+- First Recover Parasite Sample mission
 - Basic Parasite Tissue Sample item
 - Configurable sample drops from configured entity deaths
 - Field Command Post block and tile entity
@@ -46,6 +49,7 @@ This repository is currently in Phase 23: a compileable Forge project foundation
 - Tile-local logistics route placeholder for loaded Field Command Posts
 - Tile-local dynamic outpost attack and reinforcement events
 - Admin dynamic event debug commands
+- Dynamic event cooldown/status command and nearby warning messages
 - Base human NPC entity class
 - Tiered human unit entities with spawn eggs and simple parasite targeting AI
 - Field Command Post outpost defender spawning with limits
@@ -121,7 +125,7 @@ modid:entity_registry_name=points
 The default config includes:
 
 ```text
-minecraft:zombie=5
+minecraft:zombie=3
 ```
 
 That zombie entry is only a safe test value so the feature can be verified without Scape and Run: Parasites installed. No SRP entity IDs are hardcoded. Once verified, add SRP registry IDs to the normal reward lists or to the dedicated SRP compatibility mapping list.
@@ -135,7 +139,7 @@ modid:entity_registry_name=chance
 The default sample drop test entry is:
 
 ```text
-minecraft:zombie=0.25
+minecraft:zombie=0.15
 ```
 
 ## Phase 3 Research
@@ -177,7 +181,7 @@ Config options:
 ```text
 enableFieldCommandPostPointGeneration=true
 fieldCommandPostPointsPerInterval=1
-fieldCommandPostTickInterval=1200
+fieldCommandPostTickInterval=2400
 ```
 
 When points are awarded, the normal `HumanPointManager` path updates `HumanWorldData`, recalculates stages, and marks the world data dirty.
@@ -224,9 +228,9 @@ Config options:
 
 ```text
 enableResearchLabProgress=true
-researchLabTickInterval=200
-researchLabProgressPerInterval=10
-researchLabProgressRequired=100
+researchLabTickInterval=400
+researchLabProgressPerInterval=8
+researchLabProgressRequired=160
 researchLabMaxStoredSamples=16
 ```
 
@@ -316,7 +320,7 @@ Config options:
 
 ```text
 enableArmyCheckpointGeneration=true
-armyCheckpointSpawnChance=120
+armyCheckpointSpawnChance=180
 armyCheckpointWidth=9
 armyCheckpointDepth=9
 armyCheckpointWallHeight=2
@@ -438,13 +442,13 @@ Config options:
 enableThreatTracking=true
 enableThreatReinforcements=true
 threatRegionChunkSize=4
-threatLevelThresholds=[0,10,25,50]
+threatLevelThresholds=[0,12,35,70]
 parasiteKillThreatIncrease=2
 humanLossThreatIncrease=10
 outpostAttackThreatIncrease=6
 outpostAttackThreatCooldownTicks=200
 threatReinforcementThreshold=25
-reinforcementCooldownTicks=12000
+reinforcementCooldownTicks=18000
 reinforcementUnitsPerTrigger=2
 maxReinforcementsPerThreatRegion=6
 reinforcementSpawnRadius=8
@@ -633,7 +637,7 @@ Example after verifying an entity registry ID in the exact SRP build being used:
 srparasites:example_parasite|25|0.35|true
 ```
 
-No built-in SRP entity IDs are enabled yet because the registry IDs have not been verified in this repository. Existing fallback/test entries such as `minecraft:zombie=5` still work without SRP.
+No built-in SRP entity IDs are enabled yet because the registry IDs have not been verified in this repository. Existing fallback/test entries such as `minecraft:zombie=3` still work without SRP.
 
 Compatibility config options:
 
@@ -662,31 +666,91 @@ Dynamic event config options:
 ```text
 enableDynamicEvents=true
 enableNaturalDynamicEvents=true
-dynamicEventIntervalTicks=6000
-dynamicEventChance=4
+dynamicEventIntervalTicks=12000
+dynamicEventChance=5
 outpostAttackWeight=3
 humanReinforcementWeight=1
 dynamicEventSpawnRadius=12
 outpostAttackEntityIds=[minecraft:zombie]
 outpostAttackBaseCount=1
 outpostAttackersPerStage=1
-outpostAttackMaxCount=8
+outpostAttackMaxCount=6
 humanReinforcementBaseCount=1
-humanReinforcementsPerStage=1
-humanReinforcementMaxCount=4
+humanReinforcementsPerStage=0
+humanReinforcementMaxCount=2
 humanReinforcementPatrolRadius=24
 ```
 
 Admin debug commands:
 
 ```text
+/standandhold event status [x] [y] [z]
 /standandhold event outpostattack [x] [y] [z]
 /standandhold event reinforcement [x] [y] [z]
 ```
 
+Phase 24 adds `event status`, which shows the nearest or targeted Field Command Post natural event cooldown, interval, and chance settings. Natural outpost attacks and reinforcement events can also send a configurable chat warning to nearby players.
+
+Additional dynamic event config options:
+
+```text
+enableDynamicEventWarnings=true
+dynamicEventWarningRadius=64
+```
+
+## Phase 24 Missions and Objectives
+
+Phase 24 introduces the first persistent mission foundation. Mission definitions are config-backed and mission progress is saved in `HumanWorldData`, alongside the existing progression, research, supply, base, and threat state.
+
+Default mission:
+
+- `recover_parasite_sample`: recover one Parasite Tissue Sample, then reward human points, supplies, and the `parasite_samples` research unlock.
+
+Mission config format:
+
+```text
+id|name|description|objectiveType|requiredCount|pointReward|supplyReward|researchRewardIds
+```
+
+Current objective types:
+
+- `RECOVER_PARASITE_SAMPLE`: progress updates from carried Parasite Tissue Samples and Parasite Tissue Sample pickup events.
+- `DEFEND_OUTPOST`: progress updates when a dynamic outpost attack is created as the first placeholder for defence objectives.
+- `DISCOVER_STRUCTURE`, `DISCOVER_CHECKPOINT`, and `DISCOVER_MAIN_BASE`: progress updates when generated Stand and Hold structures are placed by world generation or debug commands.
+- `MANUAL`: progress is controlled by command for future scripted or event-driven objectives.
+
+Commands:
+
+```text
+/standandhold mission list
+/standandhold mission status [id]
+/standandhold mission start <id>
+/standandhold mission progress <id> <amount>
+/standandhold mission complete <id> [force]
+```
+
+`start`, `progress`, and `complete` are admin/debug commands for this first pass. Completing without `force` checks tracked objective progress; `force` is available for testing worlds and scripted setup.
+
+## Phase 25 Balance and Integration
+
+Phase 25 tightens default pacing while keeping everything config-driven. The defaults are intentionally conservative because SRP-style parasite packs can become extremely dangerous, but Stand and Hold should not hand out late-game human escalation too quickly in ordinary test worlds.
+
+Balance assumptions:
+
+- Vanilla `minecraft:zombie` remains a test parasite only, so it gives low point rewards and a modest sample chance.
+- Human stages now require a wider point curve: `0, 150, 500, 1200, 2600, 5200, 10000`.
+- Passive command-post point and supply generation is slower, so building spam is less rewarding.
+- Research labs progress more slowly and late research has higher supply/sample requirements.
+- Command Post upgrades require more points, supplies, and samples while returning smaller completion point rewards.
+- Outpost defenders and dynamic reinforcements are bounded more tightly to avoid free army growth.
+- Dynamic raids are rarer, but still stage-scale attackers so later worlds stay pressured.
+- Threat reinforcements require higher regional threat and have longer cooldowns.
+- Special Parasite Division remains strong and stage/research-gated; it is the main long-term counterweight for verified high-power parasite mappings.
+- SRP compatibility remains data-driven. Verified SRP mappings should tune kill rewards, sample rates, and human targeting per parasite tier instead of relying on one universal reward value.
+
 ## Planned Next Phase
 
-Phase 24 should build on the point, sample, supply, research, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, threat-response, equipment, simple ranged weapon, GUI, networking, logistics, SRP compatibility, and dynamic event foundations without jumping into the entire final system at once:
+Phase 26 should build on the point, sample, supply, research, mission, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, threat-response, equipment, simple ranged weapon, GUI, networking, logistics, SRP compatibility, dynamic event, and balance foundations without jumping into the entire final system at once:
 
 - Tune point, supply, and threat values from playtesting
 - Add visible logistics route markers or physical convoy entities
