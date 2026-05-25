@@ -3,7 +3,10 @@ package com.liamryan.standandhold.common.entity;
 import com.liamryan.standandhold.StandAndHold;
 import com.liamryan.standandhold.StandAndHoldConstants;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
+
+import javax.annotation.Nullable;
 
 public final class ModEntities {
     private static int nextEntityId = 1;
@@ -33,5 +36,29 @@ public final class ModEntities {
                 tier.getEggPrimaryColor(),
                 tier.getEggSecondaryColor()
         );
+    }
+
+    @Nullable
+    public static EntityHumanNpc createHumanUnit(World world, HumanUnitTier tier) {
+        if (world == null || tier == null) {
+            return null;
+        }
+
+        switch (tier) {
+            case SURVIVOR_DEFENDER:
+                return new EntitySurvivorDefender(world);
+            case ARMY_RIFLEMAN:
+                return new EntitySoldier(world);
+            case HEAVY_SOLDIER:
+                return new EntityHeavySoldier(world);
+            case ELITE_SOLDIER:
+                return new EntityEliteSoldier(world);
+            case SUPER_ELITE_SOLDIER:
+                return new EntitySuperEliteSoldier(world);
+            case SPECIAL_PARASITE_DIVISION_OPERATIVE:
+                return new EntitySpecialParasiteDivisionOperative(world);
+            default:
+                return null;
+        }
     }
 }

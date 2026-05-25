@@ -75,4 +75,8 @@ public enum HumanUnitTier {
         }
         return null;
     }
+
+    public static HumanUnitTier getLowestTier() {
+        return SURVIVOR_DEFENDER;
+    }
 }

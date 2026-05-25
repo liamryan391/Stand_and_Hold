@@ -355,6 +355,26 @@ public final class StandAndHoldConfig {
                 "4|700|outpost_doctrine,parasite_samples|4|100",
                 "5|1500|outpost_doctrine,parasite_samples|8|200"
         };
+
+        @Config.Name("Enable Outpost Defender Spawning")
+        @Config.Comment("Allows loaded Field Command Posts to act as outpost anchors that spawn limited human defenders.")
+        public boolean enableOutpostDefenderSpawning = true;
+
+        @Config.Name("Outpost Max Defenders")
+        @Config.Comment("Maximum living defenders assigned to each loaded outpost anchor.")
+        public int outpostMaxDefenders = 3;
+
+        @Config.Name("Outpost Defender Spawn Interval")
+        @Config.Comment("Ticks between defender spawn attempts per loaded outpost anchor. 2400 ticks is about 2 minutes.")
+        public int outpostDefenderSpawnInterval = 2400;
+
+        @Config.Name("Outpost Defender Patrol Radius")
+        @Config.Comment("Radius assigned defenders try to stay within around their outpost anchor.")
+        public int outpostDefenderPatrolRadius = 16;
+
+        @Config.Name("Outpost Defender Spawn Search Radius")
+        @Config.Comment("Horizontal radius around the outpost anchor used to find a safe defender spawn position.")
+        public int outpostDefenderSpawnSearchRadius = 4;
     }
 
     public static final class HumanNpcs {

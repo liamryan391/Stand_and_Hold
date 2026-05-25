@@ -1,6 +1,7 @@
 package com.liamryan.standandhold.common.tile;
 
 import com.liamryan.standandhold.common.infrastructure.FieldCommandPostLevel;
+import com.liamryan.standandhold.common.infrastructure.OutpostDefenseManager;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraft.nbt.NBTTagCompound;
@@ -10,10 +11,12 @@ import net.minecraft.util.ITickable;
 public final class TileEntityFieldCommandPost extends TileEntity implements ITickable {
     private static final String TAG_PLACED_WORLD_TIME = "PlacedWorldTime";
     private static final String TAG_LAST_POINT_GENERATION_TIME = "LastPointGenerationTime";
+    private static final String TAG_LAST_DEFENDER_SPAWN_TIME = "LastDefenderSpawnTime";
     private static final String TAG_UPGRADE_LEVEL = "UpgradeLevel";
 
     private long placedWorldTime = -1L;
     private long lastPointGenerationTime = -1L;
+    private long lastDefenderSpawnTime = -1L;
     private int upgradeLevel = FieldCommandPostLevel.FIELD_CAMP.getLevel();
 
     @Override
@@ -29,6 +32,10 @@ public final class TileEntityFieldCommandPost extends TileEntity implements ITic
                 lastPointGenerationTime = world.getTotalWorldTime();
                 changed = true;
             }
+            if (lastDefenderSpawnTime < 0L) {
+                lastDefenderSpawnTime = world.getTotalWorldTime();
+                changed = true;
+            }
             if (changed) {
                 markDirty();
             }
@@ -37,7 +44,16 @@ public final class TileEntityFieldCommandPost extends TileEntity implements ITic
 
     @Override
     public void update() {
-        if (world == null || world.isRemote || !StandAndHoldConfig.infrastructure.enableFieldCommandPostPointGeneration) {
+        if (world == null || world.isRemote) {
+            return;
+        }
+
+        updatePointGeneration();
+        OutpostDefenseManager.updateOutpostDefense(this);
+    }
+
+    private void updatePointGeneration() {
+        if (!StandAndHoldConfig.infrastructure.enableFieldCommandPostPointGeneration) {
             return;
         }
 
@@ -66,6 +82,7 @@ public final class TileEntityFieldCommandPost extends TileEntity implements ITic
         super.readFromNBT(compound);
         placedWorldTime = compound.hasKey(TAG_PLACED_WORLD_TIME) ? compound.getLong(TAG_PLACED_WORLD_TIME) : -1L;
         lastPointGenerationTime = compound.hasKey(TAG_LAST_POINT_GENERATION_TIME) ? compound.getLong(TAG_LAST_POINT_GENERATION_TIME) : -1L;
+        lastDefenderSpawnTime = compound.hasKey(TAG_LAST_DEFENDER_SPAWN_TIME) ? compound.getLong(TAG_LAST_DEFENDER_SPAWN_TIME) : -1L;
         upgradeLevel = compound.hasKey(TAG_UPGRADE_LEVEL) ? FieldCommandPostLevel.byLevel(compound.getInteger(TAG_UPGRADE_LEVEL)).getLevel() : FieldCommandPostLevel.FIELD_CAMP.getLevel();
     }
 
@@ -74,6 +91,7 @@ public final class TileEntityFieldCommandPost extends TileEntity implements ITic
         super.writeToNBT(compound);
         compound.setLong(TAG_PLACED_WORLD_TIME, placedWorldTime);
         compound.setLong(TAG_LAST_POINT_GENERATION_TIME, lastPointGenerationTime);
+        compound.setLong(TAG_LAST_DEFENDER_SPAWN_TIME, lastDefenderSpawnTime);
         compound.setInteger(TAG_UPGRADE_LEVEL, getUpgradeLevelInfo().getLevel());
         return compound;
     }
@@ -84,6 +102,17 @@ public final class TileEntityFieldCommandPost extends TileEntity implements ITic
 
     public long getLastPointGenerationTime() {
         return lastPointGenerationTime;
+    }
+
+    public long getLastDefenderSpawnTime() {
+        return lastDefenderSpawnTime;
+    }
+
+    public void setLastDefenderSpawnTime(long lastDefenderSpawnTime) {
+        if (this.lastDefenderSpawnTime != lastDefenderSpawnTime) {
+            this.lastDefenderSpawnTime = lastDefenderSpawnTime;
+            markDirty();
+        }
     }
 
     public int getUpgradeLevel() {

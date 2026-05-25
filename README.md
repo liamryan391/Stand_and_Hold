@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 10: a small, compileable Forge project foundation with persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point generation from loaded command posts, early Field Command Post upgrade levels, a basic Research Lab, and tiered human NPC test units. Gameplay systems such as structure generation, full scientist AI, advanced weapons, outposts, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
+This repository is currently in Phase 11: a small, compileable Forge project foundation with persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point generation from loaded command posts, early Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, and bounded outpost defender spawning. Gameplay systems such as structure generation, full scientist AI, advanced weapons, generated outposts, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
 
 ## Current Scope
 
@@ -31,6 +31,7 @@ This repository is currently in Phase 10: a small, compileable Forge project fou
 - Lab-local saved research progress and stored parasite samples
 - Base human NPC entity class
 - Tiered human unit entities with spawn eggs and simple parasite targeting AI
+- Field Command Post outpost defender spawning with limits
 
 ## Requirements
 
@@ -256,10 +257,34 @@ The default `minecraft:zombie` target is only for safe testing without Scape and
 
 Stage unlocks are enforced when units spawn. If a unit is spawned before the world's human stage meets that tier's `requiredHumanStage`, the entity is removed immediately instead of joining the world.
 
+## Phase 11 Outpost Defence
+
+Until generated outposts exist, loaded Field Command Posts act as outpost anchors. Each anchor can spawn a small number of assigned defenders over time.
+
+Defender selection scales from the current human stage by choosing the strongest configured unit tier whose required stage is unlocked. For example, Stage 0 uses Survivor Defenders, Stage 1 can use Army Riflemen, and later stages move toward elite and Special Parasite Division units.
+
+Spawn control is deliberately conservative:
+
+- Spawning happens only from loaded Field Command Post tile entities
+- Each outpost has its own saved spawn cooldown
+- Each outpost counts only living defenders assigned to that outpost
+- Defenders receive a patrol/home radius around their outpost
+- No global world scans are used
+
+Config options:
+
+```text
+enableOutpostDefenderSpawning=true
+outpostMaxDefenders=3
+outpostDefenderSpawnInterval=2400
+outpostDefenderPatrolRadius=16
+outpostDefenderSpawnSearchRadius=4
+```
+
 ## Planned Next Phase
 
-Phase 11 should build on the point, sample, research, lab, command-post, and unit-tier systems without jumping into full structure generation:
+Phase 12 should build on the point, sample, research, lab, command-post, unit-tier, and outpost-defence systems without jumping into full structure generation:
 
 - Tune point rewards and stage thresholds from playtesting
-- Add basic lab-linked scientist behavior or first outpost defense hooks
+- Add basic lab-linked scientist behavior or outpost status/admin commands
 - Keep Scape and Run: Parasites compatibility data-driven until entity IDs are verified
