@@ -1,6 +1,7 @@
 package com.liamryan.standandhold.config;
 
 import com.liamryan.standandhold.StandAndHoldConstants;
+import com.liamryan.standandhold.common.entity.HumanUnitTier;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
@@ -108,13 +109,13 @@ public final class StandAndHoldConfig {
         return modId != null && !modId.trim().isEmpty() && Loader.isModLoaded(modId.trim());
     }
 
-    public static boolean isSoldierTargetEntity(ResourceLocation entityRegistryId) {
-        if (!humanNpcs.enableSoldierParasiteTargeting || entityRegistryId == null) {
+    public static boolean isHumanUnitTargetEntity(ResourceLocation entityRegistryId) {
+        if (!humanNpcs.enableHumanUnitParasiteTargeting || entityRegistryId == null) {
             return false;
         }
 
         String entityId = entityRegistryId.toString().toLowerCase(Locale.ROOT);
-        String[] targetEntries = humanNpcs.soldierTargetEntityIds;
+        String[] targetEntries = humanNpcs.humanUnitTargetEntityIds;
         if (targetEntries == null) {
             return false;
         }
@@ -127,6 +128,25 @@ public final class StandAndHoldConfig {
         }
 
         return false;
+    }
+
+    public static boolean isSoldierTargetEntity(ResourceLocation entityRegistryId) {
+        return isHumanUnitTargetEntity(entityRegistryId);
+    }
+
+    public static double getHumanUnitHealth(HumanUnitTier tier) {
+        ParsedHumanUnitStats stats = getHumanUnitStats(tier);
+        return Math.max(1.0D, stats.health);
+    }
+
+    public static double getHumanUnitDamage(HumanUnitTier tier) {
+        ParsedHumanUnitStats stats = getHumanUnitStats(tier);
+        return Math.max(0.0D, stats.damage);
+    }
+
+    public static int getHumanUnitRequiredStage(HumanUnitTier tier) {
+        ParsedHumanUnitStats stats = getHumanUnitStats(tier);
+        return Math.max(0, Math.min(6, stats.requiredStage));
     }
 
     private static ParsedReward parseRewardEntry(String rewardEntry) {
@@ -183,6 +203,46 @@ public final class StandAndHoldConfig {
         try {
             return new ResourceLocation(rawEntityId.trim().toLowerCase(Locale.ROOT)).toString();
         } catch (RuntimeException ignored) {
+            return null;
+        }
+    }
+
+    private static ParsedHumanUnitStats getHumanUnitStats(HumanUnitTier tier) {
+        HumanUnitTier safeTier = tier == null ? HumanUnitTier.SURVIVOR_DEFENDER : tier;
+        String[] statsEntries = humanNpcs.humanUnitStats;
+        if (statsEntries != null) {
+            for (String statsEntry : statsEntries) {
+                ParsedHumanUnitStats parsedStats = parseHumanUnitStats(statsEntry);
+                if (parsedStats != null && parsedStats.tier == safeTier) {
+                    return parsedStats;
+                }
+            }
+        }
+
+        return ParsedHumanUnitStats.defaults(safeTier);
+    }
+
+    private static ParsedHumanUnitStats parseHumanUnitStats(String statsEntry) {
+        if (statsEntry == null || statsEntry.trim().isEmpty()) {
+            return null;
+        }
+
+        String[] parts = statsEntry.split("\\|", -1);
+        if (parts.length < 4) {
+            return null;
+        }
+
+        HumanUnitTier tier = HumanUnitTier.fromId(parts[0]);
+        if (tier == null) {
+            return null;
+        }
+
+        try {
+            double health = Double.parseDouble(parts[1].trim());
+            double damage = Double.parseDouble(parts[2].trim());
+            int requiredStage = Integer.parseInt(parts[3].trim());
+            return new ParsedHumanUnitStats(tier, health, damage, requiredStage);
+        } catch (NumberFormatException ignored) {
             return null;
         }
     }
@@ -298,23 +358,34 @@ public final class StandAndHoldConfig {
     }
 
     public static final class HumanNpcs {
-        @Config.Name("Enable Soldier Parasite Targeting")
-        @Config.Comment("Allows Soldiers to attack configured parasite/test entity registry IDs.")
-        public boolean enableSoldierParasiteTargeting = true;
+        @Config.Name("Enable Human Unit Parasite Targeting")
+        @Config.Comment("Allows human combat units to attack configured parasite/test entity registry IDs.")
+        public boolean enableHumanUnitParasiteTargeting = true;
 
-        @Config.Name("Soldier Target Entity IDs")
+        @Config.Name("Human Unit Target Entity IDs")
         @Config.Comment({
-                "Entity registry IDs Soldiers are allowed to target.",
+                "Entity registry IDs human combat units are allowed to target.",
                 "Use verified parasite registry IDs here. The default minecraft:zombie entry is only a safe test value.",
                 "Players and Stand and Hold human NPCs are always ignored by default."
         })
-        public String[] soldierTargetEntityIds = new String[] {
+        public String[] humanUnitTargetEntityIds = new String[] {
                 "minecraft:zombie"
         };
 
-        @Config.Name("Base Human NPC Max Health")
-        @Config.Comment("Maximum health for early human NPCs.")
-        public double baseHumanNpcMaxHealth = 20.0D;
+        @Config.Name("Human Unit Stats")
+        @Config.Comment({
+                "Human unit tier stats in the format unitId|health|damage|requiredHumanStage.",
+                "Valid unit IDs: survivor_defender, army_rifleman, heavy_soldier, elite_soldier, super_elite_soldier, special_parasite_division_operative.",
+                "Required human stage gates spawning for that unit tier."
+        })
+        public String[] humanUnitStats = new String[] {
+                "survivor_defender|16|2|0",
+                "army_rifleman|20|4|1",
+                "heavy_soldier|28|6|2",
+                "elite_soldier|36|8|3",
+                "super_elite_soldier|48|11|4",
+                "special_parasite_division_operative|60|14|5"
+        };
 
         @Config.Name("Base Human NPC Movement Speed")
         @Config.Comment("Base movement speed for early human NPCs.")
@@ -324,21 +395,17 @@ public final class StandAndHoldConfig {
         @Config.Comment("Target search and awareness range for early human NPCs.")
         public double baseHumanNpcFollowRange = 24.0D;
 
-        @Config.Name("Base Human NPC Attack Damage")
-        @Config.Comment("Base melee attack damage for early human NPCs.")
-        public double baseHumanNpcAttackDamage = 4.0D;
+        @Config.Name("Human Unit Attack Move Speed")
+        @Config.Comment("Movement speed multiplier used by human combat units while attacking.")
+        public double humanUnitAttackMoveSpeed = 1.1D;
 
-        @Config.Name("Soldier Attack Move Speed")
-        @Config.Comment("Movement speed multiplier used by Soldiers while attacking.")
-        public double soldierAttackMoveSpeed = 1.1D;
+        @Config.Name("Human Unit Wander Speed")
+        @Config.Comment("Movement speed multiplier used by human combat units while wandering.")
+        public double humanUnitWanderSpeed = 0.8D;
 
-        @Config.Name("Soldier Wander Speed")
-        @Config.Comment("Movement speed multiplier used by Soldiers while wandering.")
-        public double soldierWanderSpeed = 0.8D;
-
-        @Config.Name("Soldier Target Chance")
-        @Config.Comment("How often Soldiers run nearest-target checks. Lower values react faster; 10 is the vanilla-style default.")
-        public int soldierTargetChance = 10;
+        @Config.Name("Human Unit Target Chance")
+        @Config.Comment("How often human combat units run nearest-target checks. Lower values react faster; 10 is the vanilla-style default.")
+        public int humanUnitTargetChance = 10;
     }
 
     private static final class ParsedReward {
@@ -358,6 +425,24 @@ public final class StandAndHoldConfig {
         private ParsedChance(String entityId, double chance) {
             this.entityId = entityId;
             this.chance = chance;
+        }
+    }
+
+    private static final class ParsedHumanUnitStats {
+        private final HumanUnitTier tier;
+        private final double health;
+        private final double damage;
+        private final int requiredStage;
+
+        private ParsedHumanUnitStats(HumanUnitTier tier, double health, double damage, int requiredStage) {
+            this.tier = tier;
+            this.health = health;
+            this.damage = damage;
+            this.requiredStage = requiredStage;
+        }
+
+        private static ParsedHumanUnitStats defaults(HumanUnitTier tier) {
+            return new ParsedHumanUnitStats(tier, tier.getDefaultHealth(), tier.getDefaultDamage(), tier.getDefaultRequiredStage());
         }
     }
 }

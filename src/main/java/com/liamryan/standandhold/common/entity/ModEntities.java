@@ -12,21 +12,26 @@ public final class ModEntities {
     }
 
     public static void registerEntities() {
-        registerSoldier();
+        registerUnit(HumanUnitTier.SURVIVOR_DEFENDER, EntitySurvivorDefender.class);
+        registerUnit(HumanUnitTier.ARMY_RIFLEMAN, EntitySoldier.class);
+        registerUnit(HumanUnitTier.HEAVY_SOLDIER, EntityHeavySoldier.class);
+        registerUnit(HumanUnitTier.ELITE_SOLDIER, EntityEliteSoldier.class);
+        registerUnit(HumanUnitTier.SUPER_ELITE_SOLDIER, EntitySuperEliteSoldier.class);
+        registerUnit(HumanUnitTier.SPECIAL_PARASITE_DIVISION_OPERATIVE, EntitySpecialParasiteDivisionOperative.class);
     }
 
-    private static void registerSoldier() {
+    private static void registerUnit(HumanUnitTier tier, Class<? extends EntityHumanNpc> entityClass) {
         EntityRegistry.registerModEntity(
-                new ResourceLocation(StandAndHoldConstants.MOD_ID, "soldier"),
-                EntitySoldier.class,
-                "soldier",
+                new ResourceLocation(StandAndHoldConstants.MOD_ID, tier.getRegistryName()),
+                entityClass,
+                tier.getRegistryName(),
                 nextEntityId++,
                 StandAndHold.instance,
                 64,
                 3,
                 true,
-                0x2F4F3A,
-                0xC8C0A8
+                tier.getEggPrimaryColor(),
+                tier.getEggSecondaryColor()
         );
     }
 }

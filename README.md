@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 9: a small, compileable Forge project foundation with persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point generation from loaded command posts, early Field Command Post upgrade levels, a basic Research Lab, and the first test human NPC. Gameplay systems such as structure generation, full scientist AI, advanced units, outposts, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
+This repository is currently in Phase 10: a small, compileable Forge project foundation with persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point generation from loaded command posts, early Field Command Post upgrade levels, a basic Research Lab, and tiered human NPC test units. Gameplay systems such as structure generation, full scientist AI, advanced weapons, outposts, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
 
 ## Current Scope
 
@@ -30,7 +30,7 @@ This repository is currently in Phase 9: a small, compileable Forge project foun
 - Research Lab block and tile entity
 - Lab-local saved research progress and stored parasite samples
 - Base human NPC entity class
-- Basic Soldier entity with spawn egg and simple parasite targeting AI
+- Tiered human unit entities with spawn eggs and simple parasite targeting AI
 
 ## Requirements
 
@@ -210,33 +210,56 @@ Scientist AI is deferred. Phase 8 includes only a placeholder scientist support 
 
 ## Phase 9 Human NPC Foundation
 
-The first human NPC foundation adds:
+The first human NPC foundation added:
 
 - `EntityHumanNpc`, a base class for future human units
 - `EntitySoldier`, a basic melee soldier
 - Forge entity registration with a spawn egg for testing
 - Client renderer using a vanilla humanoid model/texture
 
-Soldiers use simple, stable AI only:
+Human units use simple, stable AI only:
 
 - Swim
 - Wander
 - Watch nearby players
 - Melee attack configured parasite/test entity IDs
 
-Soldiers do not target players by default, and they ignore other Stand and Hold human NPCs. Targeting is controlled by config:
+Human units do not target players by default, and they ignore other Stand and Hold human NPCs.
+
+## Phase 10 Army Unit Tiers
+
+The human NPC foundation now has six spawn-egg-testable unit tiers:
+
+- Survivor Defender
+- Army Rifleman
+- Heavy Soldier
+- Elite Soldier
+- Super Elite Soldier
+- Special Parasite Division Operative
+
+Each unit tier uses the same simple AI foundation from Phase 9, but has configurable health, damage, and required human stage:
 
 ```text
-enableSoldierParasiteTargeting=true
-soldierTargetEntityIds=["minecraft:zombie"]
+enableHumanUnitParasiteTargeting=true
+humanUnitTargetEntityIds=["minecraft:zombie"]
+humanUnitStats=[
+  "survivor_defender|16|2|0",
+  "army_rifleman|20|4|1",
+  "heavy_soldier|28|6|2",
+  "elite_soldier|36|8|3",
+  "super_elite_soldier|48|11|4",
+  "special_parasite_division_operative|60|14|5"
+]
 ```
 
-The default `minecraft:zombie` target is only for safe testing without Scape and Run: Parasites installed. Add verified SRP registry IDs to `soldierTargetEntityIds` later.
+The default `minecraft:zombie` target is only for safe testing without Scape and Run: Parasites installed. Add verified SRP registry IDs to `humanUnitTargetEntityIds` later.
+
+Stage unlocks are enforced when units spawn. If a unit is spawned before the world's human stage meets that tier's `requiredHumanStage`, the entity is removed immediately instead of joining the world.
 
 ## Planned Next Phase
 
-Phase 10 should build on the point, sample, research, lab, command-post, and Soldier systems without jumping into full structure generation:
+Phase 11 should build on the point, sample, research, lab, command-post, and unit-tier systems without jumping into full structure generation:
 
 - Tune point rewards and stage thresholds from playtesting
-- Add basic military unit variants or lab-linked scientist behavior
+- Add basic lab-linked scientist behavior or first outpost defense hooks
 - Keep Scape and Run: Parasites compatibility data-driven until entity IDs are verified

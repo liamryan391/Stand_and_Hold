@@ -2,13 +2,13 @@ package com.liamryan.standandhold.common.entity;
 
 import net.minecraft.world.World;
 
-public final class EntitySoldier extends EntityHumanNpc {
-    public EntitySoldier(World world) {
+public final class EntitySuperEliteSoldier extends EntityHumanNpc {
+    public EntitySuperEliteSoldier(World world) {
         super(world);
     }
 
     @Override
     public HumanUnitTier getUnitTier() {
-        return HumanUnitTier.ARMY_RIFLEMAN;
+        return HumanUnitTier.SUPER_ELITE_SOLDIER;
     }
 }
