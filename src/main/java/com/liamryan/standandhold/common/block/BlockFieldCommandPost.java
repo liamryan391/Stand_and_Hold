@@ -6,6 +6,7 @@ import com.liamryan.standandhold.common.infrastructure.FieldCommandPostUpgradeMa
 import com.liamryan.standandhold.common.infrastructure.FieldCommandPostUpgradeRequirement;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.progression.HumanStage;
+import com.liamryan.standandhold.common.supply.SupplyManager;
 import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.common.item.ModItems;
@@ -14,6 +15,8 @@ import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -75,6 +78,12 @@ public final class BlockFieldCommandPost extends Block implements ITileEntityPro
 
         TileEntity tileEntity = world.getTileEntity(pos);
         TileEntityFieldCommandPost commandPost = tileEntity instanceof TileEntityFieldCommandPost ? (TileEntityFieldCommandPost) tileEntity : null;
+        ItemStack heldStack = player.getHeldItem(hand);
+        if (commandPost != null && isSupplyCrate(heldStack)) {
+            sendSupplyDepositResult(world, player, commandPost, heldStack);
+            return true;
+        }
+
         if (commandPost != null && player.isSneaking()) {
             sendUpgradeResult(player, FieldCommandPostUpgradeManager.tryUpgrade(world, commandPost, player));
             return true;
@@ -89,11 +98,49 @@ public final class BlockFieldCommandPost extends Block implements ITileEntityPro
                 stage.getId(),
                 stage.getDisplayName(),
                 level.getLevel(),
-                level.getDisplayName()
+                level.getDisplayName(),
+                data.getSupplyPoints(),
+                commandPost == null ? 0 : commandPost.getStoredSupplies(),
+                commandPost == null ? 0 : commandPost.getMaxStoredSupplies()
         );
         message.getStyle().setColor(TextFormatting.GREEN);
         player.sendMessage(message);
         return true;
+    }
+
+    private boolean isSupplyCrate(ItemStack stack) {
+        return !stack.isEmpty() && stack.getItem() == Item.getItemFromBlock(ModBlocks.SUPPLY_CRATE);
+    }
+
+    private void sendSupplyDepositResult(World world, EntityPlayer player, TileEntityFieldCommandPost commandPost, ItemStack heldStack) {
+        int requestedSupplies = SupplyManager.getSupplyCrateValue();
+        int acceptedSupplies = commandPost.addStoredSupplies(requestedSupplies);
+        if (acceptedSupplies <= 0) {
+            TextComponentTranslation message = new TextComponentTranslation(
+                    "message.standandhold.field_command_post.supplies_full",
+                    commandPost.getStoredSupplies(),
+                    commandPost.getMaxStoredSupplies()
+            );
+            message.getStyle().setColor(TextFormatting.RED);
+            player.sendMessage(message);
+            return;
+        }
+
+        int totalSupplies = SupplyManager.addSupplies(world, acceptedSupplies, "supply crate deposited into field command post: " + commandPost.getPos());
+        if (!player.capabilities.isCreativeMode) {
+            heldStack.shrink(1);
+            player.inventory.markDirty();
+        }
+
+        TextComponentTranslation message = new TextComponentTranslation(
+                "message.standandhold.field_command_post.supply_inserted",
+                acceptedSupplies,
+                commandPost.getStoredSupplies(),
+                commandPost.getMaxStoredSupplies(),
+                totalSupplies
+        );
+        message.getStyle().setColor(TextFormatting.YELLOW);
+        player.sendMessage(message);
     }
 
     private void sendUpgradeResult(EntityPlayer player, FieldCommandPostUpgradeManager.UpgradeResult result) {
@@ -147,6 +194,14 @@ public final class BlockFieldCommandPost extends Block implements ITileEntityPro
                         level.getLevel(),
                         requirement.getParasiteSampleCost(),
                         result.getAvailableSamples()
+                );
+                break;
+            case MISSING_SUPPLIES:
+                message = new TextComponentTranslation(
+                        "message.standandhold.field_command_post.upgrade.supplies",
+                        level.getLevel(),
+                        requirement.getSupplyCost(),
+                        result.getAvailableSupplies()
                 );
                 break;
             default:

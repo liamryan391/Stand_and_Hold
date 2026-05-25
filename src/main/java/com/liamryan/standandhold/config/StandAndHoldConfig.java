@@ -41,6 +41,10 @@ public final class StandAndHoldConfig {
     @Config.Comment("Settings for military infrastructure blocks.")
     public static final Infrastructure infrastructure = new Infrastructure();
 
+    @Config.Name("Supply")
+    @Config.Comment("Settings for the basic human supply economy.")
+    public static final Supply supply = new Supply();
+
     @Config.Name("Human NPCs")
     @Config.Comment("Settings for early human NPC entities.")
     public static final HumanNpcs humanNpcs = new HumanNpcs();
@@ -364,16 +368,17 @@ public final class StandAndHoldConfig {
 
         @Config.Name("Research Entries")
         @Config.Comment({
-                "Research entries in the format id|category|name|description|pointReward|requiredResearchIds|sampleCost.",
+                "Research entries in the format id|category|name|description|pointReward|requiredResearchIds|sampleCost|supplyCost.",
                 "Use comma-separated requiredResearchIds, or leave that field blank.",
                 "Use 0 for sampleCost when the research should not consume Parasite Tissue Samples.",
+                "Use 0 for supplyCost when the research should not consume stored supply points.",
                 "Valid default categories are GENERAL, PARASITE_BIOLOGY, MILITARY_LOGISTICS, BASE_INFRASTRUCTURE, FIELD_MEDICINE, and SPECIAL_PROJECTS."
         })
         public String[] researchEntries = new String[] {
-                "parasite_samples|PARASITE_BIOLOGY|Parasite Samples|Catalog recovered parasite tissue and establish basic containment procedures.|25||1",
-                "field_communications|MILITARY_LOGISTICS|Field Communications|Coordinate survivor cells and local army response teams across infected territory.|25||0",
-                "outpost_doctrine|BASE_INFRASTRUCTURE|Outpost Doctrine|Draft the first defensible outpost standards for later military construction.|50|field_communications|0",
-                "special_division_training|SPECIAL_PROJECTS|Special Division Training|Train select operatives for anti-parasite rapid deployment and containment work.|150|parasite_samples,outpost_doctrine|3"
+                "parasite_samples|PARASITE_BIOLOGY|Parasite Samples|Catalog recovered parasite tissue and establish basic containment procedures.|25||1|0",
+                "field_communications|MILITARY_LOGISTICS|Field Communications|Coordinate survivor cells and local army response teams across infected territory.|25||0|10",
+                "outpost_doctrine|BASE_INFRASTRUCTURE|Outpost Doctrine|Draft the first defensible outpost standards for later military construction.|50|field_communications|0|25",
+                "special_division_training|SPECIAL_PROJECTS|Special Division Training|Train select operatives for anti-parasite rapid deployment and containment work.|150|parasite_samples,outpost_doctrine|3|50"
         };
     }
 
@@ -392,16 +397,16 @@ public final class StandAndHoldConfig {
 
         @Config.Name("Field Command Post Upgrade Requirements")
         @Config.Comment({
-                "Upgrade requirements in the format targetLevel|requiredHumanPoints|requiredResearchIds|parasiteSampleCost|pointReward.",
+                "Upgrade requirements in the format targetLevel|requiredHumanPoints|requiredResearchIds|parasiteSampleCost|supplyCost|pointReward.",
                 "targetLevel must be 2 through 5. Level names are fixed by the mod.",
                 "Use comma-separated requiredResearchIds, or leave that field blank.",
-                "Human points are required as progression, not spent. Parasite samples are consumed from the upgrading player."
+                "Human points are required as progression, not spent. Parasite samples and supply points are consumed."
         })
         public String[] fieldCommandPostUpgradeRequirements = new String[] {
-                "2|100|field_communications|1|25",
-                "3|300|outpost_doctrine|2|50",
-                "4|700|outpost_doctrine,parasite_samples|4|100",
-                "5|1500|outpost_doctrine,parasite_samples|8|200"
+                "2|100|field_communications|1|20|25",
+                "3|300|outpost_doctrine|2|50|50",
+                "4|700|outpost_doctrine,parasite_samples|4|100|100",
+                "5|1500|outpost_doctrine,parasite_samples|8|200|200"
         };
 
         @Config.Name("Enable Outpost Defender Spawning")
@@ -423,6 +428,32 @@ public final class StandAndHoldConfig {
         @Config.Name("Outpost Defender Spawn Search Radius")
         @Config.Comment("Horizontal radius around the outpost anchor used to find a safe defender spawn position.")
         public int outpostDefenderSpawnSearchRadius = 4;
+    }
+
+    public static final class Supply {
+        @Config.Name("Supply Crate Value")
+        @Config.Comment("Supply points added when a Supply Crate is deposited into a building or claimed from the world.")
+        public int supplyCrateValue = 10;
+
+        @Config.Name("Command Post Max Stored Supplies")
+        @Config.Comment("Maximum local supplies a loaded Field Command Post can store.")
+        public int commandPostMaxStoredSupplies = 64;
+
+        @Config.Name("Research Lab Max Stored Supplies")
+        @Config.Comment("Maximum local supplies a Research Lab can store.")
+        public int researchLabMaxStoredSupplies = 32;
+
+        @Config.Name("Enable Command Post Supply Generation")
+        @Config.Comment("Allows loaded Field Command Posts to generate basic supply points over time.")
+        public boolean enableCommandPostSupplyGeneration = true;
+
+        @Config.Name("Command Post Supplies Per Interval")
+        @Config.Comment("Supply points generated by each loaded Field Command Post per interval.")
+        public int commandPostSuppliesPerInterval = 1;
+
+        @Config.Name("Command Post Supply Tick Interval")
+        @Config.Comment("Ticks between passive supply generation from each loaded Field Command Post. 2400 ticks is about 2 minutes.")
+        public int commandPostSupplyTickInterval = 2400;
     }
 
     public static final class HumanNpcs {
@@ -637,8 +668,20 @@ public final class StandAndHoldConfig {
         public int reinforcementSpawnRadius = 8;
 
         @Config.Name("Reinforcement Patrol Radius")
-        @Config.Comment("Patrol radius assigned to threat-response reinforcements around their source Main Base.")
+        @Config.Comment("Patrol radius assigned to threat-response reinforcements around their target high-threat region.")
         public int reinforcementPatrolRadius = 32;
+
+        @Config.Name("Enable Threat Decay")
+        @Config.Comment("Allows threat scores to decay when threat records are touched by events or commands.")
+        public boolean enableThreatDecay = true;
+
+        @Config.Name("Threat Decay Interval")
+        @Config.Comment("Ticks between each opportunistic threat decay step for a region.")
+        public int threatDecayIntervalTicks = 24000;
+
+        @Config.Name("Threat Decay Amount")
+        @Config.Comment("Threat score removed from a region each decay interval.")
+        public int threatDecayAmount = 1;
 
         @Config.Name("Max Threat Score")
         @Config.Comment("Maximum stored threat score per region.")

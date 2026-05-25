@@ -13,8 +13,9 @@ public final class ResearchEntry {
     private final int completionPointReward;
     private final List<String> requiredResearchIds;
     private final int parasiteSampleCost;
+    private final int supplyCost;
 
-    public ResearchEntry(String id, ResearchCategory category, String displayName, String description, int completionPointReward, List<String> requiredResearchIds, int parasiteSampleCost) {
+    public ResearchEntry(String id, ResearchCategory category, String displayName, String description, int completionPointReward, List<String> requiredResearchIds, int parasiteSampleCost, int supplyCost) {
         this.id = normalizeId(id);
         if (this.id.isEmpty()) {
             throw new IllegalArgumentException("Research id cannot be empty.");
@@ -26,6 +27,7 @@ public final class ResearchEntry {
         this.completionPointReward = Math.max(0, completionPointReward);
         this.requiredResearchIds = normalizeRequiredResearchIds(requiredResearchIds);
         this.parasiteSampleCost = Math.max(0, parasiteSampleCost);
+        this.supplyCost = Math.max(0, supplyCost);
     }
 
     public String getId() {
@@ -54,6 +56,10 @@ public final class ResearchEntry {
 
     public int getParasiteSampleCost() {
         return parasiteSampleCost;
+    }
+
+    public int getSupplyCost() {
+        return supplyCost;
     }
 
     public boolean hasRequirements() {

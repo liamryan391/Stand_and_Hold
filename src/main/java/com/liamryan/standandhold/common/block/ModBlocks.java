@@ -12,6 +12,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public final class ModBlocks {
     public static final Block FIELD_COMMAND_POST = new BlockFieldCommandPost();
     public static final Block RESEARCH_LAB = new BlockResearchLab();
+    public static final Block SUPPLY_CRATE = new BlockSupplyCrate();
 
     private ModBlocks() {
     }
@@ -20,11 +21,13 @@ public final class ModBlocks {
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
         event.getRegistry().register(FIELD_COMMAND_POST);
         event.getRegistry().register(RESEARCH_LAB);
+        event.getRegistry().register(SUPPLY_CRATE);
     }
 
     @SubscribeEvent
     public static void registerItemBlocks(RegistryEvent.Register<Item> event) {
         event.getRegistry().register(new ItemBlock(FIELD_COMMAND_POST).setRegistryName(FIELD_COMMAND_POST.getRegistryName()));
         event.getRegistry().register(new ItemBlock(RESEARCH_LAB).setRegistryName(RESEARCH_LAB.getRegistryName()));
+        event.getRegistry().register(new ItemBlock(SUPPLY_CRATE).setRegistryName(SUPPLY_CRATE.getRegistryName()));
     }
 }

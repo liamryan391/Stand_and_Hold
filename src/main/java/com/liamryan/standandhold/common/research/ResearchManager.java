@@ -2,6 +2,7 @@ package com.liamryan.standandhold.common.research;
 
 import com.liamryan.standandhold.StandAndHold;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
+import com.liamryan.standandhold.common.supply.SupplyManager;
 import com.liamryan.standandhold.common.util.ParasiteSampleHelper;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
@@ -100,7 +101,13 @@ public final class ResearchManager {
             return CompletionResult.missingSamples(entry, entry.getParasiteSampleCost(), availableSamples);
         }
 
+        int availableSupplies = SupplyManager.getSupplyPoints(world);
+        if (entry.getSupplyCost() > 0 && availableSupplies < entry.getSupplyCost()) {
+            return CompletionResult.missingSupplies(entry, entry.getSupplyCost(), availableSupplies);
+        }
+
         ParasiteSampleHelper.consumeParasiteSamples(player, entry.getParasiteSampleCost());
+        SupplyManager.spendSupplies(world, entry.getSupplyCost(), "research completion: " + entry.getId());
         data.completeResearch(entry.getId());
         if (entry.getCompletionPointReward() > 0) {
             HumanPointManager.addPoints(world, entry.getCompletionPointReward(), "research completion: " + entry.getId());
@@ -154,7 +161,8 @@ public final class ResearchManager {
                     parts[3],
                     parsePointReward(parts[4]),
                     parseRequirements(parts.length >= 6 ? parts[5] : ""),
-                    parseSampleCost(parts.length >= 7 ? parts[6] : "")
+                    parseNonNegativeInt(parts.length >= 7 ? parts[6] : ""),
+                    parseNonNegativeInt(parts.length >= 8 ? parts[7] : "")
             );
         } catch (IllegalArgumentException exception) {
             StandAndHold.LOGGER.warn("Ignoring invalid research entry '{}': {}", configuredEntry, exception.getMessage());
@@ -162,13 +170,13 @@ public final class ResearchManager {
         }
     }
 
-    private static int parseSampleCost(String rawSampleCost) {
-        if (rawSampleCost == null || rawSampleCost.trim().isEmpty()) {
+    private static int parseNonNegativeInt(String rawValue) {
+        if (rawValue == null || rawValue.trim().isEmpty()) {
             return 0;
         }
 
         try {
-            return Math.max(0, Integer.parseInt(rawSampleCost.trim()));
+            return Math.max(0, Integer.parseInt(rawValue.trim()));
         } catch (NumberFormatException ignored) {
             return 0;
         }
@@ -208,33 +216,41 @@ public final class ResearchManager {
         private final List<String> missingRequirements;
         private final int requiredSamples;
         private final int availableSamples;
+        private final int requiredSupplies;
+        private final int availableSupplies;
 
-        private CompletionResult(CompletionStatus status, ResearchEntry entry, List<String> missingRequirements, int requiredSamples, int availableSamples) {
+        private CompletionResult(CompletionStatus status, ResearchEntry entry, List<String> missingRequirements, int requiredSamples, int availableSamples, int requiredSupplies, int availableSupplies) {
             this.status = status;
             this.entry = entry;
             this.missingRequirements = missingRequirements == null ? Collections.<String>emptyList() : Collections.unmodifiableList(missingRequirements);
             this.requiredSamples = requiredSamples;
             this.availableSamples = availableSamples;
+            this.requiredSupplies = requiredSupplies;
+            this.availableSupplies = availableSupplies;
         }
 
         public static CompletionResult unknown() {
-            return new CompletionResult(CompletionStatus.UNKNOWN_RESEARCH, null, Collections.<String>emptyList(), 0, 0);
+            return new CompletionResult(CompletionStatus.UNKNOWN_RESEARCH, null, Collections.<String>emptyList(), 0, 0, 0, 0);
         }
 
         public static CompletionResult alreadyComplete(ResearchEntry entry) {
-            return new CompletionResult(CompletionStatus.ALREADY_COMPLETE, entry, Collections.<String>emptyList(), 0, 0);
+            return new CompletionResult(CompletionStatus.ALREADY_COMPLETE, entry, Collections.<String>emptyList(), 0, 0, 0, 0);
         }
 
         public static CompletionResult missingRequirements(ResearchEntry entry, List<String> missingRequirements) {
-            return new CompletionResult(CompletionStatus.MISSING_REQUIREMENTS, entry, missingRequirements, 0, 0);
+            return new CompletionResult(CompletionStatus.MISSING_REQUIREMENTS, entry, missingRequirements, 0, 0, 0, 0);
         }
 
         public static CompletionResult missingSamples(ResearchEntry entry, int requiredSamples, int availableSamples) {
-            return new CompletionResult(CompletionStatus.MISSING_SAMPLES, entry, Collections.<String>emptyList(), requiredSamples, availableSamples);
+            return new CompletionResult(CompletionStatus.MISSING_SAMPLES, entry, Collections.<String>emptyList(), requiredSamples, availableSamples, 0, 0);
+        }
+
+        public static CompletionResult missingSupplies(ResearchEntry entry, int requiredSupplies, int availableSupplies) {
+            return new CompletionResult(CompletionStatus.MISSING_SUPPLIES, entry, Collections.<String>emptyList(), 0, 0, requiredSupplies, availableSupplies);
         }
 
         public static CompletionResult completed(ResearchEntry entry) {
-            return new CompletionResult(CompletionStatus.COMPLETED, entry, Collections.<String>emptyList(), 0, 0);
+            return new CompletionResult(CompletionStatus.COMPLETED, entry, Collections.<String>emptyList(), 0, 0, 0, 0);
         }
 
         public CompletionStatus getStatus() {
@@ -256,6 +272,14 @@ public final class ResearchManager {
         public int getAvailableSamples() {
             return availableSamples;
         }
+
+        public int getRequiredSupplies() {
+            return requiredSupplies;
+        }
+
+        public int getAvailableSupplies() {
+            return availableSupplies;
+        }
     }
 
     public enum CompletionStatus {
@@ -263,6 +287,7 @@ public final class ResearchManager {
         ALREADY_COMPLETE,
         MISSING_REQUIREMENTS,
         MISSING_SAMPLES,
+        MISSING_SUPPLIES,
         UNKNOWN_RESEARCH
     }
 }

@@ -32,10 +32,19 @@ public abstract class EntityHumanNpc extends EntityCreature {
     private static final String TAG_ASSIGNED_OUTPOST_Y = "Y";
     private static final String TAG_ASSIGNED_OUTPOST_Z = "Z";
     private static final String TAG_ASSIGNED_PATROL_RADIUS = "PatrolRadius";
+    private static final String TAG_ASSIGNED_THREAT_PATROL = "AssignedThreatPatrol";
+    private static final String TAG_ASSIGNED_THREAT_PATROL_DIMENSION = "Dimension";
+    private static final String TAG_ASSIGNED_THREAT_PATROL_X = "X";
+    private static final String TAG_ASSIGNED_THREAT_PATROL_Y = "Y";
+    private static final String TAG_ASSIGNED_THREAT_PATROL_Z = "Z";
+    private static final String TAG_ASSIGNED_THREAT_PATROL_RADIUS = "PatrolRadius";
 
     private int assignedOutpostDimension = Integer.MIN_VALUE;
     private BlockPos assignedOutpostPos;
     private int assignedPatrolRadius;
+    private int assignedThreatPatrolDimension = Integer.MIN_VALUE;
+    private BlockPos assignedThreatPatrolPos;
+    private int assignedThreatPatrolRadius;
 
     protected EntityHumanNpc(World world) {
         super(world);
@@ -110,6 +119,15 @@ public abstract class EntityHumanNpc extends EntityCreature {
                 && assignedOutpostPos.equals(outpostPos);
     }
 
+    public void assignThreatPatrol(int dimension, BlockPos threatPatrolPos, int patrolRadius) {
+        assignedThreatPatrolDimension = dimension;
+        assignedThreatPatrolPos = threatPatrolPos == null ? null : threatPatrolPos.toImmutable();
+        assignedThreatPatrolRadius = Math.max(1, patrolRadius);
+        if (assignedThreatPatrolPos != null) {
+            setHomePosAndDistance(assignedThreatPatrolPos, assignedThreatPatrolRadius);
+        }
+    }
+
     public boolean hasAssignedOutpost() {
         return assignedOutpostPos != null;
     }
@@ -123,6 +141,15 @@ public abstract class EntityHumanNpc extends EntityCreature {
         return assignedOutpostPos;
     }
 
+    public boolean hasAssignedThreatPatrol() {
+        return assignedThreatPatrolPos != null;
+    }
+
+    @Nullable
+    public BlockPos getAssignedThreatPatrolPos() {
+        return assignedThreatPatrolPos;
+    }
+
     @Override
     public void writeEntityToNBT(NBTTagCompound compound) {
         super.writeEntityToNBT(compound);
@@ -134,6 +161,15 @@ public abstract class EntityHumanNpc extends EntityCreature {
             outpostTag.setInteger(TAG_ASSIGNED_OUTPOST_Z, assignedOutpostPos.getZ());
             outpostTag.setInteger(TAG_ASSIGNED_PATROL_RADIUS, assignedPatrolRadius);
             compound.setTag(TAG_ASSIGNED_OUTPOST, outpostTag);
+        }
+        if (assignedThreatPatrolPos != null) {
+            NBTTagCompound threatPatrolTag = new NBTTagCompound();
+            threatPatrolTag.setInteger(TAG_ASSIGNED_THREAT_PATROL_DIMENSION, assignedThreatPatrolDimension);
+            threatPatrolTag.setInteger(TAG_ASSIGNED_THREAT_PATROL_X, assignedThreatPatrolPos.getX());
+            threatPatrolTag.setInteger(TAG_ASSIGNED_THREAT_PATROL_Y, assignedThreatPatrolPos.getY());
+            threatPatrolTag.setInteger(TAG_ASSIGNED_THREAT_PATROL_Z, assignedThreatPatrolPos.getZ());
+            threatPatrolTag.setInteger(TAG_ASSIGNED_THREAT_PATROL_RADIUS, assignedThreatPatrolRadius);
+            compound.setTag(TAG_ASSIGNED_THREAT_PATROL, threatPatrolTag);
         }
     }
 
@@ -150,6 +186,18 @@ public abstract class EntityHumanNpc extends EntityCreature {
                             outpostTag.getInteger(TAG_ASSIGNED_OUTPOST_Z)
                     ),
                     outpostTag.getInteger(TAG_ASSIGNED_PATROL_RADIUS)
+            );
+        }
+        if (compound.hasKey(TAG_ASSIGNED_THREAT_PATROL)) {
+            NBTTagCompound threatPatrolTag = compound.getCompoundTag(TAG_ASSIGNED_THREAT_PATROL);
+            assignThreatPatrol(
+                    threatPatrolTag.getInteger(TAG_ASSIGNED_THREAT_PATROL_DIMENSION),
+                    new BlockPos(
+                            threatPatrolTag.getInteger(TAG_ASSIGNED_THREAT_PATROL_X),
+                            threatPatrolTag.getInteger(TAG_ASSIGNED_THREAT_PATROL_Y),
+                            threatPatrolTag.getInteger(TAG_ASSIGNED_THREAT_PATROL_Z)
+                    ),
+                    threatPatrolTag.getInteger(TAG_ASSIGNED_THREAT_PATROL_RADIUS)
             );
         }
     }

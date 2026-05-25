@@ -49,13 +49,21 @@ public final class ThreatResponseManager {
         int regionX = Math.floorDiv(chunkX, regionChunkSize);
         int regionZ = Math.floorDiv(chunkZ, regionChunkSize);
         HumanWorldData data = HumanPointManager.getData(world);
-        return create
+        ThreatRecord record = create
                 ? data.getOrCreateThreatRecord(world.provider.getDimension(), regionX, regionZ)
                 : data.getThreatRecord(world.provider.getDimension(), regionX, regionZ);
+        if (record != null) {
+            applyThreatDecay(world, record);
+        }
+        return record;
     }
 
     public static List<ThreatRecord> getThreatRecordsSorted(World world) {
-        List<ThreatRecord> records = new ArrayList<ThreatRecord>(HumanPointManager.getData(world).getThreatRecords());
+        HumanWorldData data = HumanPointManager.getData(world);
+        List<ThreatRecord> records = new ArrayList<ThreatRecord>(data.getThreatRecords());
+        for (ThreatRecord record : records) {
+            applyThreatDecay(world, record);
+        }
         Collections.sort(records, new Comparator<ThreatRecord>() {
             @Override
             public int compare(ThreatRecord first, ThreatRecord second) {
@@ -68,6 +76,18 @@ public final class ThreatResponseManager {
             }
         });
         return records;
+    }
+
+    public static boolean resetThreatRecord(World world, ThreatRecord record) {
+        if (world == null || record == null || world.isRemote) {
+            return false;
+        }
+
+        boolean changed = record.resetThreat(world.getTotalWorldTime());
+        if (changed) {
+            HumanPointManager.getData(world).markDirty();
+        }
+        return changed;
     }
 
     @Nullable
@@ -99,6 +119,7 @@ public final class ThreatResponseManager {
             return ReinforcementResult.failed(ReinforcementStatus.INVALID_TARGET, 0);
         }
 
+        applyThreatDecay(world, record);
         if (!ignoreThreshold && record.getThreatScore() < StandAndHoldConfig.threatResponse.threatReinforcementThreshold) {
             return ReinforcementResult.failed(ReinforcementStatus.BELOW_THRESHOLD, 0);
         }
@@ -136,7 +157,7 @@ public final class ThreatResponseManager {
                 continue;
             }
 
-            if (spawnUnitAt(world, selectReinforcementTier(world, record), sourceMainBase, spawnPos)) {
+            if (spawnUnitAt(world, selectReinforcementTier(world, record), sourceMainBase, targetCenter, spawnPos)) {
                 spawned++;
             }
         }
@@ -164,6 +185,7 @@ public final class ThreatResponseManager {
         }
 
         long worldTime = world.getTotalWorldTime();
+        applyThreatDecay(world, record);
         int maxThreatScore = Math.max(1, StandAndHoldConfig.threatResponse.maxThreatScore);
         switch (eventType) {
             case PARASITE_KILL:
@@ -187,6 +209,39 @@ public final class ThreatResponseManager {
         data.pruneThreatRecords(Math.max(1, StandAndHoldConfig.threatResponse.maxThreatRecords));
         data.markDirty();
         triggerReinforcement(world, record, false);
+    }
+
+    private static boolean applyThreatDecay(World world, ThreatRecord record) {
+        if (world == null || world.isRemote || record == null || !StandAndHoldConfig.threatResponse.enableThreatDecay) {
+            return false;
+        }
+
+        int decayAmount = Math.max(0, StandAndHoldConfig.threatResponse.threatDecayAmount);
+        int decayInterval = Math.max(1, StandAndHoldConfig.threatResponse.threatDecayIntervalTicks);
+        if (decayAmount <= 0) {
+            return false;
+        }
+
+        long worldTime = world.getTotalWorldTime();
+        long lastDecayTime = record.getLastDecayWorldTime();
+        if (lastDecayTime < 0L) {
+            record.decayThreat(0, worldTime);
+            HumanPointManager.getData(world).markDirty();
+            return false;
+        }
+
+        long elapsed = worldTime - lastDecayTime;
+        if (elapsed < decayInterval) {
+            return false;
+        }
+
+        int steps = (int) Math.min(Integer.MAX_VALUE, elapsed / decayInterval);
+        int totalDecay = steps > 0 && decayAmount > Integer.MAX_VALUE / steps ? Integer.MAX_VALUE : decayAmount * steps;
+        boolean changed = record.decayThreat(totalDecay, worldTime);
+        if (changed) {
+            HumanPointManager.getData(world).markDirty();
+        }
+        return changed;
     }
 
     @Nullable
@@ -243,7 +298,7 @@ public final class ThreatResponseManager {
         return canSpawnAt(world, center) ? center : null;
     }
 
-    private static boolean spawnUnitAt(World world, HumanUnitTier tier, BlockPos assignedBase, BlockPos spawnPos) {
+    private static boolean spawnUnitAt(World world, HumanUnitTier tier, BlockPos assignedBase, BlockPos patrolTarget, BlockPos spawnPos) {
         if (!canSpawnAt(world, spawnPos)) {
             return false;
         }
@@ -261,6 +316,7 @@ public final class ThreatResponseManager {
                 0.0F
         );
         unit.assignToOutpost(world.provider.getDimension(), assignedBase, Math.max(8, StandAndHoldConfig.threatResponse.reinforcementPatrolRadius));
+        unit.assignThreatPatrol(world.provider.getDimension(), patrolTarget, Math.max(8, StandAndHoldConfig.threatResponse.reinforcementPatrolRadius));
         unit.onInitialSpawn(world.getDifficultyForLocation(spawnPos), null);
         return !unit.isDead && world.spawnEntity(unit);
     }

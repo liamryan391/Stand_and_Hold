@@ -2,7 +2,7 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 15: a compileable Forge project foundation for a future large-scale Stand and Hold mod. It includes persistent human progression points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point generation from loaded command posts, Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, persistent Main Base registration/activation, Special Parasite Division gating, regional threat tracking, and bounded reinforcement triggers. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
+This repository is currently in Phase 16: a compileable Forge project foundation for a future large-scale Stand and Hold mod. It includes persistent human progression points, supply points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, military infrastructure blocks, passive point and supply generation from loaded command posts, Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, persistent Main Base registration/activation, Special Parasite Division gating, regional threat tracking, threat decay, and bounded reinforcement triggers. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, and full Scape and Run: Parasites compatibility are intentionally left for later phases.
 
 ## Current Scope
 
@@ -15,6 +15,7 @@ This repository is currently in Phase 15: a compileable Forge project foundation
 - `mcmod.info`
 - Basic language/resource files
 - Persistent global human progression data
+- Persistent global supply point data
 - Admin/debug progression command
 - Configurable human stage thresholds
 - Configurable entity-death point rewards
@@ -26,9 +27,11 @@ This repository is currently in Phase 15: a compileable Forge project foundation
 - Field Command Post block and tile entity
 - Persistent Field Command Post position registration
 - Passive Field Command Post point generation
+- Passive Field Command Post supply generation and saved local supply storage
 - Persistent Field Command Post upgrade levels
 - Research Lab block and tile entity
-- Lab-local saved research progress and stored parasite samples
+- Lab-local saved research progress, stored parasite samples, and stored supplies
+- Supply Crate block/item form for recovering supplies
 - Base human NPC entity class
 - Tiered human unit entities with spawn eggs and simple parasite targeting AI
 - Field Command Post outpost defender spawning with limits
@@ -36,7 +39,7 @@ This repository is currently in Phase 15: a compileable Forge project foundation
 - Rare Main Base foundation generation
 - Persistent Main Base registration and activation state
 - Special Parasite Division Operative stage/research gating
-- Regional threat response records and reinforcement triggers
+- Regional threat response records, threat decay, and reinforcement triggers
 - Admin outpost and structure debug commands
 
 ## Requirements
@@ -400,7 +403,7 @@ Threat records store:
 - Human losses
 - Outpost attacks
 - Reinforcements sent
-- Last event and last reinforcement world times
+- Last event, reinforcement, outpost attack, and decay world times
 
 Admin commands:
 
@@ -408,9 +411,12 @@ Admin commands:
 /standandhold threat status
 /standandhold threat list
 /standandhold threat reinforce
+/standandhold threat reset
 ```
 
 Automatic reinforcement triggers require an active loaded Main Base, a loaded threat target region, the configured threat threshold, and the region cooldown. Manual reinforcement uses the current threat region and bypasses threshold/cooldown, but still respects loaded chunks, active Main Base availability, spawn safety, and per-region reinforcement caps.
+
+Threat decay is intentionally opportunistic in this first version. It runs when threat records are touched by commands, new threat events, or deployment checks, so the mod avoids adding a heavy global world tick scan.
 
 Config options:
 
@@ -429,16 +435,63 @@ reinforcementUnitsPerTrigger=2
 maxReinforcementsPerThreatRegion=6
 reinforcementSpawnRadius=8
 reinforcementPatrolRadius=32
+enableThreatDecay=true
+threatDecayIntervalTicks=24000
+threatDecayAmount=1
 maxThreatScore=100
 maxThreatRecords=128
 ```
 
-Special Parasite Division deployments now prefer loaded high-threat regions when available, while still falling back to the Main Base area.
+Special Parasite Division deployments now prefer loaded high-threat regions when available, while still falling back to the Main Base area. Threat-response reinforcements keep their source Main Base assignment but receive a patrol target at the high-threat region, giving them a basic order to move toward the fight without global pathfinding management.
+
+## Phase 16 Supply Economy and Threat Refinement
+
+Phase 16 adds the first lightweight supply economy. Supplies are stored globally in `HumanWorldData`, and loaded buildings also save local supply stockpile counters for later expansion.
+
+Current supply sources:
+
+- Placing and right-clicking a Supply Crate block
+- Depositing a Supply Crate item/block into a Field Command Post
+- Depositing a Supply Crate item/block into a Research Lab
+- Passive Field Command Post supply generation over a configurable interval
+
+Supply commands:
+
+```text
+/standandhold supplies status
+/standandhold supplies add <amount>
+```
+
+Research entries now accept an optional supply cost:
+
+```text
+id|category|name|description|pointReward|requiredResearchIds|sampleCost|supplyCost
+```
+
+Field Command Post upgrades now accept a supply cost:
+
+```text
+targetLevel|requiredHumanPoints|requiredResearchIds|parasiteSampleCost|supplyCost|pointReward
+```
+
+Supply config options:
+
+```text
+supplyCrateValue=10
+commandPostMaxStoredSupplies=64
+researchLabMaxStoredSupplies=32
+enableCommandPostSupplyGeneration=true
+commandPostSuppliesPerInterval=1
+commandPostSupplyTickInterval=2400
+```
+
+Supply spending currently draws from the saved global supply pool. Building-local stockpiles are saved and displayed as an expandable foundation for later logistics networks, routes, and supply-transfer rules.
 
 ## Planned Next Phase
 
-Phase 16 should build on the point, sample, research, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, and threat-response foundations without jumping into the entire final system at once:
+Phase 17 should build on the point, sample, supply, research, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, and threat-response foundations without jumping into the entire final system at once:
 
-- Tune point rewards and stage thresholds from playtesting
-- Add basic lab-linked scientist behavior, threat decay, patrol orders, or Main Base/Special Division deployment balancing
+- Tune point, supply, and threat values from playtesting
+- Add basic logistics routes, convoy placeholders, or more detailed building supply transfer rules
+- Add basic lab-linked scientist behavior or Main Base/Special Division deployment balancing
 - Keep Scape and Run: Parasites compatibility data-driven until entity IDs are verified

@@ -3,6 +3,7 @@ package com.liamryan.standandhold.common.block;
 import com.liamryan.standandhold.StandAndHoldConstants;
 import com.liamryan.standandhold.common.item.ModItems;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
+import com.liamryan.standandhold.common.supply.SupplyManager;
 import com.liamryan.standandhold.common.tile.TileEntityResearchLab;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import net.minecraft.block.Block;
@@ -10,6 +11,7 @@ import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -77,6 +79,38 @@ public final class BlockResearchLab extends Block implements ITileEntityProvider
 
         TileEntityResearchLab lab = (TileEntityResearchLab) tileEntity;
         ItemStack heldStack = player.getHeldItem(hand);
+        if (!heldStack.isEmpty() && heldStack.getItem() == Item.getItemFromBlock(ModBlocks.SUPPLY_CRATE)) {
+            int requestedSupplies = SupplyManager.getSupplyCrateValue();
+            int acceptedSupplies = lab.addStoredSupplies(requestedSupplies);
+            if (acceptedSupplies <= 0) {
+                TextComponentTranslation message = new TextComponentTranslation(
+                        "message.standandhold.research_lab.supplies_full",
+                        lab.getStoredSupplies(),
+                        lab.getMaxStoredSupplies()
+                );
+                message.getStyle().setColor(TextFormatting.RED);
+                player.sendMessage(message);
+                return true;
+            }
+
+            int totalSupplies = SupplyManager.addSupplies(world, acceptedSupplies, "supply crate deposited into research lab: " + pos);
+            if (!player.capabilities.isCreativeMode) {
+                heldStack.shrink(1);
+                player.inventory.markDirty();
+            }
+
+            TextComponentTranslation message = new TextComponentTranslation(
+                    "message.standandhold.research_lab.supply_inserted",
+                    acceptedSupplies,
+                    lab.getStoredSupplies(),
+                    lab.getMaxStoredSupplies(),
+                    totalSupplies
+            );
+            message.getStyle().setColor(TextFormatting.YELLOW);
+            player.sendMessage(message);
+            return true;
+        }
+
         if (!heldStack.isEmpty() && heldStack.getItem() == ModItems.PARASITE_TISSUE_SAMPLE) {
             if (!lab.addStoredParasiteSamples(1)) {
                 TextComponentTranslation message = new TextComponentTranslation(
@@ -116,7 +150,10 @@ public final class BlockResearchLab extends Block implements ITileEntityProvider
                 lab.getResearchProgress(),
                 lab.getResearchProgressRequired(),
                 lab.getStoredParasiteSamples(),
-                lab.getMaxStoredParasiteSamples()
+                lab.getMaxStoredParasiteSamples(),
+                lab.getStoredSupplies(),
+                lab.getMaxStoredSupplies(),
+                HumanPointManager.getData(player.world).getSupplyPoints()
         );
         message.getStyle().setColor(TextFormatting.AQUA);
         player.sendMessage(message);

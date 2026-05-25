@@ -3,6 +3,7 @@ package com.liamryan.standandhold.common.infrastructure;
 import com.liamryan.standandhold.StandAndHold;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.research.ResearchEntry;
+import com.liamryan.standandhold.common.supply.SupplyManager;
 import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
 import com.liamryan.standandhold.common.util.ParasiteSampleHelper;
 import com.liamryan.standandhold.common.world.HumanWorldData;
@@ -18,10 +19,10 @@ import java.util.List;
 
 public final class FieldCommandPostUpgradeManager {
     private static final List<FieldCommandPostUpgradeRequirement> DEFAULT_REQUIREMENTS = Collections.unmodifiableList(Arrays.asList(
-            new FieldCommandPostUpgradeRequirement(FieldCommandPostLevel.REINFORCED_OUTPOST, 100, Arrays.asList("field_communications"), 1, 25),
-            new FieldCommandPostUpgradeRequirement(FieldCommandPostLevel.MILITARY_OUTPOST, 300, Arrays.asList("outpost_doctrine"), 2, 50),
-            new FieldCommandPostUpgradeRequirement(FieldCommandPostLevel.FORTIFIED_BASE, 700, Arrays.asList("outpost_doctrine", "parasite_samples"), 4, 100),
-            new FieldCommandPostUpgradeRequirement(FieldCommandPostLevel.MAIN_BASE, 1500, Arrays.asList("outpost_doctrine", "parasite_samples"), 8, 200)
+            new FieldCommandPostUpgradeRequirement(FieldCommandPostLevel.REINFORCED_OUTPOST, 100, Arrays.asList("field_communications"), 1, 20, 25),
+            new FieldCommandPostUpgradeRequirement(FieldCommandPostLevel.MILITARY_OUTPOST, 300, Arrays.asList("outpost_doctrine"), 2, 50, 50),
+            new FieldCommandPostUpgradeRequirement(FieldCommandPostLevel.FORTIFIED_BASE, 700, Arrays.asList("outpost_doctrine", "parasite_samples"), 4, 100, 100),
+            new FieldCommandPostUpgradeRequirement(FieldCommandPostLevel.MAIN_BASE, 1500, Arrays.asList("outpost_doctrine", "parasite_samples"), 8, 200, 200)
     ));
 
     private FieldCommandPostUpgradeManager() {
@@ -76,7 +77,13 @@ public final class FieldCommandPostUpgradeManager {
             return UpgradeResult.missingSamples(requirement, availableSamples);
         }
 
+        int availableSupplies = SupplyManager.getSupplyPoints(world);
+        if (availableSupplies < requirement.getSupplyCost()) {
+            return UpgradeResult.missingSupplies(requirement, availableSupplies);
+        }
+
         ParasiteSampleHelper.consumeParasiteSamples(player, requirement.getParasiteSampleCost());
+        SupplyManager.spendSupplies(world, requirement.getSupplyCost(), "field command post upgrade to " + requirement.getTargetLevel().getDisplayName());
         commandPost.setUpgradeLevel(requirement.getTargetLevel().getLevel());
         if (requirement.getCompletionPointReward() > 0) {
             HumanPointManager.addPoints(world, requirement.getCompletionPointReward(), "field command post upgrade to " + requirement.getTargetLevel().getDisplayName());
@@ -110,7 +117,7 @@ public final class FieldCommandPostUpgradeManager {
 
         String[] parts = configuredEntry.split("\\|", -1);
         if (parts.length < 5) {
-            StandAndHold.LOGGER.warn("Ignoring invalid Field Command Post upgrade requirement '{}'. Expected targetLevel|requiredHumanPoints|requiredResearchIds|parasiteSampleCost|pointReward.", configuredEntry);
+            StandAndHold.LOGGER.warn("Ignoring invalid Field Command Post upgrade requirement '{}'. Expected targetLevel|requiredHumanPoints|requiredResearchIds|parasiteSampleCost|supplyCost|pointReward.", configuredEntry);
             return null;
         }
 
@@ -126,7 +133,8 @@ public final class FieldCommandPostUpgradeManager {
                     parseNonNegativeInt(parts[1]),
                     parseResearchIds(parts[2]),
                     parseNonNegativeInt(parts[3]),
-                    parseNonNegativeInt(parts[4])
+                    parts.length >= 6 ? parseNonNegativeInt(parts[4]) : 0,
+                    parseNonNegativeInt(parts.length >= 6 ? parts[5] : parts[4])
             );
         } catch (NumberFormatException exception) {
             StandAndHold.LOGGER.warn("Ignoring invalid Field Command Post upgrade requirement '{}': {}", configuredEntry, exception.getMessage());
@@ -173,38 +181,44 @@ public final class FieldCommandPostUpgradeManager {
         private final List<String> missingResearchIds;
         private final int currentHumanPoints;
         private final int availableSamples;
+        private final int availableSupplies;
 
-        private UpgradeResult(UpgradeStatus status, FieldCommandPostUpgradeRequirement requirement, FieldCommandPostLevel level, List<String> missingResearchIds, int currentHumanPoints, int availableSamples) {
+        private UpgradeResult(UpgradeStatus status, FieldCommandPostUpgradeRequirement requirement, FieldCommandPostLevel level, List<String> missingResearchIds, int currentHumanPoints, int availableSamples, int availableSupplies) {
             this.status = status;
             this.requirement = requirement;
             this.level = level;
             this.missingResearchIds = missingResearchIds == null ? Collections.<String>emptyList() : Collections.unmodifiableList(missingResearchIds);
             this.currentHumanPoints = currentHumanPoints;
             this.availableSamples = availableSamples;
+            this.availableSupplies = availableSupplies;
         }
 
         private static UpgradeResult completed(FieldCommandPostUpgradeRequirement requirement) {
-            return new UpgradeResult(UpgradeStatus.COMPLETED, requirement, requirement.getTargetLevel(), Collections.<String>emptyList(), 0, 0);
+            return new UpgradeResult(UpgradeStatus.COMPLETED, requirement, requirement.getTargetLevel(), Collections.<String>emptyList(), 0, 0, 0);
         }
 
         private static UpgradeResult alreadyMax(FieldCommandPostLevel level) {
-            return new UpgradeResult(UpgradeStatus.ALREADY_MAX_LEVEL, null, level, Collections.<String>emptyList(), 0, 0);
+            return new UpgradeResult(UpgradeStatus.ALREADY_MAX_LEVEL, null, level, Collections.<String>emptyList(), 0, 0, 0);
         }
 
         private static UpgradeResult missingConfiguration(FieldCommandPostLevel level) {
-            return new UpgradeResult(UpgradeStatus.MISSING_CONFIGURATION, null, level, Collections.<String>emptyList(), 0, 0);
+            return new UpgradeResult(UpgradeStatus.MISSING_CONFIGURATION, null, level, Collections.<String>emptyList(), 0, 0, 0);
         }
 
         private static UpgradeResult missingPoints(FieldCommandPostUpgradeRequirement requirement, int currentHumanPoints) {
-            return new UpgradeResult(UpgradeStatus.MISSING_POINTS, requirement, requirement.getTargetLevel(), Collections.<String>emptyList(), currentHumanPoints, 0);
+            return new UpgradeResult(UpgradeStatus.MISSING_POINTS, requirement, requirement.getTargetLevel(), Collections.<String>emptyList(), currentHumanPoints, 0, 0);
         }
 
         private static UpgradeResult missingResearch(FieldCommandPostUpgradeRequirement requirement, List<String> missingResearchIds) {
-            return new UpgradeResult(UpgradeStatus.MISSING_RESEARCH, requirement, requirement.getTargetLevel(), missingResearchIds, 0, 0);
+            return new UpgradeResult(UpgradeStatus.MISSING_RESEARCH, requirement, requirement.getTargetLevel(), missingResearchIds, 0, 0, 0);
         }
 
         private static UpgradeResult missingSamples(FieldCommandPostUpgradeRequirement requirement, int availableSamples) {
-            return new UpgradeResult(UpgradeStatus.MISSING_SAMPLES, requirement, requirement.getTargetLevel(), Collections.<String>emptyList(), 0, availableSamples);
+            return new UpgradeResult(UpgradeStatus.MISSING_SAMPLES, requirement, requirement.getTargetLevel(), Collections.<String>emptyList(), 0, availableSamples, 0);
+        }
+
+        private static UpgradeResult missingSupplies(FieldCommandPostUpgradeRequirement requirement, int availableSupplies) {
+            return new UpgradeResult(UpgradeStatus.MISSING_SUPPLIES, requirement, requirement.getTargetLevel(), Collections.<String>emptyList(), 0, 0, availableSupplies);
         }
 
         public UpgradeStatus getStatus() {
@@ -230,6 +244,10 @@ public final class FieldCommandPostUpgradeManager {
         public int getAvailableSamples() {
             return availableSamples;
         }
+
+        public int getAvailableSupplies() {
+            return availableSupplies;
+        }
     }
 
     public enum UpgradeStatus {
@@ -238,6 +256,7 @@ public final class FieldCommandPostUpgradeManager {
         MISSING_CONFIGURATION,
         MISSING_POINTS,
         MISSING_RESEARCH,
-        MISSING_SAMPLES
+        MISSING_SAMPLES,
+        MISSING_SUPPLIES
     }
 }

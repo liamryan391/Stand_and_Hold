@@ -18,12 +18,14 @@ public final class TileEntityResearchLab extends TileEntity implements ITickable
     private static final String TAG_TARGET_RESEARCH_ID = "TargetResearchId";
     private static final String TAG_RESEARCH_PROGRESS = "ResearchProgress";
     private static final String TAG_STORED_PARASITE_SAMPLES = "StoredParasiteSamples";
+    private static final String TAG_STORED_SUPPLIES = "StoredSupplies";
 
     private long placedWorldTime = -1L;
     private long lastProgressTime = -1L;
     private String targetResearchId = "";
     private int researchProgress;
     private int storedParasiteSamples;
+    private int storedSupplies;
 
     @Override
     public void onLoad() {
@@ -91,6 +93,7 @@ public final class TileEntityResearchLab extends TileEntity implements ITickable
         targetResearchId = compound.hasKey(TAG_TARGET_RESEARCH_ID) ? ResearchEntry.normalizeId(compound.getString(TAG_TARGET_RESEARCH_ID)) : "";
         researchProgress = Math.max(0, compound.getInteger(TAG_RESEARCH_PROGRESS));
         storedParasiteSamples = Math.max(0, compound.getInteger(TAG_STORED_PARASITE_SAMPLES));
+        storedSupplies = Math.max(0, compound.getInteger(TAG_STORED_SUPPLIES));
     }
 
     @Override
@@ -101,6 +104,7 @@ public final class TileEntityResearchLab extends TileEntity implements ITickable
         compound.setString(TAG_TARGET_RESEARCH_ID, targetResearchId);
         compound.setInteger(TAG_RESEARCH_PROGRESS, Math.min(researchProgress, getResearchProgressRequired()));
         compound.setInteger(TAG_STORED_PARASITE_SAMPLES, Math.min(storedParasiteSamples, getMaxStoredParasiteSamples()));
+        compound.setInteger(TAG_STORED_SUPPLIES, getStoredSupplies());
         return compound;
     }
 
@@ -117,6 +121,22 @@ public final class TileEntityResearchLab extends TileEntity implements ITickable
         storedParasiteSamples = Math.min(maxStoredSamples, storedParasiteSamples + amount);
         markDirty();
         return true;
+    }
+
+    public int addStoredSupplies(int amount) {
+        if (amount <= 0) {
+            return 0;
+        }
+
+        int maxStoredSupplies = getMaxStoredSupplies();
+        if (storedSupplies >= maxStoredSupplies) {
+            return 0;
+        }
+
+        int accepted = Math.min(amount, maxStoredSupplies - storedSupplies);
+        storedSupplies += accepted;
+        markDirty();
+        return accepted;
     }
 
     public boolean tryCompleteCurrentResearch() {
@@ -178,6 +198,14 @@ public final class TileEntityResearchLab extends TileEntity implements ITickable
 
     public int getStoredParasiteSamples() {
         return Math.min(storedParasiteSamples, getMaxStoredParasiteSamples());
+    }
+
+    public int getStoredSupplies() {
+        return Math.min(storedSupplies, getMaxStoredSupplies());
+    }
+
+    public int getMaxStoredSupplies() {
+        return Math.max(0, StandAndHoldConfig.supply.researchLabMaxStoredSupplies);
     }
 
     public String getTargetResearchId() {

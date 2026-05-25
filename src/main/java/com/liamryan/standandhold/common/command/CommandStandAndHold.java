@@ -8,6 +8,7 @@ import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.progression.HumanStage;
 import com.liamryan.standandhold.common.research.ResearchEntry;
 import com.liamryan.standandhold.common.research.ResearchManager;
+import com.liamryan.standandhold.common.supply.SupplyManager;
 import com.liamryan.standandhold.common.threat.ThreatRecord;
 import com.liamryan.standandhold.common.threat.ThreatResponseManager;
 import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
@@ -40,6 +41,7 @@ public final class CommandStandAndHold extends CommandBase {
             "commandpost",
             "mainbase",
             "threat",
+            "supplies",
             "structure"
     };
     private static final String[] RESEARCH_SUBCOMMANDS = new String[] {
@@ -65,7 +67,12 @@ public final class CommandStandAndHold extends CommandBase {
     private static final String[] THREAT_SUBCOMMANDS = new String[] {
             "status",
             "list",
-            "reinforce"
+            "reinforce",
+            "reset"
+    };
+    private static final String[] SUPPLY_SUBCOMMANDS = new String[] {
+            "status",
+            "add"
     };
 
     @Override
@@ -124,6 +131,11 @@ public final class CommandStandAndHold extends CommandBase {
             return;
         }
 
+        if ("supplies".equalsIgnoreCase(args[0])) {
+            executeSupplies(sender, args);
+            return;
+        }
+
         if ("structure".equalsIgnoreCase(args[0])) {
             requireAdmin(sender);
             executeStructure(sender, args);
@@ -163,6 +175,10 @@ public final class CommandStandAndHold extends CommandBase {
             return getListOfStringsMatchingLastWord(args, THREAT_SUBCOMMANDS);
         }
 
+        if (args.length == 2 && "supplies".equalsIgnoreCase(args[0])) {
+            return getListOfStringsMatchingLastWord(args, SUPPLY_SUBCOMMANDS);
+        }
+
         if (args.length == 3 && "research".equalsIgnoreCase(args[0]) && "complete".equalsIgnoreCase(args[1])) {
             return getListOfStringsMatchingLastWord(args, getResearchCompletions());
         }
@@ -191,7 +207,8 @@ public final class CommandStandAndHold extends CommandBase {
                 data.getHumanPoints(),
                 stage.getId(),
                 stage.getDisplayName(),
-                nextThreshold
+                nextThreshold,
+                data.getSupplyPoints()
         );
         message.getStyle().setColor(TextFormatting.GREEN);
         sender.sendMessage(message);
@@ -235,6 +252,46 @@ public final class CommandStandAndHold extends CommandBase {
         );
         message.getStyle().setColor(TextFormatting.YELLOW);
         sender.sendMessage(message);
+    }
+
+    private void executeSupplies(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length < 2) {
+            throw new CommandException("commands.standandhold.supplies.usage");
+        }
+
+        if ("status".equalsIgnoreCase(args[1])) {
+            if (args.length != 2) {
+                throw new CommandException("commands.standandhold.supplies.usage");
+            }
+
+            TextComponentTranslation message = new TextComponentTranslation(
+                    "commands.standandhold.supplies.status",
+                    SupplyManager.getSupplyPoints(sender.getEntityWorld())
+            );
+            message.getStyle().setColor(TextFormatting.AQUA);
+            sender.sendMessage(message);
+            return;
+        }
+
+        if ("add".equalsIgnoreCase(args[1])) {
+            requireAdmin(sender);
+            if (args.length != 3) {
+                throw new CommandException("commands.standandhold.supplies.add.usage");
+            }
+
+            int amount = parseInt(args[2], 1);
+            int total = SupplyManager.addSupplies(sender.getEntityWorld(), amount, "command");
+            TextComponentTranslation message = new TextComponentTranslation(
+                    "commands.standandhold.supplies.add.success",
+                    amount,
+                    total
+            );
+            message.getStyle().setColor(TextFormatting.YELLOW);
+            sender.sendMessage(message);
+            return;
+        }
+
+        throw new CommandException("commands.standandhold.supplies.usage");
     }
 
     private void executeResearch(ICommandSender sender, String[] args) throws CommandException {
@@ -328,6 +385,10 @@ public final class CommandStandAndHold extends CommandBase {
 
         if (result.getStatus() == ResearchManager.CompletionStatus.MISSING_SAMPLES) {
             throw new CommandException("commands.standandhold.research.complete.samples", entry.getId(), result.getRequiredSamples(), result.getAvailableSamples());
+        }
+
+        if (result.getStatus() == ResearchManager.CompletionStatus.MISSING_SUPPLIES) {
+            throw new CommandException("commands.standandhold.research.complete.supplies", entry.getId(), result.getRequiredSupplies(), result.getAvailableSupplies());
         }
 
         TextComponentTranslation message = new TextComponentTranslation(
@@ -480,7 +541,10 @@ public final class CommandStandAndHold extends CommandBase {
                 level.getDisplayName(),
                 data.getHumanPoints(),
                 stage.getId(),
-                stage.getDisplayName()
+                stage.getDisplayName(),
+                data.getSupplyPoints(),
+                commandPost.getStoredSupplies(),
+                commandPost.getMaxStoredSupplies()
         );
         message.getStyle().setColor(TextFormatting.GREEN);
         sender.sendMessage(message);
@@ -654,6 +718,11 @@ public final class CommandStandAndHold extends CommandBase {
             return;
         }
 
+        if ("reset".equalsIgnoreCase(args[1])) {
+            executeThreatReset(sender, args);
+            return;
+        }
+
         throw new CommandException("commands.standandhold.threat.usage");
     }
 
@@ -738,6 +807,27 @@ public final class CommandStandAndHold extends CommandBase {
         TextComponentTranslation message = new TextComponentTranslation(
                 "commands.standandhold.threat.reinforce.success",
                 result.getUnitsSpawned(),
+                record.getDimension(),
+                record.getRegionX(),
+                record.getRegionZ()
+        );
+        message.getStyle().setColor(TextFormatting.YELLOW);
+        sender.sendMessage(message);
+    }
+
+    private void executeThreatReset(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length != 2) {
+            throw new CommandException("commands.standandhold.threat.usage");
+        }
+
+        ThreatRecord record = ThreatResponseManager.getThreatRecordAt(sender.getEntityWorld(), sender.getPosition(), false);
+        if (record == null) {
+            throw new CommandException("commands.standandhold.threat.reset.no_record");
+        }
+
+        ThreatResponseManager.resetThreatRecord(sender.getEntityWorld(), record);
+        TextComponentTranslation message = new TextComponentTranslation(
+                "commands.standandhold.threat.reset.success",
                 record.getDimension(),
                 record.getRegionX(),
                 record.getRegionZ()
@@ -849,6 +939,13 @@ public final class CommandStandAndHold extends CommandBase {
                         requirement.getParasiteSampleCost(),
                         result.getAvailableSamples()
                 );
+            case MISSING_SUPPLIES:
+                throw new CommandException(
+                        "commands.standandhold.commandpost.upgrade.supplies",
+                        level.getLevel(),
+                        requirement.getSupplyCost(),
+                        result.getAvailableSupplies()
+                );
             default:
                 throw new CommandException("commands.standandhold.commandpost.upgrade.config", 0, "unknown");
         }
@@ -912,10 +1009,11 @@ public final class CommandStandAndHold extends CommandBase {
     private String formatResearchEntry(ResearchEntry entry, String state) {
         String requirements = entry.hasRequirements() ? " requires " + joinStrings(entry.getRequiredResearchIds()) : "";
         String sampleCost = entry.getParasiteSampleCost() > 0 ? " samples " + entry.getParasiteSampleCost() : "";
+        String supplyCost = entry.getSupplyCost() > 0 ? " supplies " + entry.getSupplyCost() : "";
         String reward = entry.getCompletionPointReward() > 0 ? " +" + entry.getCompletionPointReward() + " points" : "";
         return "- " + entry.getId() + " [" + state + "] "
                 + entry.getCategory().getDisplayName() + " - "
-                + entry.getDisplayName() + reward + sampleCost + requirements;
+                + entry.getDisplayName() + reward + sampleCost + supplyCost + requirements;
     }
 
     private String joinStrings(List<String> values) {

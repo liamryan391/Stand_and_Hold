@@ -15,6 +15,7 @@ public final class ThreatRecord {
     private static final String TAG_LAST_EVENT_WORLD_TIME = "LastEventWorldTime";
     private static final String TAG_LAST_REINFORCEMENT_WORLD_TIME = "LastReinforcementWorldTime";
     private static final String TAG_LAST_OUTPOST_ATTACK_WORLD_TIME = "LastOutpostAttackWorldTime";
+    private static final String TAG_LAST_DECAY_WORLD_TIME = "LastDecayWorldTime";
 
     private final int dimension;
     private final int regionX;
@@ -27,6 +28,7 @@ public final class ThreatRecord {
     private long lastEventWorldTime = -1L;
     private long lastReinforcementWorldTime = -1L;
     private long lastOutpostAttackWorldTime = -1L;
+    private long lastDecayWorldTime = -1L;
 
     public ThreatRecord(int dimension, int regionX, int regionZ) {
         this.dimension = dimension;
@@ -48,6 +50,7 @@ public final class ThreatRecord {
         record.lastEventWorldTime = compound.hasKey(TAG_LAST_EVENT_WORLD_TIME) ? compound.getLong(TAG_LAST_EVENT_WORLD_TIME) : -1L;
         record.lastReinforcementWorldTime = compound.hasKey(TAG_LAST_REINFORCEMENT_WORLD_TIME) ? compound.getLong(TAG_LAST_REINFORCEMENT_WORLD_TIME) : -1L;
         record.lastOutpostAttackWorldTime = compound.hasKey(TAG_LAST_OUTPOST_ATTACK_WORLD_TIME) ? compound.getLong(TAG_LAST_OUTPOST_ATTACK_WORLD_TIME) : -1L;
+        record.lastDecayWorldTime = compound.hasKey(TAG_LAST_DECAY_WORLD_TIME) ? compound.getLong(TAG_LAST_DECAY_WORLD_TIME) : record.lastEventWorldTime;
         return record;
     }
 
@@ -64,6 +67,7 @@ public final class ThreatRecord {
         compound.setLong(TAG_LAST_EVENT_WORLD_TIME, lastEventWorldTime);
         compound.setLong(TAG_LAST_REINFORCEMENT_WORLD_TIME, lastReinforcementWorldTime);
         compound.setLong(TAG_LAST_OUTPOST_ATTACK_WORLD_TIME, lastOutpostAttackWorldTime);
+        compound.setLong(TAG_LAST_DECAY_WORLD_TIME, lastDecayWorldTime);
         return compound;
     }
 
@@ -90,11 +94,40 @@ public final class ThreatRecord {
         }
     }
 
+    public boolean decayThreat(int decayAmount, long worldTime) {
+        lastDecayWorldTime = worldTime;
+        int safeDecayAmount = Math.max(0, decayAmount);
+        if (safeDecayAmount <= 0 || threatScore <= 0) {
+            return false;
+        }
+
+        int newThreatScore = Math.max(0, threatScore - safeDecayAmount);
+        if (newThreatScore == threatScore) {
+            return false;
+        }
+
+        threatScore = newThreatScore;
+        return true;
+    }
+
+    public boolean resetThreat(long worldTime) {
+        lastDecayWorldTime = worldTime;
+        if (threatScore == 0) {
+            return false;
+        }
+
+        threatScore = 0;
+        return true;
+    }
+
     private void addThreat(int threatIncrease, long worldTime, int maxThreatScore) {
         if (threatIncrease > 0) {
             threatScore = Math.min(Math.max(1, maxThreatScore), threatScore + threatIncrease);
         }
         lastEventWorldTime = worldTime;
+        if (lastDecayWorldTime < 0L) {
+            lastDecayWorldTime = worldTime;
+        }
     }
 
     public String getKey() {
@@ -151,6 +184,10 @@ public final class ThreatRecord {
 
     public long getLastOutpostAttackWorldTime() {
         return lastOutpostAttackWorldTime;
+    }
+
+    public long getLastDecayWorldTime() {
+        return lastDecayWorldTime;
     }
 
     public BlockPos getApproximateCenterBlock(int regionChunkSize) {

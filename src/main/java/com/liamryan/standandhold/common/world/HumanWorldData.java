@@ -23,6 +23,7 @@ public final class HumanWorldData extends WorldSavedData {
     public static final String DATA_NAME = StandAndHoldConstants.MOD_ID + "_human_progression";
 
     private static final String TAG_HUMAN_POINTS = "HumanPoints";
+    private static final String TAG_SUPPLY_POINTS = "SupplyPoints";
     private static final String TAG_STAGE = "Stage";
     private static final String TAG_COMPLETED_RESEARCH = "CompletedResearch";
     private static final String TAG_FIELD_COMMAND_POSTS = "FieldCommandPosts";
@@ -32,6 +33,7 @@ public final class HumanWorldData extends WorldSavedData {
     private static final String TAG_THREAT_RECORDS = "ThreatRecords";
 
     private int humanPoints;
+    private int supplyPoints;
     private HumanStage stage = HumanStage.SURVIVORS;
     private final Set<String> completedResearchIds = new LinkedHashSet<String>();
     private final Set<String> fieldCommandPostPositions = new LinkedHashSet<String>();
@@ -51,6 +53,7 @@ public final class HumanWorldData extends WorldSavedData {
     @Override
     public void readFromNBT(NBTTagCompound compound) {
         humanPoints = Math.max(0, compound.getInteger(TAG_HUMAN_POINTS));
+        supplyPoints = Math.max(0, compound.getInteger(TAG_SUPPLY_POINTS));
         stage = HumanStage.byId(compound.getInteger(TAG_STAGE));
         completedResearchIds.clear();
         fieldCommandPostPositions.clear();
@@ -109,6 +112,7 @@ public final class HumanWorldData extends WorldSavedData {
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound compound) {
         compound.setInteger(TAG_HUMAN_POINTS, humanPoints);
+        compound.setInteger(TAG_SUPPLY_POINTS, supplyPoints);
         compound.setInteger(TAG_STAGE, stage.getId());
 
         NBTTagList completedResearchTags = new NBTTagList();
@@ -166,6 +170,38 @@ public final class HumanWorldData extends WorldSavedData {
             long newTotal = (long) humanPoints + amount;
             setHumanPoints(newTotal > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) newTotal);
         }
+    }
+
+    public int getSupplyPoints() {
+        return supplyPoints;
+    }
+
+    public void setSupplyPoints(int supplyPoints) {
+        int clampedSupplies = Math.max(0, supplyPoints);
+        if (this.supplyPoints != clampedSupplies) {
+            this.supplyPoints = clampedSupplies;
+            markDirty();
+        }
+    }
+
+    public void addSupplyPoints(int amount) {
+        if (amount != 0) {
+            long newTotal = (long) supplyPoints + amount;
+            setSupplyPoints(newTotal > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) newTotal);
+        }
+    }
+
+    public boolean consumeSupplyPoints(int amount) {
+        if (amount <= 0) {
+            return true;
+        }
+
+        if (supplyPoints < amount) {
+            return false;
+        }
+
+        setSupplyPoints(supplyPoints - amount);
+        return true;
     }
 
     public HumanStage getStage() {
@@ -301,6 +337,18 @@ public final class HumanWorldData extends WorldSavedData {
 
     public Collection<ThreatRecord> getThreatRecords() {
         return Collections.unmodifiableCollection(threatRecords.values());
+    }
+
+    public boolean removeThreatRecord(ThreatRecord record) {
+        if (record == null) {
+            return false;
+        }
+
+        if (threatRecords.remove(record.getKey()) != null) {
+            markDirty();
+            return true;
+        }
+        return false;
     }
 
     public void pruneThreatRecords(int maxRecords) {

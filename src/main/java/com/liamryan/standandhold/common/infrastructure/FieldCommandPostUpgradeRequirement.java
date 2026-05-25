@@ -11,13 +11,15 @@ public final class FieldCommandPostUpgradeRequirement {
     private final int requiredHumanPoints;
     private final List<String> requiredResearchIds;
     private final int parasiteSampleCost;
+    private final int supplyCost;
     private final int completionPointReward;
 
-    public FieldCommandPostUpgradeRequirement(FieldCommandPostLevel targetLevel, int requiredHumanPoints, List<String> requiredResearchIds, int parasiteSampleCost, int completionPointReward) {
+    public FieldCommandPostUpgradeRequirement(FieldCommandPostLevel targetLevel, int requiredHumanPoints, List<String> requiredResearchIds, int parasiteSampleCost, int supplyCost, int completionPointReward) {
         this.targetLevel = targetLevel == null ? FieldCommandPostLevel.FIELD_CAMP : targetLevel;
         this.requiredHumanPoints = Math.max(0, requiredHumanPoints);
         this.requiredResearchIds = normalizeResearchIds(requiredResearchIds);
         this.parasiteSampleCost = Math.max(0, parasiteSampleCost);
+        this.supplyCost = Math.max(0, supplyCost);
         this.completionPointReward = Math.max(0, completionPointReward);
     }
 
@@ -35,6 +37,10 @@ public final class FieldCommandPostUpgradeRequirement {
 
     public int getParasiteSampleCost() {
         return parasiteSampleCost;
+    }
+
+    public int getSupplyCost() {
+        return supplyCost;
     }
 
     public int getCompletionPointReward() {
