@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "D D",
+    "DAD",
+    " D "
+  ],
+  "key": {
+    "A": {
+      "item": "standandhold:army_chestplate"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    }
+  },
+  "result": {
+    "item": "standandhold:elite_chestplate"
+  }
+}

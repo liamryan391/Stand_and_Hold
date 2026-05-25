@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DAD",
+    "D D"
+  ],
+  "key": {
+    "A": {
+      "item": "standandhold:army_boots"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    }
+  },
+  "result": {
+    "item": "standandhold:elite_boots"
+  }
+}

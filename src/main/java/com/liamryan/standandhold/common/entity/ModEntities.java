@@ -21,6 +21,7 @@ public final class ModEntities {
         registerUnit(HumanUnitTier.ELITE_SOLDIER, EntityEliteSoldier.class);
         registerUnit(HumanUnitTier.SUPER_ELITE_SOLDIER, EntitySuperEliteSoldier.class);
         registerUnit(HumanUnitTier.SPECIAL_PARASITE_DIVISION_OPERATIVE, EntitySpecialParasiteDivisionOperative.class);
+        registerProjectile();
     }
 
     private static void registerUnit(HumanUnitTier tier, Class<? extends EntityHumanNpc> entityClass) {
@@ -35,6 +36,19 @@ public final class ModEntities {
                 true,
                 tier.getEggPrimaryColor(),
                 tier.getEggSecondaryColor()
+        );
+    }
+
+    private static void registerProjectile() {
+        EntityRegistry.registerModEntity(
+                new ResourceLocation(StandAndHoldConstants.MOD_ID, "anti_parasite_projectile"),
+                EntityAntiParasiteProjectile.class,
+                "anti_parasite_projectile",
+                nextEntityId++,
+                StandAndHold.instance,
+                64,
+                10,
+                true
         );
     }
 

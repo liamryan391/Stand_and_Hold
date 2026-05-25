@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " S ",
+    "SES",
+    " S "
+  ],
+  "key": {
+    "E": {
+      "item": "standandhold:elite_helmet"
+    },
+    "S": {
+      "item": "standandhold:parasite_tissue_sample"
+    }
+  },
+  "result": {
+    "item": "standandhold:special_division_helmet"
+  }
+}

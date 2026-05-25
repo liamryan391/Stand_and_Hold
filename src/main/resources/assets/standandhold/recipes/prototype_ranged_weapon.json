@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "IIR",
+    " SC",
+    "  I"
+  ],
+  "key": {
+    "C": {
+      "item": "standandhold:supply_crate"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "item": "standandhold:prototype_ranged_weapon"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SSS",
+    "SES",
+    "S S"
+  ],
+  "key": {
+    "E": {
+      "item": "standandhold:elite_leggings"
+    },
+    "S": {
+      "item": "standandhold:parasite_tissue_sample"
+    }
+  },
+  "result": {
+    "item": "standandhold:special_division_leggings"
+  }
+}

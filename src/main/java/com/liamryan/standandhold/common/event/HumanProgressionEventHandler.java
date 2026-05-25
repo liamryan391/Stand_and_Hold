@@ -2,6 +2,7 @@ package com.liamryan.standandhold.common.event;
 
 import com.liamryan.standandhold.StandAndHold;
 import com.liamryan.standandhold.common.entity.EntityHumanNpc;
+import com.liamryan.standandhold.common.equipment.EquipmentUnlockManager;
 import com.liamryan.standandhold.common.item.ModItems;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.threat.ThreatResponseManager;
@@ -9,11 +10,14 @@ import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public final class HumanProgressionEventHandler {
@@ -61,6 +65,40 @@ public final class HumanProgressionEventHandler {
         ResourceLocation sourceId = sourceEntity == null ? null : EntityList.getKey(sourceEntity);
         if (StandAndHoldConfig.isConfiguredParasiteEntity(sourceId)) {
             ThreatResponseManager.recordOutpostAttack(world, (EntityHumanNpc) victim);
+        }
+    }
+
+    @SubscribeEvent
+    public void onLivingEquipmentChange(LivingEquipmentChangeEvent event) {
+        if (!(event.getEntityLiving() instanceof EntityPlayer) || event.getEntityLiving().getEntityWorld().isRemote) {
+            return;
+        }
+
+        EntityPlayer player = (EntityPlayer) event.getEntityLiving();
+        ItemStack equippedStack = event.getTo();
+        if (equippedStack.isEmpty() || !EquipmentUnlockManager.isEquipmentSlot(event.getSlot()) || EquipmentUnlockManager.canUse(player.world, equippedStack)) {
+            return;
+        }
+
+        ItemStack blockedStack = equippedStack.copy();
+        player.setItemStackToSlot(event.getSlot(), ItemStack.EMPTY);
+        if (!player.inventory.addItemStackToInventory(blockedStack)) {
+            player.dropItem(blockedStack, false);
+        }
+        EquipmentUnlockManager.sendLockedMessage(player, blockedStack);
+    }
+
+    @SubscribeEvent
+    public void onAttackEntity(AttackEntityEvent event) {
+        EntityPlayer player = event.getEntityPlayer();
+        if (player == null || player.world.isRemote) {
+            return;
+        }
+
+        ItemStack heldStack = player.getHeldItemMainhand();
+        if (EquipmentUnlockManager.isLockedForPlayer(player, heldStack)) {
+            event.setCanceled(true);
+            EquipmentUnlockManager.sendLockedMessage(player, heldStack);
         }
     }
 

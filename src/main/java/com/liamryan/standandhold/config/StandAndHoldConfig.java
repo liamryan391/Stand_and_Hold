@@ -543,6 +543,78 @@ public final class StandAndHoldConfig {
         @Config.Name("Anti-Parasite Blade Enchantability")
         @Config.Comment("Enchantability for the basic anti-parasite melee weapon.")
         public int antiParasiteBladeEnchantability = 12;
+
+        @Config.Name("Army Equipment Required Stage")
+        @Config.Comment("Minimum human stage required to use Army equipment.")
+        public int armyEquipmentRequiredStage = 1;
+
+        @Config.Name("Army Equipment Required Research")
+        @Config.Comment("Optional research ID required to use Army equipment. Leave blank to disable this gate.")
+        public String armyEquipmentRequiredResearch = "field_communications";
+
+        @Config.Name("Elite Equipment Required Stage")
+        @Config.Comment("Minimum human stage required to use Elite equipment.")
+        public int eliteEquipmentRequiredStage = 3;
+
+        @Config.Name("Elite Equipment Required Research")
+        @Config.Comment("Optional research ID required to use Elite equipment. Leave blank to disable this gate.")
+        public String eliteEquipmentRequiredResearch = "outpost_doctrine";
+
+        @Config.Name("Special Division Equipment Required Stage")
+        @Config.Comment("Minimum human stage required to use Special Division equipment.")
+        public int specialDivisionEquipmentRequiredStage = 5;
+
+        @Config.Name("Special Division Equipment Required Research")
+        @Config.Comment("Optional research ID required to use Special Division equipment. Leave blank to disable this gate.")
+        public String specialDivisionEquipmentRequiredResearch = "special_division_training";
+
+        @Config.Name("Anti-Parasite Blade Required Stage")
+        @Config.Comment("Minimum human stage required to use the Anti-Parasite Blade.")
+        public int antiParasiteBladeRequiredStage = 2;
+
+        @Config.Name("Anti-Parasite Blade Required Research")
+        @Config.Comment("Optional research ID required to use the Anti-Parasite Blade. Leave blank to disable this gate.")
+        public String antiParasiteBladeRequiredResearch = "parasite_samples";
+
+        @Config.Name("Prototype Ranged Weapon Required Stage")
+        @Config.Comment("Minimum human stage required to use the prototype ranged weapon.")
+        public int prototypeRangedWeaponRequiredStage = 1;
+
+        @Config.Name("Prototype Ranged Weapon Required Research")
+        @Config.Comment("Optional research ID required to use the prototype ranged weapon. Leave blank to disable this gate.")
+        public String prototypeRangedWeaponRequiredResearch = "field_communications";
+
+        @Config.Name("Prototype Ranged Weapon Damage")
+        @Config.Comment("Damage dealt by the prototype ranged weapon projectile to configured parasite/test enemies.")
+        public float prototypeRangedWeaponDamage = 6.0F;
+
+        @Config.Name("Prototype Ranged Weapon Cooldown")
+        @Config.Comment("Player cooldown in ticks after firing the prototype ranged weapon.")
+        public int prototypeRangedWeaponCooldownTicks = 24;
+
+        @Config.Name("Prototype Ranged Weapon Max Uses")
+        @Config.Comment("Durability for the prototype ranged weapon.")
+        public int prototypeRangedWeaponMaxUses = 384;
+
+        @Config.Name("Prototype Ranged Weapon Velocity")
+        @Config.Comment("Projectile velocity for the prototype ranged weapon.")
+        public float prototypeRangedWeaponVelocity = 2.0F;
+
+        @Config.Name("Prototype Ranged Weapon Inaccuracy")
+        @Config.Comment("Projectile inaccuracy for the prototype ranged weapon. Lower values are more accurate.")
+        public float prototypeRangedWeaponInaccuracy = 1.5F;
+
+        @Config.Name("Enable Army Rifleman Ranged Weapon")
+        @Config.Comment("Allows Army Rifleman NPCs to use the prototype ranged weapon against configured parasite/test enemies.")
+        public boolean enableArmyRiflemanRangedWeapon = true;
+
+        @Config.Name("Army Rifleman Ranged Attack Interval")
+        @Config.Comment("Ticks between Army Rifleman ranged attacks.")
+        public int armyRiflemanRangedAttackInterval = 40;
+
+        @Config.Name("Army Rifleman Ranged Attack Range")
+        @Config.Comment("Maximum ranged attack distance for Army Riflemen.")
+        public float armyRiflemanRangedAttackRange = 18.0F;
     }
 
     public static final class HumanNpcs {

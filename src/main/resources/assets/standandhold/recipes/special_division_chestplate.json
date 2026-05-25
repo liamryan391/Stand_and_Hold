@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "S S",
+    "SES",
+    " S "
+  ],
+  "key": {
+    "E": {
+      "item": "standandhold:elite_chestplate"
+    },
+    "S": {
+      "item": "standandhold:parasite_tissue_sample"
+    }
+  },
+  "result": {
+    "item": "standandhold:special_division_chestplate"
+  }
+}

@@ -71,6 +71,7 @@ public final class ModItems {
     public static final Item SPECIAL_DIVISION_BOOTS = new ItemStandAndHoldArmor("special_division_boots", SPECIAL_DIVISION_ARMOR_MATERIAL, EntityEquipmentSlot.FEET, "minecraft:textures/models/armor/diamond");
 
     public static final Item ANTI_PARASITE_BLADE = new ItemAntiParasiteBlade(ANTI_PARASITE_BLADE_MATERIAL);
+    public static final Item PROTOTYPE_RANGED_WEAPON = new ItemPrototypeRangedWeapon();
 
     private ModItems() {
     }
@@ -91,7 +92,8 @@ public final class ModItems {
                 SPECIAL_DIVISION_CHESTPLATE,
                 SPECIAL_DIVISION_LEGGINGS,
                 SPECIAL_DIVISION_BOOTS,
-                ANTI_PARASITE_BLADE
+                ANTI_PARASITE_BLADE,
+                PROTOTYPE_RANGED_WEAPON
         );
     }
 
