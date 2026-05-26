@@ -7,6 +7,7 @@ import net.minecraftforge.fml.common.Loader;
 import java.util.Locale;
 
 public final class SRPCompat {
+    private static final String DEFAULT_SRP_MOD_ID = "srparasites";
     private static final String[] VERIFIED_DEFAULT_MAPPINGS = new String[0];
 
     private SRPCompat() {
@@ -31,6 +32,10 @@ public final class SRPCompat {
             return true;
         }
         return StandAndHoldConfig.compatibility.enableVerifiedSrpDefaultMappings && hasValidMappings(VERIFIED_DEFAULT_MAPPINGS);
+    }
+
+    public static boolean hasAutomaticNamespaceFallback() {
+        return isLoaded();
     }
 
     public static int getConfiguredMappingCount() {
@@ -114,7 +119,14 @@ public final class SRPCompat {
             return mapping;
         }
 
-        return StandAndHoldConfig.compatibility.enableVerifiedSrpDefaultMappings ? getMapping(entityId, VERIFIED_DEFAULT_MAPPINGS) : null;
+        if (StandAndHoldConfig.compatibility.enableVerifiedSrpDefaultMappings) {
+            mapping = getMapping(entityId, VERIFIED_DEFAULT_MAPPINGS);
+            if (mapping != null) {
+                return mapping;
+            }
+        }
+
+        return getAutomaticNamespaceFallbackMapping(entityRegistryId);
     }
 
     private static ParsedSrpMapping getMapping(String entityId, String[] mappings) {
@@ -129,6 +141,86 @@ public final class SRPCompat {
             }
         }
         return null;
+    }
+
+    private static ParsedSrpMapping getAutomaticNamespaceFallbackMapping(ResourceLocation entityRegistryId) {
+        if (!isSrpNamespaceEntity(entityRegistryId)) {
+            return null;
+        }
+
+        String entityId = entityRegistryId.toString().toLowerCase(Locale.ROOT);
+        String entityPath = entityRegistryId.getResourcePath().toLowerCase(Locale.ROOT);
+        AutomaticRewardTier tier = getAutomaticRewardTier(entityPath);
+        return new ParsedSrpMapping(entityId, tier.killReward, tier.sampleDropChance, true);
+    }
+
+    private static boolean isSrpNamespaceEntity(ResourceLocation entityRegistryId) {
+        if (entityRegistryId == null) {
+            return false;
+        }
+
+        String configuredModId = getConfiguredModId();
+        String domain = entityRegistryId.getResourceDomain().toLowerCase(Locale.ROOT);
+        return domain.equals(configuredModId) || domain.equals(DEFAULT_SRP_MOD_ID);
+    }
+
+    private static AutomaticRewardTier getAutomaticRewardTier(String entityPath) {
+        if (entityPath == null) {
+            return AutomaticRewardTier.DEFAULT;
+        }
+
+        String id = entityPath.toLowerCase(Locale.ROOT);
+
+        if (startsWithAny(id, "anc_", "ancient")) {
+            return new AutomaticRewardTier(80, 0.65D);
+        }
+        if (startsWithAny(id, "ada_")) {
+            return new AutomaticRewardTier(35, 0.45D);
+        }
+        if (startsWithAny(id, "pri_")) {
+            return new AutomaticRewardTier(20, 0.35D);
+        }
+        if (startsWithAny(id, "sim_", "fer_")) {
+            return new AutomaticRewardTier(10, 0.25D);
+        }
+        if (startsWithAny(id, "hi_")) {
+            return new AutomaticRewardTier(15, 0.25D);
+        }
+        if (startsWithAny(id, "beckon", "dispatcher")) {
+            return new AutomaticRewardTier(25, 0.35D);
+        }
+        if (startsWithAny(id, "carrier_", "bomber_")) {
+            return new AutomaticRewardTier(18, 0.30D);
+        }
+        if (containsAny(id, "overseer", "vigilante", "warden", "marauder", "monarch", "wraith", "architect")) {
+            return new AutomaticRewardTier(50, 0.50D);
+        }
+        if (containsAny(id, "grunt", "bogle", "haunter", "succor", "seeker", "kyphosis", "sentry", "seizer", "worm", "host", "heed", "crux", "thrall")) {
+            return new AutomaticRewardTier(25, 0.35D);
+        }
+        if (containsAny(id, "rupter", "buglin", "movingflesh", "worker", "mangler", "gnat", "incompleteform")) {
+            return new AutomaticRewardTier(8, 0.20D);
+        }
+
+        return AutomaticRewardTier.DEFAULT;
+    }
+
+    private static boolean startsWithAny(String value, String... prefixes) {
+        for (String prefix : prefixes) {
+            if (value.startsWith(prefix)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean containsAny(String value, String... tokens) {
+        for (String token : tokens) {
+            if (value.contains(token)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static ParsedSrpMapping parseMapping(String mappingEntry) {
@@ -208,6 +300,18 @@ public final class SRPCompat {
             this.killReward = Math.max(0, killReward);
             this.sampleDropChance = Math.max(0.0D, Math.min(1.0D, sampleDropChance));
             this.humanTarget = humanTarget;
+        }
+    }
+
+    private static final class AutomaticRewardTier {
+        private static final AutomaticRewardTier DEFAULT = new AutomaticRewardTier(8, 0.15D);
+
+        private final int killReward;
+        private final double sampleDropChance;
+
+        private AutomaticRewardTier(int killReward, double sampleDropChance) {
+            this.killReward = killReward;
+            this.sampleDropChance = sampleDropChance;
         }
     }
 }
