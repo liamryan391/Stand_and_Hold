@@ -8,7 +8,7 @@ The mod adds a human-side escalation layer to worlds where parasite-style threat
 
 The current implementation is a compileable foundation for a larger mod. It already includes persistent world progression, supplies, research, missions, sample drops, basic military buildings, generated checkpoints and Main Bases, human NPC tiers, a prototype ranged weapon, simple GUIs, networking, optional SRP compatibility mapping, dynamic outpost events, threat tracking, performance throttling, and first-pass stability fixes.
 
-This repository is currently in Phase 28. The emphasis is still foundation quality: the systems are intentionally small, server-authoritative where needed, data-driven where possible, and expandable for later phases. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, physical convoy entities, complex raid waves, mission GUIs, and full Scape and Run: Parasites integration are intentionally deferred.
+This repository is currently in Phase 29 and is prepared as `0.1.0-alpha.1`. The emphasis is still foundation quality: the systems are intentionally small, server-authoritative where needed, data-driven where possible, and expandable for later phases. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, physical convoy entities, complex raid waves, mission GUIs, and full Scape and Run: Parasites integration are intentionally deferred.
 
 ## Current Scope
 
@@ -103,7 +103,7 @@ For a normal test install:
 
 1. Install Minecraft Forge `1.12.2-14.23.5.2847` or a compatible Forge 1.12.2 build.
 2. Build this project with Java 8 using `./gradlew build`.
-3. Copy `build/libs/standandhold-0.1.0.jar` into the Minecraft instance `mods` folder.
+3. Copy `build/libs/standandhold-0.1.0-alpha.1.jar` into the Minecraft instance `mods` folder.
 4. Start the game or dedicated server once to generate `config/standandhold.cfg`.
 5. Edit the generated config for your pack, especially parasite registry IDs and balance values.
 
@@ -942,6 +942,19 @@ The build passed. The dev dedicated-server run reached the normal Minecraft EULA
 
 Phase 28 is documentation-only. It reorganizes the README with a clearer mod overview, installation notes, command reference, config overview, progression summary, research and building explanations, SRP compatibility notes, roadmap, and known issues.
 
+## Phase 29 Alpha Release Prep
+
+Phase 29 prepares the first alpha test jar, `0.1.0-alpha.1`.
+
+Release validation:
+
+```text
+./gradlew build --no-daemon --offline
+./gradlew runServer --no-daemon --offline
+```
+
+The dedicated server smoke test accepts the local dev `run/eula.txt` when explicitly requested, starts the server, waits for `Done`, then sends `stop` through server stdin. In the latest validation, Stand and Hold loaded on the dedicated server, registered its server commands, saved the world, and stopped cleanly.
+
 ## Roadmap
 
 Near-term roadmap:
@@ -970,8 +983,9 @@ Longer-term roadmap:
 - The prototype ranged weapon has no ammo or reload system yet.
 - Scientist AI, full structure generation, physical convoy entities, and complex raids are deferred.
 - Dev `runServer` may need online Gradle dependency resolution the first time, then stops at the normal EULA gate until the server owner accepts it.
-- Dedicated-server full world-load testing should be repeated after accepting EULA in a local test server.
+- Dedicated-server smoke testing passes in the ForgeGradle dev workspace, but should still be repeated in a normal installed Forge server before public distribution.
+- ForgeGradle dev runs can print old Forge/FML warnings or errors about Maven library paths, missing FML signature data, or console appenders. The alpha server smoke is considered healthy when Stand and Hold loads, the server reaches `Done`, and shutdown is clean.
 
 ## Planned Next Phase
 
-Phase 29 should build on the point, sample, supply, research, mission, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, threat-response, equipment, simple ranged weapon, GUI, networking, logistics, SRP compatibility, dynamic event, balance, performance, stability, and documentation foundations without jumping into the entire final system at once.
+Phase 30 should build on the point, sample, supply, research, mission, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, threat-response, equipment, simple ranged weapon, GUI, networking, logistics, SRP compatibility, dynamic event, balance, performance, stability, documentation, and alpha packaging foundations without jumping into the entire final system at once.
