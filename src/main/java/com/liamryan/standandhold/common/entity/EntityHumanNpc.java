@@ -1,17 +1,15 @@
 package com.liamryan.standandhold.common.entity;
 
-import com.google.common.base.Predicate;
+import com.liamryan.standandhold.common.entity.ai.EntityAINearestParasiteTarget;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.research.ResearchManager;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraft.entity.EntityCreature;
-import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIAttackMelee;
 import net.minecraft.entity.ai.EntityAILookIdle;
 import net.minecraft.entity.ai.EntityAIMoveTowardsRestriction;
-import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 import net.minecraft.entity.ai.EntityAISwimming;
 import net.minecraft.entity.ai.EntityAIWander;
 import net.minecraft.entity.ai.EntityAIWatchClosest;
@@ -20,7 +18,6 @@ import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -59,14 +56,7 @@ public abstract class EntityHumanNpc extends EntityCreature {
         tasks.addTask(5, new EntityAIWander(this, Math.max(0.0D, StandAndHoldConfig.humanNpcs.humanUnitWanderSpeed)));
         tasks.addTask(6, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
         tasks.addTask(7, new EntityAILookIdle(this));
-        targetTasks.addTask(1, new EntityAINearestAttackableTarget<EntityLivingBase>(
-                this,
-                EntityLivingBase.class,
-                Math.max(1, StandAndHoldConfig.humanNpcs.humanUnitTargetChance),
-                true,
-                false,
-                new ConfiguredParasiteTargetPredicate(this)
-        ));
+        targetTasks.addTask(1, new EntityAINearestParasiteTarget(this, Math.max(1, StandAndHoldConfig.humanNpcs.humanUnitTargetChance)));
     }
 
     @Override
@@ -212,27 +202,5 @@ public abstract class EntityHumanNpc extends EntityCreature {
         }
 
         return true;
-    }
-
-    private static final class ConfiguredParasiteTargetPredicate implements Predicate<EntityLivingBase> {
-        private final EntityHumanNpc unit;
-
-        private ConfiguredParasiteTargetPredicate(EntityHumanNpc unit) {
-            this.unit = unit;
-        }
-
-        @Override
-        public boolean apply(@Nullable EntityLivingBase target) {
-            if (target == null || !target.isEntityAlive() || target == unit) {
-                return false;
-            }
-
-            if (target instanceof EntityPlayer || target instanceof EntityHumanNpc) {
-                return false;
-            }
-
-            ResourceLocation entityId = EntityList.getKey(target);
-            return StandAndHoldConfig.isHumanUnitTargetEntity(entityId);
-        }
     }
 }
