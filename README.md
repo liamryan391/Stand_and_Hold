@@ -8,7 +8,7 @@ The mod adds a human-side escalation layer to worlds where parasite-style threat
 
 The current implementation is a compileable foundation for a larger mod. It already includes persistent world progression, supplies, research, missions, sample drops, basic military buildings, generated checkpoints and Main Bases, human NPC tiers, a prototype ranged weapon, simple GUIs, networking, optional SRP compatibility mapping, dynamic outpost events, threat tracking, performance throttling, and first-pass stability fixes.
 
-This repository is currently in Phase 29 and is prepared as `0.1.0-alpha.1`. The emphasis is still foundation quality: the systems are intentionally small, server-authoritative where needed, data-driven where possible, and expandable for later phases. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, physical convoy entities, complex raid waves, mission GUIs, and full Scape and Run: Parasites integration are intentionally deferred.
+This repository is packaged as `0.1.0-alpha.1`. The emphasis is still foundation quality: the systems are intentionally small, server-authoritative where needed, data-driven where possible, and expandable for later phases. Phase 33 focuses on documenting the first playable vertical slice using the existing alpha systems. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, physical convoy entities, complex raid waves, mission GUIs, and full Scape and Run: Parasites integration are intentionally deferred.
 
 ## Current Scope
 
@@ -113,6 +113,7 @@ The compiled mod jar will be created under `build/libs/`. For this alpha, use `b
 
 ## Alpha Readiness Docs
 
+- [First Playable Alpha Loop](docs/first-playable-loop.md)
 - [Build Guide](docs/building.md)
 - [Wider Alpha Testing Checklist](docs/alpha-testing-checklist.md)
 - [Alpha QA Results Template](docs/alpha-qa-results-template.md)
@@ -120,6 +121,19 @@ The compiled mod jar will be created under `build/libs/`. For this alpha, use `b
 - [Release Checklist](docs/release-checklist.md)
 - [Known Issues](KNOWN_ISSUES.md)
 - [Changelog](CHANGELOG.md)
+
+## First Playable Alpha Loop
+
+The current playable slice is a Creative/admin alpha test loop: kill configured test parasites, recover Parasite Tissue Samples, use a Field Command Post and Research Lab, complete the first research, reach an early army stage, spawn bounded defenders, and trigger or observe a simple outpost event.
+
+Start with:
+
+```text
+/standandhold help
+/standandhold status
+```
+
+Then follow [docs/first-playable-loop.md](docs/first-playable-loop.md) for step-by-step expected results and troubleshooting.
 
 ## Installation
 
@@ -146,6 +160,7 @@ The base command is:
 General commands:
 
 ```text
+/standandhold help
 /standandhold status
 /standandhold addpoints <amount>
 /standandhold setstage <0-6|stage_name>

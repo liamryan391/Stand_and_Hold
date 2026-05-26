@@ -35,6 +35,7 @@ Use this checklist before wider testing of `0.1.0-alpha.1`. Record Minecraft log
 
 ## Command Tests
 
+- [ ] `/standandhold help`
 - [ ] `/standandhold status`
 - [ ] `/standandhold addpoints <amount>`
 - [ ] `/standandhold research list`
@@ -52,6 +53,7 @@ Use this checklist before wider testing of `0.1.0-alpha.1`. Record Minecraft log
 
 ## Building And GUI Tests
 
+- [ ] Follow `docs/first-playable-loop.md` in a Creative/admin test world.
 - [ ] Place a Field Command Post.
 - [ ] Open the Field Command Post GUI.
 - [ ] Close and reopen the Field Command Post GUI and confirm points/stage/supplies do not desync obviously.
@@ -67,6 +69,7 @@ Use this checklist before wider testing of `0.1.0-alpha.1`. Record Minecraft log
 
 - [ ] Kill `minecraft:zombie` and confirm default human point rewards can apply.
 - [ ] Kill `minecraft:zombie` repeatedly and confirm sample drops can occur with the default test chance.
+- [ ] Pick up a Parasite Tissue Sample while `recover_parasite_sample` is active and confirm mission progress can update.
 - [ ] Reset config and confirm the default zombie test mapping returns.
 - [ ] Add a custom test entity mapping and confirm config parsing does not crash.
 - [ ] With SRP installed, add a verified SRP registry ID mapping and confirm kills/samples/targeting if available.
@@ -74,6 +77,7 @@ Use this checklist before wider testing of `0.1.0-alpha.1`. Record Minecraft log
 ## Human NPC Tests
 
 - [ ] Spawn each available human NPC spawn egg in a test world.
+- [ ] Reach or set Stage 1 and confirm early army defenders can spawn near a loaded Field Command Post.
 - [ ] Confirm higher-tier human units are stage-gated and may not remain spawned until their required stage or research is met.
 - [ ] Confirm human NPCs do not attack players by default.
 - [ ] Confirm human NPCs can target configured parasite/test entities.

@@ -24,6 +24,7 @@ Known issues for `0.1.0-alpha.1`.
 
 ## Gameplay Foundation
 
+- The first playable vertical slice assumes a Creative/admin test world for placing core blocks and forcing deterministic event checks.
 - Current worldgen structures are placeholder/simple.
 - Scientist AI is placeholder/deferred.
 - Advanced weapons, ammo, reload systems, and modern weapon mechanics are deferred.

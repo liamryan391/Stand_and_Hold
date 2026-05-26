@@ -1,5 +1,11 @@
 standandhold.config.title=Stand and Hold
-commands.standandhold.usage=/standandhold <status|addpoints|setstage|research|commandpost|mainbase|threat|supplies|structure|event|mission>
+commands.standandhold.usage=/standandhold <help|status|addpoints|setstage|research|commandpost|mainbase|threat|supplies|structure|event|mission>
+commands.standandhold.help.header=Stand and Hold alpha commands
+commands.standandhold.help.status=/standandhold status - show human points, stage, and supplies.
+commands.standandhold.help.loop=First loop: kill configured test parasites, recover samples, use a Field Command Post and Research Lab.
+commands.standandhold.help.research=/standandhold research list/status - inspect research; labs can complete ready research over time.
+commands.standandhold.help.outpost=/standandhold commandpost nearest/status - inspect outposts; /standandhold event status checks event cooldowns.
+commands.standandhold.help.admin=Admin test commands include addpoints, setstage, structure, event triggers, and mission start/complete.
 commands.standandhold.status=Human points: %s | Stage %s: %s | Next threshold: %s | Supplies: %s
 commands.standandhold.cleanup=Cleaned %s stale %s saved records. Deactivated active records: %s
 commands.standandhold.addpoints.usage=/standandhold addpoints <amount>

@@ -20,6 +20,7 @@ Technical foundation alpha for Stand and Hold.
 - Wider alpha testing checklist, release checklist, build guide, and known issues documentation.
 - Phase 31 alpha QA results template and first ready-to-fill QA session file.
 - Phase 32 saved data versioning, non-destructive migration hook, and loaded stale-position cleanup for alpha safety.
+- Phase 33 first playable alpha loop guide and lightweight `/standandhold help` command.
 
 ### Validation
 

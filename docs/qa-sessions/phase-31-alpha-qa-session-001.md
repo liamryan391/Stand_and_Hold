@@ -54,13 +54,17 @@ List changes made to config/standandhold.cfg, or write "None".
 | Saved Data | Broken loaded Research Lab stale record cleans safely | Not tested | |
 | Saved Data | Broken loaded Main Base command post cleans/deactivates safely | Not tested | |
 | Commands | `/standandhold status` works | Not tested | |
+| Commands | `/standandhold help` gives first-loop guidance | Not tested | |
 | Commands | Admin-only commands are permission-gated | Not tested | |
 | Progression | Points save and reload | Not tested | |
 | Research | Research command flow works | Not tested | |
 | Buildings | Field Command Post GUI opens | Not tested | |
 | Buildings | Research Lab GUI opens | Not tested | |
+| Vertical Slice | First playable loop guide can be followed in Creative/admin test world | Not tested | |
+| Missions | `recover_parasite_sample` can track sample recovery when active | Not tested | |
 | Supplies | Supply crate deposit works | Not tested | |
 | Entities | Human spawn eggs work | Not tested | |
+| Entities | Stage 1 early army defenders can spawn near a loaded Field Command Post | Not tested | |
 | Entities | Higher-tier units respect stage/research gates | Not tested | |
 | Visuals | Human NPC visuals are placeholder/WIP but do not crash | Not tested | |
 | Events | Debug event commands work | Not tested | |

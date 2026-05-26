@@ -39,6 +39,7 @@ import java.util.Locale;
 
 public final class CommandStandAndHold extends CommandBase {
     private static final String[] SUBCOMMANDS = new String[] {
+            "help",
             "status",
             "addpoints",
             "setstage",
@@ -111,6 +112,11 @@ public final class CommandStandAndHold extends CommandBase {
 
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+        if (args.length == 1 && "help".equalsIgnoreCase(args[0])) {
+            sendHelp(sender);
+            return;
+        }
+
         if (args.length == 0 || "status".equalsIgnoreCase(args[0])) {
             sendStatus(sender);
             return;
@@ -255,6 +261,23 @@ public final class CommandStandAndHold extends CommandBase {
         }
 
         return super.getTabCompletions(server, sender, args, targetPos);
+    }
+
+    private void sendHelp(ICommandSender sender) {
+        String[] helpKeys = new String[] {
+                "commands.standandhold.help.header",
+                "commands.standandhold.help.status",
+                "commands.standandhold.help.loop",
+                "commands.standandhold.help.research",
+                "commands.standandhold.help.outpost",
+                "commands.standandhold.help.admin"
+        };
+
+        for (String helpKey : helpKeys) {
+            TextComponentTranslation message = new TextComponentTranslation(helpKey);
+            message.getStyle().setColor("commands.standandhold.help.header".equals(helpKey) ? TextFormatting.AQUA : TextFormatting.GRAY);
+            sender.sendMessage(message);
+        }
     }
 
     private void sendStatus(ICommandSender sender) {
