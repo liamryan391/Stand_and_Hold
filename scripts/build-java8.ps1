@@ -14,16 +14,35 @@ function Get-JavaVersionText {
         [string]$JavaExe
     )
 
-    if (-not (Test-Path $JavaExe)) {
+    if ([string]::IsNullOrWhiteSpace($JavaExe) -or -not (Test-Path $JavaExe)) {
         return ""
     }
 
     try {
-        $output = & $JavaExe -version 2>&1
+        # Java prints version information to stderr. Calling through cmd.exe avoids
+        # PowerShell 5.1 converting native stderr into NativeCommandError records
+        # when $ErrorActionPreference is Stop.
+        $escapedJavaExe = '"' + $JavaExe + '"'
+        $output = & cmd.exe /d /c "$escapedJavaExe -version 2>&1"
         return ($output | Out-String)
     } catch {
         return ""
     }
+}
+
+function Write-VersionText {
+    param(
+        [string]$VersionText
+    )
+
+    if ([string]::IsNullOrWhiteSpace($VersionText)) {
+        Write-Host "<no version output captured>"
+        return
+    }
+
+    $VersionText -split "`r?`n" |
+        Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
+        ForEach-Object { Write-Host $_ }
 }
 
 function Test-IsJava8 {
@@ -31,7 +50,7 @@ function Test-IsJava8 {
         [string]$VersionText
     )
 
-    return $VersionText -match 'version "1\.8\.'
+    return $VersionText -match 'version "1\.8\.' -or $VersionText -match 'version "8[\.\+]'
 }
 
 function Get-JavaHomeFromJavaExe {
@@ -60,7 +79,7 @@ function Add-CandidateJavaHome {
     }
 
     try {
-        $resolved = (Resolve-Path $Path -ErrorAction Stop).Path
+        $resolved = (Resolve-Path $Path.Trim().Trim('"') -ErrorAction Stop).Path
     } catch {
         return
     }
@@ -148,7 +167,7 @@ $activeJava = Get-Command java -ErrorAction SilentlyContinue
 $activeJavaVersionText = ""
 if ($null -ne $activeJava) {
     $activeJavaVersionText = Get-JavaVersionText -JavaExe $activeJava.Source
-    $activeJavaVersionText | ForEach-Object { Write-Host $_ }
+    Write-VersionText -VersionText $activeJavaVersionText
 } else {
     Write-Warning "No java executable was found on PATH. The helper will try to locate Java 8 from known install paths."
 }
@@ -168,7 +187,7 @@ if ([string]::IsNullOrWhiteSpace($java8HomeToUse)) {
     Write-Host ""
     Write-Host "Java 8 could not be detected automatically."
     Write-Host "Install a Java 8 JDK, such as Eclipse Temurin 8, or rerun with an explicit path:"
-    Write-Host "powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-java8.ps1 -Java8Home \"C:\Path\To\Java8\JDK\""
+    Write-Host 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-java8.ps1 -Java8Home "C:\Path\To\Java8\JDK"'
     throw "Java 8 is required. Modern Java can fail before compilation with: Unable to get mutable Windows environment variable map / InaccessibleObjectException."
 }
 
@@ -184,7 +203,7 @@ $env:Path = "$env:JAVA_HOME\bin;$env:Path"
 Write-Host ""
 Write-Host "Using Java 8 for this build only: $env:JAVA_HOME"
 Write-Host "Confirmed Java 8 version:"
-$java8VersionText | ForEach-Object { Write-Host $_ }
+Write-VersionText -VersionText $java8VersionText
 
 Push-Location $RepoRoot
 try {
