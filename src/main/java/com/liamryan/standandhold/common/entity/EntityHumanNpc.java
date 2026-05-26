@@ -7,7 +7,6 @@ import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIAttackMelee;
 import net.minecraft.entity.ai.EntityAILookIdle;
@@ -22,7 +21,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -93,16 +91,6 @@ public abstract class EntityHumanNpc extends EntityCreature {
     @Override
     public boolean getCanSpawnHere() {
         return super.getCanSpawnHere() && isHumanUnitUnlocked();
-    }
-
-    @Override
-    public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingData) {
-        if (!isHumanUnitUnlocked()) {
-            setDead();
-            return livingData;
-        }
-
-        return super.onInitialSpawn(difficulty, livingData);
     }
 
     public abstract HumanUnitTier getUnitTier();
