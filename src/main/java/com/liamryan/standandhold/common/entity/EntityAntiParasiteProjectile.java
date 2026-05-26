@@ -16,6 +16,7 @@ import net.minecraft.world.World;
 
 public final class EntityAntiParasiteProjectile extends EntityThrowable {
     private static final String TAG_PROJECTILE_DAMAGE = "ProjectileDamage";
+    private static final float MIN_PARASITE_PROJECTILE_DAMAGE = 8.0F;
 
     private float projectileDamage = Math.max(0.0F, StandAndHoldConfig.equipment.prototypeRangedWeaponDamage);
 
@@ -35,6 +36,7 @@ public final class EntityAntiParasiteProjectile extends EntityThrowable {
             if (hitEntity instanceof EntityLivingBase && canDamageEntity(hitEntity)) {
                 EntityLivingBase thrower = getThrower();
                 float damage = projectileDamage * Math.max(0.0F, StandAndHoldConfig.equipment.prototypeRangedWeaponParasiteDamageMultiplier);
+                damage = Math.max(MIN_PARASITE_PROJECTILE_DAMAGE, damage);
                 hitEntity.attackEntityFrom(DamageSource.causeThrownDamage(this, thrower == null ? this : thrower), damage);
                 world.setEntityState(this, (byte) 3);
                 if (StandAndHoldConfig.equipment.enablePrototypeProjectileHitSound) {
