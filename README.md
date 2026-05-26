@@ -2,7 +2,13 @@
 
 Stand and Hold is a Minecraft Forge 1.12.2 mod about a human military resistance forming in a parasite-infected world.
 
-This repository is currently in Phase 26: a compileable Forge project foundation for a future large-scale Stand and Hold mod. It includes persistent human progression points, supply points, stage commands, configurable entity-death point rewards, parasite tissue samples, a basic data-driven research system, a basic mission/objective system with automatic progress hooks, military infrastructure blocks, passive point and supply generation from loaded command posts, Field Command Post upgrade levels, a basic Research Lab, tiered human NPC test units, bounded outpost defender spawning, a generated Small Army Checkpoint, persistent Main Base registration/activation, Special Parasite Division gating, regional threat tracking, threat decay, bounded reinforcement triggers, simple human equipment, equipment crafting/unlock gates, one prototype ranged weapon with a custom projectile, projectile hit polish, simple block GUIs, a small networking foundation for GUI data/actions, basic local/global supply transfer controls, optional SRP compatibility mappings, a command-post logistics route placeholder, lightweight dynamic outpost attack/reinforcement events, dynamic event cooldown/status visibility, more conservative default balancing, and a first performance pass over ticking, parsing, spawning, and entity queries. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, physical convoy entities, complex raid waves, mission GUIs, and full Scape and Run: Parasites integration are intentionally left for later phases.
+## Mod Overview
+
+The mod adds a human-side escalation layer to worlds where parasite-style threats are getting stronger. Humanity earns progression by killing configured parasite/test entities, recovering parasite samples, completing research, building infrastructure, defending outposts, and maintaining supply lines.
+
+The current implementation is a compileable foundation for a larger mod. It already includes persistent world progression, supplies, research, missions, sample drops, basic military buildings, generated checkpoints and Main Bases, human NPC tiers, a prototype ranged weapon, simple GUIs, networking, optional SRP compatibility mapping, dynamic outpost events, threat tracking, performance throttling, and first-pass stability fixes.
+
+This repository is currently in Phase 28. The emphasis is still foundation quality: the systems are intentionally small, server-authoritative where needed, data-driven where possible, and expandable for later phases. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, physical convoy entities, complex raid waves, mission GUIs, and full Scape and Run: Parasites integration are intentionally deferred.
 
 ## Current Scope
 
@@ -51,6 +57,8 @@ This repository is currently in Phase 26: a compileable Forge project foundation
 - Admin dynamic event debug commands
 - Dynamic event cooldown/status command and nearby warning messages
 - Throttled command-post manager checks and cached config parsing
+- Client item/model registration for Forge 1.12.2
+- Missing item model coverage for Parasite Tissue Samples
 - Base human NPC entity class
 - Tiered human unit entities with spawn eggs and simple parasite targeting AI
 - Field Command Post outpost defender spawning with limits
@@ -88,6 +96,157 @@ On Windows PowerShell:
 ```
 
 The compiled mod jar will be created under `build/libs/`.
+
+## Installation
+
+For a normal test install:
+
+1. Install Minecraft Forge `1.12.2-14.23.5.2847` or a compatible Forge 1.12.2 build.
+2. Build this project with Java 8 using `./gradlew build`.
+3. Copy `build/libs/standandhold-0.1.0.jar` into the Minecraft instance `mods` folder.
+4. Start the game or dedicated server once to generate `config/standandhold.cfg`.
+5. Edit the generated config for your pack, especially parasite registry IDs and balance values.
+
+Scape and Run: Parasites is optional. Stand and Hold does not import SRP classes, so it should load without SRP installed. If SRP is installed, add verified SRP entity registry IDs to the config mappings before relying on parasite rewards, drops, or targeting.
+
+For dedicated servers, install the same jar in the server `mods` folder and configure the server as usual for Forge 1.12.2. The dev `runServer` task may stop at the normal Minecraft EULA gate until `eula.txt` is accepted by the server owner.
+
+## Command Reference
+
+The base command is:
+
+```text
+/standandhold
+```
+
+General commands:
+
+```text
+/standandhold status
+/standandhold addpoints <amount>
+/standandhold setstage <0-6|stage_name>
+```
+
+Research commands:
+
+```text
+/standandhold research list
+/standandhold research status
+/standandhold research complete <id>
+```
+
+Supply commands:
+
+```text
+/standandhold supplies status
+/standandhold supplies add <amount>
+```
+
+Building and base commands:
+
+```text
+/standandhold commandpost list
+/standandhold commandpost nearest
+/standandhold commandpost status [x] [y] [z]
+/standandhold commandpost upgrade [x] [y] [z]
+/standandhold mainbase list
+/standandhold mainbase status [x] [y] [z]
+/standandhold mainbase activate [x] [y] [z]
+```
+
+Threat, event, structure, and mission debug commands:
+
+```text
+/standandhold threat status
+/standandhold threat list
+/standandhold threat reinforce
+/standandhold threat reset
+/standandhold event status [x] [y] [z]
+/standandhold event outpostattack [x] [y] [z]
+/standandhold event reinforcement [x] [y] [z]
+/standandhold structure checkpoint
+/standandhold structure mainbase
+/standandhold mission list
+/standandhold mission status [id]
+/standandhold mission start <id>
+/standandhold mission progress <id> <amount>
+/standandhold mission complete <id> [force]
+```
+
+Most status/list commands are safe for normal use. Mutating commands such as adding points, setting stages, forcing structures, activating Main Bases, threat changes, event triggers, and mission debug actions require admin permission level 2.
+
+## Config Overview
+
+Forge writes the config as `config/standandhold.cfg`. Important categories:
+
+- `Progression`: human stage point thresholds.
+- `Point Sources`: configured parasite/test kill rewards and sample drop chances.
+- `Compatibility`: optional Scape and Run: Parasites loaded check and SRP mapping entries.
+- `Research`: data-driven research definitions, lab progress timing, and lab storage caps.
+- `Missions`: data-driven mission/objective definitions.
+- `Infrastructure`: Field Command Post generation, upgrade, defender, and building timing values.
+- `Supply`: global supplies, local building storage, transfer amounts, and logistics placeholder settings.
+- `Equipment`: armour, melee weapon, prototype ranged weapon, unlock gates, repair balance, damage, cooldown, and projectile polish.
+- `Human NPCs`: human unit stats, stage gates, targeting, and Special Parasite Division deployment values.
+- `World Generation`: checkpoint and Main Base generation chances, dimensions, and allowed dimensions.
+- `Threat Response`: regional threat scoring, decay, reinforcement cooldowns, and caps.
+- `Dynamic Events`: natural outpost attack and reinforcement event timing, warning radius, and spawn caps.
+
+Defaults are balanced for testing rather than final SRP pack difficulty. Real parasite packs should tune kill rewards, sample chances, threat values, and human unit stats after verifying entity registry IDs and playtesting.
+
+## Progression Stages
+
+Human progression is global per world save and is stored in `HumanWorldData`. The current default thresholds are:
+
+- Stage 0, `0` points: Survivors
+- Stage 1, `150` points: Local Army Response
+- Stage 2, `500` points: Organised Military
+- Stage 3, `1200` points: Elite Units
+- Stage 4, `2600` points: Super Elite Units
+- Stage 5, `5200` points: Special Parasite Division
+- Stage 6, `10000` points: Main Base / Endgame Counter-Offensive
+
+Points can come from configured parasite/test kills, research completion, building upgrades, missions, passive command post generation, and later systems that call `HumanPointManager`.
+
+## Research System
+
+Research is data-driven through config entries:
+
+```text
+id|category|name|description|pointReward|requiredResearchIds|sampleCost|supplyCost
+```
+
+Research completion persists in `HumanWorldData`. Completed research can unlock later features, building upgrades, equipment use, Special Parasite Division deployment, and future systems. Research can be completed by command or through loaded Research Labs that generate progress over time and consume stored Parasite Tissue Samples when a target is ready.
+
+## Building System
+
+Current military infrastructure:
+
+- Field Command Post: core outpost block, local supply storage, passive human point/supply generation, upgrade levels, defender spawning, dynamic event anchor, logistics placeholder anchor, and GUI.
+- Research Lab: stores research progress, parasite samples, and local supplies; contributes to research completion over time.
+- Supply Crate: recoverable supply block/item used for the first supply economy.
+- Small Army Checkpoint: simple generated/debug structure containing a Field Command Post.
+- Main Base: rare generated/debug structure with command post, lab areas, defender pads, persistent registration, and activation checks.
+
+Building systems are deliberately tile-local or saved-data-driven. They avoid global world scans and rely on saved positions, loaded tile entities, and bounded spawn limits.
+
+## SRP Compatibility
+
+Scape and Run: Parasites compatibility is optional and string-based. The mod uses `Loader.isModLoaded` and configured registry IDs through `SRPCompat`; it does not reference SRP classes directly.
+
+SRP mapping format:
+
+```text
+entityId|killReward|sampleDropChance|humanTarget
+```
+
+Example after verifying the actual registry ID in your SRP build:
+
+```text
+srparasites:example_parasite|25|0.35|true
+```
+
+No verified SRP entity IDs are enabled by default. The default `minecraft:zombie` entries are safe test values and should be replaced or supplemented in real parasite packs.
 
 ## Phase 1 Progression Core
 
@@ -148,10 +307,10 @@ minecraft:zombie=0.15
 Research entries are configured as pipe-separated data:
 
 ```text
-id|category|name|description|pointReward|requiredResearchIds|sampleCost
+id|category|name|description|pointReward|requiredResearchIds|sampleCost|supplyCost
 ```
 
-Use comma-separated `requiredResearchIds`, or leave that field blank. `sampleCost` consumes Parasite Tissue Samples from the player completing the research command.
+Use comma-separated `requiredResearchIds`, or leave that field blank. `sampleCost` consumes Parasite Tissue Samples where supported, and `supplyCost` consumes saved global supply points.
 
 Current research commands:
 
@@ -169,9 +328,9 @@ The `standandhold:parasite_tissue_sample` item is the first physical progression
 
 ## Phase 5 Field Command Post
 
-The `standandhold:field_command_post` block is the first military infrastructure placeholder. It has a basic tile entity, placeholder blockstate/model JSON, and registers its dimension/position in `HumanWorldData` when placed or loaded.
+The `standandhold:field_command_post` block is the first military infrastructure placeholder. It has a tile entity, placeholder blockstate/model JSON, and registers its dimension/position in `HumanWorldData` when placed or loaded.
 
-Right-clicking a Field Command Post shows the current human point total and army stage. It does not generate structures, open a GUI, or drive base mechanics yet.
+Right-clicking a Field Command Post opens the current command post GUI. Sneak-right-clicking still attempts a debug upgrade path for quick testing.
 
 ## Phase 6 Passive Generation
 
@@ -762,14 +921,57 @@ Phase 26 keeps gameplay behavior intact while reducing avoidable server work:
 
 The remaining intentional scans are bounded and event-driven: command/debug listing commands inspect saved position sets, threat commands inspect saved threat records, and generated structures only examine their small configured footprints.
 
+## Phase 27 Stability Testing
+
+Phase 27 fixed stability issues found during the first focused review:
+
+- Added Forge 1.12.2 client model registration for Stand and Hold item and block item models.
+- Added the missing Parasite Tissue Sample item model JSON.
+- Kept equipment unlock checks server-authoritative so client-side right-click prediction does not read server `WorldSavedData`.
+
+Validation used:
+
+```text
+./gradlew build --no-daemon --offline
+./gradlew runServer --no-daemon
+```
+
+The build passed. The dev dedicated-server run reached the normal Minecraft EULA gate; the repository does not change or accept `run/eula.txt`.
+
+## Phase 28 Documentation
+
+Phase 28 is documentation-only. It reorganizes the README with a clearer mod overview, installation notes, command reference, config overview, progression summary, research and building explanations, SRP compatibility notes, roadmap, and known issues.
+
+## Roadmap
+
+Near-term roadmap:
+
+- Keep testing save/load behavior for `HumanWorldData`, tile entities, missions, threat records, and Main Base activation.
+- Tune point, supply, and threat values from actual SRP-style playtesting.
+- Add more polished item, block, projectile, and NPC assets while keeping the foundation stable.
+- Expand logistics from local/global transfer placeholders toward visible routes or convoy entities.
+- Add richer raid outcomes, warning messages, and cooldown displays.
+- Add scientist behavior and stronger lab integration without heavy global ticking.
+- Add more generated structures only after the current checkpoint and Main Base generators are stable.
+- Keep SRP compatibility data-driven until registry IDs are verified against the exact SRP build being supported.
+
+Longer-term roadmap:
+
+- More human unit roles, deployment rules, and faction behavior.
+- Larger outposts, fortified bases, and late-game counter-offensive systems.
+- Research-gated infrastructure, advanced equipment, and anti-parasite tools.
+- Optional pack-specific balance presets for SRP-heavy modpacks.
+
+## Known Issues
+
+- SRP entity registry IDs are not verified or enabled by default. The shipped `minecraft:zombie` entries are test values.
+- Most visual assets still use vanilla placeholder models and textures.
+- GUIs are intentionally plain and will need later UX/art passes.
+- The prototype ranged weapon has no ammo or reload system yet.
+- Scientist AI, full structure generation, physical convoy entities, and complex raids are deferred.
+- Dev `runServer` may need online Gradle dependency resolution the first time, then stops at the normal EULA gate until the server owner accepts it.
+- Dedicated-server full world-load testing should be repeated after accepting EULA in a local test server.
+
 ## Planned Next Phase
 
-Phase 27 should build on the point, sample, supply, research, mission, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, threat-response, equipment, simple ranged weapon, GUI, networking, logistics, SRP compatibility, dynamic event, balance, and performance foundations without jumping into the entire final system at once:
-
-- Tune point, supply, and threat values from playtesting
-- Add visible logistics route markers or physical convoy entities
-- Add more polished equipment/projectile assets while keeping ammo/reload systems deferred
-- Add more detailed building supply-transfer rules
-- Add richer raid outcomes, warning messages, or cooldown displays
-- Add basic lab-linked scientist behavior or Main Base/Special Division deployment balancing
-- Keep Scape and Run: Parasites compatibility data-driven until entity IDs are verified
+Phase 29 should build on the point, sample, supply, research, mission, lab, command-post, unit-tier, outpost-defence, checkpoint, Main Base, Special Parasite Division, threat-response, equipment, simple ranged weapon, GUI, networking, logistics, SRP compatibility, dynamic event, balance, performance, stability, and documentation foundations without jumping into the entire final system at once.
