@@ -1,15 +1,22 @@
 package com.liamryan.standandhold.common.world;
 
+import com.liamryan.standandhold.StandAndHold;
 import com.liamryan.standandhold.StandAndHoldConstants;
+import com.liamryan.standandhold.common.block.ModBlocks;
 import com.liamryan.standandhold.common.mission.Mission;
 import com.liamryan.standandhold.common.mission.MissionProgress;
 import com.liamryan.standandhold.common.progression.HumanStage;
 import com.liamryan.standandhold.common.research.ResearchEntry;
+import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
+import com.liamryan.standandhold.common.tile.TileEntityResearchLab;
 import com.liamryan.standandhold.common.threat.ThreatRecord;
+import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.common.util.Constants;
 
@@ -23,7 +30,9 @@ import java.util.Set;
 
 public final class HumanWorldData extends WorldSavedData {
     public static final String DATA_NAME = StandAndHoldConstants.MOD_ID + "_human_progression";
+    public static final int CURRENT_DATA_VERSION = 1;
 
+    private static final String TAG_DATA_VERSION = "DataVersion";
     private static final String TAG_HUMAN_POINTS = "HumanPoints";
     private static final String TAG_SUPPLY_POINTS = "SupplyPoints";
     private static final String TAG_STAGE = "Stage";
@@ -35,6 +44,7 @@ public final class HumanWorldData extends WorldSavedData {
     private static final String TAG_THREAT_RECORDS = "ThreatRecords";
     private static final String TAG_MISSIONS = "Missions";
 
+    private int dataVersion = CURRENT_DATA_VERSION;
     private int humanPoints;
     private int supplyPoints;
     private HumanStage stage = HumanStage.SURVIVORS;
@@ -56,6 +66,10 @@ public final class HumanWorldData extends WorldSavedData {
 
     @Override
     public void readFromNBT(NBTTagCompound compound) {
+        int savedDataVersion = compound.hasKey(TAG_DATA_VERSION, Constants.NBT.TAG_INT)
+                ? Math.max(0, compound.getInteger(TAG_DATA_VERSION))
+                : 0;
+        dataVersion = savedDataVersion;
         humanPoints = Math.max(0, compound.getInteger(TAG_HUMAN_POINTS));
         supplyPoints = Math.max(0, compound.getInteger(TAG_SUPPLY_POINTS));
         stage = HumanStage.byId(compound.getInteger(TAG_STAGE));
@@ -77,32 +91,33 @@ public final class HumanWorldData extends WorldSavedData {
 
         NBTTagList commandPostTags = compound.getTagList(TAG_FIELD_COMMAND_POSTS, Constants.NBT.TAG_STRING);
         for (int i = 0; i < commandPostTags.tagCount(); i++) {
-            String positionKey = commandPostTags.getStringTagAt(i);
-            if (isValidPositionKey(positionKey)) {
-                fieldCommandPostPositions.add(positionKey);
+            PositionRecord record = parsePositionKey(commandPostTags.getStringTagAt(i));
+            if (record != null) {
+                fieldCommandPostPositions.add(record.toKey());
             }
         }
 
         NBTTagList researchLabTags = compound.getTagList(TAG_RESEARCH_LABS, Constants.NBT.TAG_STRING);
         for (int i = 0; i < researchLabTags.tagCount(); i++) {
-            String positionKey = researchLabTags.getStringTagAt(i);
-            if (isValidPositionKey(positionKey)) {
-                researchLabPositions.add(positionKey);
+            PositionRecord record = parsePositionKey(researchLabTags.getStringTagAt(i));
+            if (record != null) {
+                researchLabPositions.add(record.toKey());
             }
         }
 
         NBTTagList mainBaseTags = compound.getTagList(TAG_MAIN_BASES, Constants.NBT.TAG_STRING);
         for (int i = 0; i < mainBaseTags.tagCount(); i++) {
-            String positionKey = mainBaseTags.getStringTagAt(i);
-            if (isValidPositionKey(positionKey)) {
-                mainBasePositions.add(positionKey);
+            PositionRecord record = parsePositionKey(mainBaseTags.getStringTagAt(i));
+            if (record != null) {
+                mainBasePositions.add(record.toKey());
             }
         }
 
         NBTTagList activeMainBaseTags = compound.getTagList(TAG_ACTIVE_MAIN_BASES, Constants.NBT.TAG_STRING);
         for (int i = 0; i < activeMainBaseTags.tagCount(); i++) {
-            String positionKey = activeMainBaseTags.getStringTagAt(i);
-            if (isValidPositionKey(positionKey) && mainBasePositions.contains(positionKey)) {
+            PositionRecord record = parsePositionKey(activeMainBaseTags.getStringTagAt(i));
+            String positionKey = record == null ? "" : record.toKey();
+            if (!positionKey.isEmpty() && mainBasePositions.contains(positionKey)) {
                 activeMainBasePositions.add(positionKey);
             }
         }
@@ -120,10 +135,15 @@ public final class HumanWorldData extends WorldSavedData {
                 missionProgressRecords.put(progress.getMissionId(), progress);
             }
         }
+
+        if (migrateIfNeeded(savedDataVersion)) {
+            markDirty();
+        }
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+        compound.setInteger(TAG_DATA_VERSION, CURRENT_DATA_VERSION);
         compound.setInteger(TAG_HUMAN_POINTS, humanPoints);
         compound.setInteger(TAG_SUPPLY_POINTS, supplyPoints);
         compound.setInteger(TAG_STAGE, stage.getId());
@@ -170,6 +190,10 @@ public final class HumanWorldData extends WorldSavedData {
         }
         compound.setTag(TAG_MISSIONS, missionTags);
         return compound;
+    }
+
+    public int getDataVersion() {
+        return dataVersion;
     }
 
     public int getHumanPoints() {
@@ -255,6 +279,10 @@ public final class HumanWorldData extends WorldSavedData {
     }
 
     public boolean registerFieldCommandPost(int dimension, BlockPos pos) {
+        if (pos == null) {
+            return false;
+        }
+
         String positionKey = getPositionKey(dimension, pos);
         if (fieldCommandPostPositions.add(positionKey)) {
             markDirty();
@@ -264,6 +292,10 @@ public final class HumanWorldData extends WorldSavedData {
     }
 
     public boolean unregisterFieldCommandPost(int dimension, BlockPos pos) {
+        if (pos == null) {
+            return false;
+        }
+
         String positionKey = getPositionKey(dimension, pos);
         if (fieldCommandPostPositions.remove(positionKey)) {
             markDirty();
@@ -277,6 +309,10 @@ public final class HumanWorldData extends WorldSavedData {
     }
 
     public boolean registerResearchLab(int dimension, BlockPos pos) {
+        if (pos == null) {
+            return false;
+        }
+
         String positionKey = getPositionKey(dimension, pos);
         if (researchLabPositions.add(positionKey)) {
             markDirty();
@@ -286,6 +322,10 @@ public final class HumanWorldData extends WorldSavedData {
     }
 
     public boolean unregisterResearchLab(int dimension, BlockPos pos) {
+        if (pos == null) {
+            return false;
+        }
+
         String positionKey = getPositionKey(dimension, pos);
         if (researchLabPositions.remove(positionKey)) {
             markDirty();
@@ -299,6 +339,10 @@ public final class HumanWorldData extends WorldSavedData {
     }
 
     public boolean registerMainBase(int dimension, BlockPos commandPostPos, boolean active) {
+        if (commandPostPos == null) {
+            return false;
+        }
+
         String positionKey = getPositionKey(dimension, commandPostPos);
         boolean changed = mainBasePositions.add(positionKey);
         if (active) {
@@ -311,20 +355,46 @@ public final class HumanWorldData extends WorldSavedData {
     }
 
     public boolean isMainBaseRegistered(int dimension, BlockPos commandPostPos) {
+        if (commandPostPos == null) {
+            return false;
+        }
+
         return mainBasePositions.contains(getPositionKey(dimension, commandPostPos));
     }
 
     public boolean isMainBaseActive(int dimension, BlockPos commandPostPos) {
+        if (commandPostPos == null) {
+            return false;
+        }
+
         return activeMainBasePositions.contains(getPositionKey(dimension, commandPostPos));
     }
 
     public boolean setMainBaseActive(int dimension, BlockPos commandPostPos, boolean active) {
+        if (commandPostPos == null) {
+            return false;
+        }
+
         String positionKey = getPositionKey(dimension, commandPostPos);
         if (!mainBasePositions.contains(positionKey)) {
             return false;
         }
 
         boolean changed = active ? activeMainBasePositions.add(positionKey) : activeMainBasePositions.remove(positionKey);
+        if (changed) {
+            markDirty();
+        }
+        return changed;
+    }
+
+    public boolean unregisterMainBase(int dimension, BlockPos commandPostPos) {
+        if (commandPostPos == null) {
+            return false;
+        }
+
+        String positionKey = getPositionKey(dimension, commandPostPos);
+        boolean changed = mainBasePositions.remove(positionKey);
+        changed |= activeMainBasePositions.remove(positionKey);
         if (changed) {
             markDirty();
         }
@@ -441,28 +511,287 @@ public final class HumanWorldData extends WorldSavedData {
         return true;
     }
 
+    public CleanupResult cleanupLoadedFieldCommandPostPositions(World world) {
+        CleanupResult result = new CleanupResult("Field Command Post");
+        if (!canCleanup(world)) {
+            return result;
+        }
+
+        int dimension = world.provider.getDimension();
+        Iterator<String> iterator = fieldCommandPostPositions.iterator();
+        while (iterator.hasNext()) {
+            String positionKey = iterator.next();
+            PositionRecord record = parsePositionKey(positionKey);
+            if (record == null) {
+                iterator.remove();
+                result.incrementRemoved();
+                continue;
+            }
+
+            if (record.dimension != dimension || !world.isBlockLoaded(record.pos)) {
+                continue;
+            }
+
+            if (!isFieldCommandPostAt(world, record.pos)) {
+                iterator.remove();
+                result.incrementRemoved();
+            }
+        }
+
+        markDirtyIfChanged(result);
+        logCleanupResult(result);
+        return result;
+    }
+
+    public CleanupResult cleanupLoadedResearchLabPositions(World world) {
+        CleanupResult result = new CleanupResult("Research Lab");
+        if (!canCleanup(world)) {
+            return result;
+        }
+
+        int dimension = world.provider.getDimension();
+        Iterator<String> iterator = researchLabPositions.iterator();
+        while (iterator.hasNext()) {
+            String positionKey = iterator.next();
+            PositionRecord record = parsePositionKey(positionKey);
+            if (record == null) {
+                iterator.remove();
+                result.incrementRemoved();
+                continue;
+            }
+
+            if (record.dimension != dimension || !world.isBlockLoaded(record.pos)) {
+                continue;
+            }
+
+            if (!isResearchLabAt(world, record.pos)) {
+                iterator.remove();
+                result.incrementRemoved();
+            }
+        }
+
+        markDirtyIfChanged(result);
+        logCleanupResult(result);
+        return result;
+    }
+
+    public CleanupResult cleanupLoadedMainBasePositions(World world) {
+        CleanupResult result = new CleanupResult("Main Base");
+        if (!canCleanup(world)) {
+            return result;
+        }
+
+        int dimension = world.provider.getDimension();
+        Iterator<String> mainBaseIterator = mainBasePositions.iterator();
+        while (mainBaseIterator.hasNext()) {
+            String positionKey = mainBaseIterator.next();
+            PositionRecord record = parsePositionKey(positionKey);
+            if (record == null) {
+                mainBaseIterator.remove();
+                if (activeMainBasePositions.remove(positionKey)) {
+                    result.incrementDeactivated();
+                }
+                result.incrementRemoved();
+                continue;
+            }
+
+            if (record.dimension != dimension || !world.isBlockLoaded(record.pos)) {
+                continue;
+            }
+
+            if (!isFieldCommandPostAt(world, record.pos)) {
+                mainBaseIterator.remove();
+                if (activeMainBasePositions.remove(positionKey)) {
+                    result.incrementDeactivated();
+                }
+                result.incrementRemoved();
+            }
+        }
+
+        Iterator<String> activeMainBaseIterator = activeMainBasePositions.iterator();
+        while (activeMainBaseIterator.hasNext()) {
+            String positionKey = activeMainBaseIterator.next();
+            PositionRecord record = parsePositionKey(positionKey);
+            if (record == null || !mainBasePositions.contains(positionKey)) {
+                activeMainBaseIterator.remove();
+                result.incrementDeactivated();
+                continue;
+            }
+
+            if (record.dimension != dimension || !world.isBlockLoaded(record.pos)) {
+                continue;
+            }
+
+            if (!isFieldCommandPostAt(world, record.pos)) {
+                activeMainBaseIterator.remove();
+                result.incrementDeactivated();
+            }
+        }
+
+        markDirtyIfChanged(result);
+        logCleanupResult(result);
+        return result;
+    }
+
+    private boolean migrateIfNeeded(int oldVersion) {
+        if (oldVersion >= CURRENT_DATA_VERSION) {
+            dataVersion = CURRENT_DATA_VERSION;
+            return false;
+        }
+
+        if (StandAndHoldConfig.debugLogging) {
+            StandAndHold.LOGGER.info("Migrating Stand and Hold world data from version {} to {}.", oldVersion, CURRENT_DATA_VERSION);
+        }
+
+        boolean changed = false;
+        changed |= normalizePositionSet(fieldCommandPostPositions);
+        changed |= normalizePositionSet(researchLabPositions);
+        changed |= normalizePositionSet(mainBasePositions);
+        changed |= normalizePositionSet(activeMainBasePositions);
+        changed |= activeMainBasePositions.retainAll(mainBasePositions);
+        dataVersion = CURRENT_DATA_VERSION;
+        if (StandAndHoldConfig.debugLogging && changed) {
+            StandAndHold.LOGGER.info("Stand and Hold world data migration normalized saved position records.");
+        }
+        return true;
+    }
+
+    private boolean normalizePositionSet(Set<String> positionKeys) {
+        Set<String> normalizedKeys = new LinkedHashSet<String>();
+        boolean changed = false;
+        for (String positionKey : positionKeys) {
+            PositionRecord record = parsePositionKey(positionKey);
+            if (record == null) {
+                changed = true;
+                continue;
+            }
+
+            String normalizedKey = record.toKey();
+            normalizedKeys.add(normalizedKey);
+            if (!normalizedKey.equals(positionKey)) {
+                changed = true;
+            }
+        }
+
+        if (changed || normalizedKeys.size() != positionKeys.size()) {
+            positionKeys.clear();
+            positionKeys.addAll(normalizedKeys);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean canCleanup(World world) {
+        return world != null && !world.isRemote;
+    }
+
+    private boolean isFieldCommandPostAt(World world, BlockPos pos) {
+        if (world.getBlockState(pos).getBlock() != ModBlocks.FIELD_COMMAND_POST) {
+            return false;
+        }
+
+        TileEntity tileEntity = world.getTileEntity(pos);
+        return tileEntity instanceof TileEntityFieldCommandPost;
+    }
+
+    private boolean isResearchLabAt(World world, BlockPos pos) {
+        if (world.getBlockState(pos).getBlock() != ModBlocks.RESEARCH_LAB) {
+            return false;
+        }
+
+        TileEntity tileEntity = world.getTileEntity(pos);
+        return tileEntity instanceof TileEntityResearchLab;
+    }
+
+    private void markDirtyIfChanged(CleanupResult result) {
+        if (result != null && result.hasChanges()) {
+            markDirty();
+        }
+    }
+
+    private void logCleanupResult(CleanupResult result) {
+        if (result == null || !result.hasChanges() || !StandAndHoldConfig.debugLogging) {
+            return;
+        }
+
+        StandAndHold.LOGGER.info(
+                "Cleaned {} stale {} saved position records and deactivated {} active records.",
+                result.getRemovedRecords(),
+                result.getLabel(),
+                result.getDeactivatedRecords()
+        );
+    }
+
     private static String getPositionKey(int dimension, BlockPos pos) {
         return dimension + ":" + pos.getX() + ":" + pos.getY() + ":" + pos.getZ();
     }
 
-    private static boolean isValidPositionKey(String positionKey) {
+    private static PositionRecord parsePositionKey(String positionKey) {
         if (positionKey == null || positionKey.trim().isEmpty()) {
-            return false;
+            return null;
         }
 
         String[] parts = positionKey.split(":");
         if (parts.length != 4) {
-            return false;
+            return null;
         }
 
         try {
-            Integer.parseInt(parts[0]);
-            Integer.parseInt(parts[1]);
-            Integer.parseInt(parts[2]);
-            Integer.parseInt(parts[3]);
-            return true;
+            int dimension = Integer.parseInt(parts[0]);
+            int x = Integer.parseInt(parts[1]);
+            int y = Integer.parseInt(parts[2]);
+            int z = Integer.parseInt(parts[3]);
+            return new PositionRecord(dimension, new BlockPos(x, y, z));
         } catch (NumberFormatException ignored) {
-            return false;
+            return null;
+        }
+    }
+
+    public static final class CleanupResult {
+        private final String label;
+        private int removedRecords;
+        private int deactivatedRecords;
+
+        private CleanupResult(String label) {
+            this.label = label;
+        }
+
+        private void incrementRemoved() {
+            removedRecords++;
+        }
+
+        private void incrementDeactivated() {
+            deactivatedRecords++;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
+        public int getRemovedRecords() {
+            return removedRecords;
+        }
+
+        public int getDeactivatedRecords() {
+            return deactivatedRecords;
+        }
+
+        public boolean hasChanges() {
+            return removedRecords > 0 || deactivatedRecords > 0;
+        }
+    }
+
+    private static final class PositionRecord {
+        private final int dimension;
+        private final BlockPos pos;
+
+        private PositionRecord(int dimension, BlockPos pos) {
+            this.dimension = dimension;
+            this.pos = pos;
+        }
+
+        private String toKey() {
+            return getPositionKey(dimension, pos);
         }
     }
 }

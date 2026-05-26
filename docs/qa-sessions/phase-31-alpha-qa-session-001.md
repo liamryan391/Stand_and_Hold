@@ -49,6 +49,10 @@ List changes made to config/standandhold.cfg, or write "None".
 | Launch | Mod appears in Mods list | Not tested | |
 | World | New world loads | Not tested | |
 | World | Existing world reloads | Not tested | |
+| Saved Data | Existing pre-Phase 32 world migrates to saved data version 1 | Not tested | |
+| Saved Data | Broken loaded Field Command Post stale record cleans safely | Not tested | |
+| Saved Data | Broken loaded Research Lab stale record cleans safely | Not tested | |
+| Saved Data | Broken loaded Main Base command post cleans/deactivates safely | Not tested | |
 | Commands | `/standandhold status` works | Not tested | |
 | Commands | Admin-only commands are permission-gated | Not tested | |
 | Progression | Points save and reload | Not tested | |
@@ -57,6 +61,8 @@ List changes made to config/standandhold.cfg, or write "None".
 | Buildings | Research Lab GUI opens | Not tested | |
 | Supplies | Supply crate deposit works | Not tested | |
 | Entities | Human spawn eggs work | Not tested | |
+| Entities | Higher-tier units respect stage/research gates | Not tested | |
+| Visuals | Human NPC visuals are placeholder/WIP but do not crash | Not tested | |
 | Events | Debug event commands work | Not tested | |
 | Structures | Checkpoint/Main Base reload safely | Not tested | |
 | Logs | No repeated tick spam | Not tested | |

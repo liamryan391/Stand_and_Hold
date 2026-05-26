@@ -259,6 +259,7 @@ public final class CommandStandAndHold extends CommandBase {
 
     private void sendStatus(ICommandSender sender) {
         HumanWorldData data = HumanPointManager.getData(sender.getEntityWorld());
+        cleanupAllLoadedSavedPositions(sender, data, false);
         HumanStage stage = data.getStage();
         String nextThreshold = getNextThresholdLabel(stage);
         TextComponentTranslation message = new TextComponentTranslation(
@@ -402,6 +403,7 @@ public final class CommandStandAndHold extends CommandBase {
             throw new CommandException("commands.standandhold.research.usage");
         }
 
+        HumanPointManager.getData(sender.getEntityWorld()).cleanupLoadedResearchLabPositions(sender.getEntityWorld());
         int completedCount = ResearchManager.getCompletedResearchCount(sender.getEntityWorld());
         int totalCount = ResearchManager.getResearchEntries().size();
         TextComponentTranslation header = new TextComponentTranslation("commands.standandhold.research.status", completedCount, totalCount);
@@ -497,6 +499,7 @@ public final class CommandStandAndHold extends CommandBase {
         }
 
         HumanWorldData data = HumanPointManager.getData(sender.getEntityWorld());
+        sendCleanupMessage(sender, data.cleanupLoadedFieldCommandPostPositions(sender.getEntityWorld()));
         int total = data.getFieldCommandPostPositions().size();
         TextComponentTranslation header = new TextComponentTranslation("commands.standandhold.commandpost.list.header", total);
         header.getStyle().setColor(TextFormatting.AQUA);
@@ -545,6 +548,7 @@ public final class CommandStandAndHold extends CommandBase {
         }
 
         HumanWorldData data = HumanPointManager.getData(sender.getEntityWorld());
+        sendCleanupMessage(sender, data.cleanupLoadedFieldCommandPostPositions(sender.getEntityWorld()));
         int currentDimension = sender.getEntityWorld().provider.getDimension();
         BlockPos senderPos = sender.getPosition();
         PositionRecord nearest = null;
@@ -587,8 +591,9 @@ public final class CommandStandAndHold extends CommandBase {
         }
 
         BlockPos pos = parseBlockPos(sender, args, 2, false);
-        TileEntityFieldCommandPost commandPost = getCommandPostAt(sender, pos);
         HumanWorldData data = HumanPointManager.getData(sender.getEntityWorld());
+        sendCleanupMessage(sender, data.cleanupLoadedFieldCommandPostPositions(sender.getEntityWorld()));
+        TileEntityFieldCommandPost commandPost = getCommandPostAt(sender, pos);
         HumanStage stage = data.getStage();
         FieldCommandPostLevel level = commandPost.getUpgradeLevelInfo();
         TextComponentTranslation message = new TextComponentTranslation(
@@ -615,6 +620,8 @@ public final class CommandStandAndHold extends CommandBase {
         }
 
         BlockPos pos = parseBlockPos(sender, args, 2, false);
+        HumanWorldData data = HumanPointManager.getData(sender.getEntityWorld());
+        sendCleanupMessage(sender, data.cleanupLoadedFieldCommandPostPositions(sender.getEntityWorld()));
         TileEntityFieldCommandPost commandPost = getCommandPostAt(sender, pos);
         FieldCommandPostUpgradeManager.UpgradeResult result = FieldCommandPostUpgradeManager.tryUpgrade(sender.getEntityWorld(), commandPost, getPlayerSender(sender));
         sendCommandPostUpgradeResult(sender, result);
@@ -649,6 +656,7 @@ public final class CommandStandAndHold extends CommandBase {
         }
 
         HumanWorldData data = HumanPointManager.getData(sender.getEntityWorld());
+        sendCleanupMessage(sender, data.cleanupLoadedMainBasePositions(sender.getEntityWorld()));
         int total = data.getMainBasePositions().size();
         int active = data.getActiveMainBasePositions().size();
         TextComponentTranslation header = new TextComponentTranslation("commands.standandhold.mainbase.list.header", total, active);
@@ -700,6 +708,7 @@ public final class CommandStandAndHold extends CommandBase {
 
         BlockPos pos = parseBlockPos(sender, args, 2, false);
         HumanWorldData data = HumanPointManager.getData(sender.getEntityWorld());
+        sendCleanupMessage(sender, data.cleanupLoadedMainBasePositions(sender.getEntityWorld()));
         int dimension = sender.getEntityWorld().provider.getDimension();
         if (!data.isMainBaseRegistered(dimension, pos)) {
             throw new CommandException("commands.standandhold.mainbase.not_found", pos.getX(), pos.getY(), pos.getZ());
@@ -729,6 +738,8 @@ public final class CommandStandAndHold extends CommandBase {
         }
 
         BlockPos pos = parseBlockPos(sender, args, 2, false);
+        HumanWorldData data = HumanPointManager.getData(sender.getEntityWorld());
+        sendCleanupMessage(sender, data.cleanupLoadedMainBasePositions(sender.getEntityWorld()));
         MainBaseManager.ActivationResult result = MainBaseManager.tryActivateMainBase(sender.getEntityWorld(), pos, true);
         switch (result.getStatus()) {
             case ACTIVATED:
@@ -1146,6 +1157,8 @@ public final class CommandStandAndHold extends CommandBase {
         BlockPos pos;
         if (args.length == 5) {
             pos = parseBlockPos(sender, args, 2, false);
+            HumanWorldData data = HumanPointManager.getData(sender.getEntityWorld());
+            sendCleanupMessage(sender, data.cleanupLoadedFieldCommandPostPositions(sender.getEntityWorld()));
             commandPost = getCommandPostAt(sender, pos);
         } else {
             PositionRecord nearest = findNearestFieldCommandPost(sender);
@@ -1340,9 +1353,40 @@ public final class CommandStandAndHold extends CommandBase {
         return progress.isCompleted() ? "completed" : "active";
     }
 
+    private void cleanupAllLoadedSavedPositions(ICommandSender sender, HumanWorldData data, boolean notify) {
+        if (data == null) {
+            return;
+        }
+
+        HumanWorldData.CleanupResult commandPosts = data.cleanupLoadedFieldCommandPostPositions(sender.getEntityWorld());
+        HumanWorldData.CleanupResult researchLabs = data.cleanupLoadedResearchLabPositions(sender.getEntityWorld());
+        HumanWorldData.CleanupResult mainBases = data.cleanupLoadedMainBasePositions(sender.getEntityWorld());
+        if (notify) {
+            sendCleanupMessage(sender, commandPosts);
+            sendCleanupMessage(sender, researchLabs);
+            sendCleanupMessage(sender, mainBases);
+        }
+    }
+
+    private void sendCleanupMessage(ICommandSender sender, HumanWorldData.CleanupResult result) {
+        if (result == null || !result.hasChanges()) {
+            return;
+        }
+
+        TextComponentTranslation message = new TextComponentTranslation(
+                "commands.standandhold.cleanup",
+                result.getRemovedRecords(),
+                result.getLabel(),
+                result.getDeactivatedRecords()
+        );
+        message.getStyle().setColor(TextFormatting.GRAY);
+        sender.sendMessage(message);
+    }
+
     @Nullable
     private PositionRecord findNearestFieldCommandPost(ICommandSender sender) {
         HumanWorldData data = HumanPointManager.getData(sender.getEntityWorld());
+        data.cleanupLoadedFieldCommandPostPositions(sender.getEntityWorld());
         int currentDimension = sender.getEntityWorld().provider.getDimension();
         BlockPos senderPos = sender.getPosition();
         PositionRecord nearest = null;

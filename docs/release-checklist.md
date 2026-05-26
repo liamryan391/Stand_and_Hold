@@ -18,6 +18,8 @@ Use this checklist before tagging or publishing a Stand and Hold release.
 - [ ] Test without Scape and Run: Parasites installed.
 - [ ] Test with Scape and Run: Parasites installed, if available.
 - [ ] Run the wider alpha checklist in `docs/alpha-testing-checklist.md`.
+- [ ] Confirm existing worlds save/reload after HumanWorldData migration to the current saved data version.
+- [ ] Confirm loaded stale Field Command Post, Research Lab, and Main Base saved positions clean safely without force-loading chunks.
 
 ## Documentation
 

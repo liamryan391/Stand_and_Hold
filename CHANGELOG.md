@@ -19,6 +19,7 @@ Technical foundation alpha for Stand and Hold.
 - Java 8 Windows build helper added for local wider-alpha testing.
 - Wider alpha testing checklist, release checklist, build guide, and known issues documentation.
 - Phase 31 alpha QA results template and first ready-to-fill QA session file.
+- Phase 32 saved data versioning, non-destructive migration hook, and loaded stale-position cleanup for alpha safety.
 
 ### Validation
 

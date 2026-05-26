@@ -263,6 +263,7 @@ public final class ThreatResponseManager {
     @Nullable
     private static BlockPos findNearestActiveMainBase(World world, BlockPos targetPos) {
         HumanWorldData data = HumanPointManager.getData(world);
+        data.cleanupLoadedMainBasePositions(world);
         int dimension = world.provider.getDimension();
         BlockPos nearest = null;
         long nearestDistance = Long.MAX_VALUE;

@@ -28,10 +28,12 @@ Known issues for `0.1.0-alpha.1`.
 - Scientist AI is placeholder/deferred.
 - Advanced weapons, ammo, reload systems, and modern weapon mechanics are deferred.
 - Art, item models, block models, and textures are placeholder quality.
+- Human NPC models/textures are placeholder/WIP for alpha testing.
 - Balance is testing-focused, not final.
 
 ## Saved Data
 
-- Major save migration is not implemented yet.
-- Stale registered Field Command Post or Main Base positions should be tested if blocks are broken manually, structures are removed, or worlds are edited externally.
-- Command/list/status systems should tolerate missing loaded tiles, but wider alpha testing should keep an eye on stale saved positions.
+- Saved data versioning currently has a small non-destructive version 0 to 1 migration hook. Larger save migrations are still deferred until the data model stabilizes.
+- Stale registered Field Command Post, Research Lab, or Main Base positions should be tested if blocks are broken manually, structures are removed, or worlds are edited externally.
+- Cleanup only checks loaded chunks and intentionally does not force-load distant saved positions.
+- Command/list/status systems should tolerate missing loaded tiles, but wider alpha testing should keep an eye on stale saved positions and active Main Base deactivation.

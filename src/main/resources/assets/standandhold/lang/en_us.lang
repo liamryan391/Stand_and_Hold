@@ -1,6 +1,7 @@
 standandhold.config.title=Stand and Hold
 commands.standandhold.usage=/standandhold <status|addpoints|setstage|research|commandpost|mainbase|threat|supplies|structure|event|mission>
 commands.standandhold.status=Human points: %s | Stage %s: %s | Next threshold: %s | Supplies: %s
+commands.standandhold.cleanup=Cleaned %s stale %s saved records. Deactivated active records: %s
 commands.standandhold.addpoints.usage=/standandhold addpoints <amount>
 commands.standandhold.addpoints.success=Added %s human points. Total: %s | Stage %s: %s
 commands.standandhold.setstage.usage=/standandhold setstage <0-6|stage_name>

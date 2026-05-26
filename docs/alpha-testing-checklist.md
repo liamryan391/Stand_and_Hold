@@ -25,8 +25,13 @@ Use this checklist before wider testing of `0.1.0-alpha.1`. Record Minecraft log
 - [ ] Create a new world and confirm there is no crash entering it.
 - [ ] Reload an existing world.
 - [ ] Run `/standandhold addpoints <amount>`, save, quit, reload, and confirm points persist.
+- [ ] Load a world created before Phase 32, save it once, reload it, and confirm progression data still works.
 - [ ] Break placed Field Command Posts and confirm later command-post lists/status commands do not crash.
+- [ ] After breaking a loaded Field Command Post, run `/standandhold commandpost list` and confirm stale loaded records are cleaned or absent.
+- [ ] Break a loaded Research Lab, run `/standandhold status` or `/standandhold research status`, and confirm no stale saved lab crash.
 - [ ] Remove or alter generated structures during testing and confirm stale command post or Main Base saved positions do not crash commands.
+- [ ] Remove the Field Command Post from a generated Main Base, then run `/standandhold mainbase list` and `/standandhold mainbase status <x> <y> <z>` while the chunk is loaded.
+- [ ] Confirm stale cleanup does not force-load distant or unloaded chunks.
 
 ## Command Tests
 
@@ -69,9 +74,11 @@ Use this checklist before wider testing of `0.1.0-alpha.1`. Record Minecraft log
 ## Human NPC Tests
 
 - [ ] Spawn each available human NPC spawn egg in a test world.
+- [ ] Confirm higher-tier human units are stage-gated and may not remain spawned until their required stage or research is met.
 - [ ] Confirm human NPCs do not attack players by default.
 - [ ] Confirm human NPCs can target configured parasite/test entities.
 - [ ] Confirm defender spawning near loaded Field Command Posts respects configured caps.
+- [ ] Confirm human NPC models/textures are understood as placeholder/WIP for this alpha.
 
 ## Structure Tests
 
@@ -85,6 +92,7 @@ Use this checklist before wider testing of `0.1.0-alpha.1`. Record Minecraft log
 
 - [ ] Check `latest.log` for repeated Stand and Hold errors or warnings.
 - [ ] Confirm there is no repeated log spam every tick during idle testing.
+- [ ] With debug logging enabled, confirm saved-data migration/cleanup messages appear only when migration or cleanup actually happens.
 - [ ] Confirm any ForgeGradle build-time network/version-check warnings are not confused with in-game runtime errors.
 
 ## Config Reset Test
