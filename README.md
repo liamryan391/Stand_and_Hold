@@ -71,17 +71,17 @@ This repository is currently in Phase 29 and is prepared as `0.1.0-alpha.1`. The
 
 ## Requirements
 
-- Java 8 JDK
+- Java 8 JDK for Gradle builds
 - Gradle wrapper from this repository
 - Minecraft Forge 1.12.2 tooling downloads on first build
 
 This scaffold uses the maintained anatawa12 ForgeGradle 2.3 fork because current Forge Maven metadata no longer works cleanly with the old official `net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT` setup. The mod target remains Minecraft Forge 1.12.2, with Forge `14.23.5.2847` as the development artifact because it publishes the legacy `userdev` classifier expected by this toolchain.
 
-ForgeGradle 2.3 is an older build toolchain and should be run with Java 8. Newer Java versions may fail before compilation or while processing old dependencies.
+ForgeGradle 2.3 is an older build toolchain and must be run with Java 8. Modern Java versions can fail before compilation with errors such as `Unable to get mutable Windows environment variable map` and `java.lang.reflect.InaccessibleObjectException`.
 
 ## Build
 
-Make sure `JAVA_HOME` points to a Java 8 JDK before running Gradle.
+Make sure `JAVA_HOME` points to a Java 8 JDK before running Gradle. Full build notes are in [docs/building.md](docs/building.md).
 
 From the repository root:
 
@@ -92,17 +92,39 @@ From the repository root:
 On Windows PowerShell:
 
 ```powershell
-.\gradlew.bat build
+.\scripts\build-java8.ps1
 ```
 
-The compiled mod jar will be created under `build/libs/`.
+The helper prints `java -version`, checks `JAVA_HOME`, stops old Gradle daemons, and runs `.\gradlew.bat clean build --no-daemon --stacktrace`.
+
+If PowerShell blocks local scripts, run the helper with a one-run policy bypass:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-java8.ps1
+```
+
+If Java 8 is already active, the direct command is:
+
+```powershell
+.\gradlew.bat clean build --no-daemon --stacktrace
+```
+
+The compiled mod jar will be created under `build/libs/`. For this alpha, use `build/libs/standandhold-0.1.0-alpha.1.jar`.
+
+## Alpha Readiness Docs
+
+- [Build Guide](docs/building.md)
+- [Wider Alpha Testing Checklist](docs/alpha-testing-checklist.md)
+- [Release Checklist](docs/release-checklist.md)
+- [Known Issues](KNOWN_ISSUES.md)
+- [Changelog](CHANGELOG.md)
 
 ## Installation
 
 For a normal test install:
 
 1. Install Minecraft Forge `1.12.2-14.23.5.2847` or a compatible Forge 1.12.2 build.
-2. Build this project with Java 8 using `./gradlew build`.
+2. Build this project with Java 8 using `.\scripts\build-java8.ps1` on Windows or `./gradlew clean build --no-daemon --stacktrace` when Java 8 is active.
 3. Copy `build/libs/standandhold-0.1.0-alpha.1.jar` into the Minecraft instance `mods` folder.
 4. Start the game or dedicated server once to generate `config/standandhold.cfg`.
 5. Edit the generated config for your pack, especially parasite registry IDs and balance values.
@@ -977,14 +999,18 @@ Longer-term roadmap:
 
 ## Known Issues
 
+- Java 8 is required for local builds. Java 17+ or other modern Java versions can fail before compilation with legacy Gradle/ForgeGradle reflection errors.
 - SRP entity registry IDs are not verified or enabled by default. The shipped `minecraft:zombie` entries are test values.
 - Most visual assets still use vanilla placeholder models and textures.
 - GUIs are intentionally plain and will need later UX/art passes.
 - The prototype ranged weapon has no ammo or reload system yet.
 - Scientist AI, full structure generation, physical convoy entities, and complex raids are deferred.
+- Stale saved Field Command Post and Main Base positions should be tested if blocks are broken, structures are removed, or worlds are edited externally.
 - Dev `runServer` may need online Gradle dependency resolution the first time, then stops at the normal EULA gate until the server owner accepts it.
 - Dedicated-server smoke testing passes in the ForgeGradle dev workspace, but should still be repeated in a normal installed Forge server before public distribution.
 - ForgeGradle dev runs can print old Forge/FML warnings or errors about Maven library paths, missing FML signature data, or console appenders. The alpha server smoke is considered healthy when Stand and Hold loads, the server reaches `Done`, and shutdown is clean.
+
+See [KNOWN_ISSUES.md](KNOWN_ISSUES.md) for the focused wider-alpha issue list.
 
 ## Planned Next Phase
 

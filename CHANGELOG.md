@@ -2,7 +2,7 @@
 
 ## 0.1.0-alpha.1 - 2026-05-26
 
-First alpha test build for Stand and Hold.
+Technical foundation alpha for Stand and Hold.
 
 ### Added
 
@@ -15,6 +15,9 @@ First alpha test build for Stand and Hold.
 - Simple Command Post and Research Lab GUIs with server-authoritative actions and sync packets.
 - Dynamic outpost attacks, reinforcement events, mission hooks, threat decay, and performance throttling.
 - Client model registration and placeholder item/block models for alpha testing.
+- CI/build verification workflow added as post-alpha readiness work.
+- Java 8 Windows build helper added for local wider-alpha testing.
+- Wider alpha testing checklist, release checklist, build guide, and known issues documentation.
 
 ### Validation
 
