@@ -4,7 +4,9 @@ import com.liamryan.standandhold.common.entity.ai.EntityAINearestParasiteTarget;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.research.ResearchManager;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCreature;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIAttackMelee;
@@ -17,6 +19,8 @@ import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -35,6 +39,8 @@ public abstract class EntityHumanNpc extends EntityCreature {
     private static final String TAG_ASSIGNED_THREAT_PATROL_Y = "Y";
     private static final String TAG_ASSIGNED_THREAT_PATROL_Z = "Z";
     private static final String TAG_ASSIGNED_THREAT_PATROL_RADIUS = "PatrolRadius";
+    private static final float PARASITE_MELEE_DAMAGE_MULTIPLIER = 1.5F;
+    private static final float MIN_PARASITE_MELEE_DAMAGE = 4.0F;
 
     private int assignedOutpostDimension = Integer.MIN_VALUE;
     private BlockPos assignedOutpostPos;
@@ -71,6 +77,22 @@ public abstract class EntityHumanNpc extends EntityCreature {
     private IAttributeInstance getOrRegisterAttribute(IAttribute attribute) {
         IAttributeInstance attributeInstance = getEntityAttribute(attribute);
         return attributeInstance == null ? getAttributeMap().registerAttribute(attribute) : attributeInstance;
+    }
+
+    @Override
+    public boolean attackEntityAsMob(Entity target) {
+        if (!(target instanceof EntityLivingBase)) {
+            return false;
+        }
+
+        IAttributeInstance attackDamage = getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
+        float damage = attackDamage == null ? 1.0F : (float) attackDamage.getAttributeValue();
+        ResourceLocation targetId = EntityList.getKey(target);
+        if (StandAndHoldConfig.isConfiguredParasiteEntity(targetId)) {
+            damage = Math.max(MIN_PARASITE_MELEE_DAMAGE, damage * PARASITE_MELEE_DAMAGE_MULTIPLIER);
+        }
+
+        return target.attackEntityFrom(DamageSource.causeMobDamage(this), damage);
     }
 
     @Override
