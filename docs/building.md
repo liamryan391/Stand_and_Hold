@@ -76,6 +76,14 @@ If Java 8 is already active:
 .\gradlew.bat clean build --no-daemon --stacktrace
 ```
 
+## GitHub Actions Build
+
+The repository includes `.github/workflows/build.yml`. It should run on pushes to `main`, pull requests, and manual `workflow_dispatch` runs.
+
+After pushing a change, check the repository **Actions** tab for the `Build` workflow. A passing workflow should upload the compiled jars from `build/libs/*.jar` as the `stand-and-hold-jars` artifact.
+
+If the workflow does not appear after a push, confirm that GitHub Actions is enabled for the repository in **Settings > Actions > General**.
+
 ## Build Output
 
 Successful builds place jars in:
