@@ -21,6 +21,7 @@ Known issues for `0.1.0-alpha.1`.
 - Scape and Run: Parasites entity registry IDs are not verified by default.
 - The default `minecraft:zombie` mappings are test mappings only.
 - SRP compatibility is currently config-driven and should be tested with the exact SRP build used by a pack.
+- No built-in SRP balance preset is enabled yet.
 
 ## Gameplay Foundation
 
@@ -30,6 +31,7 @@ Known issues for `0.1.0-alpha.1`.
 - Advanced weapons, ammo, reload systems, and modern weapon mechanics are deferred.
 - Art, item models, block models, and textures are placeholder quality.
 - Human NPC models/textures are placeholder/WIP for alpha testing.
+- Research Lab GUI target text can be clipped and needs later polish.
 - Balance is testing-focused, not final.
 
 ## Saved Data

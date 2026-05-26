@@ -114,6 +114,8 @@ The compiled mod jar will be created under `build/libs/`. For this alpha, use `b
 ## Alpha Readiness Docs
 
 - [First Playable Alpha Loop](docs/first-playable-loop.md)
+- [Optional SRP Compatibility Guide](docs/srp-compatibility.md)
+- [SRP Compatibility Test Checklist](docs/srp-test-checklist.md)
 - [Build Guide](docs/building.md)
 - [Wider Alpha Testing Checklist](docs/alpha-testing-checklist.md)
 - [Alpha QA Results Template](docs/alpha-qa-results-template.md)
@@ -271,7 +273,9 @@ Building systems are deliberately tile-local or saved-data-driven. They avoid gl
 
 ## SRP Compatibility
 
-Scape and Run: Parasites compatibility is optional and string-based. The mod uses `Loader.isModLoaded` and configured registry IDs through `SRPCompat`; it does not reference SRP classes directly.
+Scape and Run: Parasites compatibility is optional and string-based. The mod uses `Loader.isModLoaded` and configured registry IDs through `SRPCompat`; it does not reference SRP classes directly, copy SRP internals, or require SRP to launch.
+
+Full setup and testing notes are in [docs/srp-compatibility.md](docs/srp-compatibility.md) and [docs/srp-test-checklist.md](docs/srp-test-checklist.md).
 
 SRP mapping format:
 
@@ -286,6 +290,8 @@ srparasites:example_parasite|25|0.35|true
 ```
 
 No verified SRP entity IDs are enabled by default. The default `minecraft:zombie` entries are safe test values and should be replaced or supplemented in real parasite packs.
+
+During Phase 34, the supplied `SRParasites-1.10.6.jar` metadata was inspected only to confirm its mod id is `srparasites`. Entity registry IDs still need runtime verification in the exact SRP build being tested.
 
 ## Phase 1 Progression Core
 

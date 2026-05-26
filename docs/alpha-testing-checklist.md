@@ -19,6 +19,7 @@ Use this checklist before wider testing of `0.1.0-alpha.1`. Record Minecraft log
 - [ ] Client launch with Scape and Run: Parasites installed, if available.
 - [ ] Dedicated server launch with Scape and Run: Parasites installed, if available.
 - [ ] Mod still loads without SRP installed.
+- [ ] If testing SRP, follow `docs/srp-test-checklist.md`.
 
 ## World Save Tests
 
@@ -73,6 +74,7 @@ Use this checklist before wider testing of `0.1.0-alpha.1`. Record Minecraft log
 - [ ] Reset config and confirm the default zombie test mapping returns.
 - [ ] Add a custom test entity mapping and confirm config parsing does not crash.
 - [ ] With SRP installed, add a verified SRP registry ID mapping and confirm kills/samples/targeting if available.
+- [ ] Remove SRP after adding SRP mappings and confirm Stand and Hold still launches.
 
 ## Human NPC Tests
 

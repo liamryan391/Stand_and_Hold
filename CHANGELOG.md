@@ -21,6 +21,7 @@ Technical foundation alpha for Stand and Hold.
 - Phase 31 alpha QA results template and first ready-to-fill QA session file.
 - Phase 32 saved data versioning, non-destructive migration hook, and loaded stale-position cleanup for alpha safety.
 - Phase 33 first playable alpha loop guide and lightweight `/standandhold help` command.
+- Phase 34 optional SRP compatibility guide, SRP test checklist, safer mapping detection, and clearer config comments.
 
 ### Validation
 

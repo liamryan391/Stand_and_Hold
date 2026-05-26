@@ -27,11 +27,10 @@ public final class SRPCompat {
     }
 
     public static boolean hasConfiguredMappings() {
-        String[] mappings = StandAndHoldConfig.compatibility.srpParasiteMappings;
-        if (mappings != null && mappings.length > 0) {
+        if (hasValidMappings(StandAndHoldConfig.compatibility.srpParasiteMappings)) {
             return true;
         }
-        return StandAndHoldConfig.compatibility.enableVerifiedSrpDefaultMappings && VERIFIED_DEFAULT_MAPPINGS.length > 0;
+        return StandAndHoldConfig.compatibility.enableVerifiedSrpDefaultMappings && hasValidMappings(VERIFIED_DEFAULT_MAPPINGS);
     }
 
     public static int getConfiguredMappingCount() {
@@ -53,6 +52,19 @@ public final class SRPCompat {
             }
         }
         return count;
+    }
+
+    private static boolean hasValidMappings(String[] mappings) {
+        if (mappings == null) {
+            return false;
+        }
+
+        for (String mapping : mappings) {
+            if (parseMapping(mapping) != null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static boolean isMappedParasiteEntity(ResourceLocation entityRegistryId) {

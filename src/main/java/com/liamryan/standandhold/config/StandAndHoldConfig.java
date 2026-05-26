@@ -332,7 +332,9 @@ public final class StandAndHoldConfig {
         @Config.Comment({
                 "Entity registry IDs and human point rewards for parasite/test kills.",
                 "Use the format modid:entity_registry_name=points.",
-                "The default minecraft:zombie entry is only a safe test value for early development."
+                "Malformed entries and empty registry IDs are skipped safely.",
+                "The default minecraft:zombie entry is only a safe test value for early development.",
+                "Use verified SRP registry IDs only after testing the exact SRP build in your pack."
         })
         public String[] parasiteKillRewards = new String[] {
                 "minecraft:zombie=3"
@@ -346,7 +348,9 @@ public final class StandAndHoldConfig {
         @Config.Comment({
                 "Entity registry IDs and sample drop chances for parasite/test kills.",
                 "Use the format modid:entity_registry_name=chance, where chance is 0.0 to 1.0.",
-                "The default minecraft:zombie entry is only a safe test value for early development."
+                "Malformed entries and empty registry IDs are skipped safely.",
+                "The default minecraft:zombie entry is only a safe test value for early development.",
+                "Use verified SRP registry IDs only after testing the exact SRP build in your pack."
         })
         public String[] parasiteSampleDropChances = new String[] {
                 "minecraft:zombie=0.15"
@@ -359,7 +363,8 @@ public final class StandAndHoldConfig {
         @Config.Comment({
                 "Enables optional Scape and Run: Parasites compatibility when that mod is installed.",
                 "This only performs Loader.isModLoaded checks and configurable registry ID matching.",
-                "Stand and Hold does not reference SRP classes, so SRP remains optional."
+                "Stand and Hold does not reference SRP classes, so SRP remains optional.",
+                "If SRP is not installed, SRP-specific mappings stay dormant."
         })
         public boolean enableScapeAndRunParasitesCompatibility = true;
 
@@ -372,6 +377,8 @@ public final class StandAndHoldConfig {
                 "Optional SRP entity registry mappings in the format entityId|killReward|sampleDropChance|humanTarget.",
                 "Example after verifying an entity id: srparasites:example_parasite|25|0.35|true.",
                 "killReward awards human points, sampleDropChance controls Parasite Tissue Sample drops, and humanTarget lets human units attack it.",
+                "If humanTarget is omitted, it defaults to true for that mapping.",
+                "Malformed entries and empty registry IDs are skipped safely.",
                 "No SRP entity IDs are enabled by default until verified against the exact SRP build being used."
         })
         public String[] srpParasiteMappings = new String[0];
@@ -721,7 +728,9 @@ public final class StandAndHoldConfig {
         @Config.Comment({
                 "Entity registry IDs human combat units are allowed to target.",
                 "Use verified parasite registry IDs here. The default minecraft:zombie entry is only a safe test value.",
-                "Players and Stand and Hold human NPCs are always ignored by default."
+                "Malformed entries and empty registry IDs are skipped safely.",
+                "Players and Stand and Hold human NPCs are always ignored by default.",
+                "SRP mappings can also allow targeting when their humanTarget field is true and SRP is loaded."
         })
         public String[] humanUnitTargetEntityIds = new String[] {
                 "minecraft:zombie"

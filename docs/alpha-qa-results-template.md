@@ -60,6 +60,12 @@ List changes made to config/standandhold.cfg, or write "None".
 | Entities | Stage 1 early army defenders can spawn near a loaded Field Command Post | Not tested | |
 | Entities | Higher-tier units respect stage/research gates | Not tested | |
 | Visuals | Human NPC visuals are placeholder/WIP but do not crash | Not tested | |
+| SRP | Launch without SRP | Not tested | |
+| SRP | Launch with SRP, if available | Not tested | |
+| SRP | Verified SRP ID kill reward works, if available | Not tested | |
+| SRP | Verified SRP ID sample drop works, if available | Not tested | |
+| SRP | Human NPCs target verified SRP ID, if available | Not tested | |
+| SRP | Removing SRP after SRP mappings does not break launch | Not tested | |
 | Events | Debug event commands work | Not tested | |
 | Structures | Checkpoint/Main Base reload safely | Not tested | |
 | Logs | No repeated tick spam | Not tested | |
