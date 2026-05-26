@@ -115,6 +115,8 @@ The compiled mod jar will be created under `build/libs/`. For this alpha, use `b
 
 - [Build Guide](docs/building.md)
 - [Wider Alpha Testing Checklist](docs/alpha-testing-checklist.md)
+- [Alpha QA Results Template](docs/alpha-qa-results-template.md)
+- [Phase 31 QA Session 001](docs/qa-sessions/phase-31-alpha-qa-session-001.md)
 - [Release Checklist](docs/release-checklist.md)
 - [Known Issues](KNOWN_ISSUES.md)
 - [Changelog](CHANGELOG.md)

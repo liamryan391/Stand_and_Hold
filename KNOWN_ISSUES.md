@@ -10,6 +10,12 @@ Known issues for `0.1.0-alpha.1`.
 - Forge 1.12.2 and ForgeGradle 2.3 are legacy tooling; this project intentionally does not update to a modern Gradle version.
 - Restricted or offline environments can make ForgeGradle print network/version-check stack traces such as `UnknownHostException` or `Permission denied: connect` even when the cached build finishes with `BUILD SUCCESSFUL`.
 
+## QA And CI
+
+| Issue | Impact | Suggested Test | Blocks Wider Alpha? |
+| --- | --- | --- | --- |
+| GitHub Actions may not queue workflow runs due to a GitHub/account/repository Actions issue. | Remote CI proof may be unavailable even when the repository workflow files are present. | Use `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-java8.ps1` for local Java 8 build proof and confirm `build/libs/standandhold-0.1.0-alpha.1.jar` exists. | No, if local Java 8 build proof passes and manual launch testing continues. |
+
 ## Compatibility
 
 - Scape and Run: Parasites entity registry IDs are not verified by default.
