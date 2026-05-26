@@ -144,24 +144,48 @@ public final class SRPCompat {
     }
 
     private static ParsedSrpMapping getAutomaticNamespaceFallbackMapping(ResourceLocation entityRegistryId) {
-        if (!isSrpNamespaceEntity(entityRegistryId)) {
+        String normalizedEntityId = normalizeEntityId(entityRegistryId == null ? null : entityRegistryId.toString());
+        if (!isSrpNamespaceEntity(normalizedEntityId)) {
             return null;
         }
 
-        String entityId = entityRegistryId.toString().toLowerCase(Locale.ROOT);
-        String entityPath = entityRegistryId.getResourcePath().toLowerCase(Locale.ROOT);
+        String entityPath = getEntityPath(normalizedEntityId);
         AutomaticRewardTier tier = getAutomaticRewardTier(entityPath);
-        return new ParsedSrpMapping(entityId, tier.killReward, tier.sampleDropChance, true);
+        return new ParsedSrpMapping(normalizedEntityId, tier.killReward, tier.sampleDropChance, true);
     }
 
-    private static boolean isSrpNamespaceEntity(ResourceLocation entityRegistryId) {
-        if (entityRegistryId == null) {
+    private static boolean isSrpNamespaceEntity(String normalizedEntityId) {
+        String domain = getEntityDomain(normalizedEntityId);
+        if (domain == null) {
             return false;
         }
 
         String configuredModId = getConfiguredModId();
-        String domain = entityRegistryId.getResourceDomain().toLowerCase(Locale.ROOT);
         return domain.equals(configuredModId) || domain.equals(DEFAULT_SRP_MOD_ID);
+    }
+
+    private static String getEntityDomain(String normalizedEntityId) {
+        if (normalizedEntityId == null) {
+            return null;
+        }
+
+        int separator = normalizedEntityId.indexOf(':');
+        if (separator <= 0) {
+            return null;
+        }
+        return normalizedEntityId.substring(0, separator).toLowerCase(Locale.ROOT);
+    }
+
+    private static String getEntityPath(String normalizedEntityId) {
+        if (normalizedEntityId == null) {
+            return "";
+        }
+
+        int separator = normalizedEntityId.indexOf(':');
+        if (separator < 0 || separator >= normalizedEntityId.length() - 1) {
+            return normalizedEntityId.toLowerCase(Locale.ROOT);
+        }
+        return normalizedEntityId.substring(separator + 1).toLowerCase(Locale.ROOT);
     }
 
     private static AutomaticRewardTier getAutomaticRewardTier(String entityPath) {
