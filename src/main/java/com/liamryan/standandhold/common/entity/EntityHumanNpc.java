@@ -6,8 +6,8 @@ import com.liamryan.standandhold.common.research.ResearchManager;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityList;
-import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIAttackMelee;
 import net.minecraft.entity.ai.EntityAILookIdle;
@@ -16,6 +16,8 @@ import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 import net.minecraft.entity.ai.EntityAISwimming;
 import net.minecraft.entity.ai.EntityAIWander;
 import net.minecraft.entity.ai.EntityAIWatchClosest;
+import net.minecraft.entity.ai.attributes.IAttribute;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
@@ -72,10 +74,15 @@ public abstract class EntityHumanNpc extends EntityCreature {
     @Override
     protected void applyEntityAttributes() {
         super.applyEntityAttributes();
-        getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(StandAndHoldConfig.getHumanUnitHealth(getUnitTier()));
-        getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(Math.max(0.0D, StandAndHoldConfig.humanNpcs.baseHumanNpcMovementSpeed));
-        getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(Math.max(1.0D, StandAndHoldConfig.humanNpcs.baseHumanNpcFollowRange));
-        getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(StandAndHoldConfig.getHumanUnitDamage(getUnitTier()));
+        getOrRegisterAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(StandAndHoldConfig.getHumanUnitHealth(getUnitTier()));
+        getOrRegisterAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(Math.max(0.0D, StandAndHoldConfig.humanNpcs.baseHumanNpcMovementSpeed));
+        getOrRegisterAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(Math.max(1.0D, StandAndHoldConfig.humanNpcs.baseHumanNpcFollowRange));
+        getOrRegisterAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(StandAndHoldConfig.getHumanUnitDamage(getUnitTier()));
+    }
+
+    private IAttributeInstance getOrRegisterAttribute(IAttribute attribute) {
+        IAttributeInstance attributeInstance = getEntityAttribute(attribute);
+        return attributeInstance == null ? getAttributeMap().registerAttribute(attribute) : attributeInstance;
     }
 
     @Override
