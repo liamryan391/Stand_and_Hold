@@ -22,6 +22,10 @@ public final class EquipmentUnlockManager {
             return true;
         }
 
+        if (world.isRemote) {
+            return true;
+        }
+
         EquipmentRequirement requirement = getRequirement(stack.getItem());
         if (requirement == null) {
             return true;
