@@ -29,9 +29,9 @@ Known issues for `0.1.0-alpha.1`.
 - Current worldgen structures are placeholder/simple.
 - Scientist AI is placeholder/deferred.
 - Advanced weapons, ammo, reload systems, and modern weapon mechanics are deferred.
-- Art, item models, block models, and textures are placeholder quality.
-- Human NPC models/textures are placeholder/WIP for alpha testing.
-- Research Lab GUI target text can be clipped and needs later polish.
+- Art, item models, block models, armour textures, and NPC textures are original alpha placeholder quality, not final art.
+- Human NPC tiers now have distinguishable simple placeholder uniforms, but final models/textures are still WIP.
+- Research Lab and Field Command Post GUIs are clearer after the art pass, but still plain and may need later layout polish.
 - Balance is testing-focused, not final.
 
 ## Saved Data

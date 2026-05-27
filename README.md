@@ -8,7 +8,7 @@ The mod adds a human-side escalation layer to worlds where parasite-style threat
 
 The current implementation is a compileable foundation for a larger mod. It already includes persistent world progression, supplies, research, missions, sample drops, basic military buildings, generated checkpoints and Main Bases, human NPC tiers, a prototype ranged weapon, simple GUIs, networking, optional SRP compatibility mapping, dynamic outpost events, threat tracking, performance throttling, and first-pass stability fixes.
 
-This repository is packaged as `0.1.0-alpha.1`. The emphasis is still foundation quality: the systems are intentionally small, server-authoritative where needed, data-driven where possible, and expandable for later phases. Phase 33 focuses on documenting the first playable vertical slice using the existing alpha systems. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, physical convoy entities, complex raid waves, mission GUIs, and full Scape and Run: Parasites integration are intentionally deferred.
+This repository is packaged as `0.1.0-alpha.1`. The emphasis is still foundation quality: the systems are intentionally small, server-authoritative where needed, data-driven where possible, and expandable for later phases. Phase 33 documents the first playable vertical slice, Phase 34 improves optional SRP compatibility testing, and Phase 35 adds a simple original alpha art identity pass. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, physical convoy entities, complex raid waves, mission GUIs, and full Scape and Run: Parasites integration are intentionally deferred.
 
 ## Current Scope
 
@@ -450,7 +450,7 @@ The first human NPC foundation added:
 - `EntityHumanNpc`, a base class for future human units
 - `EntitySoldier`, a basic melee soldier
 - Forge entity registration with a spawn egg for testing
-- Client renderer using a vanilla humanoid model/texture
+- Client renderer using a vanilla humanoid model with tier-specific original placeholder textures
 
 Human units use simple, stable AI only:
 
@@ -728,7 +728,7 @@ Added equipment:
 - Anti-Parasite Blade melee weapon
 - Prototype Ranged Weapon
 
-The equipment is registered as normal Forge items and appears in the Stand and Hold creative tab. The first pass uses vanilla model/armour texture references as placeholders so the items are compileable and testable before custom art is added.
+The equipment is registered as normal Forge items and appears in the Stand and Hold creative tab. The current alpha pass uses simple original Stand and Hold item and armour textures so equipment can be distinguished during testing before final art is produced.
 
 Phase 18 adds simple JSON recipes for the armour sets, Anti-Parasite Blade, and Prototype Ranged Weapon. Higher-tier equipment is also protected by runtime use gates, so crafting or creative access does not bypass human progression.
 
@@ -783,8 +783,8 @@ Phase 19 adds hit feedback for that projectile: configured parasite/test hits ca
 
 Phase 19 introduces two simple server-opened block GUIs:
 
-- Field Command Post GUI: human points, human stage, command post level, global supplies, and local stockpile.
-- Research Lab GUI: research progress bar, stored parasite samples, and local supplies.
+- Field Command Post GUI: human points, human stage, command post level, global supplies, local stockpile, passive point generation, and defender cap/timer.
+- Research Lab GUI: target research ID/name, progress bar, completion requirements, stored parasite samples, local supplies, global supplies, and blocked/ready status.
 
 The first GUI pass uses Forge containers for server-client sync. Numeric values are sent through normal container window properties. The screens are intentionally plain and stable so later phases can replace them with richer layouts and controls.
 
@@ -1024,8 +1024,8 @@ Longer-term roadmap:
 
 - Java 8 is required for local builds. Java 17+ or other modern Java versions can fail before compilation with legacy Gradle/ForgeGradle reflection errors.
 - SRP entity registry IDs are not verified or enabled by default. The shipped `minecraft:zombie` entries are test values.
-- Most visual assets still use vanilla placeholder models and textures.
-- GUIs are intentionally plain and will need later UX/art passes.
+- Visual assets are simple original alpha placeholders and still need final art.
+- GUIs are clearer after Phase 35 but still need later UX/art passes.
 - The prototype ranged weapon has no ammo or reload system yet.
 - Scientist AI, full structure generation, physical convoy entities, and complex raids are deferred.
 - Stale saved Field Command Post and Main Base positions should be tested if blocks are broken, structures are removed, or worlds are edited externally.

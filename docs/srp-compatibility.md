@@ -128,4 +128,4 @@ Do not add unverified SRP IDs as pack defaults.
 - No built-in SRP entity IDs are enabled by default.
 - No SRP balance preset exists yet.
 - Stand and Hold does not inspect SRP evolution stages or AI internals.
-- Human NPC visuals and some GUI text remain alpha quality.
+- Human NPC visuals and GUI text remain alpha quality, though unit tiers now have distinguishable placeholder uniforms.

@@ -55,20 +55,20 @@ public final class ModItems {
             Math.max(0, StandAndHoldConfig.equipment.antiParasiteBladeEnchantability)
     );
 
-    public static final Item ARMY_HELMET = new ItemStandAndHoldArmor("army_helmet", ARMY_ARMOR_MATERIAL, EntityEquipmentSlot.HEAD, "minecraft:textures/models/armor/iron");
-    public static final Item ARMY_CHESTPLATE = new ItemStandAndHoldArmor("army_chestplate", ARMY_ARMOR_MATERIAL, EntityEquipmentSlot.CHEST, "minecraft:textures/models/armor/iron");
-    public static final Item ARMY_LEGGINGS = new ItemStandAndHoldArmor("army_leggings", ARMY_ARMOR_MATERIAL, EntityEquipmentSlot.LEGS, "minecraft:textures/models/armor/iron");
-    public static final Item ARMY_BOOTS = new ItemStandAndHoldArmor("army_boots", ARMY_ARMOR_MATERIAL, EntityEquipmentSlot.FEET, "minecraft:textures/models/armor/iron");
+    public static final Item ARMY_HELMET = new ItemStandAndHoldArmor("army_helmet", ARMY_ARMOR_MATERIAL, EntityEquipmentSlot.HEAD, "standandhold:textures/models/armor/army");
+    public static final Item ARMY_CHESTPLATE = new ItemStandAndHoldArmor("army_chestplate", ARMY_ARMOR_MATERIAL, EntityEquipmentSlot.CHEST, "standandhold:textures/models/armor/army");
+    public static final Item ARMY_LEGGINGS = new ItemStandAndHoldArmor("army_leggings", ARMY_ARMOR_MATERIAL, EntityEquipmentSlot.LEGS, "standandhold:textures/models/armor/army");
+    public static final Item ARMY_BOOTS = new ItemStandAndHoldArmor("army_boots", ARMY_ARMOR_MATERIAL, EntityEquipmentSlot.FEET, "standandhold:textures/models/armor/army");
 
-    public static final Item ELITE_HELMET = new ItemStandAndHoldArmor("elite_helmet", ELITE_ARMOR_MATERIAL, EntityEquipmentSlot.HEAD, "minecraft:textures/models/armor/diamond");
-    public static final Item ELITE_CHESTPLATE = new ItemStandAndHoldArmor("elite_chestplate", ELITE_ARMOR_MATERIAL, EntityEquipmentSlot.CHEST, "minecraft:textures/models/armor/diamond");
-    public static final Item ELITE_LEGGINGS = new ItemStandAndHoldArmor("elite_leggings", ELITE_ARMOR_MATERIAL, EntityEquipmentSlot.LEGS, "minecraft:textures/models/armor/diamond");
-    public static final Item ELITE_BOOTS = new ItemStandAndHoldArmor("elite_boots", ELITE_ARMOR_MATERIAL, EntityEquipmentSlot.FEET, "minecraft:textures/models/armor/diamond");
+    public static final Item ELITE_HELMET = new ItemStandAndHoldArmor("elite_helmet", ELITE_ARMOR_MATERIAL, EntityEquipmentSlot.HEAD, "standandhold:textures/models/armor/elite");
+    public static final Item ELITE_CHESTPLATE = new ItemStandAndHoldArmor("elite_chestplate", ELITE_ARMOR_MATERIAL, EntityEquipmentSlot.CHEST, "standandhold:textures/models/armor/elite");
+    public static final Item ELITE_LEGGINGS = new ItemStandAndHoldArmor("elite_leggings", ELITE_ARMOR_MATERIAL, EntityEquipmentSlot.LEGS, "standandhold:textures/models/armor/elite");
+    public static final Item ELITE_BOOTS = new ItemStandAndHoldArmor("elite_boots", ELITE_ARMOR_MATERIAL, EntityEquipmentSlot.FEET, "standandhold:textures/models/armor/elite");
 
-    public static final Item SPECIAL_DIVISION_HELMET = new ItemStandAndHoldArmor("special_division_helmet", SPECIAL_DIVISION_ARMOR_MATERIAL, EntityEquipmentSlot.HEAD, "minecraft:textures/models/armor/diamond");
-    public static final Item SPECIAL_DIVISION_CHESTPLATE = new ItemStandAndHoldArmor("special_division_chestplate", SPECIAL_DIVISION_ARMOR_MATERIAL, EntityEquipmentSlot.CHEST, "minecraft:textures/models/armor/diamond");
-    public static final Item SPECIAL_DIVISION_LEGGINGS = new ItemStandAndHoldArmor("special_division_leggings", SPECIAL_DIVISION_ARMOR_MATERIAL, EntityEquipmentSlot.LEGS, "minecraft:textures/models/armor/diamond");
-    public static final Item SPECIAL_DIVISION_BOOTS = new ItemStandAndHoldArmor("special_division_boots", SPECIAL_DIVISION_ARMOR_MATERIAL, EntityEquipmentSlot.FEET, "minecraft:textures/models/armor/diamond");
+    public static final Item SPECIAL_DIVISION_HELMET = new ItemStandAndHoldArmor("special_division_helmet", SPECIAL_DIVISION_ARMOR_MATERIAL, EntityEquipmentSlot.HEAD, "standandhold:textures/models/armor/special_division");
+    public static final Item SPECIAL_DIVISION_CHESTPLATE = new ItemStandAndHoldArmor("special_division_chestplate", SPECIAL_DIVISION_ARMOR_MATERIAL, EntityEquipmentSlot.CHEST, "standandhold:textures/models/armor/special_division");
+    public static final Item SPECIAL_DIVISION_LEGGINGS = new ItemStandAndHoldArmor("special_division_leggings", SPECIAL_DIVISION_ARMOR_MATERIAL, EntityEquipmentSlot.LEGS, "standandhold:textures/models/armor/special_division");
+    public static final Item SPECIAL_DIVISION_BOOTS = new ItemStandAndHoldArmor("special_division_boots", SPECIAL_DIVISION_ARMOR_MATERIAL, EntityEquipmentSlot.FEET, "standandhold:textures/models/armor/special_division");
 
     public static final Item ANTI_PARASITE_BLADE = new ItemAntiParasiteBlade(ANTI_PARASITE_BLADE_MATERIAL);
     public static final Item PROTOTYPE_RANGED_WEAPON = new ItemPrototypeRangedWeapon();

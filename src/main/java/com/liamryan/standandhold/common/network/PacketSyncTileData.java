@@ -1,6 +1,8 @@
 package com.liamryan.standandhold.common.network;
 
 import com.liamryan.standandhold.StandAndHold;
+import com.liamryan.standandhold.common.research.ResearchEntry;
+import com.liamryan.standandhold.common.research.ResearchManager;
 import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
 import com.liamryan.standandhold.common.tile.TileEntityResearchLab;
 import io.netty.buffer.ByteBuf;
@@ -24,6 +26,8 @@ public final class PacketSyncTileData implements IMessage {
     private int researchProgressRequired;
     private int storedSamples;
     private int maxStoredSamples;
+    private int targetSampleCost;
+    private int targetSupplyCost;
     private String targetResearchId = "";
     private String targetResearchLabel = "";
 
@@ -52,6 +56,11 @@ public final class PacketSyncTileData implements IMessage {
         message.maxStoredSamples = researchLab.getMaxStoredParasiteSamples();
         message.targetResearchId = safeString(researchLab.getTargetResearchId());
         message.targetResearchLabel = safeString(researchLab.getTargetResearchLabel());
+        ResearchEntry target = ResearchManager.getResearchEntry(message.targetResearchId);
+        if (target != null) {
+            message.targetSampleCost = target.getParasiteSampleCost();
+            message.targetSupplyCost = target.getSupplyCost();
+        }
         return message;
     }
 
@@ -66,6 +75,8 @@ public final class PacketSyncTileData implements IMessage {
         researchProgressRequired = buf.readInt();
         storedSamples = buf.readInt();
         maxStoredSamples = buf.readInt();
+        targetSampleCost = buf.readInt();
+        targetSupplyCost = buf.readInt();
         targetResearchId = ByteBufUtils.readUTF8String(buf);
         targetResearchLabel = ByteBufUtils.readUTF8String(buf);
     }
@@ -81,6 +92,8 @@ public final class PacketSyncTileData implements IMessage {
         buf.writeInt(researchProgressRequired);
         buf.writeInt(storedSamples);
         buf.writeInt(maxStoredSamples);
+        buf.writeInt(targetSampleCost);
+        buf.writeInt(targetSupplyCost);
         ByteBufUtils.writeUTF8String(buf, safeString(targetResearchId));
         ByteBufUtils.writeUTF8String(buf, safeString(targetResearchLabel));
     }
@@ -119,6 +132,14 @@ public final class PacketSyncTileData implements IMessage {
 
     public int getMaxStoredSamples() {
         return maxStoredSamples;
+    }
+
+    public int getTargetSampleCost() {
+        return targetSampleCost;
+    }
+
+    public int getTargetSupplyCost() {
+        return targetSupplyCost;
     }
 
     public String getTargetResearchId() {

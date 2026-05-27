@@ -1,6 +1,6 @@
 {
   "parent": "item/handheld",
   "textures": {
-    "layer0": "minecraft:items/iron_sword"
+    "layer0": "standandhold:items/anti_parasite_blade"
   }
 }

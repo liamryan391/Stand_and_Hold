@@ -66,7 +66,9 @@ List changes made to config/standandhold.cfg, or write "None".
 | Entities | Human spawn eggs work | Not tested | |
 | Entities | Stage 1 early army defenders can spawn near a loaded Field Command Post | Not tested | |
 | Entities | Higher-tier units respect stage/research gates | Not tested | |
-| Visuals | Human NPC visuals are placeholder/WIP but do not crash | Not tested | |
+| Visuals | Human NPC tiers are visually distinguishable and do not show missing textures | Not tested | |
+| Visuals | Core block and item alpha textures render without missing textures | Not tested | |
+| Visuals | Research Lab and Field Command Post GUI text is readable | Not tested | |
 | SRP | Launch without SRP | Not tested | |
 | SRP | Launch with SRP, if available | Not tested | |
 | SRP | Verified SRP ID kill reward works, if available | Not tested | |

@@ -57,10 +57,12 @@ Use this checklist before wider testing of `0.1.0-alpha.1`. Record Minecraft log
 - [ ] Follow `docs/first-playable-loop.md` in a Creative/admin test world.
 - [ ] Place a Field Command Post.
 - [ ] Open the Field Command Post GUI.
+- [ ] Confirm the Field Command Post GUI clearly shows points, stage, level, global supplies, local stockpile, passive point generation, and defender cap/timer.
 - [ ] Close and reopen the Field Command Post GUI and confirm points/stage/supplies do not desync obviously.
 - [ ] Use Field Command Post supply import/export buttons when supplies are available.
 - [ ] Place a Research Lab.
 - [ ] Open the Research Lab GUI.
+- [ ] Confirm the Research Lab GUI clearly shows target ID/name, progress, required samples/supplies, stored samples, local supplies, global supplies, and blocked/ready status.
 - [ ] Close and reopen the Research Lab GUI and confirm selected/progress/supplies do not desync obviously.
 - [ ] Use Research Lab research selection/completion buttons where requirements are met.
 - [ ] Deposit a Supply Crate into a Field Command Post.
@@ -84,7 +86,14 @@ Use this checklist before wider testing of `0.1.0-alpha.1`. Record Minecraft log
 - [ ] Confirm human NPCs do not attack players by default.
 - [ ] Confirm human NPCs can target configured parasite/test entities.
 - [ ] Confirm defender spawning near loaded Field Command Posts respects configured caps.
-- [ ] Confirm human NPC models/textures are understood as placeholder/WIP for this alpha.
+- [ ] Confirm each human NPC tier has a visually distinguishable uniform and no purple/black missing texture.
+
+## Visual Asset Tests
+
+- [ ] Confirm Field Command Post, Research Lab, and Supply Crate blocks render with Stand and Hold alpha textures.
+- [ ] Confirm Parasite Tissue Sample, Prototype Ranged Weapon, and Anti-Parasite Blade item icons render without missing textures.
+- [ ] Confirm Army, Elite, and Special Division armour item icons render without missing textures.
+- [ ] Equip each armour set and confirm worn armour textures render without missing textures.
 
 ## Structure Tests
 

@@ -54,10 +54,12 @@ public final class ClientSyncedData {
         private final int researchProgressRequired;
         private final int storedSamples;
         private final int maxStoredSamples;
+        private final int targetSampleCost;
+        private final int targetSupplyCost;
         private final String targetResearchId;
         private final String targetResearchLabel;
 
-        private TileSnapshot(int typeId, int upgradeLevel, int storedSupplies, int maxStoredSupplies, int researchProgress, int researchProgressRequired, int storedSamples, int maxStoredSamples, String targetResearchId, String targetResearchLabel) {
+        private TileSnapshot(int typeId, int upgradeLevel, int storedSupplies, int maxStoredSupplies, int researchProgress, int researchProgressRequired, int storedSamples, int maxStoredSamples, int targetSampleCost, int targetSupplyCost, String targetResearchId, String targetResearchLabel) {
             this.typeId = typeId;
             this.upgradeLevel = upgradeLevel;
             this.storedSupplies = storedSupplies;
@@ -66,6 +68,8 @@ public final class ClientSyncedData {
             this.researchProgressRequired = researchProgressRequired;
             this.storedSamples = storedSamples;
             this.maxStoredSamples = maxStoredSamples;
+            this.targetSampleCost = targetSampleCost;
+            this.targetSupplyCost = targetSupplyCost;
             this.targetResearchId = targetResearchId;
             this.targetResearchLabel = targetResearchLabel;
         }
@@ -80,6 +84,8 @@ public final class ClientSyncedData {
                     message.getResearchProgressRequired(),
                     message.getStoredSamples(),
                     message.getMaxStoredSamples(),
+                    message.getTargetSampleCost(),
+                    message.getTargetSupplyCost(),
                     message.getTargetResearchId(),
                     message.getTargetResearchLabel()
             );
@@ -115,6 +121,14 @@ public final class ClientSyncedData {
 
         public int getMaxStoredSamples() {
             return maxStoredSamples;
+        }
+
+        public int getTargetSampleCost() {
+            return targetSampleCost;
+        }
+
+        public int getTargetSupplyCost() {
+            return targetSupplyCost;
         }
 
         public String getTargetResearchId() {

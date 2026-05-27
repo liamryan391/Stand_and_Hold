@@ -7,6 +7,7 @@ import com.liamryan.standandhold.common.network.PacketGuiAction;
 import com.liamryan.standandhold.common.network.PacketSyncTileData;
 import com.liamryan.standandhold.common.network.StandAndHoldNetwork;
 import com.liamryan.standandhold.common.progression.HumanStage;
+import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 
@@ -21,15 +22,15 @@ public final class GuiFieldCommandPost extends GuiContainer {
         super(container);
         this.container = container;
         xSize = 220;
-        ySize = 164;
+        ySize = 184;
     }
 
     @Override
     public void initGui() {
         super.initGui();
-        buttonList.add(new GuiButton(BUTTON_UPGRADE, guiLeft + 10, guiTop + 110, 62, 20, "Upgrade"));
-        buttonList.add(new GuiButton(BUTTON_IMPORT_SUPPLIES, guiLeft + 78, guiTop + 110, 62, 20, "Import"));
-        buttonList.add(new GuiButton(BUTTON_EXPORT_SUPPLIES, guiLeft + 146, guiTop + 110, 62, 20, "Export"));
+        buttonList.add(new GuiButton(BUTTON_UPGRADE, guiLeft + 10, guiTop + 132, 62, 20, "Upgrade"));
+        buttonList.add(new GuiButton(BUTTON_IMPORT_SUPPLIES, guiLeft + 78, guiTop + 132, 62, 20, "Import"));
+        buttonList.add(new GuiButton(BUTTON_EXPORT_SUPPLIES, guiLeft + 146, guiTop + 132, 62, 20, "Export"));
         StandAndHoldNetwork.sendToServer(new PacketGuiAction(PacketGuiAction.ACTION_REQUEST_SYNC, container.getPos()));
     }
 
@@ -57,8 +58,10 @@ public final class GuiFieldCommandPost extends GuiContainer {
         fontRenderer.drawString("Human points: " + safeValue(ClientSyncedData.getHumanPoints(container.getHumanPoints())), 10, 30, 0x37474F);
         fontRenderer.drawString("Stage " + stage.getId() + ": " + stage.getDisplayName(), 10, 44, 0x37474F);
         fontRenderer.drawString("Level " + level.getLevel() + ": " + level.getDisplayName(), 10, 58, 0x37474F);
-        fontRenderer.drawString("Supplies: " + safeValue(ClientSyncedData.getSupplyPoints(container.getSupplyPoints())), 10, 72, 0x37474F);
+        fontRenderer.drawString("Global supplies: " + safeValue(ClientSyncedData.getSupplyPoints(container.getSupplyPoints())), 10, 72, 0x37474F);
         fontRenderer.drawString("Local stockpile: " + safeValue(storedSupplies) + "/" + safeValue(maxStoredSupplies), 10, 86, 0x37474F);
+        fontRenderer.drawString("Point gen: +" + getPointGenerationAmount() + " / " + getSeconds(StandAndHoldConfig.infrastructure.fieldCommandPostTickInterval) + "s", 10, 100, 0x455A64);
+        fontRenderer.drawString("Defenders: max " + getMaxDefenders() + " / " + getSeconds(StandAndHoldConfig.infrastructure.outpostDefenderSpawnInterval) + "s", 10, 114, 0x455A64);
     }
 
     @Override
@@ -73,5 +76,17 @@ public final class GuiFieldCommandPost extends GuiContainer {
 
     private int safeValue(int value) {
         return Math.max(0, value);
+    }
+
+    private int getPointGenerationAmount() {
+        return StandAndHoldConfig.infrastructure.enableFieldCommandPostPointGeneration ? Math.max(0, StandAndHoldConfig.infrastructure.fieldCommandPostPointsPerInterval) : 0;
+    }
+
+    private int getMaxDefenders() {
+        return StandAndHoldConfig.infrastructure.enableOutpostDefenderSpawning ? Math.max(0, StandAndHoldConfig.infrastructure.outpostMaxDefenders) : 0;
+    }
+
+    private int getSeconds(int ticks) {
+        return Math.max(1, (Math.max(1, ticks) + 19) / 20);
     }
 }

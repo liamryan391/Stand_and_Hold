@@ -42,7 +42,7 @@ Use this guide to test the first small playable loop in `0.1.0-alpha.1`. This is
 
 4. Place a Field Command Post and Research Lab near the test area.
 
-   Open both GUIs. The Command Post shows human points, stage, supplies, local stockpile, and upgrade controls. The Research Lab shows its target research, progress, stored samples, and local supplies.
+   Open both GUIs. The Command Post shows human points, stage, supplies, local stockpile, passive point generation, defender status, and upgrade controls. The Research Lab shows its target research, progress, requirements, stored samples, local supplies, global supplies, and whether completion is blocked or ready.
 
 5. Put one Parasite Tissue Sample into the Research Lab.
 
@@ -127,5 +127,5 @@ Use this guide to test the first small playable loop in `0.1.0-alpha.1`. This is
 
 - This first loop assumes Creative/admin setup for core blocks and deterministic event testing.
 - The default `minecraft:zombie` mapping is only a safe test mapping, not a real SRP balance preset.
-- Human NPC visuals are placeholder/WIP.
+- Human NPC tiers have simple distinguishable alpha uniforms, but final models and textures are still WIP.
 - Natural events and passive generation are intentionally slow and bounded to avoid alpha-test spam.

@@ -22,6 +22,7 @@ Technical foundation alpha for Stand and Hold.
 - Phase 32 saved data versioning, non-destructive migration hook, and loaded stale-position cleanup for alpha safety.
 - Phase 33 first playable alpha loop guide and lightweight `/standandhold help` command.
 - Phase 34 optional SRP compatibility guide, SRP test checklist, safer mapping detection, and clearer config comments.
+- Phase 35 original alpha placeholder textures for human unit tiers, core blocks/items, armour sets, and clearer lab/command-post GUI text.
 
 ### Validation
 
@@ -31,8 +32,8 @@ Technical foundation alpha for Stand and Hold.
 ### Known Issues
 
 - SRP entity registry IDs are not verified or enabled by default; `minecraft:zombie` remains the safe test mapping.
-- Visual assets use vanilla placeholder textures/models.
-- GUIs are functional but plain.
+- Visual assets are original alpha placeholders, not final art.
+- GUIs are functional and clearer after the art pass, but still plain.
 - Prototype ranged weapon has cooldown but no ammo or reload system.
 - Scientist AI, physical convoy entities, complex raids, and final structure generation are deferred.
 - ForgeGradle dev runs can print legacy Forge/FML warnings unrelated to Stand and Hold mod loading.

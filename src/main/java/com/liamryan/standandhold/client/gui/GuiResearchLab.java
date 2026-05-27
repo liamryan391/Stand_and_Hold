@@ -20,16 +20,16 @@ public final class GuiResearchLab extends GuiContainer {
         super(container);
         this.container = container;
         xSize = 220;
-        ySize = 190;
+        ySize = 214;
     }
 
     @Override
     public void initGui() {
         super.initGui();
-        buttonList.add(new GuiButton(BUTTON_NEXT_RESEARCH, guiLeft + 10, guiTop + 124, 78, 20, "Next"));
-        buttonList.add(new GuiButton(BUTTON_COMPLETE_RESEARCH, guiLeft + 96, guiTop + 124, 92, 20, "Complete"));
-        buttonList.add(new GuiButton(BUTTON_IMPORT_SUPPLIES, guiLeft + 10, guiTop + 150, 78, 20, "Import"));
-        buttonList.add(new GuiButton(BUTTON_EXPORT_SUPPLIES, guiLeft + 96, guiTop + 150, 92, 20, "Export"));
+        buttonList.add(new GuiButton(BUTTON_NEXT_RESEARCH, guiLeft + 10, guiTop + 148, 78, 20, "Next"));
+        buttonList.add(new GuiButton(BUTTON_COMPLETE_RESEARCH, guiLeft + 96, guiTop + 148, 92, 20, "Complete"));
+        buttonList.add(new GuiButton(BUTTON_IMPORT_SUPPLIES, guiLeft + 10, guiTop + 174, 78, 20, "Import"));
+        buttonList.add(new GuiButton(BUTTON_EXPORT_SUPPLIES, guiLeft + 96, guiTop + 174, 92, 20, "Export"));
         StandAndHoldNetwork.sendToServer(new PacketGuiAction(PacketGuiAction.ACTION_REQUEST_SYNC, container.getPos()));
     }
 
@@ -57,18 +57,25 @@ public final class GuiResearchLab extends GuiContainer {
         int maxStoredSamples = hasLabSnapshot ? snapshot.getMaxStoredSamples() : container.getMaxStoredSamples();
         int storedSupplies = hasLabSnapshot ? snapshot.getStoredSupplies() : container.getStoredSupplies();
         int maxStoredSupplies = hasLabSnapshot ? snapshot.getMaxStoredSupplies() : container.getMaxStoredSupplies();
+        int targetSampleCost = hasLabSnapshot ? snapshot.getTargetSampleCost() : 0;
+        int targetSupplyCost = hasLabSnapshot ? snapshot.getTargetSupplyCost() : 0;
+        String targetId = hasLabSnapshot && !snapshot.getTargetResearchId().isEmpty() ? snapshot.getTargetResearchId() : "none";
         String targetLabel = hasLabSnapshot && !snapshot.getTargetResearchLabel().isEmpty() ? snapshot.getTargetResearchLabel() : "none";
+        int globalSupplies = safeValue(ClientSyncedData.getSupplyPoints(0));
 
-        fontRenderer.drawString("Target: " + fontRenderer.trimStringToWidth(targetLabel, 170), 10, 30, 0x37474F);
-        fontRenderer.drawString("Research progress: " + progress + "/" + required, 10, 44, 0x37474F);
-        fontRenderer.drawString("Parasite samples: " + safeValue(storedSamples) + "/" + safeValue(maxStoredSamples), 10, 76, 0x37474F);
-        fontRenderer.drawString("Local supplies: " + safeValue(storedSupplies) + "/" + safeValue(maxStoredSupplies), 10, 90, 0x37474F);
-        fontRenderer.drawString("Global supplies: " + safeValue(ClientSyncedData.getSupplyPoints(0)), 10, 104, 0x37474F);
+        drawTrimmed("Target ID: " + targetId, 10, 28, 198, 0x37474F);
+        drawTrimmed("Name: " + targetLabel, 10, 40, 198, 0x37474F);
+        fontRenderer.drawString("Progress: " + progress + "/" + required + " (" + getPercent(progress, required) + "%)", 10, 54, 0x37474F);
+        fontRenderer.drawString("Required: " + safeValue(targetSampleCost) + " samples, " + safeValue(targetSupplyCost) + " supplies", 10, 82, 0x37474F);
+        fontRenderer.drawString("Stored samples: " + safeValue(storedSamples) + "/" + safeValue(maxStoredSamples), 10, 96, 0x37474F);
+        fontRenderer.drawString("Local supplies: " + safeValue(storedSupplies) + "/" + safeValue(maxStoredSupplies), 10, 110, 0x37474F);
+        fontRenderer.drawString("Global supplies: " + globalSupplies, 10, 124, 0x37474F);
+        drawTrimmed("Status: " + getStatusLabel(targetId, progress, required, storedSamples, targetSampleCost, globalSupplies, targetSupplyCost), 10, 136, 198, 0x455A64);
 
         int barLeft = 10;
-        int barTop = 59;
+        int barTop = 67;
         int barWidth = 176;
-        int filledWidth = Math.min(barWidth, Math.max(0, (int) ((long) progress * barWidth / required)));
+        int filledWidth = required <= 0 ? 0 : Math.min(barWidth, Math.max(0, (int) ((long) progress * barWidth / required)));
         drawRect(barLeft, barTop, barLeft + barWidth, barTop + 10, 0xFFCFD8DC);
         drawRect(barLeft, barTop, barLeft + filledWidth, barTop + 10, 0xFF26A69A);
     }
@@ -85,5 +92,33 @@ public final class GuiResearchLab extends GuiContainer {
 
     private int safeValue(int value) {
         return Math.max(0, value);
+    }
+
+    private int getPercent(int progress, int required) {
+        return required <= 0 ? 0 : Math.min(100, Math.max(0, (int) ((long) safeValue(progress) * 100L / required)));
+    }
+
+    private String getStatusLabel(String targetId, int progress, int required, int storedSamples, int sampleCost, int globalSupplies, int supplyCost) {
+        if (targetId == null || targetId.isEmpty() || "none".equals(targetId)) {
+            return "No ready target; completed or prerequisites blocked.";
+        }
+
+        if (progress < required) {
+            return "Researching selected target.";
+        }
+
+        if (safeValue(storedSamples) < safeValue(sampleCost)) {
+            return "Needs samples before completion.";
+        }
+
+        if (safeValue(globalSupplies) < safeValue(supplyCost)) {
+            return "Needs global supplies before completion.";
+        }
+
+        return "Ready to complete.";
+    }
+
+    private void drawTrimmed(String text, int x, int y, int width, int color) {
+        fontRenderer.drawString(fontRenderer.trimStringToWidth(text, width), x, y, color);
     }
 }
