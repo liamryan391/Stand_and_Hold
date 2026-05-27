@@ -4,6 +4,8 @@ import com.liamryan.standandhold.StandAndHold;
 import com.liamryan.standandhold.common.block.ModBlocks;
 import com.liamryan.standandhold.common.mission.MissionManager;
 import com.liamryan.standandhold.common.mission.MissionObjectiveType;
+import com.liamryan.standandhold.common.progression.HumanPointManager;
+import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -19,30 +21,42 @@ import java.util.Random;
 public final class ArmyCheckpointWorldGenerator implements IWorldGenerator {
     private static final IBlockState AIR = Blocks.AIR.getDefaultState();
     private static final IBlockState FLOOR = Blocks.STONEBRICK.getDefaultState();
+    private static final IBlockState PATH = Blocks.COBBLESTONE.getDefaultState();
     private static final IBlockState SUPPORT = Blocks.COBBLESTONE.getDefaultState();
     private static final IBlockState WALL = Blocks.COBBLESTONE_WALL.getDefaultState();
+    private static final IBlockState BARRIER = Blocks.IRON_BARS.getDefaultState();
     private static final IBlockState TORCH = Blocks.TORCH.getDefaultState();
 
     @Override
     public void generate(Random random, int chunkX, int chunkZ, World world, IChunkGenerator chunkGenerator, IChunkProvider chunkProvider) {
-        BlockPos origin = tryGenerateAtChunk(world, random, chunkX, chunkZ, false);
-        if (origin != null && StandAndHoldConfig.debugLogging) {
-            StandAndHold.LOGGER.info("Generated Small Army Checkpoint at {}.", origin);
+        GenerationResult result = tryGenerateAtChunk(world, random, chunkX, chunkZ, false);
+        if (result.isGenerated() && StandAndHoldConfig.debugLogging) {
+            StandAndHold.LOGGER.info("Generated Small Army Checkpoint at {}. Command Post: {}. Registered: {}.", result.getOrigin(), result.getCommandPostPos(), result.isCommandPostRegistered());
+        } else if (StandAndHoldConfig.debugLogging && !"spawn chance".equals(result.getReason())) {
+            StandAndHold.LOGGER.info("Skipped Small Army Checkpoint in chunk {}, {}: {}.", chunkX, chunkZ, result.getReason());
         }
     }
 
-    public static BlockPos forceGenerateAtChunk(World world, int chunkX, int chunkZ) {
-        return tryGenerateAtChunk(world, world.rand, chunkX, chunkZ, true);
+    public static GenerationResult forceGenerateAtChunk(World world, int chunkX, int chunkZ) {
+        return tryGenerateAtChunk(world, world == null ? new Random() : world.rand, chunkX, chunkZ, true);
     }
 
-    private static BlockPos tryGenerateAtChunk(World world, Random random, int chunkX, int chunkZ, boolean force) {
-        if (!force && (!StandAndHoldConfig.worldGeneration.enableArmyCheckpointGeneration || !isAllowedDimension(world.provider.getDimension()))) {
-            return null;
+    private static GenerationResult tryGenerateAtChunk(World world, Random random, int chunkX, int chunkZ, boolean force) {
+        if (world == null || world.isRemote) {
+            return GenerationResult.skipped("invalid world");
+        }
+
+        if (!isAllowedDimension(world.provider.getDimension())) {
+            return GenerationResult.skipped("dimension not allowed");
+        }
+
+        if (!force && !StandAndHoldConfig.worldGeneration.enableArmyCheckpointGeneration) {
+            return GenerationResult.skipped("checkpoint generation disabled");
         }
 
         int spawnChance = Math.max(1, StandAndHoldConfig.worldGeneration.armyCheckpointSpawnChance);
         if (!force && spawnChance > 1 && random.nextInt(spawnChance) != 0) {
-            return null;
+            return GenerationResult.skipped("spawn chance");
         }
 
         int width = clamp(StandAndHoldConfig.worldGeneration.armyCheckpointWidth, 5, 14);
@@ -53,12 +67,12 @@ public final class ArmyCheckpointWorldGenerator implements IWorldGenerator {
 
         BlockPos origin = findSafeOrigin(world, originX, originZ, width, depth);
         if (origin == null) {
-            return null;
+            return GenerationResult.skipped("unsafe terrain");
         }
 
-        generateCheckpoint(world, origin, width, depth, wallHeight);
+        GenerationResult result = generateCheckpoint(world, origin, width, depth, wallHeight);
         MissionManager.recordStructureDiscovery(world, MissionObjectiveType.DISCOVER_CHECKPOINT);
-        return origin;
+        return result;
     }
 
     private static BlockPos findSafeOrigin(World world, int originX, int originZ, int width, int depth) {
@@ -74,6 +88,10 @@ public final class ArmyCheckpointWorldGenerator implements IWorldGenerator {
 
                 BlockPos groundPos = new BlockPos(originX + x, surfaceY - 1, originZ + z);
                 if (!isSafeGround(world.getBlockState(groundPos))) {
+                    return null;
+                }
+
+                if (!isClearSpaceSafe(world, groundPos.up(), 6)) {
                     return null;
                 }
 
@@ -95,14 +113,25 @@ public final class ArmyCheckpointWorldGenerator implements IWorldGenerator {
         return material.isSolid() && !material.isLiquid();
     }
 
-    private static void generateCheckpoint(World world, BlockPos origin, int width, int depth, int wallHeight) {
+    private static boolean isClearSpaceSafe(World world, BlockPos startPos, int height) {
+        for (int y = 0; y < height; y++) {
+            BlockPos pos = startPos.up(y);
+            IBlockState state = world.getBlockState(pos);
+            if (state.getMaterial().isLiquid() || world.getTileEntity(pos) != null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static GenerationResult generateCheckpoint(World world, BlockPos origin, int width, int depth, int wallHeight) {
         int clearHeight = wallHeight + 3;
         for (int x = 0; x < width; x++) {
             for (int z = 0; z < depth; z++) {
                 BlockPos floorPos = origin.add(x, 0, z);
                 fillSupportToFloor(world, floorPos);
                 clearColumn(world, floorPos.up(), clearHeight);
-                world.setBlockState(floorPos, FLOOR, 2);
+                world.setBlockState(floorPos, isPathBlock(x, z, width, depth) ? PATH : FLOOR, 2);
             }
         }
 
@@ -119,8 +148,35 @@ public final class ArmyCheckpointWorldGenerator implements IWorldGenerator {
             }
         }
 
+        placeInteriorDetails(world, origin, width, depth, wallHeight);
         placeTorches(world, origin, width, depth, wallHeight);
-        world.setBlockState(origin.add(width / 2, 1, depth / 2), ModBlocks.FIELD_COMMAND_POST.getDefaultState(), 2);
+        BlockPos commandPostPos = origin.add(width / 2, 1, depth / 2);
+        world.setBlockState(commandPostPos, ModBlocks.FIELD_COMMAND_POST.getDefaultState(), 2);
+        HumanWorldData data = HumanPointManager.getData(world);
+        data.registerFieldCommandPost(world.provider.getDimension(), commandPostPos);
+        boolean registered = data.isFieldCommandPostRegistered(world.provider.getDimension(), commandPostPos);
+        return GenerationResult.generated(origin, commandPostPos, registered);
+    }
+
+    private static boolean isPathBlock(int x, int z, int width, int depth) {
+        return x == width / 2 || z == depth / 2 || (z <= 2 && Math.abs(x - width / 2) <= 1);
+    }
+
+    private static void placeInteriorDetails(World world, BlockPos origin, int width, int depth, int wallHeight) {
+        int centerX = width / 2;
+        int centerZ = depth / 2;
+        world.setBlockState(origin.add(1, 1, depth - 2), ModBlocks.SUPPLY_CRATE.getDefaultState(), 2);
+        world.setBlockState(origin.add(width - 2, 1, depth - 2), ModBlocks.SUPPLY_CRATE.getDefaultState(), 2);
+
+        for (int z = centerZ - 1; z <= centerZ + 1; z++) {
+            if (z != centerZ) {
+                world.setBlockState(origin.add(centerX - 2, 1, z), BARRIER, 2);
+                world.setBlockState(origin.add(centerX + 2, 1, z), BARRIER, 2);
+            }
+        }
+
+        world.setBlockState(origin.add(centerX - 1, wallHeight + 1, centerZ - 1), TORCH, 2);
+        world.setBlockState(origin.add(centerX + 1, wallHeight + 1, centerZ + 1), TORCH, 2);
     }
 
     private static void fillSupportToFloor(World world, BlockPos floorPos) {
@@ -171,5 +227,49 @@ public final class ArmyCheckpointWorldGenerator implements IWorldGenerator {
 
     private static int clamp(int value, int min, int max) {
         return Math.max(min, Math.min(max, value));
+    }
+
+    public static final class GenerationResult {
+        private final boolean generated;
+        private final BlockPos origin;
+        private final BlockPos commandPostPos;
+        private final boolean commandPostRegistered;
+        private final String reason;
+
+        private GenerationResult(boolean generated, BlockPos origin, BlockPos commandPostPos, boolean commandPostRegistered, String reason) {
+            this.generated = generated;
+            this.origin = origin;
+            this.commandPostPos = commandPostPos;
+            this.commandPostRegistered = commandPostRegistered;
+            this.reason = reason;
+        }
+
+        private static GenerationResult generated(BlockPos origin, BlockPos commandPostPos, boolean commandPostRegistered) {
+            return new GenerationResult(true, origin, commandPostPos, commandPostRegistered, "");
+        }
+
+        private static GenerationResult skipped(String reason) {
+            return new GenerationResult(false, null, null, false, reason);
+        }
+
+        public boolean isGenerated() {
+            return generated;
+        }
+
+        public BlockPos getOrigin() {
+            return origin;
+        }
+
+        public BlockPos getCommandPostPos() {
+            return commandPostPos;
+        }
+
+        public boolean isCommandPostRegistered() {
+            return commandPostRegistered;
+        }
+
+        public String getReason() {
+            return reason;
+        }
     }
 }

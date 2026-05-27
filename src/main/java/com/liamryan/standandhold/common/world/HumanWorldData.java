@@ -304,6 +304,14 @@ public final class HumanWorldData extends WorldSavedData {
         return false;
     }
 
+    public boolean isFieldCommandPostRegistered(int dimension, BlockPos pos) {
+        if (pos == null) {
+            return false;
+        }
+
+        return fieldCommandPostPositions.contains(getPositionKey(dimension, pos));
+    }
+
     public Set<String> getFieldCommandPostPositions() {
         return Collections.unmodifiableSet(fieldCommandPostPositions);
     }
@@ -332,6 +340,14 @@ public final class HumanWorldData extends WorldSavedData {
             return true;
         }
         return false;
+    }
+
+    public boolean isResearchLabRegistered(int dimension, BlockPos pos) {
+        if (pos == null) {
+            return false;
+        }
+
+        return researchLabPositions.contains(getPositionKey(dimension, pos));
     }
 
     public Set<String> getResearchLabPositions() {

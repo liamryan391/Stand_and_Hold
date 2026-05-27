@@ -9,6 +9,7 @@ Use this guide to test the first small playable loop in `0.1.0-alpha.1`. This is
 - Let `config/standandhold.cfg` generate once, or reset it if you want the default test mappings.
 - In Creative, take a Field Command Post, Research Lab, Supply Crate, and any test human spawn eggs from the Stand and Hold tab.
 - Use `/standandhold help` and `/standandhold status` to orient the test.
+- Optional structure testing details are in `docs/structures.md`.
 
 ## Loop Steps
 

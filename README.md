@@ -517,9 +517,9 @@ outpostDefenderSpawnSearchRadius=4
 
 ## Phase 12 Structure Generation
 
-Small Army Checkpoints are the first generated structure. They are intentionally simple: a small stone platform with low cobblestone walls, a front opening, torches, and a Field Command Post anchor in the middle.
+Small Army Checkpoints are the first generated structure. They are intentionally compact: a stone-brick platform with a cobblestone path, low cobblestone-wall perimeter, front gate opening, torches, a central Field Command Post, and a couple of Supply Crates for alpha testing.
 
-Generation is chunk-local and conservative. The generator checks the configured dimension, applies a per-chunk chance, clamps dimensions to fit safely inside one chunk, and skips terrain that is too uneven or unsafe. It does not use global scans or template systems yet.
+Generation is chunk-local and conservative. The generator checks the configured dimension, applies a per-chunk chance, clamps dimensions to fit safely inside one chunk, and skips terrain that is too uneven, liquid, or occupied by tile-entity blocks in the clearance area. It does not use global scans or template systems yet.
 
 Config options:
 
@@ -540,10 +540,13 @@ Admins can force-test checkpoint placement in the current chunk:
 ```
 
 The debug command ignores the configured spawn chance but still uses the same safe terrain checks.
+It also respects the configured allowed dimensions and reports the generated Command Post position plus registration state.
+
+More structure details are in [docs/structures.md](docs/structures.md).
 
 ## Phase 13 Main Base Foundation
 
-Main Bases are rare, chunk-local generated foundations for late-game human escalation. The first version is intentionally small and procedural: a fortified stone footprint with a central Stand and Hold Field Command Post, marked defender spawn pads, and Research Lab blocks in the lab areas.
+Main Bases are rare, chunk-local generated foundations for late-game human escalation. The first version is intentionally small and procedural: a fortified footprint with a central Stand and Hold Field Command Post, marked defender spawn pads, Research Lab blocks, Supply Crates, simple zone markers, and a clearer command area.
 
 Main Bases do not use vanilla `minecraft:command_block`. The command center is built from this mod's `standandhold:field_command_post`.
 
@@ -553,13 +556,13 @@ Config options:
 
 ```text
 enableMainBaseGeneration=true
-mainBaseSpawnChance=2400
+mainBaseSpawnChance=3600
 mainBaseWidth=15
 mainBaseDepth=15
 mainBaseWallHeight=3
 mainBaseMaxTerrainHeightDifference=2
 mainBaseActivationStage=5
-mainBaseInitialDefenders=4
+mainBaseInitialDefenders=3
 mainBaseDefenderPatrolRadius=24
 mainBaseAllowedDimensions=[0]
 ```
@@ -569,6 +572,8 @@ Admins can force-test Main Base placement in the current chunk:
 ```text
 /standandhold structure mainbase
 ```
+
+The debug command reports the generated origin, central Command Post, registration state, activation state, initial defender count, and total registered Main Bases.
 
 ## Phase 14 Main Base Activation and Special Parasite Division
 

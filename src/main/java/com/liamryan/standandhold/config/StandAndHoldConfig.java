@@ -802,7 +802,7 @@ public final class StandAndHoldConfig {
 
     public static final class WorldGeneration {
         @Config.Name("Enable Army Checkpoint Generation")
-        @Config.Comment("Allows Small Army Checkpoints to generate during terrain generation.")
+        @Config.Comment("Allows Small Army Checkpoints to generate during terrain generation. Admin debug generation still respects the allowed dimension list.")
         public boolean enableArmyCheckpointGeneration = true;
 
         @Config.Name("Army Checkpoint Spawn Chance")
@@ -810,11 +810,11 @@ public final class StandAndHoldConfig {
         public int armyCheckpointSpawnChance = 180;
 
         @Config.Name("Army Checkpoint Width")
-        @Config.Comment("Checkpoint width in blocks. Values are clamped to a safe in-chunk range.")
+        @Config.Comment("Checkpoint width in blocks. Values are clamped to a safe single-chunk range.")
         public int armyCheckpointWidth = 9;
 
         @Config.Name("Army Checkpoint Depth")
-        @Config.Comment("Checkpoint depth in blocks. Values are clamped to a safe in-chunk range.")
+        @Config.Comment("Checkpoint depth in blocks. Values are clamped to a safe single-chunk range.")
         public int armyCheckpointDepth = 9;
 
         @Config.Name("Army Checkpoint Wall Height")
@@ -822,17 +822,17 @@ public final class StandAndHoldConfig {
         public int armyCheckpointWallHeight = 2;
 
         @Config.Name("Army Checkpoint Max Terrain Height Difference")
-        @Config.Comment("Maximum height difference allowed across the checkpoint footprint before generation is skipped.")
+        @Config.Comment("Maximum height difference allowed across the checkpoint footprint before generation is skipped. Liquid or tile-entity space inside the footprint also skips generation.")
         public int armyCheckpointMaxTerrainHeightDifference = 2;
 
         @Config.Name("Army Checkpoint Allowed Dimensions")
-        @Config.Comment("Dimension IDs where Small Army Checkpoints can generate. Default is overworld only.")
+        @Config.Comment("Dimension IDs where Small Army Checkpoints can generate or be debug-generated. Default is overworld only.")
         public int[] armyCheckpointAllowedDimensions = new int[] {
                 0
         };
 
         @Config.Name("Enable Main Base Generation")
-        @Config.Comment("Allows rare Main Base foundations to generate during terrain generation.")
+        @Config.Comment("Allows rare Main Base foundations to generate during terrain generation. Admin debug generation still respects the allowed dimension list.")
         public boolean enableMainBaseGeneration = true;
 
         @Config.Name("Main Base Spawn Chance")
@@ -840,11 +840,11 @@ public final class StandAndHoldConfig {
         public int mainBaseSpawnChance = 3600;
 
         @Config.Name("Main Base Width")
-        @Config.Comment("Main Base width in blocks. Values are clamped to a safe in-chunk range.")
+        @Config.Comment("Main Base width in blocks. Values are clamped to a safe odd single-chunk range.")
         public int mainBaseWidth = 15;
 
         @Config.Name("Main Base Depth")
-        @Config.Comment("Main Base depth in blocks. Values are clamped to a safe in-chunk range.")
+        @Config.Comment("Main Base depth in blocks. Values are clamped to a safe odd single-chunk range.")
         public int mainBaseDepth = 15;
 
         @Config.Name("Main Base Wall Height")
@@ -852,7 +852,7 @@ public final class StandAndHoldConfig {
         public int mainBaseWallHeight = 3;
 
         @Config.Name("Main Base Max Terrain Height Difference")
-        @Config.Comment("Maximum height difference allowed across the Main Base footprint before generation is skipped.")
+        @Config.Comment("Maximum height difference allowed across the Main Base footprint before generation is skipped. Liquid or tile-entity space inside the footprint also skips generation.")
         public int mainBaseMaxTerrainHeightDifference = 2;
 
         @Config.Name("Main Base Activation Stage")
@@ -868,7 +868,7 @@ public final class StandAndHoldConfig {
         public int mainBaseDefenderPatrolRadius = 24;
 
         @Config.Name("Main Base Allowed Dimensions")
-        @Config.Comment("Dimension IDs where Main Bases can generate. Default is overworld only.")
+        @Config.Comment("Dimension IDs where Main Bases can generate or be debug-generated. Default is overworld only.")
         public int[] mainBaseAllowedDimensions = new int[] {
                 0
         };

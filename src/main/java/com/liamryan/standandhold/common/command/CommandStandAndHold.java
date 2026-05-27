@@ -1226,16 +1226,24 @@ public final class CommandStandAndHold extends CommandBase {
         int chunkZ = senderPos.getZ() >> 4;
 
         if ("checkpoint".equalsIgnoreCase(args[1])) {
-            BlockPos origin = ArmyCheckpointWorldGenerator.forceGenerateAtChunk(sender.getEntityWorld(), chunkX, chunkZ);
-            if (origin == null) {
-                throw new CommandException("commands.standandhold.structure.generate.failed", "Small Army Checkpoint", "unsafe terrain");
+            ArmyCheckpointWorldGenerator.GenerationResult result = ArmyCheckpointWorldGenerator.forceGenerateAtChunk(sender.getEntityWorld(), chunkX, chunkZ);
+            if (!result.isGenerated()) {
+                throw new CommandException("commands.standandhold.structure.generate.failed", "Small Army Checkpoint", result.getReason());
             }
 
+            BlockPos origin = result.getOrigin();
+            BlockPos commandPostPos = result.getCommandPostPos();
+            HumanWorldData data = HumanPointManager.getData(sender.getEntityWorld());
             TextComponentTranslation message = new TextComponentTranslation(
                     "commands.standandhold.structure.generate.checkpoint",
                     origin.getX(),
                     origin.getY(),
-                    origin.getZ()
+                    origin.getZ(),
+                    commandPostPos.getX(),
+                    commandPostPos.getY(),
+                    commandPostPos.getZ(),
+                    result.isCommandPostRegistered() ? "yes" : "no",
+                    data.getFieldCommandPostPositions().size()
             );
             message.getStyle().setColor(TextFormatting.YELLOW);
             sender.sendMessage(message);
@@ -1249,13 +1257,20 @@ public final class CommandStandAndHold extends CommandBase {
             }
 
             BlockPos origin = result.getOrigin();
+            BlockPos commandPostPos = result.getCommandPostPos();
+            HumanWorldData data = HumanPointManager.getData(sender.getEntityWorld());
             TextComponentTranslation message = new TextComponentTranslation(
                     "commands.standandhold.structure.generate.mainbase",
                     origin.getX(),
                     origin.getY(),
                     origin.getZ(),
+                    commandPostPos.getX(),
+                    commandPostPos.getY(),
+                    commandPostPos.getZ(),
+                    result.isMainBaseRegistered() ? "yes" : "no",
                     result.isActive() ? "active" : "dormant",
-                    result.getDefendersSpawned()
+                    result.getDefendersSpawned(),
+                    data.getMainBasePositions().size()
             );
             message.getStyle().setColor(TextFormatting.YELLOW);
             sender.sendMessage(message);

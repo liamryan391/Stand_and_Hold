@@ -98,10 +98,16 @@ Use this checklist before wider testing of `0.1.0-alpha.1`. Record Minecraft log
 ## Structure Tests
 
 - [ ] Use the checkpoint debug structure command.
+- [ ] Confirm checkpoint success feedback includes origin, Command Post position, registration state, and total registered posts.
+- [ ] Confirm the checkpoint contains a central Field Command Post, low wall perimeter, gate opening, torches, path/floor, and Supply Crates.
 - [ ] Use the Main Base debug structure command.
+- [ ] Confirm Main Base success feedback includes origin, Command Post position, registration state, activation state, defender count, and total registered Main Bases.
+- [ ] Confirm the Main Base contains a central Field Command Post, defender pads, Research Labs, Supply Crates, perimeter/foundation, and simple zone markers.
+- [ ] Try structure debug commands in a disallowed dimension if practical and confirm generation fails safely.
 - [ ] Reload the world after generating each structure.
 - [ ] Confirm generated structures do not crash on reload.
 - [ ] Check command-post and mainbase list/status commands after structure generation.
+- [ ] Break the generated Field Command Post while the chunk is loaded and confirm stale saved records clean or disappear safely.
 
 ## Log Review
 
