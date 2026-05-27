@@ -433,11 +433,17 @@ public final class StandAndHoldConfig {
         @Config.Comment({
                 "Mission definitions in the format id|name|description|objectiveType|requiredCount|pointReward|supplyReward|researchRewardIds.",
                 "Use comma-separated researchRewardIds, or leave the final field blank.",
-                "Current objective types: RECOVER_PARASITE_SAMPLE, DEFEND_OUTPOST, DISCOVER_STRUCTURE, DISCOVER_CHECKPOINT, DISCOVER_MAIN_BASE, and MANUAL.",
-                "The first mission uses Parasite Tissue Samples as the tracked objective."
+                "Current objective types: RECOVER_PARASITE_SAMPLE, ESTABLISH_FIELD_COMMAND, STOCKPILE_SUPPLIES, COMPLETE_RESEARCH, REACH_HUMAN_STAGE, DEFEND_OUTPOST, DISCOVER_STRUCTURE, DISCOVER_CHECKPOINT, DISCOVER_MAIN_BASE, and MANUAL.",
+                "Defaults form a small alpha mission chain for the first playable loop."
         })
         public String[] missionEntries = new String[] {
-                "recover_parasite_sample|Recover Parasite Sample|Recover and catalog the first parasite tissue sample for the human resistance.|RECOVER_PARASITE_SAMPLE|1|30|15|parasite_samples"
+                "recover_parasite_sample|Recover Parasite Samples|Recover and catalog the first parasite tissue sample for the human resistance.|RECOVER_PARASITE_SAMPLE|1|20|8|",
+                "establish_field_command|Establish Field Command|Place or discover a Field Command Post so survivors have a command anchor.|ESTABLISH_FIELD_COMMAND|1|25|12|",
+                "stockpile_supplies|Stockpile Supplies|Build a small supply reserve through Supply Crates or building transfers.|STOCKPILE_SUPPLIES|16|20|0|",
+                "complete_first_research|Complete First Research|Complete one research entry through a Research Lab or admin research command.|COMPLETE_RESEARCH|1|40|10|",
+                "reach_local_response|Reach Local Army Response|Reach Human Stage 1 to begin the local army response.|REACH_HUMAN_STAGE|1|0|25|",
+                "defend_outpost|Defend the Outpost|Trigger or survive one outpost attack event near a command post.|DEFEND_OUTPOST|1|40|20|",
+                "establish_main_base|Establish Main Base|Generate, discover, or register a Main Base foundation for later escalation.|DISCOVER_MAIN_BASE|1|100|80|"
         };
     }
 

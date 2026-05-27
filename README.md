@@ -8,7 +8,7 @@ The mod adds a human-side escalation layer to worlds where parasite-style threat
 
 The current implementation is a compileable foundation for a larger mod. It already includes persistent world progression, supplies, research, missions, sample drops, basic military buildings, generated checkpoints and Main Bases, human NPC tiers, a prototype ranged weapon, simple GUIs, networking, optional SRP compatibility mapping, dynamic outpost events, threat tracking, performance throttling, and first-pass stability fixes.
 
-This repository is packaged as `0.1.0-alpha.1`. The emphasis is still foundation quality: the systems are intentionally small, server-authoritative where needed, data-driven where possible, and expandable for later phases. Phase 33 documents the first playable vertical slice, Phase 34 improves optional SRP compatibility testing, and Phase 35 adds a simple original alpha art identity pass. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, physical convoy entities, complex raid waves, mission GUIs, and full Scape and Run: Parasites integration are intentionally deferred.
+This repository is packaged as `0.1.0-alpha.1`. The emphasis is still foundation quality: the systems are intentionally small, server-authoritative where needed, data-driven where possible, and expandable for later phases. Phase 33 documents the first playable vertical slice, Phase 34 improves optional SRP compatibility testing, Phase 35 adds a simple original alpha art identity pass, Phase 36 improves structure foundations, and Phase 37 expands the command-driven mission chain. Gameplay systems such as full scientist AI, advanced weapons, larger generated bases, complex reload/ammo mechanics, physical convoy entities, complex raid waves, mission GUIs, and full Scape and Run: Parasites integration are intentionally deferred.
 
 ## Current Scope
 
@@ -29,8 +29,8 @@ This repository is packaged as `0.1.0-alpha.1`. The emphasis is still foundation
 - Data-driven research entries
 - Persistent completed research IDs
 - Config-backed mission entries with persistent objective progress
-- Automatic mission progress hooks for parasite samples, outpost defence, and structure discovery
-- First Recover Parasite Sample mission
+- Automatic mission progress hooks for samples, field command, supplies, research, stages, outpost defence, and structure discovery
+- Early alpha mission chain from sample recovery through Main Base foundation
 - Basic Parasite Tissue Sample item
 - Configurable sample drops from configured entity deaths
 - Field Command Post block and tile entity
@@ -114,6 +114,7 @@ The compiled mod jar will be created under `build/libs/`. For this alpha, use `b
 ## Alpha Readiness Docs
 
 - [First Playable Alpha Loop](docs/first-playable-loop.md)
+- [Mission System](docs/missions.md)
 - [Optional SRP Compatibility Guide](docs/srp-compatibility.md)
 - [SRP Compatibility Test Checklist](docs/srp-test-checklist.md)
 - [Build Guide](docs/building.md)
@@ -209,12 +210,14 @@ Threat, event, structure, and mission debug commands:
 /standandhold structure mainbase
 /standandhold mission list
 /standandhold mission status [id]
+/standandhold mission active
 /standandhold mission start <id>
 /standandhold mission progress <id> <amount>
 /standandhold mission complete <id> [force]
+/standandhold mission reset <id>
 ```
 
-Most status/list commands are safe for normal use. Mutating commands such as adding points, setting stages, forcing structures, activating Main Bases, threat changes, event triggers, and mission debug actions require admin permission level 2.
+Most status/list/active commands are safe for normal use. Mutating commands such as adding points, setting stages, forcing structures, activating Main Bases, threat changes, event triggers, and mission debug actions require admin permission level 2.
 
 ## Config Overview
 
@@ -910,11 +913,17 @@ dynamicEventWarningRadius=64
 
 ## Phase 24 Missions and Objectives
 
-Phase 24 introduces the first persistent mission foundation. Mission definitions are config-backed and mission progress is saved in `HumanWorldData`, alongside the existing progression, research, supply, base, and threat state.
+Phase 24 introduced the first persistent mission foundation. Phase 37 expands it into a small early alpha objective chain. Mission definitions are config-backed and mission progress is saved in `HumanWorldData`, alongside the existing progression, research, supply, base, and threat state.
 
-Default mission:
+Default alpha mission chain:
 
-- `recover_parasite_sample`: recover one Parasite Tissue Sample, then reward human points, supplies, and the `parasite_samples` research unlock.
+- `recover_parasite_sample`: recover one Parasite Tissue Sample.
+- `establish_field_command`: place or discover a Field Command Post.
+- `stockpile_supplies`: build a small supply reserve.
+- `complete_first_research`: complete one research entry.
+- `reach_local_response`: reach Stage 1 Local Army Response.
+- `defend_outpost`: trigger or survive one outpost attack event.
+- `establish_main_base`: generate, discover, or register a Main Base foundation.
 
 Mission config format:
 
@@ -924,7 +933,11 @@ id|name|description|objectiveType|requiredCount|pointReward|supplyReward|researc
 
 Current objective types:
 
-- `RECOVER_PARASITE_SAMPLE`: progress updates from carried Parasite Tissue Samples and Parasite Tissue Sample pickup events.
+- `RECOVER_PARASITE_SAMPLE`: progress updates from Parasite Tissue Sample pickup events.
+- `ESTABLISH_FIELD_COMMAND`: progress updates when a Field Command Post is registered.
+- `STOCKPILE_SUPPLIES`: progress updates from global supplies, local building stockpiles, and GUI supply transfers.
+- `COMPLETE_RESEARCH`: progress updates when research completes.
+- `REACH_HUMAN_STAGE`: progress updates from the saved human stage.
 - `DEFEND_OUTPOST`: progress updates when a dynamic outpost attack is created as the first placeholder for defence objectives.
 - `DISCOVER_STRUCTURE`, `DISCOVER_CHECKPOINT`, and `DISCOVER_MAIN_BASE`: progress updates when generated Stand and Hold structures are placed by world generation or debug commands.
 - `MANUAL`: progress is controlled by command for future scripted or event-driven objectives.
@@ -934,12 +947,14 @@ Commands:
 ```text
 /standandhold mission list
 /standandhold mission status [id]
+/standandhold mission active
 /standandhold mission start <id>
 /standandhold mission progress <id> <amount>
 /standandhold mission complete <id> [force]
+/standandhold mission reset <id>
 ```
 
-`start`, `progress`, and `complete` are admin/debug commands for this first pass. Completing without `force` checks tracked objective progress; `force` is available for testing worlds and scripted setup.
+`list`, `status`, and `active` are inspection commands. `start`, `progress`, `complete`, and `reset` are admin/debug commands for test worlds. Completing without `force` checks tracked objective progress; `force` is available for testing worlds and scripted setup.
 
 ## Phase 25 Balance and Integration
 

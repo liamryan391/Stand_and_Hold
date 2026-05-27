@@ -1,6 +1,7 @@
 package com.liamryan.standandhold.common.network;
 
 import com.liamryan.standandhold.common.infrastructure.FieldCommandPostUpgradeManager;
+import com.liamryan.standandhold.common.mission.MissionManager;
 import com.liamryan.standandhold.common.supply.ISupplyStorage;
 import com.liamryan.standandhold.common.supply.SupplyTransferManager;
 import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
@@ -161,6 +162,9 @@ public final class PacketGuiAction implements IMessage {
                     ? SupplyTransferManager.transferToLocal(world, (ISupplyStorage) tileEntity)
                     : SupplyTransferManager.transferToGlobal(world, (ISupplyStorage) tileEntity);
             sendSupplyTransferResult(player, result);
+            if (result.getMovedSupplies() > 0) {
+                MissionManager.recordSupplyStockpile(world, player, Math.max(result.getGlobalSupplies(), result.getStoredSupplies()));
+            }
         }
 
         private void sendSupplyTransferResult(EntityPlayerMP player, SupplyTransferManager.TransferResult result) {

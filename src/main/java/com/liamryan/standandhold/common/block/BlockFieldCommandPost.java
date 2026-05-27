@@ -4,6 +4,7 @@ import com.liamryan.standandhold.StandAndHold;
 import com.liamryan.standandhold.StandAndHoldConstants;
 import com.liamryan.standandhold.common.gui.GuiIds;
 import com.liamryan.standandhold.common.infrastructure.FieldCommandPostUpgradeManager;
+import com.liamryan.standandhold.common.mission.MissionManager;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.supply.SupplyManager;
 import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
@@ -58,6 +59,7 @@ public final class BlockFieldCommandPost extends Block implements ITileEntityPro
         super.onBlockAdded(world, pos, state);
         if (!world.isRemote) {
             HumanPointManager.getData(world).registerFieldCommandPost(world.provider.getDimension(), pos);
+            MissionManager.recordFieldCommandPostEstablished(world, null);
         }
     }
 
@@ -123,5 +125,6 @@ public final class BlockFieldCommandPost extends Block implements ITileEntityPro
         );
         message.getStyle().setColor(TextFormatting.YELLOW);
         player.sendMessage(message);
+        MissionManager.recordSupplyStockpile(world, player, commandPost.getStoredSupplies());
     }
 }

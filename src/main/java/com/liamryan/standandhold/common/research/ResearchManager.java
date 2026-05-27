@@ -1,6 +1,7 @@
 package com.liamryan.standandhold.common.research;
 
 import com.liamryan.standandhold.StandAndHold;
+import com.liamryan.standandhold.common.mission.MissionManager;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.supply.SupplyManager;
 import com.liamryan.standandhold.common.util.ParasiteSampleHelper;
@@ -97,6 +98,7 @@ public final class ResearchManager {
         if (entry.getCompletionPointReward() > 0) {
             HumanPointManager.addPoints(world, entry.getCompletionPointReward(), source + " research reward: " + entry.getId());
         }
+        MissionManager.recordResearchCompleted(world, null);
         StandAndHold.LOGGER.info("Research completed as reward from {}: {}.", source, entry.getId());
         return true;
     }
@@ -141,6 +143,7 @@ public final class ResearchManager {
         if (entry.getCompletionPointReward() > 0) {
             HumanPointManager.addPoints(world, entry.getCompletionPointReward(), "research completion: " + entry.getId());
         }
+        MissionManager.recordResearchCompleted(world, player);
 
         StandAndHold.LOGGER.info("Research completed: {}.", entry.getId());
         return CompletionResult.completed(entry);

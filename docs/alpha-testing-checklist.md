@@ -39,6 +39,10 @@ Use this checklist before wider testing of `0.1.0-alpha.1`. Record Minecraft log
 - [ ] `/standandhold help`
 - [ ] `/standandhold status`
 - [ ] `/standandhold addpoints <amount>`
+- [ ] `/standandhold mission list`
+- [ ] `/standandhold mission active`
+- [ ] `/standandhold mission status [id]`
+- [ ] `/standandhold mission reset <id>` as an admin in a replayable test world.
 - [ ] `/standandhold research list`
 - [ ] `/standandhold research status`
 - [ ] `/standandhold research complete <id>`
@@ -56,6 +60,7 @@ Use this checklist before wider testing of `0.1.0-alpha.1`. Record Minecraft log
 
 - [ ] Follow `docs/first-playable-loop.md` in a Creative/admin test world.
 - [ ] Place a Field Command Post.
+- [ ] Confirm Field Command Post placement or generated registration can progress `establish_field_command`.
 - [ ] Open the Field Command Post GUI.
 - [ ] Confirm the Field Command Post GUI clearly shows points, stage, level, global supplies, local stockpile, passive point generation, and defender cap/timer.
 - [ ] Close and reopen the Field Command Post GUI and confirm points/stage/supplies do not desync obviously.
@@ -65,14 +70,16 @@ Use this checklist before wider testing of `0.1.0-alpha.1`. Record Minecraft log
 - [ ] Confirm the Research Lab GUI clearly shows target ID/name, progress, required samples/supplies, stored samples, local supplies, global supplies, and blocked/ready status.
 - [ ] Close and reopen the Research Lab GUI and confirm selected/progress/supplies do not desync obviously.
 - [ ] Use Research Lab research selection/completion buttons where requirements are met.
+- [ ] Confirm completing one research entry can progress `complete_first_research`.
 - [ ] Deposit a Supply Crate into a Field Command Post.
 - [ ] Deposit a Supply Crate into a Research Lab.
+- [ ] Confirm supply claims, deposits, or GUI transfers can progress `stockpile_supplies`.
 
 ## Parasite/Test Mapping Tests
 
 - [ ] Kill `minecraft:zombie` and confirm default human point rewards can apply.
 - [ ] Kill `minecraft:zombie` repeatedly and confirm sample drops can occur with the default test chance.
-- [ ] Pick up a Parasite Tissue Sample while `recover_parasite_sample` is active and confirm mission progress can update.
+- [ ] Pick up a Parasite Tissue Sample and confirm `recover_parasite_sample` auto-starts or completes.
 - [ ] Reset config and confirm the default zombie test mapping returns.
 - [ ] Add a custom test entity mapping and confirm config parsing does not crash.
 - [ ] With SRP installed, add a verified SRP registry ID mapping and confirm kills/samples/targeting if available.
@@ -103,6 +110,7 @@ Use this checklist before wider testing of `0.1.0-alpha.1`. Record Minecraft log
 - [ ] Use the Main Base debug structure command.
 - [ ] Confirm Main Base success feedback includes origin, Command Post position, registration state, activation state, defender count, and total registered Main Bases.
 - [ ] Confirm the Main Base contains a central Field Command Post, defender pads, Research Labs, Supply Crates, perimeter/foundation, and simple zone markers.
+- [ ] Confirm Main Base generation can progress `establish_main_base`.
 - [ ] Try structure debug commands in a disallowed dimension if practical and confirm generation fails safely.
 - [ ] Reload the world after generating each structure.
 - [ ] Confirm generated structures do not crash on reload.

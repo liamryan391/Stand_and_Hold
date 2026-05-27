@@ -34,6 +34,12 @@ Known issues for `0.1.0-alpha.1`.
 - Research Lab and Field Command Post GUIs are clearer after the art pass, but still plain and may need later layout polish.
 - Balance is testing-focused, not final.
 
+## Missions
+
+- The Phase 37 mission chain is still command-driven and has no dedicated mission GUI yet.
+- Mission chat feedback only appears when progress has a player context. Worldgen, passive building progress, or other server-only hooks can complete missions silently; use `/standandhold mission status` to verify saved state.
+- Existing generated configs may still contain the older single sample mission until `config/standandhold.cfg` is reset or the `Missions` section is updated manually.
+
 ## Saved Data
 
 - Saved data versioning currently has a small non-destructive version 0 to 1 migration hook. Larger save migrations are still deferred until the data model stabilizes.

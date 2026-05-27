@@ -2,6 +2,7 @@ package com.liamryan.standandhold.common.block;
 
 import com.liamryan.standandhold.StandAndHoldConstants;
 import com.liamryan.standandhold.common.item.ModItems;
+import com.liamryan.standandhold.common.mission.MissionManager;
 import com.liamryan.standandhold.common.supply.SupplyManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -41,6 +42,7 @@ public final class BlockSupplyCrate extends Block {
         );
         message.getStyle().setColor(TextFormatting.YELLOW);
         player.sendMessage(message);
+        MissionManager.recordSupplyStockpile(world, player, totalSupplies);
         return true;
     }
 }

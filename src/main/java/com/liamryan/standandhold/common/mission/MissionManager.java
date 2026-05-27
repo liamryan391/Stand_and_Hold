@@ -9,6 +9,8 @@ import com.liamryan.standandhold.common.util.ParasiteSampleHelper;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -118,6 +120,10 @@ public final class MissionManager {
     }
 
     public static int recordObjectiveProgress(World world, MissionObjectiveType objectiveType, int amount) {
+        return recordObjectiveProgress(world, objectiveType, amount, null);
+    }
+
+    public static int recordObjectiveProgress(World world, MissionObjectiveType objectiveType, int amount, @Nullable EntityPlayer player) {
         if (world == null || world.isRemote || objectiveType == null || amount <= 0) {
             return 0;
         }
@@ -129,7 +135,7 @@ public final class MissionManager {
                 continue;
             }
 
-            MissionProgress progress = data.getMissionProgress(mission.getId());
+            MissionProgress progress = getOrStartMissionProgress(data, mission, world.getTotalWorldTime());
             if (progress == null || progress.isCompleted()) {
                 continue;
             }
@@ -137,18 +143,27 @@ public final class MissionManager {
             int newProgress = Math.min(mission.getRequiredCount(), progress.getProgress() + amount);
             if (data.setMissionProgress(mission.getId(), newProgress)) {
                 updatedMissions++;
+                progress = data.getMissionProgress(mission.getId());
+                if (progress != null && progress.getProgress() >= mission.getRequiredCount()) {
+                    completeMissionFromProgress(world, mission, player);
+                } else {
+                    sendProgressMessage(player, mission, progress);
+                }
             }
         }
         return updatedMissions;
     }
 
     public static int recordParasiteSampleRecovery(World world, EntityPlayer player, int recoveredSamples) {
-        int updatedMissions = recordObjectiveProgress(world, MissionObjectiveType.RECOVER_PARASITE_SAMPLE, recoveredSamples);
+        int updatedMissions = recordObjectiveProgress(world, MissionObjectiveType.RECOVER_PARASITE_SAMPLE, recoveredSamples, player);
         for (Mission mission : getMissions()) {
             if (mission.getObjectiveType() == MissionObjectiveType.RECOVER_PARASITE_SAMPLE) {
                 MissionProgress progress = refreshProgress(world, mission, player);
                 if (progress != null) {
                     updatedMissions++;
+                    if (!progress.isCompleted() && progress.getProgress() >= mission.getRequiredCount()) {
+                        completeMissionFromProgress(world, mission, player);
+                    }
                 }
             }
         }
@@ -157,6 +172,27 @@ public final class MissionManager {
 
     public static int recordOutpostDefense(World world) {
         return recordObjectiveProgress(world, MissionObjectiveType.DEFEND_OUTPOST, 1);
+    }
+
+    public static int recordFieldCommandPostEstablished(World world, @Nullable EntityPlayer player) {
+        return recordObjectiveProgressToAtLeast(world, MissionObjectiveType.ESTABLISH_FIELD_COMMAND, 1, player);
+    }
+
+    public static int recordSupplyStockpile(World world, @Nullable EntityPlayer player, int observedSupplies) {
+        int globalSupplies = SupplyManager.getSupplyPoints(world);
+        return recordObjectiveProgressToAtLeast(world, MissionObjectiveType.STOCKPILE_SUPPLIES, Math.max(globalSupplies, observedSupplies), player);
+    }
+
+    public static int recordResearchCompleted(World world, @Nullable EntityPlayer player) {
+        return recordObjectiveProgress(world, MissionObjectiveType.COMPLETE_RESEARCH, 1, player);
+    }
+
+    public static int recordHumanStageReached(World world, @Nullable EntityPlayer player) {
+        if (world == null || world.isRemote) {
+            return 0;
+        }
+
+        return recordObjectiveProgressToAtLeast(world, MissionObjectiveType.REACH_HUMAN_STAGE, HumanPointManager.getData(world).getStage().getId(), player);
     }
 
     public static int recordStructureDiscovery(World world, MissionObjectiveType structureType) {
@@ -190,6 +226,8 @@ public final class MissionManager {
         int totalPoints = mission.getPointReward() > 0 ? HumanPointManager.addPoints(world, mission.getPointReward(), "mission completion: " + mission.getId()) : data.getHumanPoints();
         int totalSupplies = mission.getSupplyReward() > 0 ? SupplyManager.addSupplies(world, mission.getSupplyReward(), "mission completion: " + mission.getId()) : data.getSupplyPoints();
         List<String> awardedResearch = awardResearchRewards(world, mission);
+        recordSupplyStockpile(world, player, totalSupplies);
+        recordHumanStageReached(world, player);
         StandAndHold.LOGGER.info("Mission completed: {}.", mission.getId());
         return MissionCompletionResult.completed(mission, data.getMissionProgress(mission.getId()), totalPoints, totalSupplies, awardedResearch);
     }
@@ -208,9 +246,102 @@ public final class MissionManager {
         int trackedProgress = progress.getProgress();
         if (mission.getObjectiveType() == MissionObjectiveType.RECOVER_PARASITE_SAMPLE) {
             trackedProgress = Math.max(trackedProgress, Math.min(mission.getRequiredCount(), ParasiteSampleHelper.getAvailableParasiteSamples(player)));
+        } else if (mission.getObjectiveType() == MissionObjectiveType.ESTABLISH_FIELD_COMMAND) {
+            trackedProgress = Math.max(trackedProgress, getFieldCommandProgress(data, mission));
+        } else if (mission.getObjectiveType() == MissionObjectiveType.STOCKPILE_SUPPLIES) {
+            trackedProgress = Math.max(trackedProgress, Math.min(mission.getRequiredCount(), data.getSupplyPoints()));
+        } else if (mission.getObjectiveType() == MissionObjectiveType.COMPLETE_RESEARCH) {
+            trackedProgress = Math.max(trackedProgress, Math.min(mission.getRequiredCount(), ResearchManager.getCompletedResearchCount(world)));
+        } else if (mission.getObjectiveType() == MissionObjectiveType.REACH_HUMAN_STAGE) {
+            trackedProgress = Math.max(trackedProgress, Math.min(mission.getRequiredCount(), data.getStage().getId()));
+        } else if (mission.getObjectiveType() == MissionObjectiveType.DISCOVER_MAIN_BASE) {
+            trackedProgress = Math.max(trackedProgress, data.getMainBasePositions().isEmpty() ? 0 : Math.min(mission.getRequiredCount(), 1));
         }
         data.setMissionProgress(mission.getId(), trackedProgress);
         return data.getMissionProgress(mission.getId());
+    }
+
+    private static int recordObjectiveProgressToAtLeast(World world, MissionObjectiveType objectiveType, int observedProgress, @Nullable EntityPlayer player) {
+        if (world == null || world.isRemote || objectiveType == null || observedProgress <= 0) {
+            return 0;
+        }
+
+        HumanWorldData data = HumanPointManager.getData(world);
+        int updatedMissions = 0;
+        for (Mission mission : getMissions()) {
+            if (mission.getObjectiveType() != objectiveType && !isStructureObjectiveMatch(mission.getObjectiveType(), objectiveType)) {
+                continue;
+            }
+
+            MissionProgress progress = getOrStartMissionProgress(data, mission, world.getTotalWorldTime());
+            if (progress == null || progress.isCompleted()) {
+                continue;
+            }
+
+            int newProgress = Math.max(progress.getProgress(), Math.min(mission.getRequiredCount(), observedProgress));
+            if (data.setMissionProgress(mission.getId(), newProgress)) {
+                updatedMissions++;
+                progress = data.getMissionProgress(mission.getId());
+                if (progress != null && progress.getProgress() >= mission.getRequiredCount()) {
+                    completeMissionFromProgress(world, mission, player);
+                } else {
+                    sendProgressMessage(player, mission, progress);
+                }
+            }
+        }
+        return updatedMissions;
+    }
+
+    @Nullable
+    private static MissionProgress getOrStartMissionProgress(HumanWorldData data, Mission mission, long worldTime) {
+        MissionProgress progress = data.getMissionProgress(mission.getId());
+        if (progress == null) {
+            data.startMission(mission.getId(), worldTime);
+            progress = data.getMissionProgress(mission.getId());
+        }
+        return progress;
+    }
+
+    private static int getFieldCommandProgress(HumanWorldData data, Mission mission) {
+        return data.getFieldCommandPostPositions().isEmpty() ? 0 : Math.min(mission.getRequiredCount(), 1);
+    }
+
+    private static void completeMissionFromProgress(World world, Mission mission, @Nullable EntityPlayer player) {
+        MissionCompletionResult result = completeMission(world, mission.getId(), player, false);
+        if (result.getStatus() == MissionCompletionStatus.COMPLETED) {
+            sendCompletionMessage(player, result);
+        }
+    }
+
+    private static void sendProgressMessage(@Nullable EntityPlayer player, Mission mission, @Nullable MissionProgress progress) {
+        if (player == null || progress == null) {
+            return;
+        }
+
+        TextComponentTranslation message = new TextComponentTranslation(
+                "message.standandhold.mission.progress",
+                mission.getDisplayName(),
+                progress.getProgress(),
+                mission.getRequiredCount()
+        );
+        message.getStyle().setColor(TextFormatting.AQUA);
+        player.sendMessage(message);
+    }
+
+    private static void sendCompletionMessage(@Nullable EntityPlayer player, MissionCompletionResult result) {
+        if (player == null || result == null || result.getMission() == null) {
+            return;
+        }
+
+        TextComponentTranslation message = new TextComponentTranslation(
+                "message.standandhold.mission.complete",
+                result.getMission().getDisplayName(),
+                result.getMission().getPointReward(),
+                result.getMission().getSupplyReward(),
+                result.getAwardedResearchIds().isEmpty() ? "none" : joinStrings(result.getAwardedResearchIds())
+        );
+        message.getStyle().setColor(TextFormatting.YELLOW);
+        player.sendMessage(message);
     }
 
     private static boolean isStructureObjectiveMatch(MissionObjectiveType missionType, MissionObjectiveType eventType) {
@@ -230,6 +361,21 @@ public final class MissionManager {
             }
         }
         return Collections.unmodifiableList(awardedResearch);
+    }
+
+    private static String joinStrings(List<String> values) {
+        if (values == null || values.isEmpty()) {
+            return "";
+        }
+
+        StringBuilder builder = new StringBuilder();
+        for (String value : values) {
+            if (builder.length() > 0) {
+                builder.append(", ");
+            }
+            builder.append(value);
+        }
+        return builder.toString();
     }
 
     @Nullable

@@ -54,7 +54,10 @@ List changes made to config/standandhold.cfg, or write "None".
 | Buildings | Field Command Post GUI opens | Not tested | |
 | Buildings | Research Lab GUI opens | Not tested | |
 | Vertical Slice | First playable loop guide can be followed in Creative/admin test world | Not tested | |
-| Missions | `recover_parasite_sample` can track sample recovery when active | Not tested | |
+| Missions | Phase 37 mission chain appears in `/standandhold mission list` | Not tested | |
+| Missions | `recover_parasite_sample` auto-starts/completes from sample pickup | Not tested | |
+| Missions | `establish_field_command`, `stockpile_supplies`, `complete_first_research`, and `reach_local_response` progress from gameplay | Not tested | |
+| Missions | `mission active` and admin `mission reset <id>` work in a test world | Not tested | |
 | Supplies | Supply crate deposit works | Not tested | |
 | Entities | Human spawn eggs work | Not tested | |
 | Entities | Stage 1 early army defenders can spawn near a loaded Field Command Post | Not tested | |

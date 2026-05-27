@@ -5,6 +5,10 @@ import java.util.Locale;
 public enum MissionObjectiveType {
     MANUAL("manual", "Manual Objective"),
     RECOVER_PARASITE_SAMPLE("recover_parasite_sample", "Recover Parasite Sample"),
+    ESTABLISH_FIELD_COMMAND("establish_field_command", "Establish Field Command"),
+    STOCKPILE_SUPPLIES("stockpile_supplies", "Stockpile Supplies"),
+    COMPLETE_RESEARCH("complete_research", "Complete Research"),
+    REACH_HUMAN_STAGE("reach_human_stage", "Reach Human Stage"),
     DEFEND_OUTPOST("defend_outpost", "Defend Outpost"),
     DISCOVER_STRUCTURE("discover_structure", "Discover Structure"),
     DISCOVER_CHECKPOINT("discover_checkpoint", "Discover Checkpoint"),

@@ -4,6 +4,7 @@ import com.liamryan.standandhold.StandAndHold;
 import com.liamryan.standandhold.StandAndHoldConstants;
 import com.liamryan.standandhold.common.gui.GuiIds;
 import com.liamryan.standandhold.common.item.ModItems;
+import com.liamryan.standandhold.common.mission.MissionManager;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.supply.SupplyManager;
 import com.liamryan.standandhold.common.tile.TileEntityResearchLab;
@@ -107,6 +108,7 @@ public final class BlockResearchLab extends Block implements ITileEntityProvider
             );
             message.getStyle().setColor(TextFormatting.YELLOW);
             player.sendMessage(message);
+            MissionManager.recordSupplyStockpile(world, player, lab.getStoredSupplies());
             return true;
         }
 

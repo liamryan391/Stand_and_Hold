@@ -4,6 +4,7 @@ import com.liamryan.standandhold.common.infrastructure.FieldCommandPostLevel;
 import com.liamryan.standandhold.common.infrastructure.MainBaseManager;
 import com.liamryan.standandhold.common.infrastructure.OutpostDefenseManager;
 import com.liamryan.standandhold.common.dynamic.DynamicEventManager;
+import com.liamryan.standandhold.common.mission.MissionManager;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.supply.ISupplyStorage;
 import com.liamryan.standandhold.common.supply.LogisticsRouteManager;
@@ -39,6 +40,7 @@ public final class TileEntityFieldCommandPost extends TileEntity implements ITic
     public void onLoad() {
         if (world != null && !world.isRemote) {
             HumanPointManager.getData(world).registerFieldCommandPost(world.provider.getDimension(), pos);
+            MissionManager.recordFieldCommandPostEstablished(world, null);
             boolean changed = false;
             if (placedWorldTime < 0L) {
                 placedWorldTime = world.getTotalWorldTime();
@@ -142,7 +144,10 @@ public final class TileEntityFieldCommandPost extends TileEntity implements ITic
         }
 
         if (worldTime - lastSupplyGenerationTime >= tickInterval) {
-            addStoredSupplies(suppliesPerInterval);
+            int acceptedSupplies = addStoredSupplies(suppliesPerInterval);
+            if (acceptedSupplies > 0) {
+                MissionManager.recordSupplyStockpile(world, null, getStoredSupplies());
+            }
             lastSupplyGenerationTime = worldTime;
             markDirty();
         }

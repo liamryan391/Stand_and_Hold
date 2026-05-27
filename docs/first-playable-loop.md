@@ -9,6 +9,7 @@ Use this guide to test the first small playable loop in `0.1.0-alpha.1`. This is
 - Let `config/standandhold.cfg` generate once, or reset it if you want the default test mappings.
 - In Creative, take a Field Command Post, Research Lab, Supply Crate, and any test human spawn eggs from the Stand and Hold tab.
 - Use `/standandhold help` and `/standandhold status` to orient the test.
+- Use `/standandhold mission list` to confirm the Phase 37 alpha mission chain is present. If only the old single sample mission appears, reset or update `config/standandhold.cfg`.
 - Optional structure testing details are in `docs/structures.md`.
 
 ## Loop Steps
@@ -21,14 +22,14 @@ Use this guide to test the first small playable loop in `0.1.0-alpha.1`. This is
 
    Expected: Stage 0 Survivors, low or zero points, and current global supplies.
 
-2. Optional but useful: start the first mission as an admin.
+2. Check the mission chain.
 
    ```text
-   /standandhold mission start recover_parasite_sample
-   /standandhold mission status recover_parasite_sample
+   /standandhold mission list
+   /standandhold mission active
    ```
 
-   Expected: the mission becomes active and tracks one recovered Parasite Tissue Sample.
+   Expected: the default chain includes sample recovery, field command, supplies, first research, Stage 1, outpost defence, and Main Base foundation objectives. No missions may be active yet; they auto-start when matching gameplay progress happens.
 
 3. Kill the configured test parasite entity.
 
@@ -39,11 +40,11 @@ Use this guide to test the first small playable loop in `0.1.0-alpha.1`. This is
    parasiteSampleDropChances: minecraft:zombie=0.15
    ```
 
-   Expected: zombie kills add human points. Repeated kills can drop Parasite Tissue Samples. Picked-up samples update the active sample recovery mission.
+   Expected: zombie kills add human points. Repeated kills can drop Parasite Tissue Samples. Picked-up samples auto-start and complete `recover_parasite_sample`.
 
 4. Place a Field Command Post and Research Lab near the test area.
 
-   Open both GUIs. The Command Post shows human points, stage, supplies, local stockpile, passive point generation, defender status, and upgrade controls. The Research Lab shows its target research, progress, requirements, stored samples, local supplies, global supplies, and whether completion is blocked or ready.
+   Open both GUIs. The Command Post shows human points, stage, supplies, local stockpile, passive point generation, defender status, and upgrade controls. The Research Lab shows its target research, progress, requirements, stored samples, local supplies, global supplies, and whether completion is blocked or ready. Field Command Post placement or generated registration should progress `establish_field_command`.
 
 5. Put one Parasite Tissue Sample into the Research Lab.
 
@@ -61,7 +62,7 @@ Use this guide to test the first small playable loop in `0.1.0-alpha.1`. This is
    researchLabProgressRequired=160
    ```
 
-   Expected: the first lab research completes after enough loaded time if it has the required sample. The first research has no supply cost.
+   Expected: the first lab research completes after enough loaded time if it has the required sample. The first research has no supply cost. Completing any research should progress `complete_first_research`.
 
 7. Add supplies to make the next research path understandable.
 
@@ -71,7 +72,7 @@ Use this guide to test the first small playable loop in `0.1.0-alpha.1`. This is
    /standandhold supplies status
    ```
 
-   Expected: global supplies are visible, and later research such as `field_communications` can use them.
+   Expected: global supplies are visible, `stockpile_supplies` can progress, and later research such as `field_communications` can use the global pool.
 
 8. Reach the early army stage.
 
@@ -82,6 +83,7 @@ Use this guide to test the first small playable loop in `0.1.0-alpha.1`. This is
    ```
 
    Expected: `/standandhold status` reports Stage 1 Local Army Response once the threshold is met.
+   `reach_local_response` should complete once the saved stage reaches Stage 1.
 
 9. Confirm outpost defenders.
 
@@ -102,13 +104,23 @@ Use this guide to test the first small playable loop in `0.1.0-alpha.1`. This is
    /standandhold event reinforcement <x> <y> <z>
    ```
 
-   Expected: outpost attacks spawn configured attackers, defaulting to zombies. Reinforcements spawn the strongest currently unlocked human tier. Natural events use the saved command-post cooldown and may take longer.
+   Expected: outpost attacks spawn configured attackers, defaulting to zombies. Reinforcements spawn the strongest currently unlocked human tier. Natural events use the saved command-post cooldown and may take longer. A started outpost attack should progress `defend_outpost`.
 
-11. Check what to do next.
+11. Generate or locate a Main Base foundation.
+
+   ```text
+   /standandhold structure mainbase
+   /standandhold mainbase list
+   ```
+
+   Expected: the Main Base foundation registers and progresses `establish_main_base`.
+
+12. Check what to do next.
 
    ```text
    /standandhold help
    /standandhold research list
+   /standandhold mission active
    /standandhold mission status
    /standandhold commandpost nearest
    ```

@@ -1,6 +1,7 @@
 package com.liamryan.standandhold.common.event;
 
 import com.liamryan.standandhold.StandAndHold;
+import com.liamryan.standandhold.common.block.ModBlocks;
 import com.liamryan.standandhold.common.compat.SRPCompat;
 import com.liamryan.standandhold.common.entity.EntityHumanNpc;
 import com.liamryan.standandhold.common.equipment.EquipmentUnlockManager;
@@ -21,6 +22,7 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -51,6 +53,8 @@ public final class HumanProgressionEventHandler {
         }
 
         HumanPointManager.addPoints(world, reward, "configured entity death: " + entityId);
+        Entity sourceEntity = event.getSource().getTrueSource();
+        MissionManager.recordHumanStageReached(world, sourceEntity instanceof EntityPlayer ? (EntityPlayer) sourceEntity : null);
 
         if (StandAndHoldConfig.debugLogging) {
             StandAndHold.LOGGER.info("Awarded {} human points for configured entity death: {}.", reward, entityId);
@@ -119,6 +123,22 @@ public final class HumanProgressionEventHandler {
         }
 
         MissionManager.recordParasiteSampleRecovery(player.world, player, stack.getCount());
+    }
+
+    @SubscribeEvent
+    public void onBlockPlaced(BlockEvent.PlaceEvent event) {
+        if (!(event.getWorld() instanceof World)) {
+            return;
+        }
+
+        World world = (World) event.getWorld();
+        if (world.isRemote || event.getPlacedBlock().getBlock() != ModBlocks.FIELD_COMMAND_POST) {
+            return;
+        }
+
+        if (event.getPlayer() != null) {
+            MissionManager.recordFieldCommandPostEstablished(world, event.getPlayer());
+        }
     }
 
     private void tryDropParasiteSample(EntityLivingBase entity, ResourceLocation entityId) {

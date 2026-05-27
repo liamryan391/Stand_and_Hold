@@ -1,6 +1,7 @@
 package com.liamryan.standandhold.common.progression;
 
 import com.liamryan.standandhold.StandAndHold;
+import com.liamryan.standandhold.common.mission.MissionManager;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import net.minecraft.world.World;
@@ -42,6 +43,7 @@ public final class HumanPointManager {
         if (previousStage != newStage) {
             StandAndHold.LOGGER.info("Human stage advanced to Stage {}: {}.", newStage.getId(), newStage.getDisplayName());
         }
+        MissionManager.recordHumanStageReached(world, null);
 
         return data.getHumanPoints();
     }
@@ -50,6 +52,7 @@ public final class HumanPointManager {
         HumanWorldData data = getData(world);
         data.setStage(stage);
         StandAndHold.LOGGER.info("Human stage manually set to Stage {}: {}.", data.getStage().getId(), data.getStage().getDisplayName());
+        MissionManager.recordHumanStageReached(world, null);
         return data.getStage();
     }
 

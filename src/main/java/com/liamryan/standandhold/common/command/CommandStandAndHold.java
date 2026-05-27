@@ -90,9 +90,11 @@ public final class CommandStandAndHold extends CommandBase {
     private static final String[] MISSION_SUBCOMMANDS = new String[] {
             "list",
             "status",
+            "active",
             "start",
             "progress",
-            "complete"
+            "complete",
+            "reset"
     };
 
     @Override
@@ -232,7 +234,8 @@ public final class CommandStandAndHold extends CommandBase {
                 && ("status".equalsIgnoreCase(args[1])
                 || "start".equalsIgnoreCase(args[1])
                 || "progress".equalsIgnoreCase(args[1])
-                || "complete".equalsIgnoreCase(args[1]))) {
+                || "complete".equalsIgnoreCase(args[1])
+                || "reset".equalsIgnoreCase(args[1]))) {
             return getListOfStringsMatchingLastWord(args, getMissionCompletions());
         }
 
@@ -364,6 +367,7 @@ public final class CommandStandAndHold extends CommandBase {
 
             int amount = parseInt(args[2], 1);
             int total = SupplyManager.addSupplies(sender.getEntityWorld(), amount, "command");
+            MissionManager.recordSupplyStockpile(sender.getEntityWorld(), getPlayerSender(sender), total);
             TextComponentTranslation message = new TextComponentTranslation(
                     "commands.standandhold.supplies.add.success",
                     amount,
@@ -944,6 +948,11 @@ public final class CommandStandAndHold extends CommandBase {
             return;
         }
 
+        if ("active".equalsIgnoreCase(args[1])) {
+            executeMissionActive(sender, args);
+            return;
+        }
+
         if ("start".equalsIgnoreCase(args[1])) {
             requireAdmin(sender);
             executeMissionStart(sender, args);
@@ -959,6 +968,12 @@ public final class CommandStandAndHold extends CommandBase {
         if ("complete".equalsIgnoreCase(args[1])) {
             requireAdmin(sender);
             executeMissionComplete(sender, args);
+            return;
+        }
+
+        if ("reset".equalsIgnoreCase(args[1])) {
+            requireAdmin(sender);
+            executeMissionReset(sender, args);
             return;
         }
 
@@ -1029,6 +1044,33 @@ public final class CommandStandAndHold extends CommandBase {
         }
     }
 
+    private void executeMissionActive(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length != 2) {
+            throw new CommandException("commands.standandhold.mission.usage");
+        }
+
+        HumanWorldData data = HumanPointManager.getData(sender.getEntityWorld());
+        EntityPlayer player = getPlayerSender(sender);
+        int activeCount = 0;
+        for (Mission mission : MissionManager.getMissions()) {
+            MissionProgress progress = MissionManager.refreshProgress(sender.getEntityWorld(), mission, player);
+            if (progress == null) {
+                progress = data.getMissionProgress(mission.getId());
+            }
+
+            if (progress != null && !progress.isCompleted()) {
+                activeCount++;
+                sendMissionStatus(sender, mission);
+            }
+        }
+
+        if (activeCount == 0) {
+            TextComponentTranslation none = new TextComponentTranslation("commands.standandhold.mission.active.none");
+            none.getStyle().setColor(TextFormatting.GRAY);
+            sender.sendMessage(none);
+        }
+    }
+
     private void executeMissionStart(ICommandSender sender, String[] args) throws CommandException {
         if (args.length != 3) {
             throw new CommandException("commands.standandhold.mission.start.usage");
@@ -1055,6 +1097,29 @@ public final class CommandStandAndHold extends CommandBase {
             default:
                 throw new CommandException("commands.standandhold.mission.unknown", args[2]);
         }
+    }
+
+    private void executeMissionReset(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length != 3) {
+            throw new CommandException("commands.standandhold.mission.reset.usage");
+        }
+
+        Mission mission = MissionManager.getMission(args[2]);
+        if (mission == null) {
+            throw new CommandException("commands.standandhold.mission.unknown", args[2]);
+        }
+
+        if (!HumanPointManager.getData(sender.getEntityWorld()).resetMission(mission.getId())) {
+            throw new CommandException("commands.standandhold.mission.reset.none", mission.getId());
+        }
+
+        TextComponentTranslation message = new TextComponentTranslation(
+                "commands.standandhold.mission.reset.success",
+                mission.getId(),
+                mission.getDisplayName()
+        );
+        message.getStyle().setColor(TextFormatting.YELLOW);
+        sender.sendMessage(message);
     }
 
     private void executeMissionProgress(ICommandSender sender, String[] args) throws CommandException {

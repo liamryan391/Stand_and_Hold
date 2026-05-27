@@ -24,6 +24,7 @@ Technical foundation alpha for Stand and Hold.
 - Phase 34 optional SRP compatibility guide, SRP test checklist, safer mapping detection, and clearer config comments.
 - Phase 35 original alpha placeholder textures for human unit tiers, core blocks/items, armour sets, and clearer lab/command-post GUI text.
 - Phase 36 improved checkpoint/Main Base layouts, safer structure generation results, clearer debug feedback, and structure documentation.
+- Phase 37 early alpha mission chain, automatic mission progress hooks for the first playable loop, `mission active/reset` commands, and mission documentation.
 
 ### Validation
 

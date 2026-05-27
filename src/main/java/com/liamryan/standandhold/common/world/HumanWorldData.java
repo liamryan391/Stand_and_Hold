@@ -527,6 +527,16 @@ public final class HumanWorldData extends WorldSavedData {
         return true;
     }
 
+    public boolean resetMission(String missionId) {
+        String normalizedMissionId = Mission.normalizeId(missionId);
+        if (normalizedMissionId.isEmpty() || missionProgressRecords.remove(normalizedMissionId) == null) {
+            return false;
+        }
+
+        markDirty();
+        return true;
+    }
+
     public CleanupResult cleanupLoadedFieldCommandPostPositions(World world) {
         CleanupResult result = new CleanupResult("Field Command Post");
         if (!canCleanup(world)) {
