@@ -279,12 +279,7 @@ public final class MissionManager {
         }
 
         data.setMissionProgress(mission.getId(), trackedProgress);
-        progress = data.getMissionProgress(mission.getId());
-        if (progress != null && !progress.isCompleted() && progress.getProgress() >= mission.getRequiredCount()) {
-            completeMissionFromProgress(world, mission, player);
-            progress = data.getMissionProgress(mission.getId());
-        }
-        return progress;
+        return data.getMissionProgress(mission.getId());
     }
 
     private static int recordObjectiveProgressToAtLeast(World world, MissionObjectiveType objectiveType, int observedProgress, @Nullable EntityPlayer player) {
