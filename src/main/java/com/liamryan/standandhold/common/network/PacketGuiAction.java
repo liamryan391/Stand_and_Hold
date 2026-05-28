@@ -25,6 +25,8 @@ public final class PacketGuiAction implements IMessage {
     public static final int ACTION_RESEARCH_LAB_COMPLETE = 3;
     public static final int ACTION_SUPPLIES_TO_LOCAL = 4;
     public static final int ACTION_SUPPLIES_TO_GLOBAL = 5;
+    public static final int ACTION_RESEARCH_LAB_PREVIOUS = 6;
+    public static final int ACTION_RESEARCH_LAB_CREATIVE_COMPLETE = 7;
 
     private int actionId;
     private BlockPos pos = BlockPos.ORIGIN;
@@ -89,10 +91,16 @@ public final class PacketGuiAction implements IMessage {
                     handleCommandPostUpgrade(world, pos, tileEntity, player);
                     break;
                 case ACTION_RESEARCH_LAB_NEXT:
-                    handleResearchLabNext(pos, tileEntity, player);
+                    handleResearchLabSelect(pos, tileEntity, player, true);
+                    break;
+                case ACTION_RESEARCH_LAB_PREVIOUS:
+                    handleResearchLabSelect(pos, tileEntity, player, false);
                     break;
                 case ACTION_RESEARCH_LAB_COMPLETE:
-                    handleResearchLabComplete(pos, tileEntity, player);
+                    handleResearchLabComplete(pos, tileEntity, player, false);
+                    break;
+                case ACTION_RESEARCH_LAB_CREATIVE_COMPLETE:
+                    handleResearchLabComplete(pos, tileEntity, player, true);
                     break;
                 case ACTION_SUPPLIES_TO_LOCAL:
                     handleSupplyTransfer(world, tileEntity, player, true);
@@ -116,13 +124,14 @@ public final class PacketGuiAction implements IMessage {
             CommandPostMessageHelper.sendUpgradeResult(player, result);
         }
 
-        private void handleResearchLabNext(BlockPos pos, TileEntity tileEntity, EntityPlayerMP player) {
+        private void handleResearchLabSelect(BlockPos pos, TileEntity tileEntity, EntityPlayerMP player, boolean next) {
             if (!(tileEntity instanceof TileEntityResearchLab)) {
                 return;
             }
 
             TileEntityResearchLab lab = (TileEntityResearchLab) tileEntity;
-            if (lab.selectNextAvailableResearch()) {
+            boolean selected = next ? lab.selectNextAvailableResearch() : lab.selectPreviousAvailableResearch();
+            if (selected) {
                 TextComponentTranslation message = new TextComponentTranslation(
                         "message.standandhold.research_lab.select.success",
                         lab.getTargetResearchLabel()
@@ -136,13 +145,14 @@ public final class PacketGuiAction implements IMessage {
             }
         }
 
-        private void handleResearchLabComplete(BlockPos pos, TileEntity tileEntity, EntityPlayerMP player) {
+        private void handleResearchLabComplete(BlockPos pos, TileEntity tileEntity, EntityPlayerMP player, boolean creativeRequested) {
             if (!(tileEntity instanceof TileEntityResearchLab)) {
                 return;
             }
 
             TileEntityResearchLab lab = (TileEntityResearchLab) tileEntity;
-            if (lab.tryCompleteCurrentResearch()) {
+            boolean creativeBypass = creativeRequested && player.capabilities.isCreativeMode;
+            if (lab.tryCompleteCurrentResearch(player, creativeBypass)) {
                 TextComponentTranslation message = new TextComponentTranslation("message.standandhold.research_lab.complete.success", pos.getX(), pos.getY(), pos.getZ());
                 message.getStyle().setColor(TextFormatting.YELLOW);
                 player.sendMessage(message);
