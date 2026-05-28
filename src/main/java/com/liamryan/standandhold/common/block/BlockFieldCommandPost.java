@@ -14,6 +14,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -64,6 +65,15 @@ public final class BlockFieldCommandPost extends Block implements ITileEntityPro
     }
 
     @Override
+    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
+        super.onBlockPlacedBy(world, pos, state, placer, stack);
+        if (!world.isRemote) {
+            HumanPointManager.getData(world).registerFieldCommandPost(world.provider.getDimension(), pos);
+            MissionManager.recordFieldCommandPostEstablished(world, placer instanceof EntityPlayer ? (EntityPlayer) placer : null);
+        }
+    }
+
+    @Override
     public void breakBlock(World world, BlockPos pos, IBlockState state) {
         if (!world.isRemote) {
             HumanPointManager.getData(world).unregisterFieldCommandPost(world.provider.getDimension(), pos);
@@ -77,6 +87,7 @@ public final class BlockFieldCommandPost extends Block implements ITileEntityPro
             return true;
         }
 
+        MissionManager.recordFieldCommandPostEstablished(world, player);
         TileEntity tileEntity = world.getTileEntity(pos);
         TileEntityFieldCommandPost commandPost = tileEntity instanceof TileEntityFieldCommandPost ? (TileEntityFieldCommandPost) tileEntity : null;
         ItemStack heldStack = player.getHeldItem(hand);
