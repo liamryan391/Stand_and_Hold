@@ -7,10 +7,12 @@ import com.liamryan.standandhold.common.research.ResearchManager;
 import com.liamryan.standandhold.common.supply.ISupplyStorage;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,7 +86,7 @@ public final class TileEntityResearchLab extends TileEntity implements ITickable
             markDirty();
         }
 
-        tryCompleteCurrentResearch();
+        tryCompleteCurrentResearch(null, false);
     }
 
     @Override
@@ -160,24 +162,39 @@ public final class TileEntityResearchLab extends TileEntity implements ITickable
     }
 
     public boolean tryCompleteCurrentResearch() {
+        return tryCompleteCurrentResearch(null, false);
+    }
+
+    public boolean tryCompleteCurrentResearch(@Nullable EntityPlayer player, boolean creativeBypass) {
         if (world == null || world.isRemote) {
             return false;
         }
 
         ResearchEntry target = getOrSelectTargetResearch();
-        if (target == null || researchProgress < getResearchProgressRequired()) {
+        if (target == null) {
             return false;
         }
 
-        if (storedParasiteSamples < target.getParasiteSampleCost()) {
+        if (!creativeBypass && researchProgress < getResearchProgressRequired()) {
             return false;
         }
 
-        ResearchManager.CompletionResult result = ResearchManager.completeResearch(world, target.getId());
-        if (result.getStatus() == ResearchManager.CompletionStatus.COMPLETED) {
-            if (target.getParasiteSampleCost() > 0) {
+        if (!creativeBypass && storedParasiteSamples < target.getParasiteSampleCost()) {
+            return false;
+        }
+
+        boolean completed;
+        if (creativeBypass) {
+            completed = ResearchManager.completeResearchAsReward(world, target.getId(), "creative research lab test at " + pos);
+        } else {
+            ResearchManager.CompletionResult result = ResearchManager.completeResearch(world, target.getId());
+            completed = result.getStatus() == ResearchManager.CompletionStatus.COMPLETED;
+            if (completed && target.getParasiteSampleCost() > 0) {
                 storedParasiteSamples -= target.getParasiteSampleCost();
             }
+        }
+
+        if (completed) {
             StandAndHold.LOGGER.info("Research Lab at {} completed research '{}'.", pos, target.getId());
             targetResearchId = "";
             researchProgress = 0;
@@ -185,17 +202,24 @@ public final class TileEntityResearchLab extends TileEntity implements ITickable
             return true;
         }
 
-        if (result.getStatus() == ResearchManager.CompletionStatus.ALREADY_COMPLETE) {
+        if (HumanPointManager.getData(world).isResearchCompleted(target.getId())) {
             targetResearchId = "";
             researchProgress = 0;
             markDirty();
-            return false;
         }
 
         return false;
     }
 
     public boolean selectNextAvailableResearch() {
+        return selectAvailableResearch(1);
+    }
+
+    public boolean selectPreviousAvailableResearch() {
+        return selectAvailableResearch(-1);
+    }
+
+    private boolean selectAvailableResearch(int direction) {
         if (world == null || world.isRemote) {
             return false;
         }
@@ -212,7 +236,8 @@ public final class TileEntityResearchLab extends TileEntity implements ITickable
         }
 
         int currentIndex = getTargetIndex(availableTargets, targetResearchId);
-        ResearchEntry nextTarget = availableTargets.get((currentIndex + 1) % availableTargets.size());
+        int nextIndex = currentIndex < 0 ? 0 : Math.floorMod(currentIndex + direction, availableTargets.size());
+        ResearchEntry nextTarget = availableTargets.get(nextIndex);
         if (!targetResearchId.equals(nextTarget.getId())) {
             targetResearchId = nextTarget.getId();
             researchProgress = 0;
