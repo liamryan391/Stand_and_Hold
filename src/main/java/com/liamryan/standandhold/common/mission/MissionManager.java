@@ -22,6 +22,16 @@ import java.util.List;
 import java.util.Set;
 
 public final class MissionManager {
+    private static final String[] CORE_MISSION_ENTRIES = new String[] {
+            "recover_parasite_sample|Recover Parasite Samples|Recover and catalog the first parasite tissue sample for the human resistance.|RECOVER_PARASITE_SAMPLE|1|20|8|",
+            "establish_field_command|Establish Field Command|Place, discover, or open a Field Command Post so survivors have a command anchor.|ESTABLISH_FIELD_COMMAND|1|25|12|",
+            "stockpile_supplies|Stockpile Supplies|Build a small supply reserve through Supply Crates or building transfers.|STOCKPILE_SUPPLIES|16|20|0|",
+            "complete_first_research|Complete First Research|Complete one research entry through a Research Lab or admin research command.|COMPLETE_RESEARCH|1|40|10|",
+            "reach_local_response|Reach Local Army Response|Reach Human Stage 1 to begin the local army response.|REACH_HUMAN_STAGE|1|0|25|",
+            "defend_outpost|Defend the Outpost|Trigger or survive one outpost attack event near a command post.|DEFEND_OUTPOST|1|40|20|",
+            "establish_main_base|Establish Main Base|Generate, discover, or register a Main Base foundation for later escalation.|DISCOVER_MAIN_BASE|1|100|80|"
+    };
+
     private static int cachedMissionEntriesHash = Integer.MIN_VALUE;
     private static List<Mission> cachedMissions = Collections.emptyList();
 
@@ -30,17 +40,26 @@ public final class MissionManager {
 
     public static List<Mission> getMissions() {
         String[] configuredEntries = StandAndHoldConfig.missions.missionEntries;
-        if (configuredEntries == null || configuredEntries.length == 0) {
-            return Collections.emptyList();
-        }
-
-        int entriesHash = Arrays.hashCode(configuredEntries);
+        int entriesHash = 31 * Arrays.hashCode(configuredEntries) + Arrays.hashCode(CORE_MISSION_ENTRIES);
         if (entriesHash == cachedMissionEntriesHash) {
             return cachedMissions;
         }
 
         List<Mission> missions = new ArrayList<Mission>();
         Set<String> seenIds = new LinkedHashSet<String>();
+        addMissionEntries(configuredEntries, missions, seenIds, true);
+        addMissionEntries(CORE_MISSION_ENTRIES, missions, seenIds, false);
+
+        cachedMissionEntriesHash = entriesHash;
+        cachedMissions = Collections.unmodifiableList(missions);
+        return cachedMissions;
+    }
+
+    private static void addMissionEntries(String[] configuredEntries, List<Mission> missions, Set<String> seenIds, boolean logDuplicates) {
+        if (configuredEntries == null) {
+            return;
+        }
+
         for (String configuredEntry : configuredEntries) {
             Mission mission = parseMission(configuredEntry);
             if (mission == null) {
@@ -49,13 +68,10 @@ public final class MissionManager {
 
             if (seenIds.add(mission.getId())) {
                 missions.add(mission);
-            } else if (StandAndHoldConfig.debugLogging) {
+            } else if (logDuplicates && StandAndHoldConfig.debugLogging) {
                 StandAndHold.LOGGER.warn("Ignoring duplicate mission id '{}'.", mission.getId());
             }
         }
-        cachedMissionEntriesHash = entriesHash;
-        cachedMissions = Collections.unmodifiableList(missions);
-        return cachedMissions;
     }
 
     @Nullable
@@ -106,17 +122,21 @@ public final class MissionManager {
         }
 
         HumanWorldData data = HumanPointManager.getData(world);
-        MissionProgress progress = data.getMissionProgress(mission.getId());
+        MissionProgress progress = getOrStartMissionProgress(data, mission, world.getTotalWorldTime());
         if (progress == null) {
             return MissionProgressResult.notActive(mission);
         }
-
         if (progress.isCompleted()) {
             return MissionProgressResult.alreadyCompleted(mission, progress);
         }
 
         data.addMissionProgress(mission.getId(), amount);
-        return MissionProgressResult.updated(mission, data.getMissionProgress(mission.getId()));
+        progress = data.getMissionProgress(mission.getId());
+        if (progress != null && progress.getProgress() >= mission.getRequiredCount()) {
+            completeMissionFromProgress(world, mission, null);
+            progress = data.getMissionProgress(mission.getId());
+        }
+        return MissionProgressResult.updated(mission, progress);
     }
 
     public static int recordObjectiveProgress(World world, MissionObjectiveType objectiveType, int amount) {
@@ -218,7 +238,7 @@ public final class MissionManager {
 
         refreshProgress(world, mission, player);
         progress = data.getMissionProgress(mission.getId());
-        if (!force && progress.getProgress() < mission.getRequiredCount()) {
+        if (!force && progress != null && progress.getProgress() < mission.getRequiredCount()) {
             return MissionCompletionResult.incomplete(mission, progress);
         }
 
@@ -238,7 +258,7 @@ public final class MissionManager {
         }
 
         HumanWorldData data = HumanPointManager.getData(world);
-        MissionProgress progress = data.getMissionProgress(mission.getId());
+        MissionProgress progress = getOrStartMissionProgress(data, mission, world.getTotalWorldTime());
         if (progress == null || progress.isCompleted()) {
             return progress;
         }
@@ -257,8 +277,14 @@ public final class MissionManager {
         } else if (mission.getObjectiveType() == MissionObjectiveType.DISCOVER_MAIN_BASE) {
             trackedProgress = Math.max(trackedProgress, data.getMainBasePositions().isEmpty() ? 0 : Math.min(mission.getRequiredCount(), 1));
         }
+
         data.setMissionProgress(mission.getId(), trackedProgress);
-        return data.getMissionProgress(mission.getId());
+        progress = data.getMissionProgress(mission.getId());
+        if (progress != null && !progress.isCompleted() && progress.getProgress() >= mission.getRequiredCount()) {
+            completeMissionFromProgress(world, mission, player);
+            progress = data.getMissionProgress(mission.getId());
+        }
+        return progress;
     }
 
     private static int recordObjectiveProgressToAtLeast(World world, MissionObjectiveType objectiveType, int observedProgress, @Nullable EntityPlayer player) {
