@@ -19,6 +19,13 @@ import java.util.List;
 import java.util.Set;
 
 public final class ResearchManager {
+    private static final String[] CORE_RESEARCH_ENTRIES = new String[] {
+            "parasite_samples|PARASITE_BIOLOGY|Parasite Samples|Catalog recovered parasite tissue and establish basic containment procedures.|15||1|0",
+            "field_communications|MILITARY_LOGISTICS|Field Communications|Coordinate survivor cells and local army response teams across infected territory.|20||0|20",
+            "outpost_doctrine|BASE_INFRASTRUCTURE|Outpost Doctrine|Draft the first defensible outpost standards for later military construction.|35|field_communications|0|50",
+            "special_division_training|SPECIAL_PROJECTS|Special Division Training|Train select operatives for anti-parasite rapid deployment and containment work.|100|parasite_samples,outpost_doctrine|4|120"
+    };
+
     private static int cachedResearchEntriesHash = Integer.MIN_VALUE;
     private static List<ResearchEntry> cachedResearchEntries = Collections.emptyList();
 
@@ -27,17 +34,26 @@ public final class ResearchManager {
 
     public static List<ResearchEntry> getResearchEntries() {
         String[] configuredEntries = StandAndHoldConfig.research.researchEntries;
-        if (configuredEntries == null || configuredEntries.length == 0) {
-            return Collections.emptyList();
-        }
-
-        int entriesHash = Arrays.hashCode(configuredEntries);
+        int entriesHash = 31 * Arrays.hashCode(configuredEntries) + Arrays.hashCode(CORE_RESEARCH_ENTRIES);
         if (entriesHash == cachedResearchEntriesHash) {
             return cachedResearchEntries;
         }
 
         List<ResearchEntry> entries = new ArrayList<ResearchEntry>();
         Set<String> seenIds = new LinkedHashSet<String>();
+        addResearchEntries(configuredEntries, entries, seenIds, true);
+        addResearchEntries(CORE_RESEARCH_ENTRIES, entries, seenIds, false);
+
+        cachedResearchEntriesHash = entriesHash;
+        cachedResearchEntries = Collections.unmodifiableList(entries);
+        return cachedResearchEntries;
+    }
+
+    private static void addResearchEntries(String[] configuredEntries, List<ResearchEntry> entries, Set<String> seenIds, boolean logDuplicates) {
+        if (configuredEntries == null) {
+            return;
+        }
+
         for (String configuredEntry : configuredEntries) {
             ResearchEntry entry = parseEntry(configuredEntry);
             if (entry == null) {
@@ -46,14 +62,10 @@ public final class ResearchManager {
 
             if (seenIds.add(entry.getId())) {
                 entries.add(entry);
-            } else if (StandAndHoldConfig.debugLogging) {
+            } else if (logDuplicates && StandAndHoldConfig.debugLogging) {
                 StandAndHold.LOGGER.warn("Ignoring duplicate research entry id '{}'.", entry.getId());
             }
         }
-
-        cachedResearchEntriesHash = entriesHash;
-        cachedResearchEntries = Collections.unmodifiableList(entries);
-        return cachedResearchEntries;
     }
 
     public static ResearchEntry getResearchEntry(String id) {
