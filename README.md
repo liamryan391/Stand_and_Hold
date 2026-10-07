@@ -113,6 +113,7 @@ The compiled mod jar will be created under `build/libs/`. For this alpha, use `b
 
 ## Alpha Readiness Docs
 
+- [Modern Port Planning](docs/modern-port/README.md)
 - [First Playable Alpha Loop](docs/first-playable-loop.md)
 - [Mission System](docs/missions.md)
 - [Optional SRP Compatibility Guide](docs/srp-compatibility.md)
@@ -124,6 +125,14 @@ The compiled mod jar will be created under `build/libs/`. For this alpha, use `b
 - [Release Checklist](docs/release-checklist.md)
 - [Known Issues](KNOWN_ISSUES.md)
 - [Changelog](CHANGELOG.md)
+
+## Modern Port Direction
+
+The Forge 1.12.2 alpha is preserved on the `1.12` branch. The next major direction is a clean modern NeoForge rewrite on `main`, keeping the original design lessons while rebuilding the technical foundation for modern Minecraft APIs, data generation, persistence, networking, GUI, worldgen, and AI.
+
+Planning notes are saved in [docs/modern-port](docs/modern-port/README.md). The current direction is NeoForge first, with Fabric considered later after the NeoForge foundation is stable.
+
+The [modern phase roadmap](docs/modern-port/phase-roadmap.md) includes numbered steps and subtasks such as `1.1` and `1.1.1`. See the [progress log](docs/modern-port/progress-log.md) for completed checks and the exact next step, and [preflight results](docs/modern-port/preflight-checks.md) for repository and toolchain findings.
 
 ## First Playable Alpha Loop
 
