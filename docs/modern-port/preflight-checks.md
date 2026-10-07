@@ -52,7 +52,7 @@ Official release and MDK availability checks passed on 2026-10-07. [Release Veri
 
 ## Remaining Gates
 
-1. Steps 0.3.3-0.3.4: pin compatible versions and document JDK/build/IDE setup.
+1. Step 0.3.4: document Windows build commands, IDE Gradle JVM setup, and the fallback procedure. Pins and local JDK selection are complete in 0.3.3.
 2. Step 0.4: finalize initial dependencies and the separate-world testing policy.
 3. Step 0.5: publish the final M0 decisions and prepare the scaffold branch from a rechecked baseline.
 4. Phase M1: create and verify the modern scaffold before replacing `main` through a normal merge.
@@ -63,4 +63,8 @@ Official release and MDK availability checks passed on 2026-10-07. [Release Veri
 
 GitHub access was rechecked before this step's publication: `main` and `1.12` still matched the original baseline, authentication worked, and the account retained ADMIN repository permission. The user requested the accumulated planning/research changes be committed and pushed at the end; consult Git history and the final session result for publication evidence.
 
-**Next phase and step: M0 / 0.3.3.**
+## Follow-Up: Step 0.3.3
+
+[Selected Modern Toolchain](toolchain.md) records Minecraft 26.3, NeoForge 26.3.0.57-beta, Java 25 (local Temurin 25.0.4+7), Gradle 9.2.1, ModDevGradle 2.0.148, and resolver plugin 1.0.0. Official release/template metadata was rechecked. The Java selector aligns JAVA_HOME and PATH for a modern shell using an ignored local path; global settings and the legacy Java 8 helper are unchanged. Script verification is not Gradle/Minecraft runtime proof.
+
+**Next phase and step: M0 / 0.3.4.**

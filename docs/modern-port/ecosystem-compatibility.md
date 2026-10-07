@@ -4,6 +4,8 @@ Phase M0, step 0.3.2. Checked on 2026-10-07.
 
 Status: **complete for published-release and dependency-metadata verification**. This is not a combined client/server playtest. Stand and Hold still contains the legacy implementation; no dependency was installed or added to its build.
 
+This records the 0.3.2 comparison. Step 0.3.3 subsequently selected the [exact 26.3 toolchain](toolchain.md); the recommendations below explain that decision's ecosystem evidence.
+
 ## Result And Recommendation
 
 Both **Minecraft 26.3 and 26.2 on NeoForge** have matching published animation libraries, an AI library, and useful external threat mods.
@@ -107,4 +109,4 @@ GeckoLib and AzureLib project metadata list MIT; SmartBrainLib lists MPL-2.0. Ke
 
 None of these runtime checks has been run in this step. Stand and Hold's modern APIs and content must exist first.
 
-**Next: Phase M0, step 0.3.3 - select and record exact Minecraft, NeoForge, Java, Gradle, and build-plugin versions, then resolve the local build JDK selection.**
+**Current next step: Phase M0, step 0.3.4 - document Windows build commands, IDE Gradle JVM setup, and the fallback decision rule.** Pins and local JDK selection are recorded in [Selected Modern Toolchain](toolchain.md).

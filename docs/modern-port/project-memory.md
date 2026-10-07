@@ -1,6 +1,6 @@
 # Project Memory
 
-Last updated: 2026-10-07
+Last updated: 2026-10-08
 
 ## Preserved History
 
@@ -13,21 +13,21 @@ Last updated: 2026-10-07
 ## Current Modern Direction
 
 - Loader: NeoForge first.
-- Minecraft target: 26.3 is confirmed released with official MDKs, but its NeoForge builds remain beta. Keep it as the latest-release candidate, not a pinned target.
+- Selected target: Minecraft 26.3 / NeoForge 26.3.0.57-beta. Keep the beta-loader risk explicit; this is selected, not build-proven.
 - Closest non-beta-loader alternative: 26.2. Exact NeoForge releases of GeckoLib, AzureLib, SmartBrainLib, Undead Nights, and Contagion are verified for both 26.3 and 26.2. Runtime combinations remain untested.
-- Recommend 26.3 for the next pinning step given the latest-release preference; choose 1.21.1 instead only if immediate Spore support becomes the deciding requirement. No target is pinned yet.
+- Build pins: Java 25 (local Temurin 25.0.4+7), Gradle 9.2.1, ModDevGradle 2.0.148, Foojay resolver 1.0.0. [Selected Modern Toolchain](toolchain.md) owns the decision, checksum, immutable MDK source, and local setup.
 - Secondary loader later: Fabric, after NeoForge has a stable foundation and the shared design is proven.
 - Prepare the scaffold on `codex/modern-neoforge-scaffold`, then merge verified work into `main`; leave `1.12` unchanged.
 
 ## Resume Point And Working Rules
 
-- Current phase: M0 - Preserve And Decide. Steps 0.1, 0.2, 0.3.1, and 0.3.2 are complete; the parent step 0.3 remains open.
-- Next step: **0.3.3 - select exact Minecraft/NeoForge/Java/Gradle/plugin versions and resolve local build JDK selection**.
+- Current phase: M0 - Preserve And Decide. Steps 0.1, 0.2, and 0.3.1-0.3.3 are complete; the parent step 0.3 remains open until 0.3.4 is done.
+- Next step: **0.3.4 - document Windows build commands, IDE Gradle JVM setup, and the fallback decision rule**.
 - The [roadmap](phase-roadmap.md) owns task IDs and checkboxes; the [progress log](progress-log.md) records results and the current next step. Use `1.1`, `1.2`, and deeper IDs such as `1.1.1` for large tasks.
 - Keep these planning files in the project repository. The research checkpoint commit is titled `docs: record modern port roadmap and ecosystem compatibility`; use Git history and remote refs to confirm publication rather than inferring it from a local file's existence.
-- Current work is release/MDK/ecosystem research; no modern scaffold has been created.
+- Current work completed toolchain selection and local JDK setup; no modern scaffold has been created. The next checkpoint is titled `build: pin modern toolchain and configure local Java selection`; use Git history/remote refs for publication evidence.
 - The [preflight record](preflight-checks.md) confirms live GitHub access and admin permission. No push was attempted during that check.
-- Local Java 8 and Java 25 JDKs are installed. PATH selects Java 25 while JAVA_HOME selects Java 8. Choose the build JDK explicitly for each project; do not change the legacy build's requirement by accident.
+- Local Java 8 and Java 25 JDKs are installed. Global settings are unchanged. Run `& .\scripts\use-modern-java.ps1` in each modern shell to align JAVA_HOME/PATH to the verified JDK saved in ignored `.local/modern-jdk.json`. It does not run Gradle. Use the unchanged Java 8 helper for the current legacy project.
 - Modern build/client/server tests have not been run. Legacy QA results do not prove the modern port works.
 
 ## Verified Release Snapshot
@@ -38,7 +38,7 @@ See [Release Verification](release-verification.md) for official sources, immuta
 - Latest 26.3 NeoForge: 26.3.0.57-beta; inspected official MDK default: 26.3.0.52-beta. Both are published, but neither was build-tested here.
 - Latest 26.2 NeoForge: 26.2.0.88, also the inspected MDK default, without a beta suffix.
 - Inspected ModDevGradle templates use Gradle 9.2.1 and plugin 2.0.148. Their 26.x targets require Java 25; inspected 1.21.x alternatives require Java 21.
-- These are research findings, not project dependency pins. The published ecosystem fit is now checked in 0.3.2; choose exact versions in 0.3.3.
+- This snapshot supplied the selected pins in [Selected Modern Toolchain](toolchain.md). Root legacy build files still retain their original versions until M1.
 
 ## Verified Ecosystem Snapshot
 
@@ -71,9 +71,7 @@ Stand and Hold should not be "another infection mod." Its identity is the human 
 
 ## Open Decisions Before Scaffolding
 
-- Exact Minecraft and NeoForge build to pin.
-- Java version required by the chosen Minecraft/NeoForge track.
-- Exact Gradle and build-plugin versions supplied by the chosen MDK, plus IDE/build JDK configuration.
+- Windows build commands, IDE Gradle JVM configuration, and fallback procedure in 0.3.4. Version pins and process-local JDK selection are complete.
 - Validate the NeoForge-only initial dependency policy; record an exception only if a dependency is essential.
 - Whether to use AzureLib or GeckoLib for animated entities and equipment later.
 - Whether to use an AI helper library later or start with vanilla Brain/Goal APIs.

@@ -15,22 +15,22 @@ Before replacing files on `main`, confirm:
 
 ## Target Selection
 
-Preferred target:
+Selected target for M1:
 
 - Loader: NeoForge.
-- Minecraft: 26.3 is confirmed released with official NeoForge MDKs; its available NeoForge builds are beta. It remains a candidate, not a pinned or build-proven choice.
-- Java: inspected 26.3, 26.2, and 26.1.2 templates and Mojang metadata require Java 25. The inspected 1.21.11 and 1.21.1 alternatives require Java 21.
+- Minecraft: 26.3 / NeoForge 26.3.0.57-beta. Beta risk is accepted for the scaffold, with actual build/runtime proof still required.
+- Java: 25, local baseline Temurin 25.0.4+7. Gradle: 9.2.1. ModDevGradle: 2.0.148. MDK Foojay resolver: 1.0.0.
 
 Fallback target:
 
 - Minecraft 26.2 is the closest verified alternative with non-beta NeoForge builds. Also retain 26.1.2, 1.21.11, and 1.21.1 for the ecosystem comparison.
 - Step 0.3.2 confirms matching libraries and Undead Nights/Contagion for both 26.3 and 26.2. See [Ecosystem Compatibility](ecosystem-compatibility.md). A non-beta loader label or matching metadata is not proof of modpack runtime compatibility.
 
-Step 0.3.1 is complete. See [Release Verification](release-verification.md) for exact published builds, immutable MDK snapshots, and source links. All five inspected ModDevGradle templates use plugin 2.0.148 and wrapper 9.2.1. The 26.3 MDK points to 26.3.0.52-beta while the latest Maven build is 26.3.0.57-beta; choose deliberately during step 0.3.3 and verify with the M1 build.
+Step 0.3.3 is complete. [Selected Modern Toolchain](toolchain.md) owns the pins, rationale, distribution checksum, and immutable MDK snapshot. It deliberately selects loader 26.3.0.57-beta instead of the MDK default 26.3.0.52-beta while retaining the template's plugin/wrapper. Verify that choice with the M1 build; no root legacy Gradle files are changed yet.
 
-The ecosystem check recommends keeping 26.3 as the preferred candidate, with 26.2 as the nearest non-beta-loader fallback. If Spore specifically is required for the first external integration, 1.21.1 is the verified match. These are options for step 0.3.3, not changes to the current legacy build.
+The ecosystem check supports the selected 26.3 target. If Spore specifically becomes mandatory, 1.21.1 is the verified match and would require an explicit target decision change, not an automatic downgrade.
 
-The 2026-10-07 preflight found Java 25 on PATH but Java 8 in JAVA_HOME. Both JDKs are installed; no Java 21 installation was found in that check. Set the selected JDK for the build process and IDE explicitly; confirm it with the wrapper's `--version` output. The current legacy helper still intentionally selects Java 8. Project toolchain selection remains a step 0.3.3 decision despite the verified MDK requirements.
+The 2026-10-07 preflight found Java 25 on PATH but Java 8 in JAVA_HOME. Step 0.3.3 added and verified `scripts/use-modern-java.ps1` with ignored local path storage; it selects Java 25 in the calling PowerShell process without changing global settings. The current legacy helper still intentionally selects Java 8. Step 0.3.4 will document IDE Gradle JVM setup and wrapper commands; do not run the legacy wrapper under Java 25.
 
 ## Clean Scaffold Work Breakdown
 

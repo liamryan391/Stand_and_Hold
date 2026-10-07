@@ -14,12 +14,12 @@
 Task completion is maintained in the [canonical roadmap](phase-roadmap.md). Keep this section as the current handoff rather than a second set of checkboxes.
 
 - Current phase: M0 - Preserve And Decide.
-- Completed steps: 0.1 (preservation/access checks), 0.2 (planning and numbered task tracking), 0.3.1 (release/MDK availability), 0.3.2 (published ecosystem matches and selected dependency manifests).
-- **Next: 0.3.3 - select exact Minecraft/NeoForge/Java/Gradle/plugin versions and resolve local build JDK selection.**
-- After that: 0.3.4 records commands/IDE setup; 0.4 confirms scope; 0.5 publishes the final M0 decisions and prepares the scaffold branch.
+- Completed steps: 0.1 (preservation/access checks), 0.2 (planning and numbered task tracking), 0.3.1 (release/MDK availability), 0.3.2 (published ecosystem matches), 0.3.3 (exact pins and verified local JDK selection).
+- **Next: 0.3.4 - document Windows build commands, IDE Gradle JVM setup, and the fallback decision rule.**
+- After that: 0.4 confirms scope; 0.5 publishes the final M0 decisions and prepares the scaffold branch.
 - First implementation phase: M1, starting at 1.1.1 after M0's remaining gates pass.
 
-Publication checkpoint title: `docs: record modern port roadmap and ecosystem compatibility`. Use Git history and `origin/main` to confirm its commit/push; the final session report records the verified commit ID. Earlier "local/uncommitted" entries below are historical. Toolchain pinning and final M0 decisions still require a later checkpoint before scaffolding.
+The research checkpoint `bf44b46` (`docs: record modern port roadmap and ecosystem compatibility`) was committed and pushed. Step 0.3.3 uses checkpoint title `build: pin modern toolchain and configure local Java selection`; use Git history and `origin/main` for publication confirmation, with the actual commit ID in the final session report. Earlier "local/uncommitted" entries below are historical. Final setup/scope decisions in 0.3.4-0.5 still precede scaffolding.
 
 ## 2026-10-07 - Numbered Roadmap And Preflight
 
@@ -61,6 +61,20 @@ Publication checkpoint title: `docs: record modern port roadmap and ecosystem co
 - Validation passed: 15 phases, 129 unique task IDs, correct parent/child completion states, 59 relative links across 11 documents, seven consistent next-step locations, and whitespace checks. `git diff --check` passed and the diff for source/build/configuration files was empty.
 - No build or Minecraft launch was run for this research/documentation update. Legacy code/build configuration is unchanged. The user requested a final commit and push for the accumulated planning work after checks, under the checkpoint title above; `1.12` is excluded from publication changes.
 - **Next phase/step: M0 / 0.3.3.** The final M0 decision commit in 0.5.1 remains open because versions/setup have not yet been selected.
+
+## 2026-10-08 - Step 0.3.3 Complete
+
+- Work began on 2026-10-07 and completed after local midnight. Rechecked Mojang's release/per-version Java metadata, the immutable official 26.3 MDK, published NeoForge/plugin POMs, Gradle checksum, and official Java compatibility matrix.
+- Selected Minecraft 26.3 / NeoForge 26.3.0.57-beta / Java 25 / Gradle 9.2.1 / ModDevGradle 2.0.148. Retain the MDK's Foojay resolver 1.0.0. The local JDK baseline is existing 64-bit Temurin 25.0.4+7; no JDK install was needed.
+- Recorded beta-loader risk and deliberately chose the newer published loader over the template default 26.3.0.52-beta. Added [Selected Modern Toolchain](toolchain.md) with pins, rationale, immutable source, checksum, setup, and test boundaries.
+- Added `scripts/use-modern-java.ps1`: validates a Java 25 JDK, optionally remembers its path in ignored `.local/modern-jdk.json`, and aligns JAVA_HOME/PATH in the calling PowerShell process. Global Java settings, the Java 8 helper, and the legacy Gradle/source/CI files remain unchanged.
+- Verified successful explicit selection/save/reload, java/javac resolution, repeat-call idempotence, and rejection of Java 8, missing directories, and empty values without modifying the saved path or environment. Confirmed local path storage is ignored by Git and user/machine JAVA_HOME values remain unchanged.
+- Windows PowerShell 5.1 parsing and saved selection in a fresh process passed. Documentation checks passed: 12 documents, 75 relative links, 15 phases, 132 unique tasks, consistent parent/child completion, and eight current handoffs. `git diff --check` passed; source/build/CI and the Java 8 helper have no diff.
+- Fetched GitHub before publication: HEAD and origin/main matched `bf44b469c2d677da0b5beec3228fd0ea22249b01`; remote `1.12` remained at the preserved commit.
+- Expanded step 0.3.3 into numbered verification/setup substeps and updated current handoffs to 0.3.4. No third-party library, mod, gameplay code, or modern scaffold was added.
+- Modern Gradle/build/client/server checks were not run: the root wrapper is still the Java 8 legacy build. M1 must verify wrapper JVM, dependency resolution, build, client, and dedicated server; script checks do not substitute for those gates.
+- The user-requested final commit/push is performed only after validation, with the checkpoint title above; preserve `1.12` at `62bb07b84eb614b5967ef318ccb98aef1f22a5d8`.
+- **Next phase/step: M0 / 0.3.4.** Parent step 0.3 and the final M0 handoff remain open.
 
 ## Session Handoff Format
 

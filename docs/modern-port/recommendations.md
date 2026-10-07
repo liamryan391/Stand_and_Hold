@@ -25,10 +25,10 @@ Use Fabric later only after the NeoForge gameplay foundation is stable. A multi-
 Plan for the latest viable NeoForge track, but keep a stability gate.
 
 - Step 0.3.2 confirmed matching libraries and two useful external threat mods for both 26.3 and 26.2. Carry 26.3 forward as the preferred candidate given the latest-release goal, accepting that its loader is still beta; keep 26.2 as the nearest non-beta-loader fallback.
-- Select exact compatible versions before scaffolding, then validate them with a clean MDK build in step 1.4.1.
+- Step 0.3.3 selected the [exact modern toolchain](toolchain.md) and verified a local Java selector. Validate the pins with a clean MDK build in step 1.4.1.
 - Keep 1.21.1 available if immediate Spore support is more important than the newest release. Its verified Spore file does not run on 26.3 merely because both use NeoForge.
 
-The [release verification record](release-verification.md) contains the candidate versions, Java requirements, and official template snapshots. [Ecosystem Compatibility](ecosystem-compatibility.md) records exact library/threat artifacts and testing limits. No final toolchain choice has been made.
+The [release verification record](release-verification.md) contains the candidate versions, Java requirements, and official template snapshots. [Ecosystem Compatibility](ecosystem-compatibility.md) records exact library/threat artifacts and testing limits. The selected 26.3 toolchain is a decision, not yet a proven modern build.
 
 ## First Modern Playable Goal
 

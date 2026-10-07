@@ -2,7 +2,7 @@
 
 Phase M0, step 0.3.1. Checked on 2026-10-07 using official release metadata and the official NeoForge MDK repositories.
 
-Status: **complete for availability research**. No project toolchain has been selected or installed. No modern build or Minecraft launch was attempted.
+Status: **complete for availability research**. This is the historical 0.3.1 snapshot; it did not select or install a toolchain. The later [toolchain decision](toolchain.md) now pins the M1 target and local JDK. No modern build or Minecraft launch was attempted.
 
 ## Findings
 
@@ -85,9 +85,9 @@ Check animation libraries, the AI approach, and at least one compatible threat m
 ## Scope And Handoff
 
 - Completed: released/snapshot distinction, NeoForge beta/non-beta distinction, official template availability, template file inspection, Java requirements, published POM checks, and stable alternatives.
-- At completion of 0.3.1, third-party ecosystem compatibility was still outstanding. It is now documented in [Ecosystem Compatibility](ecosystem-compatibility.md). Final pinning (0.3.3), JDK/IDE/build setup (0.3.3-0.3.4), and scaffold build/runtime proof (M1) remain outstanding.
+- At completion of 0.3.1, third-party ecosystem compatibility was still outstanding. It is now documented in [Ecosystem Compatibility](ecosystem-compatibility.md); 0.3.3 subsequently completed [toolchain selection and local JDK setup](toolchain.md). IDE/build instructions (0.3.4) and scaffold build/runtime proof (M1) remain outstanding.
 - Existing Forge 1.12.2 source, Gradle files, mod version, Java settings, and Git branches were not changed.
-- The Java 8/25 PATH/JAVA_HOME mismatch in [Preflight Checks](preflight-checks.md) still needs explicit build-process selection once a target is chosen. A Java 21 target would require arranging a Java 21 toolchain; none was found in the earlier installed-JDK check.
+- The Java 8/25 PATH/JAVA_HOME mismatch in [Preflight Checks](preflight-checks.md) is handled by the process-local selector added in 0.3.3. A Java 21 fallback would require arranging a Java 21 toolchain; none was found in the earlier installed-JDK check.
 - Planning changes were local/uncommitted at the end of 0.3.1. Subsequent publication is tracked in Git history and the [progress log](progress-log.md).
 
-**Next: Phase M0, step 0.3.3 - select and record exact toolchain versions using this release snapshot and the completed ecosystem check.**
+**Current next step: Phase M0, step 0.3.4 - document Windows build commands, IDE Gradle JVM setup, and the fallback decision rule.** Use [Selected Modern Toolchain](toolchain.md) for the current decision rather than this earlier candidate comparison.

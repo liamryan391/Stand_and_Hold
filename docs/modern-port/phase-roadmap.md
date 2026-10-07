@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Update the checklist after each completed step. Commit logical changes and record their commit IDs when committed; record push status separately.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M0, next step 0.3.3**. Preservation, access, planning, official release/MDK availability, and matching library/threat-mod artifacts are verified. The exact modern toolchain is not pinned and no modern scaffold has been created. Evidence: [Release Verification](release-verification.md) and [Ecosystem Compatibility](ecosystem-compatibility.md). Runtime compatibility is still untested.
+Current position: **Phase M0, next step 0.3.4**. Preservation, access, release/ecosystem checks, exact toolchain selection, and the local JDK selector are verified. [Selected Modern Toolchain](toolchain.md) records the pins and test boundaries. No modern scaffold has been created; runtime compatibility is still untested.
 
 ## Priority Scale
 
@@ -36,7 +36,10 @@ Priority: P0
 - [ ] **0.3 Select and record the exact modern toolchain.**
   - [x] **0.3.1** Check official Minecraft/NeoForge releases and MDK availability. Compare the proposed 26.3 track with stable alternatives; record release status and source URLs. Evidence: [Release Verification](release-verification.md), 2026-10-07.
   - [x] **0.3.2** Check matching Minecraft AND loader support for likely animation/AI libraries and at least one target threat mod. Separate required dependencies from optional future integrations. Evidence: [Ecosystem Compatibility](ecosystem-compatibility.md), 2026-10-07; published artifacts/manifests checked, no combined runtime test.
-  - [ ] **0.3.3** Select exact Minecraft, NeoForge, Java, Gradle, and build-plugin versions from a compatible official MDK. Record the rationale and local JDK selection; resolve the PATH/JAVA_HOME mismatch for the build process.
+  - [x] **0.3.3** Select exact Minecraft, NeoForge, Java, Gradle, and build-plugin versions from a compatible official MDK. Record the rationale and local JDK selection; resolve the PATH/JAVA_HOME mismatch for the build process. Evidence: [Selected Modern Toolchain](toolchain.md), 2026-10-07; local selector verified, modern build deferred to M1.
+    - [x] **0.3.3.1** Recheck official release/MDK metadata and Gradle Java runtime compatibility; select exact versions and record beta-loader risk.
+    - [x] **0.3.3.2** Configure a reusable process-local Java 25 selector with an ignored machine-specific path; preserve global Java 8 settings.
+    - [x] **0.3.3.3** Verify saved selection and invalid-input handling, record evidence, and update the current handoff without changing the legacy build.
   - [ ] **0.3.4** Record Windows build commands, IDE Gradle JVM setup, and the rule for choosing a fallback if build verification fails.
 - [ ] **0.4 Finalize foundation scope and dependency policy.** Start NeoForge-only unless an essential dependency is justified; defer animation/AI libraries until their phase. Record that legacy world conversion is not part of scaffolding and use separate test worlds.
 - [ ] **0.5 Prepare the scaffold handoff.**
@@ -302,4 +305,4 @@ Exit gate:
 
 ## Immediate Next Step
 
-**Phase M0 - Preserve And Decide, step 0.3.3: select and record exact Minecraft, NeoForge, Java, Gradle, and build-plugin versions and resolve local build JDK selection.** The availability/compatibility research recommends 26.3 with 26.2 as the non-beta-loader fallback; 1.21.1 remains the verified Spore option. Complete the remaining M0 gates before Phase M1, step 1.1.1 begins scaffold implementation.
+**Phase M0 - Preserve And Decide, step 0.3.4: document Windows build commands, IDE Gradle JVM setup, and the fallback decision rule.** Exact versions and local JDK selection are recorded in [Selected Modern Toolchain](toolchain.md). Complete the remaining M0 gates before Phase M1, step 1.1.1 begins scaffold implementation.

@@ -1,6 +1,7 @@
 .gradle/
 .gradle-home/
 .jdks/
+.local/
 build/
 run/
 out/
