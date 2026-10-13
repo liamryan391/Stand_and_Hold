@@ -52,9 +52,8 @@ Official release and MDK availability checks passed on 2026-10-07. [Release Veri
 
 ## Remaining Gates
 
-1. Step 0.5.1: review the consolidated M0 decisions and confirm their commit/push status. Scope/dependency/save policy and toolchain/setup instructions are complete.
-2. Step 0.5.2: recheck preserved refs and user/local files, then prepare the scaffold branch.
-3. Phase M1: create and verify the modern scaffold before replacing `main` through a normal merge.
+1. Step 0.5.2: recheck preserved refs and user/local files, then prepare the scaffold branch. The consolidated decision/publication review is complete.
+2. Phase M1: create and verify the modern scaffold before replacing `main` through a normal merge.
 
 ## Follow-Up: Step 0.3.2
 
@@ -78,4 +77,10 @@ On 2026-10-14, finalized [Foundation Scope And Dependency Policy](foundation-sco
 
 GitHub fetch/ref checks showed clean `main` at `af988c62e4f47527db808879b516b91ea1d2861b`, with no remote divergence; `1.12` remained at the preserved commit. No dependency, build file, source, CI, or global JDK setting changed, and no modern build/game was run.
 
-**Next phase and step: M0 / 0.5.1.**
+## Follow-Up: Step 0.5.1
+
+On 2026-10-14, [reviewed consolidated M0 decisions](m0-decision-review.md): pins, setup/fallback, foundation scope, dependencies, save boundaries, and implementation route agree. No decision correction was required. GitHub fetch and live refs confirmed local/remote main at `da8b1d05e36301834f9f44445908ba66c622f3d1`; all four decision checkpoints passed ancestry checks against `origin/main`. Local/remote `1.12` and the legacy alpha tag also matched. Legacy source/build/CI has no diff from the preserved branch.
+
+This review records publication evidence and advances the handoff. Modern build/IDE/client/server proof remains M1 work, and branch preparation remains 0.5.2 work.
+
+**Next phase and step: M0 / 0.5.2.**

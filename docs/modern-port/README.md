@@ -16,9 +16,9 @@ Steps 0.3.3-0.3.4 selected the exact toolchain, configured local JDK selection, 
 
 ## Current Position
 
-Phase M0 steps 0.1-0.4 are complete. Toolchain research, local JDK checks, setup instructions, and the foundation policy are recorded; modern build/runtime tests are not complete. The source tree is still the Forge 1.12.2 alpha. Planning lives in this repository alongside it; see Git history for publication checkpoints.
+Phase M0 steps 0.1-0.4 and the [decision/publication review](m0-decision-review.md) in 0.5.1 are complete. All four decision checkpoints were confirmed on GitHub. Scaffold branch preparation and modern build/runtime tests remain outstanding. The source tree is still the Forge 1.12.2 alpha.
 
-**Next: Phase M0, step 0.5.1 - review the consolidated M0 decisions and confirm their commit/push status.** See the progress log for the latest completion and publication notes.
+**Next: Phase M0, step 0.5.2 - recheck repository/local-file state and prepare the scaffold work branch.** See the progress log for the latest completion and publication notes.
 
 ## Why A Clean Modern Port
 
@@ -38,6 +38,7 @@ The 1.12.2 codebase is useful design history, but the modern Minecraft APIs are 
 - [Selected Modern Toolchain And Local JDK](toolchain.md)
 - [Windows Build, IDE Setup, And Fallback Rule](building.md)
 - [Foundation Scope And Dependency Policy](foundation-scope.md)
+- [Consolidated M0 Decision And Publication Review](m0-decision-review.md)
 
 The [Phase Roadmap](phase-roadmap.md) is the canonical numbered checklist. Larger tasks have subtasks such as `1.1.1`; update their checkboxes as they pass verification. The progress log records evidence, blockers, commits, and the exact next task so work can resume across sessions.
 

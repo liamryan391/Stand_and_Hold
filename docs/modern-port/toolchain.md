@@ -68,4 +68,6 @@ Step 0.3.4 has now documented [Windows build commands, IDE setup, and the fallba
 
 Step 0.4 now records the accepted [foundation scope and dependency policy](foundation-scope.md), without changing these pins or adding libraries.
 
-**Next: Phase M0, step 0.5.1 - review the consolidated M0 decisions and confirm their commit/push status.**
+The [M0 decision review](m0-decision-review.md) has confirmed these decisions and their publication.
+
+**Next: Phase M0, step 0.5.2 - recheck repository/local-file state and prepare the scaffold work branch.**

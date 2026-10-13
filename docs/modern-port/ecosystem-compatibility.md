@@ -111,4 +111,4 @@ GeckoLib and AzureLib project metadata list MIT; SmartBrainLib lists MPL-2.0. Ke
 
 None of these runtime checks has been run in this step. Stand and Hold's modern APIs and content must exist first.
 
-**Current next step: Phase M0, step 0.5.1 - review the consolidated M0 decisions and confirm their commit/push status.** The [foundation policy](foundation-scope.md) is accepted; pins and [Windows/IDE setup](building.md) remain unchanged. Published ecosystem matches still require runtime testing in later phases.
+**Current next step: Phase M0, step 0.5.2 - recheck repository/local-file state and prepare the scaffold work branch.** The [decision review](m0-decision-review.md) is complete. Published ecosystem matches still require runtime testing in later phases.

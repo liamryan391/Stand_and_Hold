@@ -90,4 +90,4 @@ Check animation libraries, the AI approach, and at least one compatible threat m
 - The Java 8/25 PATH/JAVA_HOME mismatch in [Preflight Checks](preflight-checks.md) is handled by the process-local selector added in 0.3.3. A Java 21 fallback would require arranging a Java 21 toolchain; none was found in the earlier installed-JDK check.
 - Planning changes were local/uncommitted at the end of 0.3.1. Subsequent publication is tracked in Git history and the [progress log](progress-log.md).
 
-**Current next step: Phase M0, step 0.5.1 - review the consolidated M0 decisions and confirm their commit/push status.** Use [Selected Modern Toolchain](toolchain.md) and the accepted [foundation policy](foundation-scope.md) for current decisions rather than this earlier candidate comparison.
+**Current next step: Phase M0, step 0.5.2 - recheck repository/local-file state and prepare the scaffold work branch.** The [decision review](m0-decision-review.md) confirms the current toolchain/scope and their publication; this file retains the earlier candidate comparison.

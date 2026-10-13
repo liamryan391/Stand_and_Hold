@@ -96,6 +96,6 @@ Do not shade, bundle, download at runtime, or redistribute another mod by defaul
 
 M1 cannot be declared verified solely because dependency metadata exists or a legacy build passes. Its exit gates require the pinned wrapper/JDK output, successful clean build, correct normal jar metadata, client Mods list/new-world entry, dedicated-server readiness/save/clean stop, and honest local/CI status. A blocked launch or CI run remains explicitly outstanding. Run commands and result expectations are in [Building](building.md); persistence/reload tests expand as M2 onward adds state.
 
-This step changes documentation only. It installs no dependencies, changes no pins or gameplay, creates no work branch, and runs no modern build/game. Step 0.5.1 will review the consolidated M0 decisions and their published commits; it need not manufacture another commit if the record is already complete. Step 0.5.2 then checks preservation/local files and prepares the scaffold branch before M1.
+Step 0.4 changed documentation only. It installed no dependencies, changed no pins or gameplay, created no work branch, and ran no modern build/game. Step 0.5.1 subsequently [reviewed the consolidated decisions and verified all four published checkpoints](m0-decision-review.md), with no decision correction required. Step 0.5.2 checks preservation/local files and prepares the scaffold branch before M1.
 
-**Next: Phase M0, step 0.5.1 - review the consolidated M0 decisions and confirm their commit/push status.**
+**Next: Phase M0, step 0.5.2 - recheck repository/local-file state and prepare the scaffold work branch.**

@@ -14,12 +14,12 @@
 Task completion is maintained in the [canonical roadmap](phase-roadmap.md). Keep this section as the current handoff rather than a second set of checkboxes.
 
 - Current phase: M0 - Preserve And Decide.
-- Completed steps: 0.1 (preservation/access), 0.2 (durable planning), 0.3 (toolchain/research/setup), 0.4 (accepted foundation scope and dependency/save policy).
-- **Next: 0.5.1 - review the consolidated M0 decisions and confirm their commit/push status.**
-- After that: 0.5.2 rechecks preservation/local changes and prepares the scaffold branch.
+- Completed steps: 0.1-0.4 (preservation, planning, toolchain/setup, foundation policy) and 0.5.1 (consolidated decision/publication review).
+- **Next: 0.5.2 - recheck repository/local-file state and prepare the scaffold work branch.**
+- After that: M0 closes and M1 begins at 1.1.1, the legacy-file inventory.
 - First implementation phase: M1, starting at 1.1.1 after M0's remaining gates pass.
 
-Research checkpoint `bf44b46`, toolchain/JDK checkpoint `94efe4d`, and setup checkpoint `af988c6` were committed and pushed. Step 0.4 uses checkpoint title `docs: finalize modern foundation scope and dependency policy`; use Git history and `origin/main` for publication confirmation, with the actual commit ID in the final session report. Earlier "local/uncommitted" entries below are historical. Step 0.5 audits the consolidated decisions/publication and prepares the scaffold branch; no duplicate commit is required merely to close its publication check.
+Research `bf44b46`, toolchain/JDK `94efe4d`, setup `af988c6`, and scope/policy `da8b1d0` were confirmed as published ancestors of `origin/main` during 0.5.1. The review checkpoint is titled `docs: record consolidated M0 decision review`; use Git history and live refs to confirm its publication, with the actual hash in the final session report. Earlier "local/uncommitted" entries below are historical. Branch preparation remains outstanding.
 
 ## 2026-10-07 - Numbered Roadmap And Preflight
 
@@ -101,6 +101,18 @@ Research checkpoint `bf44b46`, toolchain/JDK checkpoint `94efe4d`, and setup che
 - No modern scaffold, work branch, dependency installation, or implementation change was made. No build/client/server/IDE runtime test was run for this documentation-only policy step; those checks remain M1 work.
 - Final commit/push follows validation under the checkpoint title above, with the legacy branch unchanged.
 - **Next phase/step: M0 / 0.5.1 - review the consolidated M0 decisions and confirm their commit/push status.**
+
+## 2026-10-14 - Step 0.5.1 Complete
+
+- Reviewed the selected toolchain, Windows/IDE/fallback guide, foundation scope/dependency/save policy, technical plan, and roadmap. Decisions agree and require no correction. Added [M0 Decision Review](m0-decision-review.md) as the evidence record.
+- Began from clean `main` at `da8b1d05e36301834f9f44445908ba66c622f3d1`. Fetched GitHub; HEAD and `origin/main` matched. Live refs confirmed the same remote head.
+- Verified `bf44b469c2d677da0b5beec3228fd0ea22249b01`, `94efe4d2ecd5e01dbfc149ee6d82af7f168c50e4`, `af988c62e4f47527db808879b516b91ea1d2861b`, and `da8b1d05e36301834f9f44445908ba66c622f3d1` with `git merge-base --is-ancestor <commit> origin/main`; all passed. Existing commits satisfy decision publication.
+- Local/remote `1.12` remain at `62bb07b84eb614b5967ef318ccb98aef1f22a5d8`. The local/remote alpha tag refs also match. Legacy source, build files/wrapper, CI, and Java 8 helper have no diff from the preserved branch.
+- Added 0.5.1.1-0.5.1.3 review/publication/evidence subtasks and updated current handoffs to 0.5.2. Parent 0.5 remains open until branch preparation completes.
+- Documentation checks passed: 15 documents, 128 local links including heading anchors, 15 phases, 146 unique task IDs, parent/child consistency, eleven current handoffs, and `git diff --check`. This session's diff contains only modern-port documentation.
+- No modern build/IDE/client/server test was run for this documentation review. No target/dependency change, work branch, or modern scaffold was created.
+- Final commit/push records this review evidence and updated progress under the checkpoint title above; the decisions themselves were already published.
+- **Next phase/step: M0 / 0.5.2 - recheck repository/local-file state and prepare the scaffold work branch.**
 
 ## Session Handoff Format
 

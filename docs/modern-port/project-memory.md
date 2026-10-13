@@ -22,11 +22,11 @@ Last updated: 2026-10-14
 
 ## Resume Point And Working Rules
 
-- Current phase: M0 - Preserve And Decide. Steps 0.1-0.4 are complete, including nested scope/dependency substeps. Final handoff/branch preparation remain open; actual modern build/IDE/runtime tests remain M1 gates.
-- Next step: **0.5.1 - review the consolidated M0 decisions and confirm their commit/push status**.
+- Current phase: M0 - Preserve And Decide. Steps 0.1-0.4 and the consolidated review in 0.5.1 are complete. Branch preparation remains open; actual modern build/IDE/runtime tests remain M1 gates.
+- Next step: **0.5.2 - recheck repository/local-file state and prepare the scaffold work branch**.
 - The [roadmap](phase-roadmap.md) owns task IDs and checkboxes; the [progress log](progress-log.md) records results and the current next step. Use `1.1`, `1.2`, and deeper IDs such as `1.1.1` for large tasks.
 - Keep these planning files in the project repository. The research checkpoint commit is titled `docs: record modern port roadmap and ecosystem compatibility`; use Git history and remote refs to confirm publication rather than inferring it from a local file's existence.
-- Toolchain/JDK checkpoint `94efe4d` and Windows/IDE checkpoint `af988c6` were committed and pushed. The scope/policy checkpoint is titled `docs: finalize modern foundation scope and dependency policy`; use Git history/remote refs for publication evidence. No modern scaffold or work branch has been created.
+- [M0 Decision Review](m0-decision-review.md) verified research `bf44b46`, toolchain/JDK `94efe4d`, setup `af988c6`, and scope/policy `da8b1d0` as published ancestors of `origin/main`. Local/remote main matched `da8b1d0` at review start, and preserved branch/tag refs matched. The review checkpoint is titled `docs: record consolidated M0 decision review`; use Git history/remote refs for its publication evidence. No modern scaffold or work branch has been created.
 - The [preflight record](preflight-checks.md) confirms live GitHub access and admin permission. No push was attempted during that check.
 - Local Java 8 and Java 25 JDKs are installed. Global settings are unchanged. Run `& .\scripts\use-modern-java.ps1` in each modern shell to align JAVA_HOME/PATH to the verified JDK saved in ignored `.local/modern-jdk.json`. It does not run Gradle. Use the unchanged Java 8 helper for the current legacy project.
 - Future modern commands are guarded against the legacy checkout. Use the wrapper, Java 25 in both terminal and IDE, and a separate `.gradle-home/modern` cache. Diagnose environment failures before considering a fallback; require a minimal reproduction and maintainer approval before changing target.
@@ -76,7 +76,7 @@ Stand and Hold should not be "another infection mod." Its identity is the human 
 ## Remaining M0 Gates
 
 - Version pins, process-local JDK selection, Windows commands, IDE instructions, and fallback procedure are complete. Executing the modern build/IDE/runtime checks requires M1's scaffold, not more version-selection work.
-- The foundation/dependency/save policy is final for M1, with no additional runtime libraries. Step 0.5.1 audits the consolidated decisions and their published commits; do not manufacture another commit if the record is complete.
+- The foundation/dependency/save policy is final for M1, with no additional runtime libraries. Step 0.5.1 found no decision corrections and confirmed all decision checkpoints are published.
 - Step 0.5.2 rechecks preservation, user changes, and local files before preparing `codex/modern-neoforge-scaffold`. Do not replace legacy files until M1's inventory step.
 
 ## Deferred Decisions

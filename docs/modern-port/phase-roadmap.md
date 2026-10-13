@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Update the checklist after each completed step. Commit logical changes and record their commit IDs when committed; record push status separately.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M0, next step 0.5.1**. Steps 0.1-0.4 are complete: preservation/access, durable planning, toolchain/setup decisions, and the accepted [foundation scope and dependency policy](foundation-scope.md). The final handoff review and scaffold branch preparation remain open. No modern scaffold or build/runtime proof exists yet.
+Current position: **Phase M0, next step 0.5.2**. Steps 0.1-0.4 and the [consolidated decision/publication review](m0-decision-review.md) in 0.5.1 are complete. Scaffold branch preparation remains open. No modern scaffold or build/runtime proof exists yet.
 
 ## Priority Scale
 
@@ -54,7 +54,10 @@ Priority: P0
     - [x] **0.4.3.3** Require exact artifact/provenance, licence, transitive/side checks, runtime evidence, and maintainer approval for scope exceptions.
   - [x] **0.4.4** Check policy/roadmap consistency, links, unchanged implementation/toolchain, and publication evidence; record the exact handoff.
 - [ ] **0.5 Prepare the scaffold handoff.**
-  - [ ] **0.5.1** Review the consolidated M0 decisions (pins, setup, scope, dependency/save policy) and confirm their commit/push status separately from the scaffold. Commit any remaining corrections; existing published decision commits may satisfy publication without an empty or duplicate commit. Earlier research alone does not replace this final handoff review.
+  - [x] **0.5.1** Review the consolidated M0 decisions (pins, setup, scope, dependency/save policy) and confirm their commit/push status separately from the scaffold. Evidence: [M0 Decision Review](m0-decision-review.md), 2026-10-14; decisions required no correction and all four checkpoints are published on `origin/main`.
+    - [x] **0.5.1.1** Review the canonical decisions and their scope/setup/verification boundaries for consistency.
+    - [x] **0.5.1.2** Fetch GitHub and verify checkpoint ancestry, matching main refs, preserved `1.12`/alpha-tag refs, and unchanged legacy implementation.
+    - [x] **0.5.1.3** Record review evidence, validate documents/task states, and publish the progress handoff to 0.5.2.
   - [ ] **0.5.2** Recheck remote refs and user changes; prepare `codex/modern-neoforge-scaffold` from the agreed `main` baseline, with a merge back to `main` after verification.
 
 Exit gate:
@@ -316,4 +319,4 @@ Exit gate:
 
 ## Immediate Next Step
 
-**Phase M0 - Preserve And Decide, step 0.5.1: review the consolidated M0 decisions and confirm their commit/push status.** The [foundation policy](foundation-scope.md) is complete. Then prepare the scaffold branch in 0.5.2; Phase M1, step 1.1.1 begins implementation only after those gates.
+**Phase M0 - Preserve And Decide, step 0.5.2: recheck repository/local-file state and prepare the scaffold work branch.** The [decision/publication review](m0-decision-review.md) is complete. Phase M1, step 1.1.1 begins implementation after branch preparation closes M0.
