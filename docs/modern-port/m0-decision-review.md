@@ -41,4 +41,4 @@ Existing commits satisfy publication of the decisions. This review adds only its
 
 This review created no branch or scaffold. Step 0.5.2 subsequently prepared `codex/modern-neoforge-scaffold`; [Scaffold Branch Handoff](scaffold-handoff.md) records its baseline, checkout path, local files, and publication route. Legacy file replacement belongs to M1's inventory/transition steps.
 
-**Next: Phase M1, step 1.1.1 - recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.**
+**Next: Phase M1, step 1.1.2 - preserve modern planning notes and project identity, and move legacy-only documentation references to the 1.12 branch in the modern README.** The subsequent [inventory](legacy-inventory.md) is complete.

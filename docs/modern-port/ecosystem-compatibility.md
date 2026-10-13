@@ -111,4 +111,4 @@ GeckoLib and AzureLib project metadata list MIT; SmartBrainLib lists MPL-2.0. Ke
 
 None of these runtime checks has been run in this step. Stand and Hold's modern APIs and content must exist first.
 
-**Current next step: Phase M1, step 1.1.1 - recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.** M0 preparation and the [branch handoff](scaffold-handoff.md) are complete. Published ecosystem matches still require runtime testing in later phases.
+**Current next step: Phase M1, step 1.1.2 - preserve modern planning notes and project identity, and move legacy-only documentation references to the 1.12 branch in the modern README.** The [inventory](legacy-inventory.md) is complete. Published ecosystem matches still require runtime testing in later phases.

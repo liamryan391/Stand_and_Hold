@@ -1,6 +1,6 @@
 # Scaffold Branch Handoff
 
-Phase M0, step 0.5.2, 2026-10-14. M0 preparation is complete. The next implementation task is Phase M1, step 1.1.1.
+Phase M0, step 0.5.2, 2026-10-14. M0 preparation is complete. The subsequent [M1 / 1.1.1 inventory](legacy-inventory.md) is also complete; the next task is 1.1.2.
 
 ## Branch And Checkout
 
@@ -41,8 +41,8 @@ No local file was removed, moved, or copied during preparation. Verify the ignor
 
 ## M1 Starting Point
 
-Step 1.1.1 inventories the legacy build/source/resources/scripts/CI and rechecks the preserved refs before replacement. Preserve the modern planning notes, existing local selection, and project identity. Steps 1.1.2-1.1.3 then handle documentation/file transition; step 1.2 installs the [selected toolchain](toolchain.md). Modern build/run commands remain behind that replacement in [Building](building.md).
+Step 1.1.1 has [inventoried the legacy build/source/resources/scripts/CI](legacy-inventory.md) and rechecked the preserved refs. Preserve the modern planning notes, existing local selection, and project identity. Steps 1.1.2-1.1.3 handle documentation/file transition; step 1.2 installs the [selected toolchain](toolchain.md). Modern build/run commands remain behind that replacement in [Building](building.md).
 
 Branch preparation is verified with refs/upstream/clean status, documentation checks, unchanged legacy implementation, and local-file preservation. No Gradle build, client, or server launch was run during M0 completion; these are M1 verification tasks.
 
-**Next: Phase M1, step 1.1.1 - recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.**
+**Next: Phase M1, step 1.1.2 - preserve modern planning notes and project identity, and move legacy-only documentation references to the 1.12 branch in the modern README.**

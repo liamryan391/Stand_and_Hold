@@ -13,6 +13,8 @@ Before replacing files on `main`, confirm:
 - Planning docs are committed separately, with their push status recorded.
 - Local worlds and unrelated user files have been identified and are excluded from the replacement.
 
+Step 1.1.1 now records the [legacy transition inventory](legacy-inventory.md) and exact baseline manifest. Use it to preserve notes/identity, update legacy documentation references in 1.1.2, and replace the old compile/resource/build inputs in 1.1.3. The inventory itself changes no implementation.
+
 ## Target Selection
 
 Selected target for M1:

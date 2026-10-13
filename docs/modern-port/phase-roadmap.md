@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Update the checklist after each completed step. Commit logical changes and record their commit IDs when committed; record push status separately.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M1, next step 1.1.1**. Phase M0 is complete, including the [scaffold branch/local-file handoff](scaffold-handoff.md). The work branch is `codex/modern-neoforge-scaffold`. M1 begins with the legacy-file inventory; no modern scaffold or build/runtime proof exists yet.
+Current position: **Phase M1, next step 1.1.2**. Phase M0 and the [legacy transition inventory](legacy-inventory.md) in 1.1.1 are complete. The work branch is `codex/modern-neoforge-scaffold`. Modern documentation/file transition and build/runtime verification remain open.
 
 ## Priority Scale
 
@@ -75,7 +75,11 @@ Exit gate:
 Priority: P1
 
 - [ ] **1.1 Prepare the legacy-to-modern file transition on the work branch.**
-  - [ ] **1.1.1** Recheck the preserved `1.12` commit and inventory legacy build, source, resource, script, and CI files.
+  - [x] **1.1.1** Recheck the preserved `1.12` commit and inventory legacy build, source, resource, script, and CI files. Evidence: [Legacy Transition Inventory](legacy-inventory.md) and its 199-file manifest, 2026-10-14; source/build/CI remain unchanged.
+    - [x] **1.1.1.1** Refresh refs and verify preserved branch/tag, published work-branch baseline, and unchanged legacy implementation.
+    - [x] **1.1.1.2** Inspect build/wrapper/identity files, both scripts, and both workflows; record current values and transition ownership.
+    - [x] **1.1.1.3** Inventory every Java/resource path and identify legacy startup/API/resource coupling and later-phase references.
+    - [x] **1.1.1.4** Record exact paths/blob IDs/modes and proposed dispositions; validate completeness, protected local files, and current handoffs before publishing the work branch checkpoint.
   - [ ] **1.1.2** Preserve modern planning notes and project identity; move legacy-only documentation references to the `1.12` branch in the modern README.
   - [ ] **1.1.3** Replace the inventoried legacy implementation/build files with the chosen MDK layout; leave local worlds and unrelated user files alone.
 - [ ] **1.2 Configure the modern build.**
@@ -323,4 +327,4 @@ Exit gate:
 
 ## Immediate Next Step
 
-**Phase M1 - Clean NeoForge Scaffold, step 1.1.1: recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.** M0 is complete. Continue on the prepared `codex/modern-neoforge-scaffold` branch and preserve the local files recorded in [Scaffold Branch Handoff](scaffold-handoff.md).
+**Phase M1 - Clean NeoForge Scaffold, step 1.1.2: preserve modern planning notes and project identity, and move legacy-only documentation references to the 1.12 branch in the modern README.** Use the [legacy inventory](legacy-inventory.md) for the documentation/file transition; actual implementation replacement follows in 1.1.3.

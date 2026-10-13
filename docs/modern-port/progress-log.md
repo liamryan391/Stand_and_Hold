@@ -13,12 +13,14 @@
 
 Task completion is maintained in the [canonical roadmap](phase-roadmap.md). Keep this section as the current handoff rather than a second set of checkboxes.
 
-- Current phase: M1 - Clean NeoForge Scaffold, ready for its first task.
+- Current phase: M1 - Clean NeoForge Scaffold, with the preservation/legacy inventory complete.
 - Completed phase: M0 - Preserve And Decide, including branch preparation and the local-file handoff.
-- **Next: 1.1.1 - recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.**
+- **Next: 1.1.2 - preserve modern planning notes and project identity, and move legacy-only documentation references to the 1.12 branch in the modern README.**
 - Active work branch at handoff: `codex/modern-neoforge-scaffold`, using the existing repository checkout. Modern source/build replacement has not started.
 
 Research `bf44b46`, toolchain/JDK `94efe4d`, setup `af988c6`, scope/policy `da8b1d0`, and review `dbf0de8` are published checkpoints. M0 completion checkpoint title: `docs: complete M0 and prepare modern scaffold branch`, published on `main` and the work branch. Use Git history/live refs and the final session report for its hash. Earlier "local/uncommitted" entries below are historical.
+
+M0 completion is commit `6df4c3f`. The M1 inventory checkpoint is titled `docs: inventory legacy files for the modern scaffold` and is published only on `codex/modern-neoforge-scaffold`; `main` stays at the M0 handoff until the planned verified scaffold merge.
 
 ## 2026-10-07 - Numbered Roadmap And Preflight
 
@@ -123,6 +125,17 @@ Research `bf44b46`, toolchain/JDK `94efe4d`, setup `af988c6`, scope/policy `da8b
 - Final publication commits the M0 completion record on `main`, advances the local work branch to that record using `git merge --ff-only main`, switches this checkout to it, and pushes with its own upstream. Verify both remote heads, preserved refs, config hash, and clean status before reporting completion.
 - No Gradle build/client/server/IDE launch was run during this repository/documentation preparation. Modern build/runtime proof remains M1 work.
 - **Next phase/step: M1 / 1.1.1 - recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.**
+
+## 2026-10-14 - Step 1.1.1 Complete
+
+- Started from clean `codex/modern-neoforge-scaffold` at `6df4c3fea5a6fa31f22589339a4c978b4e6e6d89`, matching its GitHub upstream. Live main was also at that M0 handoff. Fetched refs and verified preserved `1.12` ancestry/hash and matching alpha-tag ref.
+- Reviewed build/settings/properties/wrapper, entry/config/constants, resource metadata/formats, both scripts/workflows, and Java package/API coupling. Legacy source/resources/build/CI/Java 8 helper remain identical to `1.12`.
+- Added [Legacy Transition Inventory](legacy-inventory.md) and a TSV snapshot of all 199 baseline paths with Git blob IDs/modes, proposed disposition, and transition owner. Totals: 73 Java, 85 resources, seven build/wrapper files, two scripts, two workflows, 15 modern notes, ten legacy guides, and five root docs/control files.
+- Recorded exact preserve/replace/archive groups, original alpha-art references, legacy startup/API coupling, pack format/translation/recipe differences, duplicated identity/version fields, absent project licence/test source files, and the version-independent CI probe. No code, resource, CI, script, or version was modified.
+- Local selection remains the only ignored file with no unrelated untracked content. No build or game/IDE launch was run; modern implementation and runtime verification remain later M1 tasks.
+- Updated the roadmap with 1.1.1.1-1.1.1.4 and current handoffs to 1.1.2. Final commit/push publishes this inventory only on the work branch, leaving main/preserved refs and local settings intact.
+- Validation passed: exact 199-file manifest coverage/path/blob/mode equality against the baseline tree; valid dispositions/transition owners; 17 documents, 155 local links including heading anchors, 15 phases, 154 unique task IDs, parent/child consistency, thirteen current handoffs, and whitespace checks. Runtime/build/root documentation and the ignored JDK selection have no changes.
+- **Next phase/step: M1 / 1.1.2 - preserve modern planning notes and project identity, and move legacy-only documentation references to the 1.12 branch in the modern README.**
 
 ## Session Handoff Format
 

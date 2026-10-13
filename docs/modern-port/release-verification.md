@@ -90,4 +90,4 @@ Check animation libraries, the AI approach, and at least one compatible threat m
 - The Java 8/25 PATH/JAVA_HOME mismatch in [Preflight Checks](preflight-checks.md) is handled by the process-local selector added in 0.3.3. A Java 21 fallback would require arranging a Java 21 toolchain; none was found in the earlier installed-JDK check.
 - Planning changes were local/uncommitted at the end of 0.3.1. Subsequent publication is tracked in Git history and the [progress log](progress-log.md).
 
-**Current next step: Phase M1, step 1.1.1 - recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.** The [branch handoff](scaffold-handoff.md) closes M0 preparation; this file retains the earlier candidate comparison.
+**Current next step: Phase M1, step 1.1.2 - preserve modern planning notes and project identity, and move legacy-only documentation references to the 1.12 branch in the modern README.** The [inventory](legacy-inventory.md) is complete; this file retains the earlier candidate comparison.

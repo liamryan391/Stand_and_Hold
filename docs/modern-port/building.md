@@ -138,4 +138,4 @@ Verification passed for all seven PowerShell examples' syntax under PowerShell 7
 
 The accepted [foundation scope and dependency policy](foundation-scope.md) now closes step 0.4. These commands still wait for the actual M1 scaffold.
 
-**Next: Phase M1, step 1.1.1 - recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.** The [branch handoff](scaffold-handoff.md) is complete; modern command execution follows the actual M1 build replacement.
+**Next: Phase M1, step 1.1.2 - preserve modern planning notes and project identity, and move legacy-only documentation references to the 1.12 branch in the modern README.** The [inventory](legacy-inventory.md) is complete; modern command execution follows the actual M1 build replacement.

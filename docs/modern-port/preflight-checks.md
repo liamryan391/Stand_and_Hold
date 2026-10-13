@@ -52,8 +52,8 @@ Official release and MDK availability checks passed on 2026-10-07. [Release Veri
 
 ## Remaining Gates
 
-1. Phase M1, step 1.1.1: recheck preserved refs and inventory tracked legacy build/source/resources/scripts/CI. M0 decisions, publication, and branch preparation are complete.
-2. Remaining M1 tasks: transition files, configure the pinned build, verify the modern client/server/artifact, then merge the verified scaffold into `main`.
+1. Phase M1, step 1.1.2: update the modern README/legacy documentation references while preserving notes and identity. M0 and the tracked-file inventory are complete.
+2. Remaining M1 tasks: replace inventoried implementation inputs, configure the pinned build, verify the modern client/server/artifact, then merge the verified scaffold into `main`.
 
 ## Follow-Up: Step 0.3.2
 
@@ -91,4 +91,10 @@ Local inventory found no untracked non-ignored files and only ignored `.local/mo
 
 Preserved `1.12` and alpha-tag refs match GitHub. No legacy source/build/CI or Java setting changed during branch preparation, and no Gradle/game launch was run. M0 closes with repository preparation; modern implementation and runtime verification begin in M1.
 
-**Next phase and step: M1 / 1.1.1.**
+## Follow-Up: Step 1.1.1
+
+On 2026-10-14, refreshed GitHub refs at work-branch baseline `6df4c3fea5a6fa31f22589339a4c978b4e6e6d89`. Local/remote `1.12` and alpha-tag refs still match preservation, and the legacy implementation/build/CI has no diff from `1.12`. The [transition inventory](legacy-inventory.md) and exact manifest cover all 199 tracked files: 73 Java, 85 resources, seven build/wrapper files, scripts/workflows, and documentation/control groups.
+
+The only ignored local file remains the saved JDK selection; its hash is preserved. No runtime/build/CI file, version, or Java setting changed. This inventory checkpoint is published only on the work branch, leaving `main` at the M0 handoff. No build or game launch was run.
+
+**Next phase and step: M1 / 1.1.2.**

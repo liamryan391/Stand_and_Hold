@@ -16,9 +16,9 @@ M0 selected the exact toolchain, configured local JDK selection, documented Wind
 
 ## Current Position
 
-Phase M0 is complete. [Scaffold Branch Handoff](scaffold-handoff.md) records the prepared `codex/modern-neoforge-scaffold` branch, reused checkout, and local-file inventory. Phase M1 begins with the legacy-file inventory; source/build files still contain the Forge 1.12.2 alpha, and modern build/runtime tests remain outstanding.
+Phase M0 and M1 / 1.1.1 are complete. [Legacy Transition Inventory](legacy-inventory.md) covers the 199 tracked baseline files and proposed retain/replace actions on `codex/modern-neoforge-scaffold`. Source/build files still contain the Forge 1.12.2 alpha; modern documentation/file transition and build/runtime tests remain outstanding.
 
-**Next: Phase M1, step 1.1.1 - recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.** See the progress log for completion and publication notes.
+**Next: Phase M1, step 1.1.2 - preserve modern planning notes and project identity, and move legacy-only documentation references to the 1.12 branch in the modern README.** See the progress log for completion and publication notes.
 
 ## Why A Clean Modern Port
 
@@ -40,6 +40,7 @@ The 1.12.2 codebase is useful design history, but the modern Minecraft APIs are 
 - [Foundation Scope And Dependency Policy](foundation-scope.md)
 - [Consolidated M0 Decision And Publication Review](m0-decision-review.md)
 - [Prepared Scaffold Branch And Local-File Handoff](scaffold-handoff.md)
+- [Legacy Transition Inventory And Exact File Manifest](legacy-inventory.md)
 
 The [Phase Roadmap](phase-roadmap.md) is the canonical numbered checklist. Larger tasks have subtasks such as `1.1.1`; update their checkboxes as they pass verification. The progress log records evidence, blockers, commits, and the exact next task so work can resume across sessions.
 
