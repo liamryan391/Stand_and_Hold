@@ -136,4 +136,6 @@ Modern Gradle execution, artifact inspection, IDE sync/build, client, and server
 
 Verification passed for all seven PowerShell examples' syntax under PowerShell 7.6.5 and Windows PowerShell 5.1. The preparation guard was executed against the legacy checkout and rejected it before changing Java/cache settings or running Gradle. The saved Java 25 selection and documentation links/task consistency were also checked. Build/run examples were not executed past that guard.
 
-**Next: Phase M0, step 0.4 - finalize foundation scope and dependency policy.** Keep M1 implementation behind the remaining M0 scope/publication gates.
+The accepted [foundation scope and dependency policy](foundation-scope.md) now closes step 0.4. These commands still wait for the actual M1 scaffold.
+
+**Next: Phase M0, step 0.5.1 - review the consolidated M0 decisions and confirm their commit/push status.** Keep M1 implementation behind the remaining handoff gates.

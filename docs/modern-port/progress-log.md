@@ -14,12 +14,12 @@
 Task completion is maintained in the [canonical roadmap](phase-roadmap.md). Keep this section as the current handoff rather than a second set of checkboxes.
 
 - Current phase: M0 - Preserve And Decide.
-- Completed steps: 0.1 (preservation/access checks), 0.2 (durable planning), 0.3 (release/ecosystem verification, exact pins, local JDK selection, and Windows/IDE/fallback instructions).
-- **Next: 0.4 - finalize foundation scope and dependency policy.**
-- After that: 0.5 publishes the final M0 decisions and prepares the scaffold branch.
+- Completed steps: 0.1 (preservation/access), 0.2 (durable planning), 0.3 (toolchain/research/setup), 0.4 (accepted foundation scope and dependency/save policy).
+- **Next: 0.5.1 - review the consolidated M0 decisions and confirm their commit/push status.**
+- After that: 0.5.2 rechecks preservation/local changes and prepares the scaffold branch.
 - First implementation phase: M1, starting at 1.1.1 after M0's remaining gates pass.
 
-Research checkpoint `bf44b46` and toolchain/JDK checkpoint `94efe4d` were committed and pushed. Step 0.3.4 uses checkpoint title `docs: document modern Windows build and fallback procedure`; use Git history and `origin/main` for publication confirmation, with the actual commit ID in the final session report. Earlier "local/uncommitted" entries below are historical. Final scope/publication decisions in 0.4-0.5 still precede scaffolding.
+Research checkpoint `bf44b46`, toolchain/JDK checkpoint `94efe4d`, and setup checkpoint `af988c6` were committed and pushed. Step 0.4 uses checkpoint title `docs: finalize modern foundation scope and dependency policy`; use Git history and `origin/main` for publication confirmation, with the actual commit ID in the final session report. Earlier "local/uncommitted" entries below are historical. Step 0.5 audits the consolidated decisions/publication and prepares the scaffold branch; no duplicate commit is required merely to close its publication check.
 
 ## 2026-10-07 - Numbered Roadmap And Preflight
 
@@ -88,6 +88,19 @@ Research checkpoint `bf44b46` and toolchain/JDK checkpoint `94efe4d` were commit
 - Modern Gradle/build, artifact inspection, IDE sync/build, client, and dedicated-server checks were not run. The current wrapper still belongs to Forge 1.12.2; executing the modern commands is an M1 task. No gameplay, script, build, CI, or global JDK settings were changed.
 - Final commit/push follows validation under the checkpoint title above; the preserved branch is excluded from publication changes.
 - **Next phase/step: M0 / 0.4 - finalize foundation scope and dependency policy.**
+
+## 2026-10-14 - Step 0.4 Complete
+
+- Started from clean `main` at `af988c62e4f47527db808879b516b91ea1d2861b`. Fetched GitHub: no divergence, with remote `1.12` still at `62bb07b84eb614b5967ef318ccb98aef1f22a5d8`.
+- Added [Foundation Scope And Dependency Policy](foundation-scope.md). Final M1 scope: pinned MDK build, identity/metadata, entry point/logger/config shell, side safety, build/CI support, and actual build/launch verification. No added runtime library dependencies or exceptions are approved.
+- Distinguished required platform/build-tool dependencies from later AI/animation libraries, optional integrations, and development-only additions. Defined exact-artifact, licence/provenance, physical-side/transitive, test, and maintenance records before admission; scope exceptions require maintainer approval.
+- Assigned gameplay/art/vehicles/multi-loader work to existing phases rather than adding it to the scaffold. The policy uses existing dated ecosystem research; it does not refresh release claims, select new libraries, or change toolchain pins.
+- Finalized separate-world testing and excluded legacy world/config/NBT conversion. Recorded that the preserved Git branch does not back up ignored local worlds/configs; future migrations concern modern schemas only.
+- Expanded 0.4 into numbered substeps, including 0.4.3.1-0.4.3.3. Updated the technical plan, project memory, indexes, and current handoffs. Clarified 0.5.1 as the consolidated decision/publication review, reusing already-published commits when complete.
+- Validation passed: 14 documents, 112 local links including heading anchors, 15 phases, 143 unique task IDs, parent/child completion consistency, ten current handoffs, and `git diff --check`. The diff is documentation-only; source, scripts, toolchain/build, CI, and ignore rules are unchanged. Local branches remain only `main` and `1.12`.
+- No modern scaffold, work branch, dependency installation, or implementation change was made. No build/client/server/IDE runtime test was run for this documentation-only policy step; those checks remain M1 work.
+- Final commit/push follows validation under the checkpoint title above, with the legacy branch unchanged.
+- **Next phase/step: M0 / 0.5.1 - review the consolidated M0 decisions and confirm their commit/push status.**
 
 ## Session Handoff Format
 

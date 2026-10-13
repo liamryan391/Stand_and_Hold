@@ -52,8 +52,8 @@ Official release and MDK availability checks passed on 2026-10-07. [Release Veri
 
 ## Remaining Gates
 
-1. Step 0.4: finalize initial dependencies and the separate-world testing policy. Toolchain selection and setup/fallback instructions are complete.
-2. Step 0.5: publish the final M0 decisions and prepare the scaffold branch from a rechecked baseline.
+1. Step 0.5.1: review the consolidated M0 decisions and confirm their commit/push status. Scope/dependency/save policy and toolchain/setup instructions are complete.
+2. Step 0.5.2: recheck preserved refs and user/local files, then prepare the scaffold branch.
 3. Phase M1: create and verify the modern scaffold before replacing `main` through a normal merge.
 
 ## Follow-Up: Step 0.3.2
@@ -72,4 +72,10 @@ On 2026-10-13, added [Windows Build And IDE Setup](building.md) with current/fut
 
 GitHub fetch/ref checks before publication showed `main` at `94efe4d2ecd5e01dbfc149ee6d82af7f168c50e4`, matching the local baseline; `1.12` remained at `62bb07b84eb614b5967ef318ccb98aef1f22a5d8`.
 
-**Next phase and step: M0 / 0.4.**
+## Follow-Up: Step 0.4
+
+On 2026-10-14, finalized [Foundation Scope And Dependency Policy](foundation-scope.md). M1 includes no gameplay or added runtime libraries; platform/build dependencies remain allowed. Later dependency additions require explicit purpose, exact artifacts, provenance/licence and side/transitive checks, and verification. Threat mods remain optional. Legacy world/config conversion is excluded, and ignored local worlds/settings need backups separate from Git preservation.
+
+GitHub fetch/ref checks showed clean `main` at `af988c62e4f47527db808879b516b91ea1d2861b`, with no remote divergence; `1.12` remained at the preserved commit. No dependency, build file, source, CI, or global JDK setting changed, and no modern build/game was run.
+
+**Next phase and step: M0 / 0.5.1.**

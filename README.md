@@ -136,6 +136,8 @@ The [selected modern toolchain](docs/modern-port/toolchain.md) is Minecraft 26.3
 
 The [modern Windows build and IDE guide](docs/modern-port/building.md) separates current legacy commands from future M1 commands and records the fallback decision rule. Do not apply its modern Gradle settings to the current legacy checkout.
 
+The accepted [foundation scope and dependency policy](docs/modern-port/foundation-scope.md) keeps M1 to a minimal NeoForge scaffold with no added runtime libraries. Gameplay returns in later phases; use separate modern test worlds, with no legacy world/config conversion in scope.
+
 The [modern phase roadmap](docs/modern-port/phase-roadmap.md) includes numbered steps and subtasks such as `1.1` and `1.1.1`. See the [progress log](docs/modern-port/progress-log.md) for completed checks and the exact next step, and [preflight results](docs/modern-port/preflight-checks.md) for repository and toolchain findings.
 
 ## First Playable Alpha Loop

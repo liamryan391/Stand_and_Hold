@@ -84,9 +84,9 @@ com.liamryan.standandhold.datagen
 
 ## Dependency Policy
 
-Start NeoForge-only unless the scaffold phase proves a library is essential.
+The accepted [Foundation Scope And Dependency Policy](foundation-scope.md) governs M1 and future dependency admission. **M1 has no additional third-party gameplay/runtime library dependencies and no approved exceptions.** Minecraft/NeoForge's normal dependencies and the pinned official MDK build tooling remain required; "NeoForge-only" does not mean removing those dependencies.
 
-Candidate later dependencies:
+Deferred candidates, not current requirements or compatibility promises:
 
 - Prefer a GeckoLib prototype for animated entities when needed; AzureLib is a verified alternative. Both have exact 26.3 and 26.2 NeoForge releases. Choose one for Stand and Hold's models.
 - SmartBrainLib has exact releases for both primary candidates, but start with bounded vanilla goals and add it only if AI complexity warrants it.
@@ -95,9 +95,11 @@ Candidate later dependencies:
 - Curios or an equivalent accessory system only if equipment modules need extra slots.
 - Patchouli-style guidebook only after the core loop is stable.
 
-Do not add heavy dependencies just because they are available.
+Each later addition needs a recorded purpose, exact target artifact and source, licence/provenance, physical-side/transitive requirements, verification results, and maintenance/removal cost. An M1 library exception or other scope expansion needs explicit maintainer approval first. A library directly used by core code is a required library, not an optional integration.
 
 Undead Nights and Contagion are optional test-instance mods, not scaffold dependencies. Spore is a verified 1.21.1-only candidate among the checked targets. Keep all compatibility behind tags/config/optional adapters and test both integrated and dedicated servers.
+
+No new libraries or threat versions are selected by step 0.4. Recheck dated ecosystem evidence when the owning phase actually needs a dependency. Do not copy, bundle, or download external mods at runtime by default.
 
 ## Data Design
 
@@ -109,7 +111,9 @@ Modern Stand and Hold should treat save data as first-class from phase one:
 - never force-load chunks for cleanup
 - keep global state server-side
 - sync only the minimum needed for GUIs
-- use separate modern test worlds; no automatic Forge 1.12.2 world/save conversion is promised by this port
+- use separate modern test worlds; legacy world/config/NBT conversion is out of scope, while migrations between modern schemas start with the relevant persistence phase
+
+A preserved Git branch is not a backup of ignored worlds or local configs. Inventory and back up valuable local files before the scaffold replacement; see the [save/local-file policy](foundation-scope.md#saves-and-local-files). This policy adds no M1 save system.
 
 ## Compatibility Design
 

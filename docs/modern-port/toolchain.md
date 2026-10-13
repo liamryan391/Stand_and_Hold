@@ -66,4 +66,6 @@ Step 0.3.3 verifies published pins, the installed JDK, and local selector behavi
 
 Step 0.3.4 has now documented [Windows build commands, IDE setup, and the fallback decision rule](building.md); this does not replace M1 build/runtime proof.
 
-**Next: Phase M0, step 0.4 - finalize foundation scope and dependency policy.**
+Step 0.4 now records the accepted [foundation scope and dependency policy](foundation-scope.md), without changing these pins or adding libraries.
+
+**Next: Phase M0, step 0.5.1 - review the consolidated M0 decisions and confirm their commit/push status.**

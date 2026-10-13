@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Update the checklist after each completed step. Commit logical changes and record their commit IDs when committed; record push status separately.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M0, next step 0.4**. Steps 0.1-0.3 are complete: preservation/access checks, durable planning, exact toolchain selection, local JDK verification, and [Windows/IDE/fallback instructions](building.md). No modern scaffold has been created; build and runtime compatibility are still untested.
+Current position: **Phase M0, next step 0.5.1**. Steps 0.1-0.4 are complete: preservation/access, durable planning, toolchain/setup decisions, and the accepted [foundation scope and dependency policy](foundation-scope.md). The final handoff review and scaffold branch preparation remain open. No modern scaffold or build/runtime proof exists yet.
 
 ## Priority Scale
 
@@ -45,9 +45,16 @@ Priority: P0
     - [x] **0.3.4.2** Document project SDK, Gradle JVM/wrapper/user-home settings, and JVM override troubleshooting using official sources.
     - [x] **0.3.4.3** Define failure classification, minimal reproduction, maintainer approval, and full verification before adopting a coherent fallback toolchain.
     - [x] **0.3.4.4** Check PowerShell examples, legacy rejection, links, and roadmap consistency; record what was not run and advance the handoff.
-- [ ] **0.4 Finalize foundation scope and dependency policy.** Start NeoForge-only unless an essential dependency is justified; defer animation/AI libraries until their phase. Record that legacy world conversion is not part of scaffolding and use separate test worlds.
+- [x] **0.4 Finalize foundation scope and dependency policy.** Evidence: [Foundation Scope And Dependency Policy](foundation-scope.md), 2026-10-14. M1 is NeoForge-only with no added runtime libraries or approved exceptions; documentation and unchanged implementation checks passed.
+  - [x] **0.4.1** Freeze the minimal M1 deliverable and map gameplay, art, vehicles, and multi-loader work to their later phases.
+  - [x] **0.4.2** Define separate modern worlds, local-file preservation, no legacy world/config migration, and future modern-schema safety requirements.
+  - [x] **0.4.3** Classify and constrain dependencies.
+    - [x] **0.4.3.1** Separate platform/runtime dependencies, required MDK build tooling, and dev/test additions; record no extra M1 library exceptions.
+    - [x] **0.4.3.2** Defer AI/animation/helper libraries and keep threat integrations optional, side-safe, and independently testable.
+    - [x] **0.4.3.3** Require exact artifact/provenance, licence, transitive/side checks, runtime evidence, and maintainer approval for scope exceptions.
+  - [x] **0.4.4** Check policy/roadmap consistency, links, unchanged implementation/toolchain, and publication evidence; record the exact handoff.
 - [ ] **0.5 Prepare the scaffold handoff.**
-  - [ ] **0.5.1** Commit the final M0 decisions, including pinned versions and setup notes, separately from the scaffold and record push status. The earlier research checkpoint published at the end of 0.3.2 does not replace this final decision handoff.
+  - [ ] **0.5.1** Review the consolidated M0 decisions (pins, setup, scope, dependency/save policy) and confirm their commit/push status separately from the scaffold. Commit any remaining corrections; existing published decision commits may satisfy publication without an empty or duplicate commit. Earlier research alone does not replace this final handoff review.
   - [ ] **0.5.2** Recheck remote refs and user changes; prepare `codex/modern-neoforge-scaffold` from the agreed `main` baseline, with a merge back to `main` after verification.
 
 Exit gate:
@@ -309,4 +316,4 @@ Exit gate:
 
 ## Immediate Next Step
 
-**Phase M0 - Preserve And Decide, step 0.4: finalize foundation scope and dependency policy.** Confirm the NeoForge-only starting point, deferred libraries/features, and separate-world testing/no legacy save-conversion scope. Build/IDE/fallback instructions are recorded in [Windows Build And IDE Setup](building.md). Complete 0.4 and 0.5 before Phase M1, step 1.1.1 begins scaffold implementation.
+**Phase M0 - Preserve And Decide, step 0.5.1: review the consolidated M0 decisions and confirm their commit/push status.** The [foundation policy](foundation-scope.md) is complete. Then prepare the scaffold branch in 0.5.2; Phase M1, step 1.1.1 begins implementation only after those gates.

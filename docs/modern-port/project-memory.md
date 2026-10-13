@@ -1,6 +1,6 @@
 # Project Memory
 
-Last updated: 2026-10-13
+Last updated: 2026-10-14
 
 ## Preserved History
 
@@ -17,15 +17,16 @@ Last updated: 2026-10-13
 - Closest non-beta-loader alternative: 26.2. Exact NeoForge releases of GeckoLib, AzureLib, SmartBrainLib, Undead Nights, and Contagion are verified for both 26.3 and 26.2. Runtime combinations remain untested.
 - Build pins: Java 25 (local Temurin 25.0.4+7), Gradle 9.2.1, ModDevGradle 2.0.148, Foojay resolver 1.0.0. [Selected Modern Toolchain](toolchain.md) owns the decision, checksum, immutable MDK source, and local setup.
 - Secondary loader later: Fabric, after NeoForge has a stable foundation and the shared design is proven.
+- Accepted [foundation scope and dependency policy](foundation-scope.md): M1 is a minimal NeoForge scaffold with no added runtime libraries or approved exceptions. Build tooling/platform dependencies remain required. Gameplay returns in its owning later phases.
 - Prepare the scaffold on `codex/modern-neoforge-scaffold`, then merge verified work into `main`; leave `1.12` unchanged.
 
 ## Resume Point And Working Rules
 
-- Current phase: M0 - Preserve And Decide. Steps 0.1-0.3 are complete, including all 0.3.4 setup-documentation substeps. Actual modern build/IDE/runtime tests remain M1 gates.
-- Next step: **0.4 - finalize foundation scope and dependency policy**.
+- Current phase: M0 - Preserve And Decide. Steps 0.1-0.4 are complete, including nested scope/dependency substeps. Final handoff/branch preparation remain open; actual modern build/IDE/runtime tests remain M1 gates.
+- Next step: **0.5.1 - review the consolidated M0 decisions and confirm their commit/push status**.
 - The [roadmap](phase-roadmap.md) owns task IDs and checkboxes; the [progress log](progress-log.md) records results and the current next step. Use `1.1`, `1.2`, and deeper IDs such as `1.1.1` for large tasks.
 - Keep these planning files in the project repository. The research checkpoint commit is titled `docs: record modern port roadmap and ecosystem compatibility`; use Git history and remote refs to confirm publication rather than inferring it from a local file's existence.
-- Toolchain/JDK checkpoint `94efe4d` was committed and pushed. Current work adds [Windows/IDE/fallback instructions](building.md); no modern scaffold has been created. Its checkpoint title is `docs: document modern Windows build and fallback procedure`; use Git history/remote refs for publication evidence.
+- Toolchain/JDK checkpoint `94efe4d` and Windows/IDE checkpoint `af988c6` were committed and pushed. The scope/policy checkpoint is titled `docs: finalize modern foundation scope and dependency policy`; use Git history/remote refs for publication evidence. No modern scaffold or work branch has been created.
 - The [preflight record](preflight-checks.md) confirms live GitHub access and admin permission. No push was attempted during that check.
 - Local Java 8 and Java 25 JDKs are installed. Global settings are unchanged. Run `& .\scripts\use-modern-java.ps1` in each modern shell to align JAVA_HOME/PATH to the verified JDK saved in ignored `.local/modern-jdk.json`. It does not run Gradle. Use the unchanged Java 8 helper for the current legacy project.
 - Future modern commands are guarded against the legacy checkout. Use the wrapper, Java 25 in both terminal and IDE, and a separate `.gradle-home/modern` cache. Diagnose environment failures before considering a fallback; require a minimal reproduction and maintainer approval before changing target.
@@ -68,15 +69,20 @@ Stand and Hold should not be "another infection mod." Its identity is the human 
 - Use other mods as market and design reference only.
 - Keep compatibility optional through tags, registry IDs, datapacks, or integration modules.
 - Keep the first modern build compileable before adding advanced systems.
+- No legacy world/config/NBT conversion in the foundation. Use separate modern test worlds; back up ignored worlds/local settings outside the checkout before replacement. A preserved Git branch is not a backup of those files.
+- Dependency additions must record exact artifacts, licensing/provenance, sides/transitives, purpose, and verification. M1 exceptions or a target/scope change require maintainer approval; threat mods must never become core requirements.
 - Build in phases and verify each phase.
 
-## Open Decisions Before Scaffolding
+## Remaining M0 Gates
 
 - Version pins, process-local JDK selection, Windows commands, IDE instructions, and fallback procedure are complete. Executing the modern build/IDE/runtime checks requires M1's scaffold, not more version-selection work.
-- Validate the NeoForge-only initial dependency policy; record an exception only if a dependency is essential.
-- Whether to use AzureLib or GeckoLib for animated entities and equipment later.
-- Whether to use an AI helper library later or start with vanilla Brain/Goal APIs.
-- Which optional test combination to launch after scaffolding; published matching artifacts do not prove runtime compatibility. Legacy SRP availability is not modern compatibility.
+- The foundation/dependency/save policy is final for M1, with no additional runtime libraries. Step 0.5.1 audits the consolidated decisions and their published commits; do not manufacture another commit if the record is complete.
+- Step 0.5.2 rechecks preservation, user changes, and local files before preparing `codex/modern-neoforge-scaffold`. Do not replace legacy files until M1's inventory step.
+
+## Deferred Decisions
+
+- M6 starts with vanilla AI; evaluate SmartBrainLib only for a concrete need. M8 evaluates one animation library, with GeckoLib the prototype preference and AzureLib the alternative. These choices do not block M1.
+- Later helper integrations require fresh target/license checks. Optional threat tests follow a working no-external-mod baseline; published matching artifacts do not prove runtime compatibility. Legacy SRP availability is not modern compatibility.
 
 ## Notes From The 1.12 Alpha
 

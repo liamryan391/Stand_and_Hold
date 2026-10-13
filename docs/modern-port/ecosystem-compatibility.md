@@ -85,7 +85,9 @@ Additional candidates reviewed:
 - [The Flesh That Hates](https://www.curseforge.com/minecraft/mc-mods/the-flesh-that-hates) lists Forge builds through 1.20.1; [Scape and Run: Parasites](https://www.curseforge.com/minecraft/mc-mods/scape-and-run-parasites) remains a Forge 1.12.2 option. Neither is evidence of NeoForge compatibility.
 - [Creeper Parasites 1.0+mod](https://modrinth.com/mod/creeper-parasites/version/F91y2NF9) lists NeoForge 26.2/26.1.2/1.21.11. Its small, multi-loader listing was not investigated beyond metadata, so it is not the primary external test recommendation.
 
-## Dependency Policy For Stand And Hold
+## Dependency Recommendations At Step 0.3.2
+
+The table below preserves the research recommendation. Step 0.4 now records the accepted [Foundation Scope And Dependency Policy](foundation-scope.md): no added M1 runtime libraries, deferred AI/animation evaluation, and optional threat integrations. Published matches are not approved installations or runtime support claims.
 
 | Category | Recommendation | Earliest evaluation |
 | --- | --- | --- |
@@ -109,4 +111,4 @@ GeckoLib and AzureLib project metadata list MIT; SmartBrainLib lists MPL-2.0. Ke
 
 None of these runtime checks has been run in this step. Stand and Hold's modern APIs and content must exist first.
 
-**Current next step: Phase M0, step 0.4 - finalize foundation scope and dependency policy.** Pins and local JDK selection are recorded in [Selected Modern Toolchain](toolchain.md); [Windows/IDE setup and fallback rules](building.md) are also documented. Published ecosystem matches still require runtime testing in later phases.
+**Current next step: Phase M0, step 0.5.1 - review the consolidated M0 decisions and confirm their commit/push status.** The [foundation policy](foundation-scope.md) is accepted; pins and [Windows/IDE setup](building.md) remain unchanged. Published ecosystem matches still require runtime testing in later phases.

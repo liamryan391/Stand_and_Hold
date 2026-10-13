@@ -32,6 +32,8 @@ The [release verification record](release-verification.md) contains the candidat
 
 ## First Modern Playable Goal
 
+The accepted [foundation scope](foundation-scope.md) keeps M1 to a clean NeoForge scaffold with no extra runtime libraries. The demo below is assembled through later phases and reviewed in M12, not added during scaffolding. Dependency candidates elsewhere in these recommendations require the policy's admission checks before use.
+
 The first modern demo should be smaller than the full 1.12 alpha:
 
 1. Start world.
