@@ -12,13 +12,13 @@ This folder is the planning memory for moving Stand and Hold from the Forge 1.12
 - Future track: Fabric after the NeoForge version has a stable gameplay foundation.
 - M1 scope: minimal NeoForge scaffold, logger/config shell, build/CI support, and launch verification. No gameplay or additional runtime libraries; no legacy world/config migration. See the accepted [foundation policy](foundation-scope.md).
 
-Steps 0.3.3-0.3.4 selected the exact toolchain, configured local JDK selection, and documented Windows/IDE setup and fallback rules. Prove the pins with the clean scaffold build in M1 after the remaining M0 gates.
+M0 selected the exact toolchain, configured local JDK selection, documented Windows/IDE/fallback instructions, and prepared the scaffold branch. Prove the pins with the clean scaffold build in M1.
 
 ## Current Position
 
-Phase M0 steps 0.1-0.4 and the [decision/publication review](m0-decision-review.md) in 0.5.1 are complete. All four decision checkpoints were confirmed on GitHub. Scaffold branch preparation and modern build/runtime tests remain outstanding. The source tree is still the Forge 1.12.2 alpha.
+Phase M0 is complete. [Scaffold Branch Handoff](scaffold-handoff.md) records the prepared `codex/modern-neoforge-scaffold` branch, reused checkout, and local-file inventory. Phase M1 begins with the legacy-file inventory; source/build files still contain the Forge 1.12.2 alpha, and modern build/runtime tests remain outstanding.
 
-**Next: Phase M0, step 0.5.2 - recheck repository/local-file state and prepare the scaffold work branch.** See the progress log for the latest completion and publication notes.
+**Next: Phase M1, step 1.1.1 - recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.** See the progress log for completion and publication notes.
 
 ## Why A Clean Modern Port
 
@@ -39,6 +39,7 @@ The 1.12.2 codebase is useful design history, but the modern Minecraft APIs are 
 - [Windows Build, IDE Setup, And Fallback Rule](building.md)
 - [Foundation Scope And Dependency Policy](foundation-scope.md)
 - [Consolidated M0 Decision And Publication Review](m0-decision-review.md)
+- [Prepared Scaffold Branch And Local-File Handoff](scaffold-handoff.md)
 
 The [Phase Roadmap](phase-roadmap.md) is the canonical numbered checklist. Larger tasks have subtasks such as `1.1.1`; update their checkboxes as they pass verification. The progress log records evidence, blockers, commits, and the exact next task so work can resume across sessions.
 

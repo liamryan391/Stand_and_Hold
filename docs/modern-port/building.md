@@ -138,4 +138,4 @@ Verification passed for all seven PowerShell examples' syntax under PowerShell 7
 
 The accepted [foundation scope and dependency policy](foundation-scope.md) now closes step 0.4. These commands still wait for the actual M1 scaffold.
 
-**Next: Phase M0, step 0.5.2 - recheck repository/local-file state and prepare the scaffold work branch.** The [decision review](m0-decision-review.md) is complete; modern command execution remains M1 work.
+**Next: Phase M1, step 1.1.1 - recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.** The [branch handoff](scaffold-handoff.md) is complete; modern command execution follows the actual M1 build replacement.

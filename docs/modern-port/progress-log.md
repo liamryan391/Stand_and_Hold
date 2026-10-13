@@ -13,13 +13,12 @@
 
 Task completion is maintained in the [canonical roadmap](phase-roadmap.md). Keep this section as the current handoff rather than a second set of checkboxes.
 
-- Current phase: M0 - Preserve And Decide.
-- Completed steps: 0.1-0.4 (preservation, planning, toolchain/setup, foundation policy) and 0.5.1 (consolidated decision/publication review).
-- **Next: 0.5.2 - recheck repository/local-file state and prepare the scaffold work branch.**
-- After that: M0 closes and M1 begins at 1.1.1, the legacy-file inventory.
-- First implementation phase: M1, starting at 1.1.1 after M0's remaining gates pass.
+- Current phase: M1 - Clean NeoForge Scaffold, ready for its first task.
+- Completed phase: M0 - Preserve And Decide, including branch preparation and the local-file handoff.
+- **Next: 1.1.1 - recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.**
+- Active work branch at handoff: `codex/modern-neoforge-scaffold`, using the existing repository checkout. Modern source/build replacement has not started.
 
-Research `bf44b46`, toolchain/JDK `94efe4d`, setup `af988c6`, and scope/policy `da8b1d0` were confirmed as published ancestors of `origin/main` during 0.5.1. The review checkpoint is titled `docs: record consolidated M0 decision review`; use Git history and live refs to confirm its publication, with the actual hash in the final session report. Earlier "local/uncommitted" entries below are historical. Branch preparation remains outstanding.
+Research `bf44b46`, toolchain/JDK `94efe4d`, setup `af988c6`, scope/policy `da8b1d0`, and review `dbf0de8` are published checkpoints. M0 completion checkpoint title: `docs: complete M0 and prepare modern scaffold branch`, published on `main` and the work branch. Use Git history/live refs and the final session report for its hash. Earlier "local/uncommitted" entries below are historical.
 
 ## 2026-10-07 - Numbered Roadmap And Preflight
 
@@ -113,6 +112,17 @@ Research `bf44b46`, toolchain/JDK `94efe4d`, setup `af988c6`, and scope/policy `
 - No modern build/IDE/client/server test was run for this documentation review. No target/dependency change, work branch, or modern scaffold was created.
 - Final commit/push records this review evidence and updated progress under the checkpoint title above; the decisions themselves were already published.
 - **Next phase/step: M0 / 0.5.2 - recheck repository/local-file state and prepare the scaffold work branch.**
+
+## 2026-10-14 - Step 0.5.2 Complete
+
+- Began from clean `main` at `dbf0de8ec9e94fd6fab96e5bd80d77473f3418cd`; fetched GitHub and confirmed the matching remote main. Local/remote preserved `1.12` and alpha-tag refs match their recorded hashes.
+- Confirmed `codex/modern-neoforge-scaffold` was absent locally/remotely, then created it locally from the published baseline with no inherited upstream. Reused `C:\Users\liamr\Documents\ChatGPT\Stand and Hold`; no clone/worktree was added.
+- Inventoried local files: no untracked non-ignored files; `.local/modern-jdk.json` is the only ignored file. Saved JDK metadata and required files match Temurin 25.0.4+7, 64-bit. Runtime/world, build/cache, external-jar, and IDE-output directories are absent in this checkout. Retain the ignored selection in place.
+- Added [Scaffold Branch Handoff](scaffold-handoff.md), expanded 0.5.2 into preparation/publication subtasks, and updated current handoffs to M1 / 1.1.1. Legacy implementation remains untouched; modern scaffold/source replacement has not started.
+- Validation passed: 16 documents, 142 local links including heading anchors, 15 phases, 150 unique task IDs, completion consistency, `git diff --check`, prepared branch baseline, and unchanged legacy implementation/local JDK configuration. All M0 tasks close with this handoff; M1 implementation tasks remain open.
+- Final publication commits the M0 completion record on `main`, advances the local work branch to that record using `git merge --ff-only main`, switches this checkout to it, and pushes with its own upstream. Verify both remote heads, preserved refs, config hash, and clean status before reporting completion.
+- No Gradle build/client/server/IDE launch was run during this repository/documentation preparation. Modern build/runtime proof remains M1 work.
+- **Next phase/step: M1 / 1.1.1 - recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.**
 
 ## Session Handoff Format
 

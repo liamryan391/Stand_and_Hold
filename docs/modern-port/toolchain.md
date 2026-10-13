@@ -70,4 +70,6 @@ Step 0.4 now records the accepted [foundation scope and dependency policy](found
 
 The [M0 decision review](m0-decision-review.md) has confirmed these decisions and their publication.
 
-**Next: Phase M0, step 0.5.2 - recheck repository/local-file state and prepare the scaffold work branch.**
+The [scaffold branch handoff](scaffold-handoff.md) now closes M0 preparation; these pins still await implementation and verification in M1.
+
+**Next: Phase M1, step 1.1.1 - recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.**

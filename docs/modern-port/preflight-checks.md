@@ -52,8 +52,8 @@ Official release and MDK availability checks passed on 2026-10-07. [Release Veri
 
 ## Remaining Gates
 
-1. Step 0.5.2: recheck preserved refs and user/local files, then prepare the scaffold branch. The consolidated decision/publication review is complete.
-2. Phase M1: create and verify the modern scaffold before replacing `main` through a normal merge.
+1. Phase M1, step 1.1.1: recheck preserved refs and inventory tracked legacy build/source/resources/scripts/CI. M0 decisions, publication, and branch preparation are complete.
+2. Remaining M1 tasks: transition files, configure the pinned build, verify the modern client/server/artifact, then merge the verified scaffold into `main`.
 
 ## Follow-Up: Step 0.3.2
 
@@ -83,4 +83,12 @@ On 2026-10-14, [reviewed consolidated M0 decisions](m0-decision-review.md): pins
 
 This review records publication evidence and advances the handoff. Modern build/IDE/client/server proof remains M1 work, and branch preparation remains 0.5.2 work.
 
-**Next phase and step: M0 / 0.5.2.**
+## Follow-Up: Step 0.5.2
+
+On 2026-10-14, refreshed GitHub refs and confirmed a clean published `main` baseline at `dbf0de8ec9e94fd6fab96e5bd80d77473f3418cd`. The requested work branch was absent locally/remotely and was created from that baseline. [Scaffold Branch Handoff](scaffold-handoff.md) records the existing checkout path, completion-checkpoint publication on both branches, and the final work-branch upstream.
+
+Local inventory found no untracked non-ignored files and only ignored `.local/modern-jdk.json`. The saved JDK metadata reports 64-bit Temurin 25.0.4+7, and its Java/compiler/release files exist. No runtime worlds, build outputs/caches, external jars, or IDE output are present in this checkout. No local file was moved/deleted; verify the config hash after switching the branch.
+
+Preserved `1.12` and alpha-tag refs match GitHub. No legacy source/build/CI or Java setting changed during branch preparation, and no Gradle/game launch was run. M0 closes with repository preparation; modern implementation and runtime verification begin in M1.
+
+**Next phase and step: M1 / 1.1.1.**

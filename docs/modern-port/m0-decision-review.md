@@ -1,6 +1,6 @@
 # M0 Decision Review
 
-Phase M0, step 0.5.1. Reviewed 2026-10-14. Result: **complete**. The toolchain, setup, scope, and dependency/save decisions are consistent and published; scaffold branch preparation is the remaining M0 task.
+Phase M0, step 0.5.1. Reviewed 2026-10-14. Result: **complete**. The toolchain, setup, scope, and dependency/save decisions are consistent and published. Subsequent branch preparation is recorded in [Scaffold Branch Handoff](scaffold-handoff.md).
 
 ## Consolidated Decisions
 
@@ -39,6 +39,6 @@ Existing commits satisfy publication of the decisions. This review adds only its
 
 ## Handoff
 
-Step 0.5.2 must recheck remote refs/user changes and local files, then prepare `codex/modern-neoforge-scaffold` from the published `main` baseline. Record the actual branch/path and publication status there. Legacy file replacement belongs to M1's inventory/transition steps; this review creates no branch or scaffold.
+This review created no branch or scaffold. Step 0.5.2 subsequently prepared `codex/modern-neoforge-scaffold`; [Scaffold Branch Handoff](scaffold-handoff.md) records its baseline, checkout path, local files, and publication route. Legacy file replacement belongs to M1's inventory/transition steps.
 
-**Next: Phase M0, step 0.5.2 - recheck repository/local-file state and prepare the scaffold work branch.**
+**Next: Phase M1, step 1.1.1 - recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.**

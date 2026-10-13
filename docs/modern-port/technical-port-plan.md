@@ -4,7 +4,7 @@
 
 - `1.12`: preserved Forge 1.12.2 alpha branch.
 - `main`: modern NeoForge rewrite branch once scaffolding starts.
-- Work branch to prepare in step 0.5.2: `codex/modern-neoforge-scaffold`. Merge the verified scaffold into `main`; do not replace the preserved `1.12` branch.
+- Prepared work branch: `codex/modern-neoforge-scaffold`, using the existing checkout. [Scaffold Branch Handoff](scaffold-handoff.md) records its baseline, local-file inventory, publication route, and active checkout. Merge the verified M1 scaffold into `main`; do not replace the preserved `1.12` branch.
 
 Before replacing files on `main`, confirm:
 

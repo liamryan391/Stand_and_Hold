@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Update the checklist after each completed step. Commit logical changes and record their commit IDs when committed; record push status separately.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M0, next step 0.5.2**. Steps 0.1-0.4 and the [consolidated decision/publication review](m0-decision-review.md) in 0.5.1 are complete. Scaffold branch preparation remains open. No modern scaffold or build/runtime proof exists yet.
+Current position: **Phase M1, next step 1.1.1**. Phase M0 is complete, including the [scaffold branch/local-file handoff](scaffold-handoff.md). The work branch is `codex/modern-neoforge-scaffold`. M1 begins with the legacy-file inventory; no modern scaffold or build/runtime proof exists yet.
 
 ## Priority Scale
 
@@ -53,12 +53,16 @@ Priority: P0
     - [x] **0.4.3.2** Defer AI/animation/helper libraries and keep threat integrations optional, side-safe, and independently testable.
     - [x] **0.4.3.3** Require exact artifact/provenance, licence, transitive/side checks, runtime evidence, and maintainer approval for scope exceptions.
   - [x] **0.4.4** Check policy/roadmap consistency, links, unchanged implementation/toolchain, and publication evidence; record the exact handoff.
-- [ ] **0.5 Prepare the scaffold handoff.**
+- [x] **0.5 Prepare the scaffold handoff.**
   - [x] **0.5.1** Review the consolidated M0 decisions (pins, setup, scope, dependency/save policy) and confirm their commit/push status separately from the scaffold. Evidence: [M0 Decision Review](m0-decision-review.md), 2026-10-14; decisions required no correction and all four checkpoints are published on `origin/main`.
     - [x] **0.5.1.1** Review the canonical decisions and their scope/setup/verification boundaries for consistency.
     - [x] **0.5.1.2** Fetch GitHub and verify checkpoint ancestry, matching main refs, preserved `1.12`/alpha-tag refs, and unchanged legacy implementation.
     - [x] **0.5.1.3** Record review evidence, validate documents/task states, and publish the progress handoff to 0.5.2.
-  - [ ] **0.5.2** Recheck remote refs and user changes; prepare `codex/modern-neoforge-scaffold` from the agreed `main` baseline, with a merge back to `main` after verification.
+  - [x] **0.5.2** Recheck remote refs and user changes; prepare `codex/modern-neoforge-scaffold` from the agreed `main` baseline, with a merge back to `main` after verification. Evidence: [Scaffold Branch Handoff](scaffold-handoff.md), 2026-10-14; reused checkout, preserved local files, and published M0 completion checkpoint.
+    - [x] **0.5.2.1** Refresh GitHub refs, confirm a clean published baseline, and recheck preserved branch/tag and work-branch availability.
+    - [x] **0.5.2.2** Inventory ignored/untracked local files and validate the saved JDK path without moving or deleting user content.
+    - [x] **0.5.2.3** Create the requested local work branch from the published baseline and record the reused checkout path.
+    - [x] **0.5.2.4** Validate and publish the M0 completion record, advance/switch the work branch to that checkpoint, push its upstream, and verify preserved refs/local files and clean status.
 
 Exit gate:
 
@@ -319,4 +323,4 @@ Exit gate:
 
 ## Immediate Next Step
 
-**Phase M0 - Preserve And Decide, step 0.5.2: recheck repository/local-file state and prepare the scaffold work branch.** The [decision/publication review](m0-decision-review.md) is complete. Phase M1, step 1.1.1 begins implementation after branch preparation closes M0.
+**Phase M1 - Clean NeoForge Scaffold, step 1.1.1: recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.** M0 is complete. Continue on the prepared `codex/modern-neoforge-scaffold` branch and preserve the local files recorded in [Scaffold Branch Handoff](scaffold-handoff.md).

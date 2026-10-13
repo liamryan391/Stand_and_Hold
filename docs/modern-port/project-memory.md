@@ -18,18 +18,19 @@ Last updated: 2026-10-14
 - Build pins: Java 25 (local Temurin 25.0.4+7), Gradle 9.2.1, ModDevGradle 2.0.148, Foojay resolver 1.0.0. [Selected Modern Toolchain](toolchain.md) owns the decision, checksum, immutable MDK source, and local setup.
 - Secondary loader later: Fabric, after NeoForge has a stable foundation and the shared design is proven.
 - Accepted [foundation scope and dependency policy](foundation-scope.md): M1 is a minimal NeoForge scaffold with no added runtime libraries or approved exceptions. Build tooling/platform dependencies remain required. Gameplay returns in its owning later phases.
-- Prepare the scaffold on `codex/modern-neoforge-scaffold`, then merge verified work into `main`; leave `1.12` unchanged.
+- Work branch prepared: `codex/modern-neoforge-scaffold`. Use the existing checkout at `C:\Users\liamr\Documents\ChatGPT\Stand and Hold`; merge verified M1 work into `main` and leave `1.12` unchanged. [Scaffold Branch Handoff](scaffold-handoff.md) owns the branch/local-file evidence.
 
 ## Resume Point And Working Rules
 
-- Current phase: M0 - Preserve And Decide. Steps 0.1-0.4 and the consolidated review in 0.5.1 are complete. Branch preparation remains open; actual modern build/IDE/runtime tests remain M1 gates.
-- Next step: **0.5.2 - recheck repository/local-file state and prepare the scaffold work branch**.
+- Current phase: M1 - Clean NeoForge Scaffold, ready for its first task. M0 is complete, including decision publication and branch preparation. Actual modern build/IDE/runtime tests remain M1 gates.
+- Next step: **1.1.1 - recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files**.
 - The [roadmap](phase-roadmap.md) owns task IDs and checkboxes; the [progress log](progress-log.md) records results and the current next step. Use `1.1`, `1.2`, and deeper IDs such as `1.1.1` for large tasks.
 - Keep these planning files in the project repository. The research checkpoint commit is titled `docs: record modern port roadmap and ecosystem compatibility`; use Git history and remote refs to confirm publication rather than inferring it from a local file's existence.
-- [M0 Decision Review](m0-decision-review.md) verified research `bf44b46`, toolchain/JDK `94efe4d`, setup `af988c6`, and scope/policy `da8b1d0` as published ancestors of `origin/main`. Local/remote main matched `da8b1d0` at review start, and preserved branch/tag refs matched. The review checkpoint is titled `docs: record consolidated M0 decision review`; use Git history/remote refs for its publication evidence. No modern scaffold or work branch has been created.
+- [M0 Decision Review](m0-decision-review.md) verified the published decisions; its checkpoint `dbf0de8` was pushed and became the initial branch-preparation baseline. M0 completion checkpoint title: `docs: complete M0 and prepare modern scaffold branch`, published on `main` and the work branch. Use Git history/live refs and the session result for the final hash. The work branch is prepared; the modern scaffold is not implemented yet.
 - The [preflight record](preflight-checks.md) confirms live GitHub access and admin permission. No push was attempted during that check.
 - Local Java 8 and Java 25 JDKs are installed. Global settings are unchanged. Run `& .\scripts\use-modern-java.ps1` in each modern shell to align JAVA_HOME/PATH to the verified JDK saved in ignored `.local/modern-jdk.json`. It does not run Gradle. Use the unchanged Java 8 helper for the current legacy project.
 - Future modern commands are guarded against the legacy checkout. Use the wrapper, Java 25 in both terminal and IDE, and a separate `.gradle-home/modern` cache. Diagnose environment failures before considering a fallback; require a minimal reproduction and maintainer approval before changing target.
+- Local inventory at preparation: no untracked non-ignored files; `.local/modern-jdk.json` is the only ignored file. Its saved JDK metadata is Temurin 25.0.4+7 and required files exist. No runtime worlds, outputs/caches, or external jars are present in this checkout. Retain the local selection and reconsider new files before M1 replacement.
 - Modern build/client/server tests have not been run. Legacy QA results do not prove the modern port works.
 
 ## Verified Release Snapshot
@@ -73,11 +74,11 @@ Stand and Hold should not be "another infection mod." Its identity is the human 
 - Dependency additions must record exact artifacts, licensing/provenance, sides/transitives, purpose, and verification. M1 exceptions or a target/scope change require maintainer approval; threat mods must never become core requirements.
 - Build in phases and verify each phase.
 
-## Remaining M0 Gates
+## M0 Completion And M1 Entry
 
 - Version pins, process-local JDK selection, Windows commands, IDE instructions, and fallback procedure are complete. Executing the modern build/IDE/runtime checks requires M1's scaffold, not more version-selection work.
 - The foundation/dependency/save policy is final for M1, with no additional runtime libraries. Step 0.5.1 found no decision corrections and confirmed all decision checkpoints are published.
-- Step 0.5.2 rechecks preservation, user changes, and local files before preparing `codex/modern-neoforge-scaffold`. Do not replace legacy files until M1's inventory step.
+- Step 0.5.2 prepared `codex/modern-neoforge-scaffold` from the published baseline and records the reused checkout/local files. M0 preparation is complete. M1 starts with the tracked-file inventory before any replacement.
 
 ## Deferred Decisions
 
