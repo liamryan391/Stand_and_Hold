@@ -30,7 +30,7 @@ Step 0.3.3 is complete. [Selected Modern Toolchain](toolchain.md) owns the pins,
 
 The ecosystem check supports the selected 26.3 target. If Spore specifically becomes mandatory, 1.21.1 is the verified match and would require an explicit target decision change, not an automatic downgrade.
 
-The 2026-10-07 preflight found Java 25 on PATH but Java 8 in JAVA_HOME. Step 0.3.3 added and verified `scripts/use-modern-java.ps1` with ignored local path storage; it selects Java 25 in the calling PowerShell process without changing global settings. The current legacy helper still intentionally selects Java 8. Step 0.3.4 will document IDE Gradle JVM setup and wrapper commands; do not run the legacy wrapper under Java 25.
+The 2026-10-07 preflight found Java 25 on PATH but Java 8 in JAVA_HOME. Step 0.3.3 added and verified `scripts/use-modern-java.ps1` with ignored local path storage; it selects Java 25 in the calling PowerShell process without changing global settings. The current legacy helper still intentionally selects Java 8. Step 0.3.4 completed [Windows/IDE setup and the fallback procedure](building.md); do not run the legacy wrapper under Java 25. M1 must verify actual Gradle/IDE behavior and isolate modern client/server run directories from legacy worlds.
 
 ## Clean Scaffold Work Breakdown
 

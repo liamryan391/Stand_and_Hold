@@ -109,4 +109,4 @@ GeckoLib and AzureLib project metadata list MIT; SmartBrainLib lists MPL-2.0. Ke
 
 None of these runtime checks has been run in this step. Stand and Hold's modern APIs and content must exist first.
 
-**Current next step: Phase M0, step 0.3.4 - document Windows build commands, IDE Gradle JVM setup, and the fallback decision rule.** Pins and local JDK selection are recorded in [Selected Modern Toolchain](toolchain.md).
+**Current next step: Phase M0, step 0.4 - finalize foundation scope and dependency policy.** Pins and local JDK selection are recorded in [Selected Modern Toolchain](toolchain.md); [Windows/IDE setup and fallback rules](building.md) are also documented. Published ecosystem matches still require runtime testing in later phases.

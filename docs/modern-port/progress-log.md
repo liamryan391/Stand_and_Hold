@@ -14,12 +14,12 @@
 Task completion is maintained in the [canonical roadmap](phase-roadmap.md). Keep this section as the current handoff rather than a second set of checkboxes.
 
 - Current phase: M0 - Preserve And Decide.
-- Completed steps: 0.1 (preservation/access checks), 0.2 (planning and numbered task tracking), 0.3.1 (release/MDK availability), 0.3.2 (published ecosystem matches), 0.3.3 (exact pins and verified local JDK selection).
-- **Next: 0.3.4 - document Windows build commands, IDE Gradle JVM setup, and the fallback decision rule.**
-- After that: 0.4 confirms scope; 0.5 publishes the final M0 decisions and prepares the scaffold branch.
+- Completed steps: 0.1 (preservation/access checks), 0.2 (durable planning), 0.3 (release/ecosystem verification, exact pins, local JDK selection, and Windows/IDE/fallback instructions).
+- **Next: 0.4 - finalize foundation scope and dependency policy.**
+- After that: 0.5 publishes the final M0 decisions and prepares the scaffold branch.
 - First implementation phase: M1, starting at 1.1.1 after M0's remaining gates pass.
 
-The research checkpoint `bf44b46` (`docs: record modern port roadmap and ecosystem compatibility`) was committed and pushed. Step 0.3.3 uses checkpoint title `build: pin modern toolchain and configure local Java selection`; use Git history and `origin/main` for publication confirmation, with the actual commit ID in the final session report. Earlier "local/uncommitted" entries below are historical. Final setup/scope decisions in 0.3.4-0.5 still precede scaffolding.
+Research checkpoint `bf44b46` and toolchain/JDK checkpoint `94efe4d` were committed and pushed. Step 0.3.4 uses checkpoint title `docs: document modern Windows build and fallback procedure`; use Git history and `origin/main` for publication confirmation, with the actual commit ID in the final session report. Earlier "local/uncommitted" entries below are historical. Final scope/publication decisions in 0.4-0.5 still precede scaffolding.
 
 ## 2026-10-07 - Numbered Roadmap And Preflight
 
@@ -75,6 +75,19 @@ The research checkpoint `bf44b46` (`docs: record modern port roadmap and ecosyst
 - Modern Gradle/build/client/server checks were not run: the root wrapper is still the Java 8 legacy build. M1 must verify wrapper JVM, dependency resolution, build, client, and dedicated server; script checks do not substitute for those gates.
 - The user-requested final commit/push is performed only after validation, with the checkpoint title above; preserve `1.12` at `62bb07b84eb614b5967ef318ccb98aef1f22a5d8`.
 - **Next phase/step: M0 / 0.3.4.** Parent step 0.3 and the final M0 handoff remain open.
+
+## 2026-10-13 - Step 0.3.4 Complete
+
+- Began from clean `main` at `94efe4d2ecd5e01dbfc149ee6d82af7f168c50e4`; fetched GitHub and confirmed no divergence. Remote `1.12` remains at the preserved `62bb07b84eb614b5967ef318ccb98aef1f22a5d8`.
+- Added [Windows Build And IDE Setup](building.md): safe current legacy command, guarded future modern preparation/build commands, expected JVM/artifact checks, IntelliJ setup, isolated modern cache/run-directory guidance, and M1 launch/evidence requirements.
+- Checked official JetBrains/Gradle guidance and the pinned MDK's client/server configuration. Documented JVM property/daemon-criteria overrides and the distinction between terminal success and IDE Gradle verification.
+- Defined fallback triage: fix environment problems first, reproduce in the minimal pinned MDK, defer failing optional integrations, and require maintainer approval before a coherent 26.2 fallback or other pin change. No versions or dependencies were changed.
+- Expanded 0.3.4 into four numbered substeps. Current handoffs now point to 0.4; parent step 0.3 closes as a toolchain/setup decision, not modern build proof.
+- Verification passed: all seven PowerShell examples parse under PowerShell 7.6.5 and Windows PowerShell 5.1; the preparation block rejects the legacy checkout without changing environment values or invoking Gradle; the saved Java 25 selector resolves successfully. User/machine JAVA_HOME remains unchanged.
+- Documentation checks passed: 13 documents, 93 relative links, 15 phases, 136 unique task IDs, consistent parent/child completion, nine current next-step references, and `git diff --check`. Source, scripts, build files, CI, and ignore rules have no diff.
+- Modern Gradle/build, artifact inspection, IDE sync/build, client, and dedicated-server checks were not run. The current wrapper still belongs to Forge 1.12.2; executing the modern commands is an M1 task. No gameplay, script, build, CI, or global JDK settings were changed.
+- Final commit/push follows validation under the checkpoint title above; the preserved branch is excluded from publication changes.
+- **Next phase/step: M0 / 0.4 - finalize foundation scope and dependency policy.**
 
 ## Session Handoff Format
 

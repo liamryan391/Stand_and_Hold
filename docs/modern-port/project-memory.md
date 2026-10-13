@@ -1,6 +1,6 @@
 # Project Memory
 
-Last updated: 2026-10-08
+Last updated: 2026-10-13
 
 ## Preserved History
 
@@ -21,13 +21,14 @@ Last updated: 2026-10-08
 
 ## Resume Point And Working Rules
 
-- Current phase: M0 - Preserve And Decide. Steps 0.1, 0.2, and 0.3.1-0.3.3 are complete; the parent step 0.3 remains open until 0.3.4 is done.
-- Next step: **0.3.4 - document Windows build commands, IDE Gradle JVM setup, and the fallback decision rule**.
+- Current phase: M0 - Preserve And Decide. Steps 0.1-0.3 are complete, including all 0.3.4 setup-documentation substeps. Actual modern build/IDE/runtime tests remain M1 gates.
+- Next step: **0.4 - finalize foundation scope and dependency policy**.
 - The [roadmap](phase-roadmap.md) owns task IDs and checkboxes; the [progress log](progress-log.md) records results and the current next step. Use `1.1`, `1.2`, and deeper IDs such as `1.1.1` for large tasks.
 - Keep these planning files in the project repository. The research checkpoint commit is titled `docs: record modern port roadmap and ecosystem compatibility`; use Git history and remote refs to confirm publication rather than inferring it from a local file's existence.
-- Current work completed toolchain selection and local JDK setup; no modern scaffold has been created. The next checkpoint is titled `build: pin modern toolchain and configure local Java selection`; use Git history/remote refs for publication evidence.
+- Toolchain/JDK checkpoint `94efe4d` was committed and pushed. Current work adds [Windows/IDE/fallback instructions](building.md); no modern scaffold has been created. Its checkpoint title is `docs: document modern Windows build and fallback procedure`; use Git history/remote refs for publication evidence.
 - The [preflight record](preflight-checks.md) confirms live GitHub access and admin permission. No push was attempted during that check.
 - Local Java 8 and Java 25 JDKs are installed. Global settings are unchanged. Run `& .\scripts\use-modern-java.ps1` in each modern shell to align JAVA_HOME/PATH to the verified JDK saved in ignored `.local/modern-jdk.json`. It does not run Gradle. Use the unchanged Java 8 helper for the current legacy project.
+- Future modern commands are guarded against the legacy checkout. Use the wrapper, Java 25 in both terminal and IDE, and a separate `.gradle-home/modern` cache. Diagnose environment failures before considering a fallback; require a minimal reproduction and maintainer approval before changing target.
 - Modern build/client/server tests have not been run. Legacy QA results do not prove the modern port works.
 
 ## Verified Release Snapshot
@@ -71,7 +72,7 @@ Stand and Hold should not be "another infection mod." Its identity is the human 
 
 ## Open Decisions Before Scaffolding
 
-- Windows build commands, IDE Gradle JVM configuration, and fallback procedure in 0.3.4. Version pins and process-local JDK selection are complete.
+- Version pins, process-local JDK selection, Windows commands, IDE instructions, and fallback procedure are complete. Executing the modern build/IDE/runtime checks requires M1's scaffold, not more version-selection work.
 - Validate the NeoForge-only initial dependency policy; record an exception only if a dependency is essential.
 - Whether to use AzureLib or GeckoLib for animated entities and equipment later.
 - Whether to use an AI helper library later or start with vanilla Brain/Goal APIs.

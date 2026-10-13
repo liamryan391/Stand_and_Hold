@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Update the checklist after each completed step. Commit logical changes and record their commit IDs when committed; record push status separately.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M0, next step 0.3.4**. Preservation, access, release/ecosystem checks, exact toolchain selection, and the local JDK selector are verified. [Selected Modern Toolchain](toolchain.md) records the pins and test boundaries. No modern scaffold has been created; runtime compatibility is still untested.
+Current position: **Phase M0, next step 0.4**. Steps 0.1-0.3 are complete: preservation/access checks, durable planning, exact toolchain selection, local JDK verification, and [Windows/IDE/fallback instructions](building.md). No modern scaffold has been created; build and runtime compatibility are still untested.
 
 ## Priority Scale
 
@@ -33,14 +33,18 @@ Priority: P0
   - [x] **0.2.1** Store roadmap, project memory, research, and progress notes in `docs/modern-port/`.
   - [x] **0.2.2** Record NeoForge first, Fabric later, and `main` as the eventual modern branch.
   - [x] **0.2.3** Define numbered work steps, priorities, verification gates, and next-step tracking.
-- [ ] **0.3 Select and record the exact modern toolchain.**
+- [x] **0.3 Select and record the exact modern toolchain.**
   - [x] **0.3.1** Check official Minecraft/NeoForge releases and MDK availability. Compare the proposed 26.3 track with stable alternatives; record release status and source URLs. Evidence: [Release Verification](release-verification.md), 2026-10-07.
   - [x] **0.3.2** Check matching Minecraft AND loader support for likely animation/AI libraries and at least one target threat mod. Separate required dependencies from optional future integrations. Evidence: [Ecosystem Compatibility](ecosystem-compatibility.md), 2026-10-07; published artifacts/manifests checked, no combined runtime test.
   - [x] **0.3.3** Select exact Minecraft, NeoForge, Java, Gradle, and build-plugin versions from a compatible official MDK. Record the rationale and local JDK selection; resolve the PATH/JAVA_HOME mismatch for the build process. Evidence: [Selected Modern Toolchain](toolchain.md), 2026-10-07; local selector verified, modern build deferred to M1.
     - [x] **0.3.3.1** Recheck official release/MDK metadata and Gradle Java runtime compatibility; select exact versions and record beta-loader risk.
     - [x] **0.3.3.2** Configure a reusable process-local Java 25 selector with an ignored machine-specific path; preserve global Java 8 settings.
     - [x] **0.3.3.3** Verify saved selection and invalid-input handling, record evidence, and update the current handoff without changing the legacy build.
-  - [ ] **0.3.4** Record Windows build commands, IDE Gradle JVM setup, and the rule for choosing a fallback if build verification fails.
+  - [x] **0.3.4** Record Windows build commands, IDE Gradle JVM setup, and the rule for choosing a fallback if build verification fails. Evidence: [Windows Build And IDE Setup](building.md), 2026-10-13; documentation/preflight verified, actual modern build and IDE sync remain M1 gates.
+    - [x] **0.3.4.1** Separate current legacy commands from future modern wrapper/build/run commands; guard against the legacy wrapper and document expected outputs.
+    - [x] **0.3.4.2** Document project SDK, Gradle JVM/wrapper/user-home settings, and JVM override troubleshooting using official sources.
+    - [x] **0.3.4.3** Define failure classification, minimal reproduction, maintainer approval, and full verification before adopting a coherent fallback toolchain.
+    - [x] **0.3.4.4** Check PowerShell examples, legacy rejection, links, and roadmap consistency; record what was not run and advance the handoff.
 - [ ] **0.4 Finalize foundation scope and dependency policy.** Start NeoForge-only unless an essential dependency is justified; defer animation/AI libraries until their phase. Record that legacy world conversion is not part of scaffolding and use separate test worlds.
 - [ ] **0.5 Prepare the scaffold handoff.**
   - [ ] **0.5.1** Commit the final M0 decisions, including pinned versions and setup notes, separately from the scaffold and record push status. The earlier research checkpoint published at the end of 0.3.2 does not replace this final decision handoff.
@@ -305,4 +309,4 @@ Exit gate:
 
 ## Immediate Next Step
 
-**Phase M0 - Preserve And Decide, step 0.3.4: document Windows build commands, IDE Gradle JVM setup, and the fallback decision rule.** Exact versions and local JDK selection are recorded in [Selected Modern Toolchain](toolchain.md). Complete the remaining M0 gates before Phase M1, step 1.1.1 begins scaffold implementation.
+**Phase M0 - Preserve And Decide, step 0.4: finalize foundation scope and dependency policy.** Confirm the NeoForge-only starting point, deferred libraries/features, and separate-world testing/no legacy save-conversion scope. Build/IDE/fallback instructions are recorded in [Windows Build And IDE Setup](building.md). Complete 0.4 and 0.5 before Phase M1, step 1.1.1 begins scaffold implementation.

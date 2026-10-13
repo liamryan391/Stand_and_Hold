@@ -11,13 +11,13 @@ This folder is the planning memory for moving Stand and Hold from the Forge 1.12
 - Closest non-beta-loader alternative: Minecraft 26.2. Matching animation/AI libraries, Undead Nights, and Contagion are verified for both primary candidates. Minecraft 1.21.1 is the verified alternative for Spore.
 - Future track: Fabric after the NeoForge version has a stable gameplay foundation.
 
-Step 0.3.3 selected the exact toolchain and configured local JDK selection. Finish setup/fallback instructions in 0.3.4, then prove the pins with the clean scaffold build in M1.
+Steps 0.3.3-0.3.4 selected the exact toolchain, configured local JDK selection, and documented Windows/IDE setup and fallback rules. Prove the pins with the clean scaffold build in M1 after the remaining M0 gates.
 
 ## Current Position
 
-Phase M0 steps 0.1, 0.2, and 0.3.1-0.3.3 are complete. Exact release artifacts, selected dependency manifests, and the Java selector have been checked; a combined runtime test has not. The source tree is still the Forge 1.12.2 alpha. Planning lives in this repository alongside it; see Git history for publication checkpoints.
+Phase M0 steps 0.1-0.3 are complete. Exact release artifacts, selected dependency manifests, the Java selector, and setup instructions have been checked; a combined runtime test has not. The source tree is still the Forge 1.12.2 alpha. Planning lives in this repository alongside it; see Git history for publication checkpoints.
 
-**Next: Phase M0, step 0.3.4 - document Windows build commands, IDE Gradle JVM setup, and the fallback decision rule.** See the progress log for the latest completion and publication notes.
+**Next: Phase M0, step 0.4 - finalize foundation scope and dependency policy.** See the progress log for the latest completion and publication notes.
 
 ## Why A Clean Modern Port
 
@@ -35,6 +35,7 @@ The 1.12.2 codebase is useful design history, but the modern Minecraft APIs are 
 - [Official Release And MDK Verification](release-verification.md)
 - [Library And Threat Mod Compatibility](ecosystem-compatibility.md)
 - [Selected Modern Toolchain And Local JDK](toolchain.md)
+- [Windows Build, IDE Setup, And Fallback Rule](building.md)
 
 The [Phase Roadmap](phase-roadmap.md) is the canonical numbered checklist. Larger tasks have subtasks such as `1.1.1`; update their checkboxes as they pass verification. The progress log records evidence, blockers, commits, and the exact next task so work can resume across sessions.
 

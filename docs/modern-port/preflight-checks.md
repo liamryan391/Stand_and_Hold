@@ -52,10 +52,9 @@ Official release and MDK availability checks passed on 2026-10-07. [Release Veri
 
 ## Remaining Gates
 
-1. Step 0.3.4: document Windows build commands, IDE Gradle JVM setup, and the fallback procedure. Pins and local JDK selection are complete in 0.3.3.
-2. Step 0.4: finalize initial dependencies and the separate-world testing policy.
-3. Step 0.5: publish the final M0 decisions and prepare the scaffold branch from a rechecked baseline.
-4. Phase M1: create and verify the modern scaffold before replacing `main` through a normal merge.
+1. Step 0.4: finalize initial dependencies and the separate-world testing policy. Toolchain selection and setup/fallback instructions are complete.
+2. Step 0.5: publish the final M0 decisions and prepare the scaffold branch from a rechecked baseline.
+3. Phase M1: create and verify the modern scaffold before replacing `main` through a normal merge.
 
 ## Follow-Up: Step 0.3.2
 
@@ -67,4 +66,10 @@ GitHub access was rechecked before this step's publication: `main` and `1.12` st
 
 [Selected Modern Toolchain](toolchain.md) records Minecraft 26.3, NeoForge 26.3.0.57-beta, Java 25 (local Temurin 25.0.4+7), Gradle 9.2.1, ModDevGradle 2.0.148, and resolver plugin 1.0.0. Official release/template metadata was rechecked. The Java selector aligns JAVA_HOME and PATH for a modern shell using an ignored local path; global settings and the legacy Java 8 helper are unchanged. Script verification is not Gradle/Minecraft runtime proof.
 
-**Next phase and step: M0 / 0.3.4.**
+## Follow-Up: Step 0.3.4
+
+On 2026-10-13, added [Windows Build And IDE Setup](building.md) with current/future command separation, explicit JDK/IDE selection, daemon-override troubleshooting, and a maintainer-approved fallback procedure. The preparation guard rejects the current legacy checkout before changing Java or invoking Gradle. Rechecked the saved Java 25 selector and official IDE/Gradle/MDK instructions. No modern Gradle, IDE sync, or game launch was run, and no build or gameplay files were changed.
+
+GitHub fetch/ref checks before publication showed `main` at `94efe4d2ecd5e01dbfc149ee6d82af7f168c50e4`, matching the local baseline; `1.12` remained at `62bb07b84eb614b5967ef318ccb98aef1f22a5d8`.
+
+**Next phase and step: M0 / 0.4.**

@@ -33,7 +33,7 @@ The checksum endpoint was checked; the Gradle archive has not been downloaded or
 - Deliberately use published loader `26.3.0.57-beta` instead of the template's older `26.3.0.52-beta`. Keep the template's Gradle and plugin versions. The inspected library manifests allow the selected loader, but only M1 build/client/server testing can prove the actual combination.
 - ModDevGradle fits a single-target project; there is no need for a multi-version build or Fabric layer now.
 - No third-party animation/AI library or threat mod becomes a dependency in this step. No legacy gameplay files, version numbers, Gradle settings, or CI configuration are changed.
-- Keep Minecraft 26.2 / NeoForge 26.2.0.88 as the nearest non-beta-loader fallback. The fallback decision procedure and IDE/run commands belong to step 0.3.4. Do not switch targets automatically after a download/network error.
+- Keep Minecraft 26.2 / NeoForge 26.2.0.88 as the nearest non-beta-loader fallback. Step 0.3.4 records the [fallback decision procedure and IDE/run commands](building.md). Do not switch targets automatically after a download/network error.
 
 ## Local JDK Selection
 
@@ -56,7 +56,7 @@ javac --version
 
 The saved path is in ignored `.local/modern-jdk.json`. It is local configuration, not a downloaded JDK, and is not pushed to GitHub. Other checkouts/machines must configure their own path. An explicit `-JavaHome` overrides the saved value for that invocation; add `-Save` only to remember it. Invalid paths, JRE-only installs, non-64-bit metadata, and wrong Java majors are rejected before environment changes or saving.
 
-Run the selector in the shell that will run Gradle. Calling it through a separate `powershell.exe -File` process only configures that child, not the calling shell. The script never invokes Gradle, installs software, changes user/machine environment variables, or edits global Gradle properties. Existing IDE processes require their own Gradle JVM selection in 0.3.4.
+Run the selector in the shell that will run Gradle. Calling it through a separate `powershell.exe -File` process only configures that child, not the calling shell. The script never invokes Gradle, installs software, changes user/machine environment variables, or edits global Gradle properties. Existing IDE processes require their own [Gradle JVM selection](building.md#intellij-idea-setup).
 
 **Do not run the current legacy wrapper with Java 25.** Until the M1 replacement, build the existing source using `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-java8.ps1`. That helper remains unchanged and selects Java 8 itself. Closing the modern shell discards its environment changes.
 
@@ -64,4 +64,6 @@ Run the selector in the shell that will run Gradle. Calling it through a separat
 
 Step 0.3.3 verifies published pins, the installed JDK, and local selector behavior. Modern wrapper `--version`, dependency resolution, `clean build`, client launch, and dedicated-server readiness remain M1 gates. No modern CI/build success is inferred from legacy results.
 
-**Next: Phase M0, step 0.3.4 - document Windows build commands, IDE Gradle JVM setup, and the fallback decision rule.**
+Step 0.3.4 has now documented [Windows build commands, IDE setup, and the fallback decision rule](building.md); this does not replace M1 build/runtime proof.
+
+**Next: Phase M0, step 0.4 - finalize foundation scope and dependency policy.**
