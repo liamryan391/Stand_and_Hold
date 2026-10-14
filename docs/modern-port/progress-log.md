@@ -155,3 +155,9 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - `clean build --no-daemon --stacktrace` passed with 50 assertions; dedicated `runServer` runs reached Done, checked boundaries/invalid inputs/overflow/cross-dimension state, saved/reloaded, tested config correction, and stopped cleanly. Status-only saves did not rewrite the data file.
 - Liam reported M2 integrated visual/command/save-reload checks passed; client exited BUILD SUCCESSFUL, then final clean passed (50 assertions) and jar metadata/test exclusion were checked. Private non-operator testing is unobserved.
 - M2 CI run 38643554024 passed its Windows clean build, all 50 assertions, and jar upload; merged the verified phase into main with final docs-only evidence. Live milestone is in STATUS.md; legacy refs/local files remain untouched.
+
+## 2026-10-14 - M3 Research, Supplies, And Missions
+
+- Added bounded JSON research/mission definitions and validation without new runtime dependencies or pin/version changes.
+- `clean build --no-daemon --stacktrace` passed: 50 progression and 20 definition assertions; M3 runtime verification has not run yet.
+- Transactions, persistence, mission commands, CI/publication, and remaining verification are in progress; live milestone is in STATUS.md. Legacy refs/local files remain untouched.

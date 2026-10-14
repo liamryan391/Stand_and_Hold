@@ -124,7 +124,7 @@ Exit gate:
 
 Priority: P1
 
-- [ ] **3.1 Define research data.** Add stable IDs, requirements, prerequisites, costs, and unlocks; safely reject duplicate/malformed definitions and cycles.
+- [x] **3.1 Define research data.** Add stable IDs, requirements, prerequisites, costs, and unlocks; safely reject duplicate/malformed definitions and cycles.
 - [ ] **3.2 Add supplies and research transactions.**
   - [ ] **3.2.1** Persist global supply totals and validate all add/spend operations.
   - [ ] **3.2.2** Check prerequisites and costs before completing research; apply costs, completion, and rewards once on the server.
