@@ -1,6 +1,6 @@
 # Known Issues
 
-These notes describe the minimal modern NeoForge scaffold. The retained `0.1.0-alpha.1` value comes from the legacy alpha; it does not announce a modern release. Live build/launch results are in [STATUS.md](docs/modern-port/STATUS.md).
+These notes describe the modern NeoForge foundation. The retained `0.1.0-alpha.1` value comes from the legacy alpha; it does not announce a modern release. Live build/launch results are in [STATUS.md](docs/modern-port/STATUS.md).
 
 ## Build And Test Limits
 
@@ -12,7 +12,8 @@ These notes describe the minimal modern NeoForge scaffold. The retained `0.1.0-a
 
 ## Foundation Limits
 
-- Modern progression, research, buildings, NPCs, equipment, structures, and events will be rebuilt in their roadmap phases. Their presence in legacy source/docs is not modern feature completion.
+- Human progression currently has commands and persistence only; no automatic point sources or stage-gated content. Research, buildings, NPCs, equipment, structures, and events remain planned. Their presence in legacy source/docs is not modern feature completion.
+- Progression schema hooks normalize missing/malformed fields and preserve unknown fields, but cannot recover a physically corrupt save file. Newer schemas refuse progression access; restore a compatible mod/backup. See [save contract and tests](docs/modern-port/progression.md).
 - Legacy worlds, saved NBT, and configs have no supported conversion path in the foundation. Use separate modern test worlds and retain valuable legacy saves outside the checkout.
 - External threat mods remain optional. Legacy SRP mapping/test results do not prove support on the modern Minecraft/NeoForge target. Exact artifacts and IDs need later verification.
 - The modern scaffold starts with the platform/build tooling only; animation, AI libraries, art exports, and optional integrations remain later work.

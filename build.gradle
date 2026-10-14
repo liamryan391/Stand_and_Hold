@@ -11,6 +11,24 @@ group = mod_group_id
 base.archivesName = mod_id
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
+// Regression checks reuse the platform classpath without an added test/runtime library.
+sourceSets {
+    progressionTest {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+tasks.register('progressionTest', JavaExec) {
+    group = 'verification'
+    description = 'Checks progression rules and save codecs without extra libraries.'
+    dependsOn tasks.named('progressionTestClasses')
+    classpath = sourceSets.progressionTest.runtimeClasspath
+    mainClass = 'com.liamryan.standandhold.ProgressionChecks'
+}
+tasks.named('check').configure {
+    dependsOn tasks.named('progressionTest')
+}
+
 tasks.named('wrapper', Wrapper).configure {
     gradleVersion = '9.2.1'
     distributionType = Wrapper.DistributionType.BIN

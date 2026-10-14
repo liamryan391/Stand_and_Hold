@@ -45,8 +45,11 @@ Inspect its `META-INF/neoforge.mods.toml`: Stand and Hold, `standandhold`, versi
 `0.1.0-alpha.1`, Minecraft `[26.3]`, and NeoForge `[26.3.0.57-beta,26.4)`.
 The version/filename is intentionally retained; legacy jars with the same filename are **not** compatible.
 Version is expanded from `gradle.properties`, not duplicated in Java constants.
-No gameplay systems or MDK demo blocks/items are registered. The local config is
+No MDK demo blocks/items are registered. The local config is
 `config/standandhold-local.toml` inside each run directory; it only controls startup logging.
+The server-owned `config/standandhold-progression.toml` controls stage thresholds.
+See [Human Progression](progression.md) for commands, permissions, persistence, and test cases.
+`clean build` includes the dependency-free `progressionTest` rules/NBT checks.
 
 The Windows CI job uses Java 25 and the wrapper, runs the clean build, and uploads only the normal jar.
 Its run result must be observed separately from a local build.
@@ -64,7 +67,8 @@ Run each separately from a prepared Java 25 shell:
 
 Check main menu without errors, Mods list showing Stand and Hold / 0.1.0-alpha.1,
 then create a fresh disposable world, enter it, save/quit, and exit the client.
-No Stand and Hold items, units, commands, or structures are expected in M1.
+No Stand and Hold items, units, or structures are present. Progression commands are available;
+check them in a disposable world with commands enabled, then save/reopen to test persistence.
 
 ```powershell
 .\gradlew.bat runServer --no-daemon --stacktrace

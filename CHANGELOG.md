@@ -2,7 +2,14 @@
 
 ## Unreleased - Modern NeoForge Port
 
-Modern port work is developed on `codex/modern-neoforge-scaffold`. No modern release, version bump, or retag is announced by this entry. The source/build version remains `0.1.0-alpha.1`; observed verification results are recorded in [STATUS.md](docs/modern-port/STATUS.md).
+Modern port work uses one phase branch at a time, merged into `main` after verification. No modern release, version bump, or retag is announced by this entry. The source/build version remains `0.1.0-alpha.1`; observed verification results are recorded in [STATUS.md](docs/modern-port/STATUS.md).
+
+### Human Progression Foundation
+
+- Added seven human stages with configurable thresholds, bounded long point totals, and explicit admin stage-reset semantics.
+- Added server-global versioned SavedData, non-destructive modern migration hooks, unknown-field retention, future-schema protection, and meaningful-change dirty marking.
+- Added public status and operator-only addpoints/setstage commands with invalid-input and overflow handling.
+- Added dependency-free threshold/NBT regression checks to the build and documented modern progression commands, config, save contract, and runtime tests; no automatic rewards or extra runtime libraries.
 
 ### Clean NeoForge Scaffold
 
