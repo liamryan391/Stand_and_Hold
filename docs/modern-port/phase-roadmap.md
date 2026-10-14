@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M2**; see [STATUS.md](STATUS.md).
+Current position: **Phase M3**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -107,13 +107,13 @@ Exit gate:
 
 Priority: P1
 
-- [ ] **2.1 Rebuild progression definitions.** Port stage identities and configurable thresholds; define bounds and what setting a stage does to points.
-- [ ] **2.2 Implement server-owned SavedData.**
-  - [ ] **2.2.1** Define one global owner across dimensions, a versioned schema, and safe defaults for absent fields.
-  - [ ] **2.2.2** Add non-destructive migration hooks and dirty marking only when values change.
-  - [ ] **2.2.3** Add HumanPointManager operations with amount validation and overflow protection.
-- [ ] **2.3 Add Brigadier `status`, `addpoints`, and `setstage` commands.** Validate arguments and enforce admin permissions for mutations.
-- [ ] **2.4 Verify and document progression.** Build; test stage boundaries, invalid inputs, dimension changes, save/reload, and dedicated-server commands. Record results before committing.
+- [x] **2.1 Rebuild progression definitions.** Port stage identities and configurable thresholds; define bounds and what setting a stage does to points.
+- [x] **2.2 Implement server-owned SavedData.**
+  - [x] **2.2.1** Define one global owner across dimensions, a versioned schema, and safe defaults for absent fields.
+  - [x] **2.2.2** Add non-destructive migration hooks and dirty marking only when values change.
+  - [x] **2.2.3** Add HumanPointManager operations with amount validation and overflow protection.
+- [x] **2.3 Add Brigadier `status`, `addpoints`, and `setstage` commands.** Validate arguments and enforce admin permissions for mutations.
+- [x] **2.4 Verify and document progression.** Build; test stage boundaries, invalid inputs, dimension changes, save/reload, and dedicated-server commands. Record results before committing.
 
 Exit gate:
 

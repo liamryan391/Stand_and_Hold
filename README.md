@@ -6,7 +6,7 @@ Stand and Hold is being rebuilt for modern Minecraft as a human military resista
 
 See [STATUS.md](docs/modern-port/STATUS.md) for live port state and the active milestone. Contributor workflow is defined in [AGENTS.md](AGENTS.md).
 
-**This branch is a minimal NeoForge scaffold, not a playable port or public release.** Legacy gameplay has been removed from modern compile inputs and remains on `1.12`. Build/launch results are recorded in STATUS.md; legacy alpha results do not establish modern feature availability.
+**This is a modern NeoForge foundation, not a playable port or public release.** Human progression is available through commands; other legacy gameplay remains on `1.12` and is not in modern compile inputs. Build/launch results are recorded in STATUS.md; legacy alpha results do not establish modern feature availability.
 
 | Branch | Purpose |
 | --- | --- |
@@ -48,6 +48,8 @@ The modern scaffold uses these selected pins:
 Follow the [Windows build and IDE guide](docs/modern-port/building.md) for Java 25 selection, wrapper commands, jar inspection, and separate client/server smoke tests. Java 8 build instructions apply only to the preserved `1.12` branch.
 
 M1 delivers the build foundation, metadata, entry point, logger/config shell, and verification. It adds no gameplay systems or extra runtime libraries. The [foundation policy](docs/modern-port/foundation-scope.md) and [numbered roadmap](docs/modern-port/phase-roadmap.md) define the boundaries.
+
+The [human progression foundation](docs/modern-port/progression.md) adds seven configurable stages, versioned world-global saves, and `/standandhold status`, `/standandhold addpoints <amount>`, and `/standandhold setstage <0..6>`. Mutations require operator level 2; setting a stage resets points to its configured minimum. It adds no automatic rewards or unlockable units yet. Use fresh modern worlds, not legacy saves.
 
 Later phases rebuild the playable loop: recover threat samples, establish a command post and lab, complete research, improve supplies and human progression, deploy defenders, and respond to an outpost attack. Original models, richer combat, larger bases, vehicles/aircraft, and Fabric evaluation follow their own phase gates. These are planned systems, not features of an available modern release.
 

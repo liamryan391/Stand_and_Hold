@@ -1,25 +1,25 @@
 # Status
 
-Updated: 2026-10-14 · Branch: `main` (M1 merge handoff)
+Updated: 2026-10-14 · Branch: `main` (M2 merge handoff)
 
 ## Where we are
 
-- M0 (preserve and decide) and M1 steps 1.1.1-1.1.2 (legacy inventory and modern documentation/identity) are complete.
-- Liam resumed M1. The legacy compile/resource tree and obsolete local guides are retired on the work branch; the preserved branch and local user files are unchanged.
 - M1 is complete: pinned MDK scaffold, identity, minimal logger/config shell, isolated runs, Java 25 CI, and observed local build/client/server verification. The scaffold is merged into `main`; the preserved `1.12` branch/tag are unchanged.
 - GitHub [Build run 38632437020](https://github.com/liamryan391/Stand_and_Hold/actions/runs/38632437020) passed for `836c31197e83e6f809aa7859e59fb37d0f0605dd`, including the Windows Java 25 build and normal-jar upload. The new AGENTS.md batching policy is committed separately.
-- Wrapper verification passed: Gradle 9.2.1, Temurin Java 25.0.4+7 on Windows 11. First `clean build --no-daemon --stacktrace` passed in 8m 43s; the rebuild after stdin forwarding passed in 34s. Jar metadata/content and Java 25 bytecode were checked. No unit test sources exist.
-- `runClient` discovered/initialized the mod and generated `config/standandhold-local.toml`. Liam reported the main menu, Mods list/version, and fresh-world entry/save/reopen checks passed. Logs corroborate world entry, save, and normal exit; the task finished BUILD SUCCESSFUL in 3m 24s. Log: `run/modern-client/logs/latest.log`.
-- `runServer` reached `Done`, reloaded the generated test world on retry, accepted `stop` after stdin forwarding was added, saved players/worlds, and exited BUILD SUCCESSFUL in 1m 16s. NeoForge dev mode skipped the EULA check; no EULA file or agreement was written. The retry used localhost only. Log: `run/modern-server/logs/latest.log`.
+- M2 definitions, versioned global SavedData, manager, synced threshold config, and public status/operator mutation commands are implemented. No automatic point sources or other gameplay systems were added. See [Progression](progression.md) for the save/config/command contract.
+- M2 `clean build --no-daemon --stacktrace` passed under the pinned Java 25 with 50 rules/codec assertions, including the final clean after client exit (5s). Jar metadata was inspected and test classes are excluded. Plain-JVM command tests require a live loader, so actual Brigadier integration was checked in the development server instead.
+- Dedicated-server testing reached Done, exercised all stages, invalid/missing arguments, long overflow, and Nether/End global state, then accepted stop cleanly. A full restart restored 175/Stage 1; read-only status plus save did not rewrite the progression file. Custom thresholds recomputed stage without changing points; an invalid list safely reset to defaults. Test world: `run/modern-server/m2-progression-qa`; final config is back to defaults.
+- M2 client discovered/initialized the mod and completed resource loading. Liam reported the integrated visual/command/save-reload/invalid-input checks passed; logs show 0 -> 149 -> 150/Stage 1 -> 500/Stage 2 and world saving. The client exited normally, finishing BUILD SUCCESSFUL in 5m 41s. The Windows jar lock is resolved.
+- M2 is complete and merged into main after [CI run 38643554024](https://github.com/liamryan391/Stand_and_Hold/actions/runs/38643554024) passed for runtime commit `b8e3228b73fe05943881c0bd0194eec01de26148`: Windows Java 25 clean build, 50 assertions, normal-jar upload. The merge adds final documentation evidence only; no new runtime changes. Prepare `codex/m3-foundation` from this updated main; no M3 implementation is included.
 
 ## Next milestone
 
-`Continue: M2 steps 2.1-2.4 (progression definitions, versioned global SavedData, Brigadier commands, and verification) on codex/m2-progression, cut from main.`
+`Continue: M3 steps 3.1-3.4 (research definitions, supply/research transactions, persistent missions, and verification) on codex/m3-foundation.`
 Keep the pinned toolchain and version `0.1.0-alpha.1`; no new runtime libraries or legacy save conversion.
 
 ## Needs Liam
 
-- No decision is needed for the completed local scaffold tests; Liam confirmed the visual client checks passed and quit normally.
+- No blocking decision. Liam reported the M2 singleplayer checks passed and closed the client. A private multiplayer non-operator check remains: status allowed, addpoints/setstage denied.
 - If a future installed-server test requests EULA acceptance, only Liam can agree. This NeoForge development run skipped that check and did not create `eula.txt`.
 
 ## Open risks

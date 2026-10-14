@@ -151,6 +151,7 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 
 - Replaced AGENTS.md with the supplied batching policy and committed it separately as requested.
 - Observed green Windows Java 25 build and jar upload for scaffold 836c311 (GitHub run 38632437020), then merged the scaffold into main without rewriting history.
-- M2 implementation and tests are recorded here as the session continues; no toolchain/version or runtime dependency change is authorized.
-- Verification so far: `git diff --check`; prior local build/client/server proof plus observed scaffold CI. M2 runtime verification has not run yet.
-- Live milestone, remaining tests, and publication state are in STATUS.md; preserved legacy refs and local user files remain untouched.
+- Added M2 stages/config, versioned global SavedData, guarded manager/commands, rules/NBT regression checks, and progression documentation without new runtime libraries or pin/version changes.
+- `clean build --no-daemon --stacktrace` passed with 50 assertions; dedicated `runServer` runs reached Done, checked boundaries/invalid inputs/overflow/cross-dimension state, saved/reloaded, tested config correction, and stopped cleanly. Status-only saves did not rewrite the data file.
+- Liam reported M2 integrated visual/command/save-reload checks passed; client exited BUILD SUCCESSFUL, then final clean passed (50 assertions) and jar metadata/test exclusion were checked. Private non-operator testing is unobserved.
+- M2 CI run 38643554024 passed its Windows clean build, all 50 assertions, and jar upload; merged the verified phase into main with final docs-only evidence. Live milestone is in STATUS.md; legacy refs/local files remain untouched.
