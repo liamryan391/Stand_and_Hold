@@ -14,7 +14,9 @@ Do not read the whole `docs/` folder or the legacy root README at the start of a
 ## Branches and things you must never touch
 
 - `1.12` branch and tag `v0.1.0-alpha.1`: preserved legacy. Never commit to, rebase, delete or force-push them.
-- Work branch: `codex/modern-neoforge-scaffold`. Merge into `main` only when the phase exit gate passes with observed evidence.
+- One work branch per phase, cut from `main`: `codex/m<N>-<short-name>` (e.g. `codex/m2-progression`).
+  Merge into `main` when the phase exit gate passes with observed evidence and CI is green, then start
+  the next phase's branch from the updated `main` in the same session.
 - Never force-push, rewrite published history, or delete untracked/ignored user files (worlds, `.local/`, run dirs).
 
 ## Toolchain (pinned — see docs/modern-port/toolchain.md)
@@ -29,14 +31,22 @@ $env:GRADLE_USER_HOME = Join-Path (Get-Location).Path '.gradle-home\modern'
 
 ## How to work
 
-**Unit of work = a milestone, not a sub-step.** When asked to "continue" or given a milestone,
-work through every consecutive roadmap step until one of these happens:
+**Unit of work = a milestone, not a sub-step.** A milestone is **a whole phase** (e.g. all of M2:
+2.1–2.4). If only a small remainder of the current phase is left (2 steps or fewer, or just
+merge/CI/admin work), the milestone is that remainder **plus the whole next phase**.
+
+When asked to "continue" or given a milestone, work through every consecutive roadmap step until
+one of these happens:
 
 1. The milestone's exit gate is reached (build/run evidence observed), or
 2. A real blocker you cannot fix after a reasonable attempt (record it, stop), or
 3. A decision in the "Ask Liam first" list below.
 
 Do not stop just because one numbered step finished. Do not ask "shall I continue?".
+
+**In-game checks don't end the run.** If a step needs Liam to look at something in game, do
+everything else that doesn't depend on it, then list the checks together in the final report.
+Only wait mid-run if later steps genuinely depend on the result.
 
 **Session start (once, keep it cheap):** `git status`, `git fetch`, and
 `git rev-parse origin/1.12` (expect `62bb07b84eb614b5967ef318ccb98aef1f22a5d8`).
@@ -88,4 +98,12 @@ Everything else on the roadmap is pre-approved: make the change, verify it, comm
 
 ## Final report (every session, max ~10 lines)
 
-Done · Verified (commands + result) · Not verified · Blockers / decisions for Liam · Next milestone.
+Done · Verified (commands + result) · Not verified · In-game checks for Liam · Blockers / decisions for Liam · Next.
+
+**The "Next" line is always a milestone (step range), never a single step**, and is written as a
+ready-to-paste prompt, for example:
+
+> Next: `Continue: M2 steps 2.1–2.4 (progression definitions, SavedData, commands, verification).`
+
+Use the same range in `STATUS.md`. The only exceptions: the next item is blocked on Liam, or it
+is the final step of the whole roadmap.
