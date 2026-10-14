@@ -92,10 +92,8 @@ Do not shade, bundle, download at runtime, or redistribute another mod by defaul
 - From M2 onward, version modern saved data and add small migrations between **modern** schemas. Reusing the mod ID, an NBT field name, or schema number does not make legacy data compatible. Persistence ownership, dimensions, validation, and once-only rewards must be tested in their relevant phases.
 - Keep state authoritative on the server; clients receive only needed view data. Changes mark data dirty only when needed. Do not force-load chunks for cleanup, add unbounded global scans, or create uncapped spawning. Concrete intervals/caps belong to the feature that uses them, not a speculative M1 framework.
 
-## Verification And Handoff
+## Verification Gates
 
 M1 cannot be declared verified solely because dependency metadata exists or a legacy build passes. Its exit gates require the pinned wrapper/JDK output, successful clean build, correct normal jar metadata, client Mods list/new-world entry, dedicated-server readiness/save/clean stop, and honest local/CI status. A blocked launch or CI run remains explicitly outstanding. Run commands and result expectations are in [Building](building.md); persistence/reload tests expand as M2 onward adds state.
 
-Step 0.4 changed documentation only. It installed no dependencies, changed no pins or gameplay, created no work branch, and ran no modern build/game. Step 0.5.1 subsequently [reviewed the consolidated decisions and verified all four published checkpoints](m0-decision-review.md), with no decision correction required. Step 0.5.2 [prepared the work branch and local-file handoff](scaffold-handoff.md), closing M0 preparation before M1 implementation.
-
-**Next: Phase M1, step 1.1.1 - recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.**
+Step 0.4 changed documentation only. It installed no dependencies, changed no pins or gameplay, created no work branch, and ran no modern build/game. Step 0.5.1 subsequently [reviewed the consolidated decisions and verified all four published checkpoints](archive/m0-decision-review.md), with no decision correction required. Step 0.5.2 [prepared the work branch and local-file handoff](archive/scaffold-handoff.md), closing M0 preparation before M1 implementation.

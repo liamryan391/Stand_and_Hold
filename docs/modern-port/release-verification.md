@@ -82,12 +82,10 @@ Carry **26.3** and **26.2** into step 0.3.2 as the primary comparison. This is a
 
 Check animation libraries, the AI approach, and at least one compatible threat mod before committing to a target. NeoForge-only remains the initial dependency policy; future optional libraries should inform the choice without automatically becoming hard dependencies.
 
-## Scope And Handoff
+## Verification Scope
 
 - Completed: released/snapshot distinction, NeoForge beta/non-beta distinction, official template availability, template file inspection, Java requirements, published POM checks, and stable alternatives.
 - At completion of 0.3.1, third-party ecosystem compatibility was still outstanding. It is now documented in [Ecosystem Compatibility](ecosystem-compatibility.md); 0.3.3 completed [toolchain selection and local JDK setup](toolchain.md), and 0.3.4 completed [Windows/IDE instructions and fallback rules](building.md). Scaffold build/runtime proof remains outstanding in M1.
 - Existing Forge 1.12.2 source, Gradle files, mod version, Java settings, and Git branches were not changed.
-- The Java 8/25 PATH/JAVA_HOME mismatch in [Preflight Checks](preflight-checks.md) is handled by the process-local selector added in 0.3.3. A Java 21 fallback would require arranging a Java 21 toolchain; none was found in the earlier installed-JDK check.
+- The Java 8/25 PATH/JAVA_HOME mismatch in [Preflight Checks](archive/preflight-checks.md) is handled by the process-local selector added in 0.3.3. A Java 21 fallback would require arranging a Java 21 toolchain; none was found in the earlier installed-JDK check.
 - Planning changes were local/uncommitted at the end of 0.3.1. Subsequent publication is tracked in Git history and the [progress log](progress-log.md).
-
-**Current next step: Phase M1, step 1.1.1 - recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.** The [branch handoff](scaffold-handoff.md) closes M0 preparation; this file retains the earlier candidate comparison.

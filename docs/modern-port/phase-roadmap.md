@@ -5,13 +5,13 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 ## How To Track Work
 
 - Phase M1 uses steps `1.1`, `1.2`, and so on. A larger step uses `1.1.1`, `1.1.2`, and so on. Phase M0 uses `0.x`.
-- Keep identifiers stable. Append new subtasks when work grows and record scope changes in the progress log.
+- Keep existing identifiers stable. Add a subtask only before work genuinely needs splitting, never retroactively or deeper than `x.y.z`; retain historical task IDs.
 - `[x]` means completed and verified; `[ ]` means outstanding. A parent is complete only when all its subtasks and verification pass.
-- Record active work, blockers, actual test results, and the next exact step in [Progress Log](progress-log.md). Do not mark a build or launch passed without observing it.
-- Update the checklist after each completed step. Commit logical changes and record their commit IDs when committed; record push status separately.
+- Keep live state in [STATUS.md](STATUS.md) and append concise observed results to [Progress Log](progress-log.md), following [AGENTS.md](../../AGENTS.md). Do not mark a build or launch passed without observing it.
+- Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M1, next step 1.1.1**. Phase M0 is complete, including the [scaffold branch/local-file handoff](scaffold-handoff.md). The work branch is `codex/modern-neoforge-scaffold`. M1 begins with the legacy-file inventory; no modern scaffold or build/runtime proof exists yet.
+Current position: **Phase M2**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -54,11 +54,11 @@ Priority: P0
     - [x] **0.4.3.3** Require exact artifact/provenance, licence, transitive/side checks, runtime evidence, and maintainer approval for scope exceptions.
   - [x] **0.4.4** Check policy/roadmap consistency, links, unchanged implementation/toolchain, and publication evidence; record the exact handoff.
 - [x] **0.5 Prepare the scaffold handoff.**
-  - [x] **0.5.1** Review the consolidated M0 decisions (pins, setup, scope, dependency/save policy) and confirm their commit/push status separately from the scaffold. Evidence: [M0 Decision Review](m0-decision-review.md), 2026-10-14; decisions required no correction and all four checkpoints are published on `origin/main`.
+  - [x] **0.5.1** Review the consolidated M0 decisions (pins, setup, scope, dependency/save policy) and confirm their commit/push status separately from the scaffold. Evidence: [M0 Decision Review](archive/m0-decision-review.md), 2026-10-14; decisions required no correction and all four checkpoints are published on `origin/main`.
     - [x] **0.5.1.1** Review the canonical decisions and their scope/setup/verification boundaries for consistency.
     - [x] **0.5.1.2** Fetch GitHub and verify checkpoint ancestry, matching main refs, preserved `1.12`/alpha-tag refs, and unchanged legacy implementation.
     - [x] **0.5.1.3** Record review evidence, validate documents/task states, and publish the progress handoff to 0.5.2.
-  - [x] **0.5.2** Recheck remote refs and user changes; prepare `codex/modern-neoforge-scaffold` from the agreed `main` baseline, with a merge back to `main` after verification. Evidence: [Scaffold Branch Handoff](scaffold-handoff.md), 2026-10-14; reused checkout, preserved local files, and published M0 completion checkpoint.
+  - [x] **0.5.2** Recheck remote refs and user changes; prepare `codex/modern-neoforge-scaffold` from the agreed `main` baseline, with a merge back to `main` after verification. Evidence: [Scaffold Branch Handoff](archive/scaffold-handoff.md), 2026-10-14; reused checkout, preserved local files, and published M0 completion checkpoint.
     - [x] **0.5.2.1** Refresh GitHub refs, confirm a clean published baseline, and recheck preserved branch/tag and work-branch availability.
     - [x] **0.5.2.2** Inventory ignored/untracked local files and validate the saved JDK path without moving or deleting user content.
     - [x] **0.5.2.3** Create the requested local work branch from the published baseline and record the reused checkout path.
@@ -74,20 +74,28 @@ Exit gate:
 
 Priority: P1
 
-- [ ] **1.1 Prepare the legacy-to-modern file transition on the work branch.**
-  - [ ] **1.1.1** Recheck the preserved `1.12` commit and inventory legacy build, source, resource, script, and CI files.
-  - [ ] **1.1.2** Preserve modern planning notes and project identity; move legacy-only documentation references to the `1.12` branch in the modern README.
-  - [ ] **1.1.3** Replace the inventoried legacy implementation/build files with the chosen MDK layout; leave local worlds and unrelated user files alone.
-- [ ] **1.2 Configure the modern build.**
-  - [ ] **1.2.1** Pin the MDK wrapper, Java toolchain, build plugin, Minecraft, and NeoForge versions.
-  - [ ] **1.2.2** Set `standandhold`, `Stand and Hold`, and `com.liamryan.standandhold`; configure metadata, resource expansion, and run profiles.
-  - [ ] **1.2.3** Update build instructions/helper and CI to use the selected JDK; upload the correct normal mod jar.
-- [ ] **1.3 Add the minimal mod entry point.** Add constants, logger, config shell, and startup logging; keep client initialization separate from common/server code.
-- [ ] **1.4 Verify the scaffold.**
-  - [ ] **1.4.1** Run `./gradlew --version` and `./gradlew clean build --no-daemon --stacktrace` with the chosen JDK (Windows: `.\gradlew.bat`). Inspect jar metadata.
-  - [ ] **1.4.2** Run `runClient`; confirm main menu, Mods list, and a new test world without external threat mods.
-  - [ ] **1.4.3** Run `runServer` in an isolated test directory through readiness and clean shutdown. Record an EULA stop as incomplete launch verification, not a successful server test.
-- [ ] **1.5 Commit the scaffold, merge the verified work into `main`, and record local/CI results and push status.** Confirm `1.12` is unchanged.
+- [x] **1.1 Prepare the legacy-to-modern file transition on the work branch.**
+  - [x] **1.1.1** Recheck the preserved `1.12` commit and inventory legacy build, source, resource, script, and CI files. Evidence: [Legacy Transition Inventory](legacy-inventory.md) and its 199-file manifest, 2026-10-14; source/build/CI remain unchanged.
+    - [x] **1.1.1.1** Refresh refs and verify preserved branch/tag, published work-branch baseline, and unchanged legacy implementation.
+    - [x] **1.1.1.2** Inspect build/wrapper/identity files, both scripts, and both workflows; record current values and transition ownership.
+    - [x] **1.1.1.3** Inventory every Java/resource path and identify legacy startup/API/resource coupling and later-phase references.
+    - [x] **1.1.1.4** Record exact paths/blob IDs/modes and proposed dispositions; validate completeness, protected local files, and current handoffs before publishing the work branch checkpoint.
+  - [x] **1.1.2** Preserve modern planning notes and project identity; move legacy-only documentation references to the `1.12` branch in the modern README. Evidence: rewritten root README, labelled changelog history/current port issues, preserved modern notes, and verified legacy documentation paths, 2026-10-14.
+    - [x] **1.1.2.1** Rewrite the root README for the selected modern direction, keeping name, mod ID, package/group, author, and honest preparation status.
+    - [x] **1.1.2.2** Route all ten legacy guides and the legacy README/issue/changelog references to the preserved `1.12` branch.
+    - [x] **1.1.2.3** Preserve changelog history with an explicit Forge 1.12.2 label and separate current port limitations from legacy issue reports.
+    - [x] **1.1.2.4** Verify links, retained planning notes/identity/version, unchanged runtime/local files, and the work-branch publication handoff.
+  - [x] **1.1.3** Replace the inventoried legacy implementation/build files with the chosen MDK layout; leave local worlds and unrelated user files alone.
+- [x] **1.2 Configure the modern build.**
+  - [x] **1.2.1** Pin the MDK wrapper, Java toolchain, build plugin, Minecraft, and NeoForge versions.
+  - [x] **1.2.2** Set `standandhold`, `Stand and Hold`, and `com.liamryan.standandhold`; configure metadata, resource expansion, and run profiles.
+  - [x] **1.2.3** Update build instructions/helper and CI to use the selected JDK; upload the correct normal mod jar.
+- [x] **1.3 Add the minimal mod entry point.** Add constants, logger, config shell, and startup logging; keep client initialization separate from common/server code.
+- [x] **1.4 Verify the scaffold.**
+  - [x] **1.4.1** Run `./gradlew --version` and `./gradlew clean build --no-daemon --stacktrace` with the chosen JDK (Windows: `.\gradlew.bat`). Inspect jar metadata.
+  - [x] **1.4.2** Run `runClient`; confirm main menu, Mods list, and a new test world without external threat mods.
+  - [x] **1.4.3** Run `runServer` in an isolated test directory through readiness and clean shutdown. Record an EULA stop as incomplete launch verification, not a successful server test.
+- [x] **1.5 Commit the scaffold, merge the verified work into `main`, and record local/CI results and push status.** Confirm `1.12` is unchanged.
 
 Exit gate:
 
@@ -320,7 +328,3 @@ Exit gate:
 
 - NeoForge build is stable enough that multi-loader work will not slow core gameplay.
 - The evaluation has a recorded proceed/defer decision; a Fabric release additionally requires working parity checks.
-
-## Immediate Next Step
-
-**Phase M1 - Clean NeoForge Scaffold, step 1.1.1: recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.** M0 is complete. Continue on the prepared `codex/modern-neoforge-scaffold` branch and preserve the local files recorded in [Scaffold Branch Handoff](scaffold-handoff.md).

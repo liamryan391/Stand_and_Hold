@@ -7,18 +7,7 @@
 - Added modern-port planning folder.
 - Chose NeoForge as the primary modern loader.
 - Recorded target strategy: attempt latest viable NeoForge track, currently 26.3, with a fallback to the newest stable NeoForge-supported version if the toolchain or ecosystem is not ready.
-- Recorded that the next implementation step should be a clean NeoForge scaffold, not a direct 1.12 file port.
-
-## Next Checklist
-
-Task completion is maintained in the [canonical roadmap](phase-roadmap.md). Keep this section as the current handoff rather than a second set of checkboxes.
-
-- Current phase: M1 - Clean NeoForge Scaffold, ready for its first task.
-- Completed phase: M0 - Preserve And Decide, including branch preparation and the local-file handoff.
-- **Next: 1.1.1 - recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.**
-- Active work branch at handoff: `codex/modern-neoforge-scaffold`, using the existing repository checkout. Modern source/build replacement has not started.
-
-Research `bf44b46`, toolchain/JDK `94efe4d`, setup `af988c6`, scope/policy `da8b1d0`, and review `dbf0de8` are published checkpoints. M0 completion checkpoint title: `docs: complete M0 and prepare modern scaffold branch`, published on `main` and the work branch. Use Git history/live refs and the final session report for its hash. Earlier "local/uncommitted" entries below are historical.
+- Recorded the clean NeoForge rewrite approach instead of a direct 1.12 file port.
 
 ## 2026-10-07 - Numbered Roadmap And Preflight
 
@@ -28,7 +17,7 @@ Research `bf44b46`, toolchain/JDK `94efe4d`, setup `af988c6`, scope/policy `da8b
 - Recorded the installed JDK mismatch: PATH uses Java 25; JAVA_HOME uses Java 8. Select a process/IDE JDK explicitly in step 0.3.3.
 - Clarified that 26.3 is still a candidate, not a verified target. Exact official versions and available compatible mods remain to be checked before implementation.
 - Corrected the NeoForge config API reference to ModConfigSpec and separated an EULA stop from dedicated-server readiness.
-- Added [Preflight Checks](preflight-checks.md) with evidence and remaining checks.
+- Added [Preflight Checks](archive/preflight-checks.md) with evidence and remaining checks.
 - Verification passed: `git fsck --no-dangling`, `git diff --check`, and documentation checks covering 15 phases, 129 unique task IDs, parent/child status consistency, phase prefixes, 37 relative links, and whitespace in new files. Direct Java 8 executable check returned `1.8.0_492`.
 - No build or Minecraft launch was run for this documentation-only update.
 - Planning changes are local and uncommitted/unpushed. Source code, build configuration, mod version, and preserved branches are unchanged.
@@ -42,10 +31,8 @@ Research `bf44b46`, toolchain/JDK `94efe4d`, setup `af988c6`, scope/policy `da8b
 - Verified both official MDK variants exist for each candidate; inspected the ModDevGradle templates, including wrapper files and mod metadata. All five inspected templates use Gradle 9.2.1 and ModDevGradle 2.0.148; 26.x uses Java 25 and the inspected 1.21.x alternatives use Java 21.
 - Retrieved six NeoForge POMs and the plugin marker; artifact IDs/versions matched. Retrieved and validated the official Gradle 9.2.1 SHA-256 text. No toolchain archives were installed or executed.
 - Added [Release Verification](release-verification.md) with official sources, immutable MDK snapshots, caveats, and the shortlist. Updated the roadmap, memory, technical plan, recommendations, research, index, and preflight handoff to agree.
-- Recommendation for the next check: compare 26.3 and 26.2 first, keeping documented older alternatives if actual mod/library support requires them. No final toolchain was selected.
 - Documentation checks passed: 15 phases, 129 unique tasks, correct completion/parent states, 47 relative links, six consistent next-step locations, and whitespace validation. `git diff --check` passed; source/build/configuration diff was empty and both local branch refs remained at the preserved commit.
 - No build or client/server launch was run for this research/documentation step. Legacy source/build files and branches are unchanged; planning work remains local and uncommitted/unpushed.
-- **Next phase/step: M0 / 0.3.2.** Step 0.3 remains open until ecosystem checks, version pinning, and setup notes are complete.
 
 ## 2026-10-07 - Step 0.3.2 Complete
 
@@ -59,7 +46,6 @@ Research `bf44b46`, toolchain/JDK `94efe4d`, setup `af988c6`, scope/policy `da8b
 - Keep the scaffold NeoForge-only. Vanilla goals first, animation/AI libraries in their relevant later phases, and external threat mods only in optional test instances/adapters.
 - Validation passed: 15 phases, 129 unique task IDs, correct parent/child completion states, 59 relative links across 11 documents, seven consistent next-step locations, and whitespace checks. `git diff --check` passed and the diff for source/build/configuration files was empty.
 - No build or Minecraft launch was run for this research/documentation update. Legacy code/build configuration is unchanged. The user requested a final commit and push for the accumulated planning work after checks, under the checkpoint title above; `1.12` is excluded from publication changes.
-- **Next phase/step: M0 / 0.3.3.** The final M0 decision commit in 0.5.1 remains open because versions/setup have not yet been selected.
 
 ## 2026-10-08 - Step 0.3.3 Complete
 
@@ -73,7 +59,6 @@ Research `bf44b46`, toolchain/JDK `94efe4d`, setup `af988c6`, scope/policy `da8b
 - Expanded step 0.3.3 into numbered verification/setup substeps and updated current handoffs to 0.3.4. No third-party library, mod, gameplay code, or modern scaffold was added.
 - Modern Gradle/build/client/server checks were not run: the root wrapper is still the Java 8 legacy build. M1 must verify wrapper JVM, dependency resolution, build, client, and dedicated server; script checks do not substitute for those gates.
 - The user-requested final commit/push is performed only after validation, with the checkpoint title above; preserve `1.12` at `62bb07b84eb614b5967ef318ccb98aef1f22a5d8`.
-- **Next phase/step: M0 / 0.3.4.** Parent step 0.3 and the final M0 handoff remain open.
 
 ## 2026-10-13 - Step 0.3.4 Complete
 
@@ -86,7 +71,6 @@ Research `bf44b46`, toolchain/JDK `94efe4d`, setup `af988c6`, scope/policy `da8b
 - Documentation checks passed: 13 documents, 93 relative links, 15 phases, 136 unique task IDs, consistent parent/child completion, nine current next-step references, and `git diff --check`. Source, scripts, build files, CI, and ignore rules have no diff.
 - Modern Gradle/build, artifact inspection, IDE sync/build, client, and dedicated-server checks were not run. The current wrapper still belongs to Forge 1.12.2; executing the modern commands is an M1 task. No gameplay, script, build, CI, or global JDK settings were changed.
 - Final commit/push follows validation under the checkpoint title above; the preserved branch is excluded from publication changes.
-- **Next phase/step: M0 / 0.4 - finalize foundation scope and dependency policy.**
 
 ## 2026-10-14 - Step 0.4 Complete
 
@@ -99,11 +83,10 @@ Research `bf44b46`, toolchain/JDK `94efe4d`, setup `af988c6`, scope/policy `da8b
 - Validation passed: 14 documents, 112 local links including heading anchors, 15 phases, 143 unique task IDs, parent/child completion consistency, ten current handoffs, and `git diff --check`. The diff is documentation-only; source, scripts, toolchain/build, CI, and ignore rules are unchanged. Local branches remain only `main` and `1.12`.
 - No modern scaffold, work branch, dependency installation, or implementation change was made. No build/client/server/IDE runtime test was run for this documentation-only policy step; those checks remain M1 work.
 - Final commit/push follows validation under the checkpoint title above, with the legacy branch unchanged.
-- **Next phase/step: M0 / 0.5.1 - review the consolidated M0 decisions and confirm their commit/push status.**
 
 ## 2026-10-14 - Step 0.5.1 Complete
 
-- Reviewed the selected toolchain, Windows/IDE/fallback guide, foundation scope/dependency/save policy, technical plan, and roadmap. Decisions agree and require no correction. Added [M0 Decision Review](m0-decision-review.md) as the evidence record.
+- Reviewed the selected toolchain, Windows/IDE/fallback guide, foundation scope/dependency/save policy, technical plan, and roadmap. Decisions agree and require no correction. Added [M0 Decision Review](archive/m0-decision-review.md) as the evidence record.
 - Began from clean `main` at `da8b1d05e36301834f9f44445908ba66c622f3d1`. Fetched GitHub; HEAD and `origin/main` matched. Live refs confirmed the same remote head.
 - Verified `bf44b469c2d677da0b5beec3228fd0ea22249b01`, `94efe4d2ecd5e01dbfc149ee6d82af7f168c50e4`, `af988c62e4f47527db808879b516b91ea1d2861b`, and `da8b1d05e36301834f9f44445908ba66c622f3d1` with `git merge-base --is-ancestor <commit> origin/main`; all passed. Existing commits satisfy decision publication.
 - Local/remote `1.12` remain at `62bb07b84eb614b5967ef318ccb98aef1f22a5d8`. The local/remote alpha tag refs also match. Legacy source, build files/wrapper, CI, and Java 8 helper have no diff from the preserved branch.
@@ -111,25 +94,63 @@ Research `bf44b46`, toolchain/JDK `94efe4d`, setup `af988c6`, scope/policy `da8b
 - Documentation checks passed: 15 documents, 128 local links including heading anchors, 15 phases, 146 unique task IDs, parent/child consistency, eleven current handoffs, and `git diff --check`. This session's diff contains only modern-port documentation.
 - No modern build/IDE/client/server test was run for this documentation review. No target/dependency change, work branch, or modern scaffold was created.
 - Final commit/push records this review evidence and updated progress under the checkpoint title above; the decisions themselves were already published.
-- **Next phase/step: M0 / 0.5.2 - recheck repository/local-file state and prepare the scaffold work branch.**
 
 ## 2026-10-14 - Step 0.5.2 Complete
 
 - Began from clean `main` at `dbf0de8ec9e94fd6fab96e5bd80d77473f3418cd`; fetched GitHub and confirmed the matching remote main. Local/remote preserved `1.12` and alpha-tag refs match their recorded hashes.
 - Confirmed `codex/modern-neoforge-scaffold` was absent locally/remotely, then created it locally from the published baseline with no inherited upstream. Reused `C:\Users\liamr\Documents\ChatGPT\Stand and Hold`; no clone/worktree was added.
 - Inventoried local files: no untracked non-ignored files; `.local/modern-jdk.json` is the only ignored file. Saved JDK metadata and required files match Temurin 25.0.4+7, 64-bit. Runtime/world, build/cache, external-jar, and IDE-output directories are absent in this checkout. Retain the ignored selection in place.
-- Added [Scaffold Branch Handoff](scaffold-handoff.md), expanded 0.5.2 into preparation/publication subtasks, and updated current handoffs to M1 / 1.1.1. Legacy implementation remains untouched; modern scaffold/source replacement has not started.
+- Added [Scaffold Branch Handoff](archive/scaffold-handoff.md), expanded 0.5.2 into preparation/publication subtasks, and updated current handoffs to M1 / 1.1.1. Legacy implementation remains untouched; modern scaffold/source replacement has not started.
 - Validation passed: 16 documents, 142 local links including heading anchors, 15 phases, 150 unique task IDs, completion consistency, `git diff --check`, prepared branch baseline, and unchanged legacy implementation/local JDK configuration. All M0 tasks close with this handoff; M1 implementation tasks remain open.
 - Final publication commits the M0 completion record on `main`, advances the local work branch to that record using `git merge --ff-only main`, switches this checkout to it, and pushes with its own upstream. Verify both remote heads, preserved refs, config hash, and clean status before reporting completion.
 - No Gradle build/client/server/IDE launch was run during this repository/documentation preparation. Modern build/runtime proof remains M1 work.
-- **Next phase/step: M1 / 1.1.1 - recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.**
 
-## Session Handoff Format
+## 2026-10-14 - Step 1.1.1 Complete
 
-For each future work session, append the date and phase/step IDs, then record:
+- Started from clean `codex/modern-neoforge-scaffold` at `6df4c3fea5a6fa31f22589339a4c978b4e6e6d89`, matching its GitHub upstream. Live main was also at that M0 handoff. Fetched refs and verified preserved `1.12` ancestry/hash and matching alpha-tag ref.
+- Reviewed build/settings/properties/wrapper, entry/config/constants, resource metadata/formats, both scripts/workflows, and Java package/API coupling. Legacy source/resources/build/CI/Java 8 helper remain identical to `1.12`.
+- Added [Legacy Transition Inventory](legacy-inventory.md) and a TSV snapshot of all 199 baseline paths with Git blob IDs/modes, proposed disposition, and transition owner. Totals: 73 Java, 85 resources, seven build/wrapper files, two scripts, two workflows, 15 modern notes, ten legacy guides, and five root docs/control files.
+- Recorded exact preserve/replace/archive groups, original alpha-art references, legacy startup/API coupling, pack format/translation/recipe differences, duplicated identity/version fields, absent project licence/test source files, and the version-independent CI probe. No code, resource, CI, script, or version was modified.
+- Local selection remains the only ignored file with no unrelated untracked content. No build or game/IDE launch was run; modern implementation and runtime verification remain later M1 tasks.
+- Updated the roadmap with 1.1.1.1-1.1.1.4 and current handoffs to 1.1.2. Final commit/push publishes this inventory only on the work branch, leaving main/preserved refs and local settings intact.
+- Validation passed: exact 199-file manifest coverage/path/blob/mode equality against the baseline tree; valid dispositions/transition owners; 17 documents, 155 local links including heading anchors, 15 phases, 154 unique task IDs, parent/child consistency, thirteen current handoffs, and whitespace checks. Runtime/build/root documentation and the ignored JDK selection have no changes.
 
-- Completed work and files changed.
-- Commands/tests actually run and their results, including skipped or blocked checks.
-- New decisions, unresolved risks, and changes in scope.
-- Commit IDs and push status, or explicitly state local/uncommitted.
-- The next exact phase and step; update Project Memory and the roadmap checkboxes to match.
+## 2026-10-14 - Step 1.1.2 Complete
+
+- Began from clean `codex/modern-neoforge-scaffold` at `4cac6b9900b67e71273ba0518c97ceb9177d22d5`, matching its GitHub upstream. Fetched refs; preserved branch/tag and main remain at their recorded hashes. Verified all 13 legacy documentation targets exist on `1.12`.
+- Replaced the long legacy root README with modern-port status, retained project identity, selected target pins, development/scope links, and a complete legacy-reference table pointing to `1.12`. The README states that source/build/CI are still legacy until the upcoming file transition and announces no modern release.
+- Rewrote current root known issues around actual preparation/verification gaps with links to archived legacy issues. Added an unnumbered unreleased documentation entry and labelled the unchanged original alpha changelog body as Forge 1.12.2 history.
+- Preserved every modern planning document, the exact baseline manifest, and project values: Stand and Hold / `standandhold` / `com.liamryan.standandhold` / Liam Ryan. Source version remains `0.1.0-alpha.1`; no target/build/script/CI/resource or global Java change was made. Legacy guide files remain unchanged during staging; README readers use their branch copies.
+- Added 1.1.2.1-1.1.2.4 and updated current handoffs to 1.1.3. Parent 1.1 stays open until the implementation file transition. The final commit/push publishes only documentation on the work branch; main/preserved refs and ignored local selection remain unchanged.
+- Validation passed: 19 documents, 142 local links including six heading anchors, all 13 preserved legacy targets, 15 phases, 158 unique task IDs with consistent parent/child states, and 14 current handoffs. All 17 planning files remain present; the original changelog body, ten legacy guides, runtime/build/scripts/CI/control files, manifest, identity/version values, and ignored JDK selection are preserved. Whitespace checks passed.
+- No Gradle build, client, server, or IDE launch was run for this documentation step. Modern build/runtime proof remains M1 / 1.4 work.
+
+## Session Logging
+
+Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log limit. Live state belongs in [STATUS.md](STATUS.md).
+
+## 2026-10-14 - Agent Workflow Cleanup
+
+- Added the supplied root AGENTS.md and an updated STATUS.md; scaffold work remains on hold.
+- Centralized live state, removed repeated handoffs, archived four historical notes, and carried durable rules into the technical plan.
+- Updated archive links and replaced the old session-handoff instructions with the AGENTS.md pointer.
+- Verification: `git diff --check` passed; reviewed the documentation-only diff.
+- Not run: Gradle build, client, or server; no code, toolchain, or gameplay changes.
+- Blockers: none for this cleanup; resume is controlled by STATUS.md and Liam's request.
+
+## 2026-10-14 - M1 Scaffold And Launch Verification
+
+- Replaced verified legacy runtime/resources/guides/helper with the pinned official NeoForge MDK scaffold; retained template notices, planning/archive notes, identity, local files, and version 0.1.0-alpha.1.
+- Added the minimal side-safe entry point/logger/config, expanded metadata, isolated run directories, Java 25 CI, and updated build guidance; no gameplay or extra runtime libraries.
+- Verified wrapper 9.2.1 / Java 25.0.4+7; `clean build --no-daemon --stacktrace` passed (8m 43s, then 34s after stdin fix); inspected jar metadata/content and Java 25 bytecode. No unit test sources exist.
+- `runClient` initialized the mod/config; after reopening, Liam reported menu/Mods/fresh-world save/reopen passed. Logs show world entry/save/normal exit; the task finished BUILD SUCCESSFUL (3m 24s).
+- `runServer --no-daemon --stacktrace --console=plain` reached Done on localhost, accepted stop after execution-time stdin forwarding, saved worlds, and exited BUILD SUCCESSFUL; NeoForge dev mode skipped EULA, with no agreement/file written.
+- `git diff --check` passed; remote CI and IDE testing are unobserved. Live remaining verification and publication state belong in STATUS.md.
+
+## 2026-10-14 - M1 Publication And M2 Progression
+
+- Replaced AGENTS.md with the supplied batching policy and committed it separately as requested.
+- Observed green Windows Java 25 build and jar upload for scaffold 836c311 (GitHub run 38632437020), then merged the scaffold into main without rewriting history.
+- M2 implementation and tests are recorded here as the session continues; no toolchain/version or runtime dependency change is authorized.
+- Verification so far: `git diff --check`; prior local build/client/server proof plus observed scaffold CI. M2 runtime verification has not run yet.
+- Live milestone, remaining tests, and publication state are in STATUS.md; preserved legacy refs and local user files remain untouched.

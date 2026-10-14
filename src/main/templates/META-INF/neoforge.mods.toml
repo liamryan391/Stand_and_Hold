@@ -1,0 +1,27 @@
+license="${mod_license}"
+issueTrackerURL="https://github.com/liamryan391/Stand_and_Hold/issues"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="${mod_authors}"
+displayURL="https://github.com/liamryan391/Stand_and_Hold"
+description='''
+Human military resistance against infection-style world threats.
+Modern NeoForge foundation; gameplay systems are being rebuilt in later phases.
+'''
+
+[[dependencies.${mod_id}]]
+modId="neoforge"
+type="required"
+versionRange="[${neo_version},26.4)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.${mod_id}]]
+modId="minecraft"
+type="required"
+versionRange="${minecraft_version_range}"
+ordering="NONE"
+side="BOTH"

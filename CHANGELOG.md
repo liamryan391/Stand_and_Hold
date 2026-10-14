@@ -1,6 +1,27 @@
 # Changelog
 
-## 0.1.0-alpha.1 - 2026-05-26
+## Unreleased - Modern NeoForge Port
+
+Modern port work is developed on `codex/modern-neoforge-scaffold`. No modern release, version bump, or retag is announced by this entry. The source/build version remains `0.1.0-alpha.1`; observed verification results are recorded in [STATUS.md](docs/modern-port/STATUS.md).
+
+### Clean NeoForge Scaffold
+
+- Replaced legacy compile/resource inputs with the pinned official MDK layout, preserving the Forge alpha on `1.12` and retaining template notices.
+- Configured Minecraft 26.3, NeoForge 26.3.0.57-beta, Java 25, Gradle 9.2.1 with distribution checksum, ModDevGradle 2.0.148, and Foojay resolver 1.0.0.
+- Added a minimal side-safe entry point, identity constants, startup logger, local config shell, and expanded mod metadata; no gameplay or additional runtime libraries.
+- Separated development client/server directories, enabled server console input for clean stops, and updated Windows Java 25 CI and build instructions.
+
+### Documentation And Preparation
+
+- Recorded M0 toolchain decisions, phase plan, dependency/save policy, and the prepared work branch.
+- Inventoried the legacy implementation and exact tracked-file transition paths in M1 / 1.1.1.
+- Updated the root README and current port limitations, preserving project identity and routing Forge 1.12.2 installation/gameplay/QA references to the `1.12` branch.
+
+See the [modern progress log](docs/modern-port/progress-log.md) for task results and publication evidence. The entry below records historical Forge 1.12.2 work and validation only.
+
+## 0.1.0-alpha.1 - 2026-05-26 (Forge 1.12.2)
+
+Legacy history retained from the alpha. Its validation and feature list do not describe a tested modern port. The [preserved legacy changelog](https://github.com/liamryan391/Stand_and_Hold/blob/1.12/CHANGELOG.md) remains available with its original context.
 
 Technical foundation alpha for Stand and Hold.
 

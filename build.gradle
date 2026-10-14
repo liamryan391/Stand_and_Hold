@@ -1,47 +1,81 @@
-buildscript {
-    repositories {
-        maven { url = 'https://maven.minecraftforge.net/' }
-        mavenCentral()
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.anatawa12.forge:ForgeGradle:2.3-1.0.8'
-    }
+// Adapted from the official NeoForge MDK at 4dacaffe4d5395c675a824beac2d1961b7d03bdb.
+// Template licensing is retained in TEMPLATE_LICENSE.txt.
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.148'
+    id 'idea'
 }
-
-apply plugin: 'net.minecraftforge.gradle.forge'
 
 version = mod_version
-group = mod_group
-archivesBaseName = mod_id
+group = mod_group_id
+base.archivesName = mod_id
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
-sourceCompatibility = targetCompatibility = '1.8'
-
-compileJava {
-    sourceCompatibility = targetCompatibility = '1.8'
-}
-
-minecraft {
-    version = "${minecraft_version}-${forge_version}"
-    runDir = 'run'
-    mappings = "${mappings_channel}_${mappings_version}"
-}
-
-processResources {
-    inputs.property 'version', project.version
-    inputs.property 'mcversion', minecraft_version
-
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        expand 'version': project.version, 'mcversion': minecraft_version
-    }
-
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.10.3'
+tasks.named('wrapper', Wrapper).configure {
+    gradleVersion = '9.2.1'
     distributionType = Wrapper.DistributionType.BIN
+    distributionSha256Sum = '72f44c9f8ebcb1af43838f45ee5c4aa9c5444898b3468ab3f4af7b6076c5bc3f'
+}
+
+neoForge {
+    version = project.neo_version
+    runs {
+        client {
+            client()
+            gameDirectory = project.file('run/modern-client')
+        }
+        server {
+            server()
+            gameDirectory = project.file('run/modern-server')
+            programArgument '--nogui'
+        }
+        configureEach {
+            logLevel = org.slf4j.event.Level.INFO
+        }
+    }
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
+    var replaceProperties = [
+        minecraft_version_range: minecraft_version_range,
+        neo_version: neo_version,
+        mod_id: mod_id,
+        mod_name: mod_name,
+        mod_license: mod_license,
+        mod_version: mod_version,
+        mod_authors: mod_authors
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from 'src/main/templates'
+    into layout.buildDirectory.dir('generated/sources/modMetadata')
+}
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
+
+tasks.named('runServer', JavaExec).configure {
+    // Resolve the interactive stream at execution time, not in the configuration cache.
+    doFirst { task ->
+        task.standardInput = System.in
+    }
+}
+
+tasks.named('jar', Jar).configure {
+    from('TEMPLATE_LICENSE.txt') {
+        into 'META-INF'
+    }
+}
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
 }

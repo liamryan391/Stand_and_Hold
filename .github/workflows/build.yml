@@ -9,34 +9,38 @@ permissions:
   contents: read
 
 jobs:
-  windows-java8-build:
-    name: Windows Java 8 Gradle build
+  windows-java25-build:
+    name: Windows Java 25 NeoForge build
     runs-on: windows-latest
+    timeout-minutes: 30
+    env:
+      GRADLE_USER_HOME: ${{ github.workspace }}/.gradle-home/modern
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up Java 8
+      - name: Set up Java 25
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '8'
+          java-version: '25'
 
       - name: Show Gradle and Java versions
         shell: pwsh
         run: |
-          java -version
+          java --version
           .\gradlew.bat --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-      - name: Build with ForgeGradle
+      - name: Build with ModDevGradle
         shell: pwsh
         run: .\gradlew.bat clean build --no-daemon --stacktrace
 
-      - name: Upload built jars
+      - name: Upload normal mod jar
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: stand-and-hold-jars
-          path: build/libs/*.jar
+          name: stand-and-hold-neoforge-26.3
+          path: build/libs/standandhold-0.1.0-alpha.1.jar
           if-no-files-found: error

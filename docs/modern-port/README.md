@@ -2,7 +2,7 @@
 
 This folder is the planning memory for moving Stand and Hold from the Forge 1.12.2 alpha foundation to a modern Minecraft build.
 
-## Current Decision
+## Design Decisions
 
 - Preserve the Forge 1.12.2 version on the `1.12` branch.
 - Use `main` for the modern rewrite once the scaffold phase starts.
@@ -12,13 +12,7 @@ This folder is the planning memory for moving Stand and Hold from the Forge 1.12
 - Future track: Fabric after the NeoForge version has a stable gameplay foundation.
 - M1 scope: minimal NeoForge scaffold, logger/config shell, build/CI support, and launch verification. No gameplay or additional runtime libraries; no legacy world/config migration. See the accepted [foundation policy](foundation-scope.md).
 
-M0 selected the exact toolchain, configured local JDK selection, documented Windows/IDE/fallback instructions, and prepared the scaffold branch. Prove the pins with the clean scaffold build in M1.
-
-## Current Position
-
-Phase M0 is complete. [Scaffold Branch Handoff](scaffold-handoff.md) records the prepared `codex/modern-neoforge-scaffold` branch, reused checkout, and local-file inventory. Phase M1 begins with the legacy-file inventory; source/build files still contain the Forge 1.12.2 alpha, and modern build/runtime tests remain outstanding.
-
-**Next: Phase M1, step 1.1.1 - recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.** See the progress log for completion and publication notes.
+Start with [STATUS.md](STATUS.md) for live state and [AGENTS.md](../../AGENTS.md) for the session workflow. Read reference documents only when the task needs them.
 
 ## Why A Clean Modern Port
 
@@ -26,27 +20,25 @@ The 1.12.2 codebase is useful design history, but the modern Minecraft APIs are 
 
 ## Planning Files
 
-- [Project Memory](project-memory.md)
+- [Status](STATUS.md)
 - [Phase Roadmap](phase-roadmap.md)
 - [Technical Port Plan](technical-port-plan.md)
 - [Ecosystem Research](ecosystem-research.md)
 - [Recommendations](recommendations.md)
 - [Progress Log](progress-log.md)
-- [Preflight Checks](preflight-checks.md)
 - [Official Release And MDK Verification](release-verification.md)
 - [Library And Threat Mod Compatibility](ecosystem-compatibility.md)
 - [Selected Modern Toolchain And Local JDK](toolchain.md)
 - [Windows Build, IDE Setup, And Fallback Rule](building.md)
 - [Foundation Scope And Dependency Policy](foundation-scope.md)
-- [Consolidated M0 Decision And Publication Review](m0-decision-review.md)
-- [Prepared Scaffold Branch And Local-File Handoff](scaffold-handoff.md)
+- [Legacy Transition Inventory And Exact File Manifest](legacy-inventory.md)
 
-The [Phase Roadmap](phase-roadmap.md) is the canonical numbered checklist. Larger tasks have subtasks such as `1.1.1`; update their checkboxes as they pass verification. The progress log records evidence, blockers, commits, and the exact next task so work can resume across sessions.
+The [roadmap](phase-roadmap.md) owns numbered checkboxes; [STATUS.md](STATUS.md) owns live state. [AGENTS.md](../../AGENTS.md) defines concise verification and logging. Historical project memory, preflight checks, decision review, and branch preparation notes live in [archive/](archive/); they are reference material, not session-start instructions.
 
 ## Modern Port Principles
 
 - No hard dependency on any infection mod.
-- No copied code, textures, models, names, or assets from other mods unless a license and explicit permission allow it.
+- Never copy code, textures, models, or assets from other mods.
 - Server authority first: persistent progression, missions, bases, and AI decisions live on the server.
 - Data-driven where it helps modpack authors: config, tags, datapacks, loot tables, missions, research, structure pools.
 - Build a small playable vertical slice before adding large systems.

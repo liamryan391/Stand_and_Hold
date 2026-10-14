@@ -2,7 +2,7 @@
 
 Decision: Phase M0, step 0.3.3, verified 2026-10-07.
 
-These are the exact pins for the upcoming M1 scaffold, not a claim that the current root project already uses them. `main` still builds the Forge 1.12.2 alpha with Java 8; `1.12` remains untouched. No modern build or game launch has passed yet.
+These are the exact pins for the modern scaffold. The preserved `1.12` branch uses its separate Java 8 toolchain. Live build/launch results belong in [STATUS.md](STATUS.md), not this version reference.
 
 ## Pins
 
@@ -58,18 +58,10 @@ The saved path is in ignored `.local/modern-jdk.json`. It is local configuration
 
 Run the selector in the shell that will run Gradle. Calling it through a separate `powershell.exe -File` process only configures that child, not the calling shell. The script never invokes Gradle, installs software, changes user/machine environment variables, or edits global Gradle properties. Existing IDE processes require their own [Gradle JVM selection](building.md#intellij-idea-setup).
 
-**Do not run the current legacy wrapper with Java 25.** Until the M1 replacement, build the existing source using `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-java8.ps1`. That helper remains unchanged and selects Java 8 itself. Closing the modern shell discards its environment changes.
+**Do not run a legacy wrapper with Java 25.** The Java 8 helper is available only on `1.12`; use the modern wrapper and isolated cache on this branch. Closing the modern shell discards its environment changes.
 
 ## Verification Boundary
 
-Step 0.3.3 verifies published pins, the installed JDK, and local selector behavior. Modern wrapper `--version`, dependency resolution, `clean build`, client launch, and dedicated-server readiness remain M1 gates. No modern CI/build success is inferred from legacy results.
-
-Step 0.3.4 has now documented [Windows build commands, IDE setup, and the fallback decision rule](building.md); this does not replace M1 build/runtime proof.
-
-Step 0.4 now records the accepted [foundation scope and dependency policy](foundation-scope.md), without changing these pins or adding libraries.
-
-The [M0 decision review](m0-decision-review.md) has confirmed these decisions and their publication.
-
-The [scaffold branch handoff](scaffold-handoff.md) now closes M0 preparation; these pins still await implementation and verification in M1.
-
-**Next: Phase M1, step 1.1.1 - recheck the preserved 1.12 commit and inventory the legacy build, source, resources, scripts, and CI files.**
+Published pins, artifact metadata, and local selector tests do not establish modern build or launch success.
+Require the wrapper JVM, dependency resolution, clean build, client, and dedicated-server evidence defined in
+[Building](building.md) and the [foundation policy](foundation-scope.md). Use [STATUS.md](STATUS.md) for live results.

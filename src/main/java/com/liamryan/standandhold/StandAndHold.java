@@ -1,76 +1,29 @@
 package com.liamryan.standandhold;
 
-import com.liamryan.standandhold.common.command.CommandStandAndHold;
-import com.liamryan.standandhold.common.entity.ModEntities;
-import com.liamryan.standandhold.common.event.HumanProgressionEventHandler;
-import com.liamryan.standandhold.common.gui.StandAndHoldGuiHandler;
-import com.liamryan.standandhold.common.network.StandAndHoldNetwork;
-import com.liamryan.standandhold.common.tile.TileEntityFieldCommandPost;
-import com.liamryan.standandhold.common.tile.TileEntityResearchLab;
-import com.liamryan.standandhold.common.proxy.CommonProxy;
-import com.liamryan.standandhold.common.worldgen.ArmyCheckpointWorldGenerator;
-import com.liamryan.standandhold.common.worldgen.MainBaseWorldGenerator;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.registry.GameRegistry;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.mojang.logging.LogUtils;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import org.slf4j.Logger;
 
-@Mod(
-        modid = StandAndHoldConstants.MOD_ID,
-        name = StandAndHoldConstants.MOD_NAME,
-        version = StandAndHoldConstants.VERSION,
-        acceptedMinecraftVersions = StandAndHoldConstants.ACCEPTED_MINECRAFT_VERSIONS,
-        dependencies = StandAndHoldConstants.DEPENDENCIES
-)
+@Mod(StandAndHoldConstants.MOD_ID)
 public final class StandAndHold {
-    public static final Logger LOGGER = LogManager.getLogger(StandAndHoldConstants.MOD_NAME);
+    private static final Logger LOGGER = LogUtils.getLogger();
+    private final String version;
 
-    @Mod.Instance(StandAndHoldConstants.MOD_ID)
-    public static StandAndHold instance;
-
-    @SidedProxy(
-            clientSide = "com.liamryan.standandhold.client.ClientProxy",
-            serverSide = "com.liamryan.standandhold.common.proxy.CommonProxy"
-    )
-    public static CommonProxy proxy;
-
-    @Mod.EventHandler
-    public void preInit(FMLPreInitializationEvent event) {
-        StandAndHoldConfig.sync();
-        StandAndHoldNetwork.registerMessages();
-        ModEntities.registerEntities();
-        GameRegistry.registerWorldGenerator(new ArmyCheckpointWorldGenerator(), 0);
-        GameRegistry.registerWorldGenerator(new MainBaseWorldGenerator(), 1);
-        GameRegistry.registerTileEntity(TileEntityFieldCommandPost.class, StandAndHoldConstants.MOD_ID + ":field_command_post");
-        GameRegistry.registerTileEntity(TileEntityResearchLab.class, StandAndHoldConstants.MOD_ID + ":research_lab");
-        proxy.preInit(event);
-        LOGGER.info("{} {} pre-initialized.", StandAndHoldConstants.MOD_NAME, StandAndHoldConstants.VERSION);
+    public StandAndHold(IEventBus modEventBus, ModContainer modContainer) {
+        version = modContainer.getModInfo().getVersion().toString();
+        modContainer.registerConfig(ModConfig.Type.LOCAL, StandAndHoldConfig.SPEC);
+        modEventBus.addListener(this::commonSetup);
     }
 
-    @Mod.EventHandler
-    public void init(FMLInitializationEvent event) {
-        MinecraftForge.EVENT_BUS.register(new HumanProgressionEventHandler());
-        NetworkRegistry.INSTANCE.registerGuiHandler(instance, new StandAndHoldGuiHandler());
-        LOGGER.info("{} initialized.", StandAndHoldConstants.MOD_NAME);
-    }
-
-    @Mod.EventHandler
-    public void postInit(FMLPostInitializationEvent event) {
-        HumanProgressionEventHandler.logOptionalCompatibilityState();
-        LOGGER.info("{} post-initialized.", StandAndHoldConstants.MOD_NAME);
-    }
-
-    @Mod.EventHandler
-    public void serverStarting(FMLServerStartingEvent event) {
-        event.registerServerCommand(new CommandStandAndHold());
-        LOGGER.info("Registered Stand and Hold server commands.");
+    private void commonSetup(FMLCommonSetupEvent event) {
+        if (StandAndHoldConfig.LOG_STARTUP.getAsBoolean()) {
+            LOGGER.info("{} {} initialized: modern NeoForge foundation (no gameplay yet).",
+                    StandAndHoldConstants.MOD_NAME, version);
+        }
     }
 }

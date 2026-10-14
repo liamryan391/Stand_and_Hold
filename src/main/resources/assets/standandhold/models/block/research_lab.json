@@ -1,6 +1,0 @@
-{
-  "parent": "block/cube_all",
-  "textures": {
-    "all": "standandhold:blocks/research_lab"
-  }
-}
