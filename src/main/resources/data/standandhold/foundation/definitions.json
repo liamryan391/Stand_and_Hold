@@ -1,0 +1,86 @@
+{
+  "format": 1,
+  "research": [
+    {
+      "id": "standandhold:parasite_samples",
+      "title": "Initial Sample Analysis",
+      "supply_cost": 10,
+      "unlocks": ["standandhold:sample_analysis"],
+      "reward": {"points": 10}
+    },
+    {
+      "id": "standandhold:field_communications",
+      "title": "Field Communications",
+      "required_stage": 1,
+      "prerequisites": ["standandhold:parasite_samples"],
+      "supply_cost": 20,
+      "unlocks": ["standandhold:outpost_coordination"],
+      "reward": {"points": 20}
+    },
+    {
+      "id": "standandhold:special_division_training",
+      "title": "Special Division Training",
+      "required_stage": 5,
+      "prerequisites": ["standandhold:field_communications"],
+      "supply_cost": 100,
+      "sample_cost": 5,
+      "unlocks": ["standandhold:special_division_deployment"],
+      "reward": {"points": 25}
+    }
+  ],
+  "missions": [
+    {
+      "id": "standandhold:recover_parasite_samples",
+      "title": "Recover Parasite Samples",
+      "objective": "sample_recovery",
+      "target": 3,
+      "reward": {"points": 25, "supplies": 10}
+    },
+    {
+      "id": "standandhold:establish_field_command",
+      "title": "Establish Field Command",
+      "objective": "command_post",
+      "prerequisites": ["standandhold:recover_parasite_samples"],
+      "reward": {"points": 25, "supplies": 10}
+    },
+    {
+      "id": "standandhold:stockpile_supplies",
+      "title": "Stockpile Supplies",
+      "objective": "supply_total",
+      "target": 20,
+      "prerequisites": ["standandhold:establish_field_command"],
+      "reward": {"points": 25}
+    },
+    {
+      "id": "standandhold:complete_first_research",
+      "title": "Complete First Research",
+      "objective": "research_completion",
+      "subject": "standandhold:parasite_samples",
+      "prerequisites": ["standandhold:stockpile_supplies"],
+      "reward": {"points": 25, "supplies": 10}
+    },
+    {
+      "id": "standandhold:early_army_response",
+      "title": "Reach Local Army Response",
+      "objective": "human_stage",
+      "target": 1,
+      "prerequisites": ["standandhold:complete_first_research"],
+      "reward": {"points": 25}
+    },
+    {
+      "id": "standandhold:defend_outpost",
+      "title": "Defend the Outpost",
+      "objective": "outpost_defence",
+      "target": 5,
+      "prerequisites": ["standandhold:early_army_response"],
+      "reward": {"points": 25, "supplies": 10}
+    },
+    {
+      "id": "standandhold:establish_main_base",
+      "title": "Find a Main Base Foundation",
+      "objective": "main_base_discovery",
+      "prerequisites": ["standandhold:defend_outpost"],
+      "reward": {"points": 50, "supplies": 25}
+    }
+  ]
+}

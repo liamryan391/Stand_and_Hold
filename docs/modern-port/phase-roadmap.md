@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M3**; see [STATUS.md](STATUS.md).
+Current position: **Phase M4**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -124,16 +124,16 @@ Exit gate:
 
 Priority: P1
 
-- [ ] **3.1 Define research data.** Add stable IDs, requirements, prerequisites, costs, and unlocks; safely reject duplicate/malformed definitions and cycles.
-- [ ] **3.2 Add supplies and research transactions.**
-  - [ ] **3.2.1** Persist global supply totals and validate all add/spend operations.
-  - [ ] **3.2.2** Check prerequisites and costs before completing research; apply costs, completion, and rewards once on the server.
-  - [ ] **3.2.3** Expose minimal status/list/admin commands; keep physical sample requirements ready for M5.
-- [ ] **3.3 Rebuild small mission definitions and state.**
-  - [ ] **3.3.1** Define a short objective chain that uses planned samples, buildings, research, supplies, and defence hooks.
-  - [ ] **3.3.2** Persist active progress, completion, and reward state; handle unknown IDs without deleting unrelated saves.
-  - [ ] **3.3.3** Add readable list/status/debug commands and meaningful progress feedback without repeated completion rewards or recursive callbacks.
-- [ ] **3.4 Verify foundation data.** Build; test save/reload, insufficient costs, repeated completion, and malformed/missing data. Gameplay hooks are verified when their owning phases land.
+- [x] **3.1 Define research data.** Add stable IDs, requirements, prerequisites, costs, and unlocks; safely reject duplicate/malformed definitions and cycles.
+- [x] **3.2 Add supplies and research transactions.**
+  - [x] **3.2.1** Persist global supply totals and validate all add/spend operations.
+  - [x] **3.2.2** Check prerequisites and costs before completing research; apply costs, completion, and rewards once on the server.
+  - [x] **3.2.3** Expose minimal status/list/admin commands; keep physical sample requirements ready for M5.
+- [x] **3.3 Rebuild small mission definitions and state.**
+  - [x] **3.3.1** Define a short objective chain that uses planned samples, buildings, research, supplies, and defence hooks.
+  - [x] **3.3.2** Persist active progress, completion, and reward state; handle unknown IDs without deleting unrelated saves.
+  - [x] **3.3.3** Add readable list/status/debug commands and meaningful progress feedback without repeated completion rewards or recursive callbacks.
+- [x] **3.4 Verify foundation data.** Build; test save/reload, insufficient costs, repeated completion, and malformed/missing data. Gameplay hooks are verified when their owning phases land.
 
 Exit gate:
 

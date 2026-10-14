@@ -20,7 +20,7 @@ sourceSets {
 }
 tasks.register('progressionTest', JavaExec) {
     group = 'verification'
-    description = 'Checks progression rules and save codecs without extra libraries.'
+    description = 'Checks progression, foundation transactions, definitions, and save codecs without extra libraries.'
     dependsOn tasks.named('progressionTestClasses')
     classpath = sourceSets.progressionTest.runtimeClasspath
     mainClass = 'com.liamryan.standandhold.ProgressionChecks'
