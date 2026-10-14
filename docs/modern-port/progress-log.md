@@ -13,14 +13,16 @@
 
 Task completion is maintained in the [canonical roadmap](phase-roadmap.md). Keep this section as the current handoff rather than a second set of checkboxes.
 
-- Current phase: M1 - Clean NeoForge Scaffold, with the preservation/legacy inventory complete.
+- Current phase: M1 - Clean NeoForge Scaffold, with inventory and the modern documentation/identity transition complete.
 - Completed phase: M0 - Preserve And Decide, including branch preparation and the local-file handoff.
-- **Next: 1.1.2 - preserve modern planning notes and project identity, and move legacy-only documentation references to the 1.12 branch in the modern README.**
+- **Next: 1.1.3 - replace the inventoried legacy implementation/build files with the selected MDK layout, preserving modern notes, project identity, and local files.**
 - Active work branch at handoff: `codex/modern-neoforge-scaffold`, using the existing repository checkout. Modern source/build replacement has not started.
 
 Research `bf44b46`, toolchain/JDK `94efe4d`, setup `af988c6`, scope/policy `da8b1d0`, and review `dbf0de8` are published checkpoints. M0 completion checkpoint title: `docs: complete M0 and prepare modern scaffold branch`, published on `main` and the work branch. Use Git history/live refs and the final session report for its hash. Earlier "local/uncommitted" entries below are historical.
 
 M0 completion is commit `6df4c3f`. The M1 inventory checkpoint is titled `docs: inventory legacy files for the modern scaffold` and is published only on `codex/modern-neoforge-scaffold`; `main` stays at the M0 handoff until the planned verified scaffold merge.
+
+The inventory is published as `4cac6b9`. Documentation transition checkpoint title: `docs: separate modern port guidance from legacy alpha docs`, also on the work branch only. Git history/live refs and the final session report provide its publication hash.
 
 ## 2026-10-07 - Numbered Roadmap And Preflight
 
@@ -136,6 +138,17 @@ M0 completion is commit `6df4c3f`. The M1 inventory checkpoint is titled `docs: 
 - Updated the roadmap with 1.1.1.1-1.1.1.4 and current handoffs to 1.1.2. Final commit/push publishes this inventory only on the work branch, leaving main/preserved refs and local settings intact.
 - Validation passed: exact 199-file manifest coverage/path/blob/mode equality against the baseline tree; valid dispositions/transition owners; 17 documents, 155 local links including heading anchors, 15 phases, 154 unique task IDs, parent/child consistency, thirteen current handoffs, and whitespace checks. Runtime/build/root documentation and the ignored JDK selection have no changes.
 - **Next phase/step: M1 / 1.1.2 - preserve modern planning notes and project identity, and move legacy-only documentation references to the 1.12 branch in the modern README.**
+
+## 2026-10-14 - Step 1.1.2 Complete
+
+- Began from clean `codex/modern-neoforge-scaffold` at `4cac6b9900b67e71273ba0518c97ceb9177d22d5`, matching its GitHub upstream. Fetched refs; preserved branch/tag and main remain at their recorded hashes. Verified all 13 legacy documentation targets exist on `1.12`.
+- Replaced the long legacy root README with modern-port status, retained project identity, selected target pins, development/scope links, and a complete legacy-reference table pointing to `1.12`. The README states that source/build/CI are still legacy until the upcoming file transition and announces no modern release.
+- Rewrote current root known issues around actual preparation/verification gaps with links to archived legacy issues. Added an unnumbered unreleased documentation entry and labelled the unchanged original alpha changelog body as Forge 1.12.2 history.
+- Preserved every modern planning document, the exact baseline manifest, and project values: Stand and Hold / `standandhold` / `com.liamryan.standandhold` / Liam Ryan. Source version remains `0.1.0-alpha.1`; no target/build/script/CI/resource or global Java change was made. Legacy guide files remain unchanged during staging; README readers use their branch copies.
+- Added 1.1.2.1-1.1.2.4 and updated current handoffs to 1.1.3. Parent 1.1 stays open until the implementation file transition. The final commit/push publishes only documentation on the work branch; main/preserved refs and ignored local selection remain unchanged.
+- Validation passed: 19 documents, 142 local links including six heading anchors, all 13 preserved legacy targets, 15 phases, 158 unique task IDs with consistent parent/child states, and 14 current handoffs. All 17 planning files remain present; the original changelog body, ten legacy guides, runtime/build/scripts/CI/control files, manifest, identity/version values, and ignored JDK selection are preserved. Whitespace checks passed.
+- No Gradle build, client, server, or IDE launch was run for this documentation step. Modern build/runtime proof remains M1 / 1.4 work.
+- **Next phase/step: M1 / 1.1.3 - replace the inventoried legacy implementation/build files with the selected MDK layout, preserving modern notes, project identity, and local files.**
 
 ## Session Handoff Format
 

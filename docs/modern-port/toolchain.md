@@ -72,4 +72,4 @@ The [M0 decision review](m0-decision-review.md) has confirmed these decisions an
 
 The [scaffold branch handoff](scaffold-handoff.md) now closes M0 preparation; these pins still await implementation and verification in M1.
 
-**Next: Phase M1, step 1.1.2 - preserve modern planning notes and project identity, and move legacy-only documentation references to the 1.12 branch in the modern README.** The [inventory](legacy-inventory.md) is complete; these pins still await installation/verification.
+**Next: Phase M1, step 1.1.3 - replace the inventoried legacy implementation/build files with the selected MDK layout, preserving modern notes, project identity, and local files.** These pins still await installation/verification.

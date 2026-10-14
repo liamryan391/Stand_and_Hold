@@ -98,4 +98,4 @@ M1 cannot be declared verified solely because dependency metadata exists or a le
 
 Step 0.4 changed documentation only. It installed no dependencies, changed no pins or gameplay, created no work branch, and ran no modern build/game. Step 0.5.1 subsequently [reviewed the consolidated decisions and verified all four published checkpoints](m0-decision-review.md), with no decision correction required. Step 0.5.2 [prepared the work branch and local-file handoff](scaffold-handoff.md), closing M0 preparation before M1 implementation.
 
-**Next: Phase M1, step 1.1.2 - preserve modern planning notes and project identity, and move legacy-only documentation references to the 1.12 branch in the modern README.** Use the completed [legacy inventory](legacy-inventory.md) within this accepted scope.
+**Next: Phase M1, step 1.1.3 - replace the inventoried legacy implementation/build files with the selected MDK layout, preserving modern notes, project identity, and local files.** Use the completed [legacy inventory](legacy-inventory.md) within this accepted scope.

@@ -84,6 +84,6 @@ M1 contains no custom blocks, weapons, units, or recipes. Old resources are not 
 
 Preservation, baseline coverage, proposed dispositions, local-file protection, and document consistency are the verification gates for this step. No build or game launch was run because the runtime/build remains unchanged; modern build/launch verification is scheduled in M1 / 1.4.
 
-Commit this inventory on `codex/modern-neoforge-scaffold` under `docs: inventory legacy files for the modern scaffold`. Push that branch only; `main`, `1.12`, and the alpha tag retain their current refs until their planned later workflows.
+Inventory checkpoint `4cac6b9` was published on `codex/modern-neoforge-scaffold`. Step 1.1.2 subsequently updated the root README/current port issues and labelled changelog history, preserving modern notes/identity and linking legacy guides on `1.12`. The exact manifest remains the original baseline snapshot; runtime/build replacement has not started. `main`, `1.12`, and the alpha tag retain their recorded refs.
 
-**Next: Phase M1, step 1.1.2 - preserve modern planning notes and project identity, and move legacy-only documentation references to the 1.12 branch in the modern README.**
+**Next: Phase M1, step 1.1.3 - replace the inventoried legacy implementation/build files with the selected MDK layout, preserving modern notes, project identity, and local files.**

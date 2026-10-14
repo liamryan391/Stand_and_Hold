@@ -1,6 +1,20 @@
 # Changelog
 
-## 0.1.0-alpha.1 - 2026-05-26
+## Unreleased - Modern NeoForge Port
+
+The modern port is in preparation on `codex/modern-neoforge-scaffold`. No modern release, version bump, or retag is announced by this entry. Existing source/build version values remain `0.1.0-alpha.1`; build and launch proof for the new target is still pending.
+
+### Documentation And Preparation
+
+- Recorded M0 toolchain decisions, phase plan, dependency/save policy, and the prepared work branch.
+- Inventoried the legacy implementation and exact tracked-file transition paths in M1 / 1.1.1.
+- Updated the root README and current port limitations, preserving project identity and routing Forge 1.12.2 installation/gameplay/QA references to the `1.12` branch.
+
+See the [modern progress log](docs/modern-port/progress-log.md) for task results and publication evidence. The entry below records historical Forge 1.12.2 work and validation only.
+
+## 0.1.0-alpha.1 - 2026-05-26 (Forge 1.12.2)
+
+Legacy history retained from the alpha. Its validation and feature list do not describe a tested modern port. The [preserved legacy changelog](https://github.com/liamryan391/Stand_and_Hold/blob/1.12/CHANGELOG.md) remains available with its original context.
 
 Technical foundation alpha for Stand and Hold.
 

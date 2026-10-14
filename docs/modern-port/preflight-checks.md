@@ -52,8 +52,8 @@ Official release and MDK availability checks passed on 2026-10-07. [Release Veri
 
 ## Remaining Gates
 
-1. Phase M1, step 1.1.2: update the modern README/legacy documentation references while preserving notes and identity. M0 and the tracked-file inventory are complete.
-2. Remaining M1 tasks: replace inventoried implementation inputs, configure the pinned build, verify the modern client/server/artifact, then merge the verified scaffold into `main`.
+1. Phase M1, step 1.1.3: replace inventoried implementation/build inputs, preserving modern notes, identity, and local files. M0, inventory, and documentation transition are complete.
+2. Remaining M1 tasks: configure the pinned build, verify the modern client/server/artifact, then merge the verified scaffold into `main`.
 
 ## Follow-Up: Step 0.3.2
 
@@ -97,4 +97,10 @@ On 2026-10-14, refreshed GitHub refs at work-branch baseline `6df4c3fea5a6fa31f2
 
 The only ignored local file remains the saved JDK selection; its hash is preserved. No runtime/build/CI file, version, or Java setting changed. This inventory checkpoint is published only on the work branch, leaving `main` at the M0 handoff. No build or game launch was run.
 
-**Next phase and step: M1 / 1.1.2.**
+## Follow-Up: Step 1.1.2
+
+On 2026-10-14, rewrote the root README for the modern port, explicitly distinguishing the current legacy source/build from the planned target. Project name, mod ID/namespace, package/group, author, and version values are preserved. All ten legacy guides plus the legacy README/known-issues/changelog references now route readers to verified paths on `1.12`; the modern build guide's legacy link follows the same route.
+
+Current root known issues now describe modern preparation gaps, while the changelog retains the original alpha body under a Forge 1.12.2 label and adds an unnumbered unreleased preparation entry. All modern notes and the immutable inventory manifest remain present; legacy guide files and runtime/build/CI/scripts are unmodified. No build/launch was run. The documentation checkpoint is published only on the work branch.
+
+**Next phase and step: M1 / 1.1.3.**

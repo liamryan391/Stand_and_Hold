@@ -6,7 +6,7 @@ Phase M0, step 0.3.4. Documented 2026-10-13. This is a setup/runbook decision, n
 
 | Checkout state | Java and build | Instructions |
 | --- | --- | --- |
-| Current `main`, before M1 replaces the legacy files | Java 8, Forge 1.12.2, Gradle 4.10.3 | Use the existing [legacy build guide](../building.md) and Java 8 helper |
+| Current `main` or work branch, before M1 replaces the legacy files | Java 8, Forge 1.12.2, Gradle 4.10.3 | Use the preserved [legacy build guide](https://github.com/liamryan391/Stand_and_Hold/blob/1.12/docs/building.md) and Java 8 helper |
 | Preserved `1.12` branch | Same legacy toolchain | Keep Java 8; do not apply modern Gradle/IDE settings to it |
 | Modern scaffold, after M1 installs the selected MDK | Java 25, NeoForge 26.3.0.57-beta, Gradle 9.2.1, ModDevGradle 2.0.148 | Use the modern steps below |
 
@@ -138,4 +138,4 @@ Verification passed for all seven PowerShell examples' syntax under PowerShell 7
 
 The accepted [foundation scope and dependency policy](foundation-scope.md) now closes step 0.4. These commands still wait for the actual M1 scaffold.
 
-**Next: Phase M1, step 1.1.2 - preserve modern planning notes and project identity, and move legacy-only documentation references to the 1.12 branch in the modern README.** The [inventory](legacy-inventory.md) is complete; modern command execution follows the actual M1 build replacement.
+**Next: Phase M1, step 1.1.3 - replace the inventoried legacy implementation/build files with the selected MDK layout, preserving modern notes, project identity, and local files.** Modern command execution follows that replacement/configuration.

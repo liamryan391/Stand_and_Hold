@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Update the checklist after each completed step. Commit logical changes and record their commit IDs when committed; record push status separately.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M1, next step 1.1.2**. Phase M0 and the [legacy transition inventory](legacy-inventory.md) in 1.1.1 are complete. The work branch is `codex/modern-neoforge-scaffold`. Modern documentation/file transition and build/runtime verification remain open.
+Current position: **Phase M1, next step 1.1.3**. M0, legacy inventory, and the modern README/identity/documentation transition are complete. The work branch is `codex/modern-neoforge-scaffold`. Implementation/build replacement and modern runtime verification remain open.
 
 ## Priority Scale
 
@@ -80,7 +80,11 @@ Priority: P1
     - [x] **1.1.1.2** Inspect build/wrapper/identity files, both scripts, and both workflows; record current values and transition ownership.
     - [x] **1.1.1.3** Inventory every Java/resource path and identify legacy startup/API/resource coupling and later-phase references.
     - [x] **1.1.1.4** Record exact paths/blob IDs/modes and proposed dispositions; validate completeness, protected local files, and current handoffs before publishing the work branch checkpoint.
-  - [ ] **1.1.2** Preserve modern planning notes and project identity; move legacy-only documentation references to the `1.12` branch in the modern README.
+  - [x] **1.1.2** Preserve modern planning notes and project identity; move legacy-only documentation references to the `1.12` branch in the modern README. Evidence: rewritten root README, labelled changelog history/current port issues, preserved modern notes, and verified legacy documentation paths, 2026-10-14.
+    - [x] **1.1.2.1** Rewrite the root README for the selected modern direction, keeping name, mod ID, package/group, author, and honest preparation status.
+    - [x] **1.1.2.2** Route all ten legacy guides and the legacy README/issue/changelog references to the preserved `1.12` branch.
+    - [x] **1.1.2.3** Preserve changelog history with an explicit Forge 1.12.2 label and separate current port limitations from legacy issue reports.
+    - [x] **1.1.2.4** Verify links, retained planning notes/identity/version, unchanged runtime/local files, and the work-branch publication handoff.
   - [ ] **1.1.3** Replace the inventoried legacy implementation/build files with the chosen MDK layout; leave local worlds and unrelated user files alone.
 - [ ] **1.2 Configure the modern build.**
   - [ ] **1.2.1** Pin the MDK wrapper, Java toolchain, build plugin, Minecraft, and NeoForge versions.
@@ -327,4 +331,4 @@ Exit gate:
 
 ## Immediate Next Step
 
-**Phase M1 - Clean NeoForge Scaffold, step 1.1.2: preserve modern planning notes and project identity, and move legacy-only documentation references to the 1.12 branch in the modern README.** Use the [legacy inventory](legacy-inventory.md) for the documentation/file transition; actual implementation replacement follows in 1.1.3.
+**Phase M1 - Clean NeoForge Scaffold, step 1.1.3: replace the inventoried legacy implementation/build files with the selected MDK layout, preserving modern notes, project identity, and local files.** The [inventory](legacy-inventory.md) and modern README now provide the transition context. Build configuration and actual verification follow the owning M1 tasks.

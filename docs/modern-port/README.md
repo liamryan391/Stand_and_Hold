@@ -16,9 +16,9 @@ M0 selected the exact toolchain, configured local JDK selection, documented Wind
 
 ## Current Position
 
-Phase M0 and M1 / 1.1.1 are complete. [Legacy Transition Inventory](legacy-inventory.md) covers the 199 tracked baseline files and proposed retain/replace actions on `codex/modern-neoforge-scaffold`. Source/build files still contain the Forge 1.12.2 alpha; modern documentation/file transition and build/runtime tests remain outstanding.
+Phase M0 and M1 / 1.1.1-1.1.2 are complete. The [root README](../../README.md) now describes modern preparation and links legacy-only installation/gameplay/QA references to `1.12`. Project identity and all modern planning notes are retained. The [inventory](legacy-inventory.md) covers the upcoming file transition; source/build files still contain the Forge 1.12.2 alpha, and modern build/runtime tests remain outstanding.
 
-**Next: Phase M1, step 1.1.2 - preserve modern planning notes and project identity, and move legacy-only documentation references to the 1.12 branch in the modern README.** See the progress log for completion and publication notes.
+**Next: Phase M1, step 1.1.3 - replace the inventoried legacy implementation/build files with the selected MDK layout, preserving modern notes, project identity, and local files.** See the progress log for completion and publication notes.
 
 ## Why A Clean Modern Port
 

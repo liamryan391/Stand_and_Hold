@@ -22,8 +22,8 @@ Last updated: 2026-10-14
 
 ## Resume Point And Working Rules
 
-- Current phase: M1 - Clean NeoForge Scaffold. M0 and 1.1.1 (preservation/legacy inventory) are complete; documentation/file transition and modern build/IDE/runtime tests remain open.
-- Next step: **1.1.2 - preserve modern planning notes and project identity, and move legacy-only documentation references to the 1.12 branch in the modern README**.
+- Current phase: M1 - Clean NeoForge Scaffold. M0 and 1.1.1-1.1.2 (inventory and modern documentation/identity transition) are complete; implementation/build replacement and modern build/IDE/runtime tests remain open.
+- Next step: **1.1.3 - replace the inventoried legacy implementation/build files with the selected MDK layout, preserving modern notes, project identity, and local files**.
 - The [roadmap](phase-roadmap.md) owns task IDs and checkboxes; the [progress log](progress-log.md) records results and the current next step. Use `1.1`, `1.2`, and deeper IDs such as `1.1.1` for large tasks.
 - Keep these planning files in the project repository. The research checkpoint commit is titled `docs: record modern port roadmap and ecosystem compatibility`; use Git history and remote refs to confirm publication rather than inferring it from a local file's existence.
 - [M0 Decision Review](m0-decision-review.md) verified the published decisions; its checkpoint `dbf0de8` was pushed and became the initial branch-preparation baseline. M0 completion checkpoint title: `docs: complete M0 and prepare modern scaffold branch`, published on `main` and the work branch. Use Git history/live refs and the session result for the final hash. The work branch is prepared; the modern scaffold is not implemented yet.
@@ -32,6 +32,7 @@ Last updated: 2026-10-14
 - Future modern commands are guarded against the legacy checkout. Use the wrapper, Java 25 in both terminal and IDE, and a separate `.gradle-home/modern` cache. Diagnose environment failures before considering a fallback; require a minimal reproduction and maintainer approval before changing target.
 - Local inventory at preparation: no untracked non-ignored files; `.local/modern-jdk.json` is the only ignored file. Its saved JDK metadata is Temurin 25.0.4+7 and required files exist. No runtime worlds, outputs/caches, or external jars are present in this checkout. Retain the local selection and reconsider new files before M1 replacement.
 - [Legacy inventory](legacy-inventory.md) records all 199 tracked files at `6df4c3f`, including 73 Java files, 85 resources, seven build/wrapper files, both scripts/workflows, and retain/archive documentation/control groups. Its manifest includes exact paths/blob IDs/modes; all legacy implementation remains identical to `1.12`. Inventory checkpoint title: `docs: inventory legacy files for the modern scaffold`, published only on the work branch. `main` remains at the M0 handoff.
+- Inventory checkpoint `4cac6b9` is published. Step 1.1.2 rewrites the root README/current port issues, labels legacy changelog history, and routes all 13 legacy documentation targets to `1.12`. Identity remains Stand and Hold / `standandhold` / `com.liamryan.standandhold` / Liam Ryan; source/version values are unchanged. Legacy guide files remain intact until the bounded file transition, and the exact inventory manifest is unchanged. Publication title: `docs: separate modern port guidance from legacy alpha docs`, on the work branch only.
 - Modern build/client/server tests have not been run. Legacy QA results do not prove the modern port works.
 
 ## Verified Release Snapshot
@@ -79,7 +80,7 @@ Stand and Hold should not be "another infection mod." Its identity is the human 
 
 - Version pins, process-local JDK selection, Windows commands, IDE instructions, and fallback procedure are complete. Executing the modern build/IDE/runtime checks requires M1's scaffold, not more version-selection work.
 - The foundation/dependency/save policy is final for M1, with no additional runtime libraries. Step 0.5.1 found no decision corrections and confirmed all decision checkpoints are published.
-- Step 0.5.2 prepared `codex/modern-neoforge-scaffold` from the published baseline and records the reused checkout/local files. M0 preparation is complete. M1 / 1.1.1 now supplies the exact tracked-file inventory; 1.1.2 handles current documentation/identity before 1.1.3 replaces implementation inputs.
+- Step 0.5.2 prepared `codex/modern-neoforge-scaffold` from the published baseline and records the reused checkout/local files. M0 preparation is complete. M1 / 1.1.1 supplies the exact tracked-file inventory, and 1.1.2 has updated current documentation/identity. Step 1.1.3 replaces implementation inputs while retaining all modern notes and local files.
 
 ## Deferred Decisions
 
