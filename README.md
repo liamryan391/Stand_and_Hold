@@ -6,7 +6,7 @@ Stand and Hold is being rebuilt for modern Minecraft as a human military resista
 
 See [STATUS.md](docs/modern-port/STATUS.md) for live port state and the active milestone. Contributor workflow is defined in [AGENTS.md](AGENTS.md).
 
-**A modern NeoForge build is not ready to install yet.** The source, Gradle wrapper, scripts, and CI still contain the Forge 1.12.2 implementation until the upcoming file/build transition. Legacy alpha features and test results do not establish modern feature availability or build/launch success.
+**This branch is a minimal NeoForge scaffold, not a playable port or public release.** Legacy gameplay has been removed from modern compile inputs and remains on `1.12`. Build/launch results are recorded in STATUS.md; legacy alpha results do not establish modern feature availability.
 
 | Branch | Purpose |
 | --- | --- |
@@ -29,7 +29,7 @@ The human-response theme, original project identity, and design lessons carry fo
 
 ## Selected Modern Toolchain
 
-These are the M0-selected pins for the upcoming scaffold, not the current legacy wrapper configuration:
+The modern scaffold uses these selected pins:
 
 | Component | Selected version |
 | --- | --- |
@@ -44,7 +44,7 @@ These are the M0-selected pins for the upcoming scaffold, not the current legacy
 
 ## Development And Planned Scope
 
-Follow the [Windows build and IDE guide](docs/modern-port/building.md). It distinguishes the current Java 8 legacy build from the future Java 25 build and guards modern commands until the new wrapper/layout exists. Build and launch proof is recorded in M1 after that transition.
+Follow the [Windows build and IDE guide](docs/modern-port/building.md) for Java 25 selection, wrapper commands, jar inspection, and separate client/server smoke tests. Java 8 build instructions apply only to the preserved `1.12` branch.
 
 M1 delivers the build foundation, metadata, entry point, logger/config shell, and verification. It adds no gameplay systems or extra runtime libraries. The [foundation policy](docs/modern-port/foundation-scope.md) and [numbered roadmap](docs/modern-port/phase-roadmap.md) define the boundaries.
 

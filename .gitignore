@@ -5,6 +5,7 @@
 build/
 run/
 out/
+bin/
 *.log
 *.iml
 .idea/

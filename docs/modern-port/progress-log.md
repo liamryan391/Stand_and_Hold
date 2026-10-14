@@ -137,3 +137,12 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Verification: `git diff --check` passed; reviewed the documentation-only diff.
 - Not run: Gradle build, client, or server; no code, toolchain, or gameplay changes.
 - Blockers: none for this cleanup; resume is controlled by STATUS.md and Liam's request.
+
+## 2026-10-14 - M1 Scaffold And Launch Verification
+
+- Replaced verified legacy runtime/resources/guides/helper with the pinned official NeoForge MDK scaffold; retained template notices, planning/archive notes, identity, local files, and version 0.1.0-alpha.1.
+- Added the minimal side-safe entry point/logger/config, expanded metadata, isolated run directories, Java 25 CI, and updated build guidance; no gameplay or extra runtime libraries.
+- Verified wrapper 9.2.1 / Java 25.0.4+7; `clean build --no-daemon --stacktrace` passed (8m 43s, then 34s after stdin fix); inspected jar metadata/content and Java 25 bytecode. No unit test sources exist.
+- `runClient` initialized the mod/config; after reopening, Liam reported menu/Mods/fresh-world save/reopen passed. Logs show world entry/save/normal exit; the task finished BUILD SUCCESSFUL (3m 24s).
+- `runServer --no-daemon --stacktrace --console=plain` reached Done on localhost, accepted stop after execution-time stdin forwarding, saved worlds, and exited BUILD SUCCESSFUL; NeoForge dev mode skipped EULA, with no agreement/file written.
+- `git diff --check` passed; remote CI and IDE testing are unobserved. Live remaining verification and publication state belong in STATUS.md.

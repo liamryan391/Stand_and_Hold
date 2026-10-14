@@ -32,7 +32,7 @@ foreach ($file in @($JavaExe, $JavacExe, $ReleaseFile)) {
 # Check metadata before executing --version, which legacy Java 8 does not support.
 $Release = Get-Content -LiteralPath $ReleaseFile -Raw | ConvertFrom-StringData
 if ($Release.JAVA_VERSION -notmatch '^"25(?:[.+-]|")') {
-    throw "Modern builds require Java 25, found $($Release.JAVA_VERSION). Use build-java8.ps1 for the legacy project."
+    throw "Modern builds require Java 25, found $($Release.JAVA_VERSION). Java 8 builds belong to the preserved 1.12 branch."
 }
 if ($Release.OS_ARCH -notin @('"x86_64"', '"amd64"', '"aarch64"')) {
     throw "A 64-bit JDK is required, found $($Release.OS_ARCH)."
@@ -61,4 +61,4 @@ Write-Host "Modern JAVA_HOME: $env:JAVA_HOME"
 $JavaVersion | ForEach-Object { Write-Host $_ }
 $JavacVersion | ForEach-Object { Write-Host $_ }
 Write-Host 'Selected for this PowerShell process only; user/machine Java settings are unchanged.'
-Write-Host 'This script does not run Gradle. Until M1 replaces the legacy build, use build-java8.ps1 to build it.'
+Write-Host 'This script does not run Gradle. Set GRADLE_USER_HOME to .gradle-home/modern, then use the checked-in wrapper.'

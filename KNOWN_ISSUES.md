@@ -1,13 +1,14 @@
 # Known Issues
 
-These notes describe the modern NeoForge port during Phase M1 preparation. The retained `0.1.0-alpha.1` value comes from the legacy alpha; it does not identify a verified modern release.
+These notes describe the minimal modern NeoForge scaffold. The retained `0.1.0-alpha.1` value comes from the legacy alpha; it does not announce a modern release. Live build/launch results are in [STATUS.md](docs/modern-port/STATUS.md).
 
-## Current Port Status
+## Build And Test Limits
 
-- The source, wrapper, helper, and CI transition is still pending. The current files use Forge 1.12.2, Gradle 4.10.3, and Java 8; follow the [build guide's checkout-state instructions](docs/modern-port/building.md) before running anything.
-- The selected NeoForge MDK layout and Java 25 build have not been installed or verified yet. Modern jar metadata, client launch, and dedicated-server readiness checks remain M1 / 1.4 tasks.
-- The existing GitHub build workflow still selects Java 8. Its output is legacy build evidence; modern CI configuration belongs to 1.2.3.
+- Use Java 25 and Gradle 9.2.1 from the modern wrapper, not the legacy Java 8 helper. See [Building](docs/modern-port/building.md).
+- The normal jar retains the legacy filename; inspect `META-INF/neoforge.mods.toml` to avoid confusing incompatible artifacts.
+- Build, client, server, and remote CI evidence are separate gates. A server EULA stop is not a passed launch; Liam must accept it himself.
 - The [selected NeoForge loader](docs/modern-port/toolchain.md) is a beta build. M0 accepted that choice subject to actual build and launch verification.
+- This Windows development launch logged OSHI/Perflib performance-counter warnings and system-report exceptions, then continued through mod initialization and graphics/audio resource loading. Recheck on the installed client/server; these messages alone are not a Stand and Hold crash. No Windows registry changes are made by the project.
 
 ## Foundation Limits
 
@@ -16,13 +17,13 @@ These notes describe the modern NeoForge port during Phase M1 preparation. The r
 - External threat mods remain optional. Legacy SRP mapping/test results do not prove support on the modern Minecraft/NeoForge target. Exact artifacts and IDs need later verification.
 - The modern scaffold starts with the platform/build tooling only; animation, AI libraries, art exports, and optional integrations remain later work.
 
-These are preparation limits and verification gaps, not reports of observed modern runtime crashes.
+These are foundation limits, not reports of observed modern runtime crashes.
 
 ## Legacy Forge 1.12.2 Issues
 
 Use the [preserved legacy known issues](https://github.com/liamryan391/Stand_and_Hold/blob/1.12/KNOWN_ISSUES.md) for Java 8/ForgeGradle errors, historical Actions queue notes, sample/research/mission behavior, NPC art, and save cleanup tests.
 
-The [legacy README](https://github.com/liamryan391/Stand_and_Hold/blob/1.12/README.md) links to the matching installation and gameplay guidance. Local legacy guides remain during staging and are scheduled for retirement from the modern checkout during the file transition; use their preserved branch copies for legacy testing.
+The [legacy README](https://github.com/liamryan391/Stand_and_Hold/blob/1.12/README.md) links to the matching installation and gameplay guidance. Legacy guides have been retired from the modern checkout; use their preserved branch copies for legacy testing.
 
 ## Verification Records
 

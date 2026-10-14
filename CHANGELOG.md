@@ -2,7 +2,14 @@
 
 ## Unreleased - Modern NeoForge Port
 
-The modern port is in preparation on `codex/modern-neoforge-scaffold`. No modern release, version bump, or retag is announced by this entry. Existing source/build version values remain `0.1.0-alpha.1`; build and launch proof for the new target is still pending.
+Modern port work is developed on `codex/modern-neoforge-scaffold`. No modern release, version bump, or retag is announced by this entry. The source/build version remains `0.1.0-alpha.1`; observed verification results are recorded in [STATUS.md](docs/modern-port/STATUS.md).
+
+### Clean NeoForge Scaffold
+
+- Replaced legacy compile/resource inputs with the pinned official MDK layout, preserving the Forge alpha on `1.12` and retaining template notices.
+- Configured Minecraft 26.3, NeoForge 26.3.0.57-beta, Java 25, Gradle 9.2.1 with distribution checksum, ModDevGradle 2.0.148, and Foojay resolver 1.0.0.
+- Added a minimal side-safe entry point, identity constants, startup logger, local config shell, and expanded mod metadata; no gameplay or additional runtime libraries.
+- Separated development client/server directories, enabled server console input for clean stops, and updated Windows Java 25 CI and build instructions.
 
 ### Documentation And Preparation
 

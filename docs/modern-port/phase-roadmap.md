@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M1, step 1.1.3 on hold**; see [STATUS.md](STATUS.md).
+Current position: **Phase M1**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -74,7 +74,7 @@ Exit gate:
 
 Priority: P1
 
-- [ ] **1.1 Prepare the legacy-to-modern file transition on the work branch.**
+- [x] **1.1 Prepare the legacy-to-modern file transition on the work branch.**
   - [x] **1.1.1** Recheck the preserved `1.12` commit and inventory legacy build, source, resource, script, and CI files. Evidence: [Legacy Transition Inventory](legacy-inventory.md) and its 199-file manifest, 2026-10-14; source/build/CI remain unchanged.
     - [x] **1.1.1.1** Refresh refs and verify preserved branch/tag, published work-branch baseline, and unchanged legacy implementation.
     - [x] **1.1.1.2** Inspect build/wrapper/identity files, both scripts, and both workflows; record current values and transition ownership.
@@ -85,16 +85,16 @@ Priority: P1
     - [x] **1.1.2.2** Route all ten legacy guides and the legacy README/issue/changelog references to the preserved `1.12` branch.
     - [x] **1.1.2.3** Preserve changelog history with an explicit Forge 1.12.2 label and separate current port limitations from legacy issue reports.
     - [x] **1.1.2.4** Verify links, retained planning notes/identity/version, unchanged runtime/local files, and the work-branch publication handoff.
-  - [ ] **1.1.3** Replace the inventoried legacy implementation/build files with the chosen MDK layout; leave local worlds and unrelated user files alone.
-- [ ] **1.2 Configure the modern build.**
-  - [ ] **1.2.1** Pin the MDK wrapper, Java toolchain, build plugin, Minecraft, and NeoForge versions.
-  - [ ] **1.2.2** Set `standandhold`, `Stand and Hold`, and `com.liamryan.standandhold`; configure metadata, resource expansion, and run profiles.
-  - [ ] **1.2.3** Update build instructions/helper and CI to use the selected JDK; upload the correct normal mod jar.
-- [ ] **1.3 Add the minimal mod entry point.** Add constants, logger, config shell, and startup logging; keep client initialization separate from common/server code.
-- [ ] **1.4 Verify the scaffold.**
-  - [ ] **1.4.1** Run `./gradlew --version` and `./gradlew clean build --no-daemon --stacktrace` with the chosen JDK (Windows: `.\gradlew.bat`). Inspect jar metadata.
-  - [ ] **1.4.2** Run `runClient`; confirm main menu, Mods list, and a new test world without external threat mods.
-  - [ ] **1.4.3** Run `runServer` in an isolated test directory through readiness and clean shutdown. Record an EULA stop as incomplete launch verification, not a successful server test.
+  - [x] **1.1.3** Replace the inventoried legacy implementation/build files with the chosen MDK layout; leave local worlds and unrelated user files alone.
+- [x] **1.2 Configure the modern build.**
+  - [x] **1.2.1** Pin the MDK wrapper, Java toolchain, build plugin, Minecraft, and NeoForge versions.
+  - [x] **1.2.2** Set `standandhold`, `Stand and Hold`, and `com.liamryan.standandhold`; configure metadata, resource expansion, and run profiles.
+  - [x] **1.2.3** Update build instructions/helper and CI to use the selected JDK; upload the correct normal mod jar.
+- [x] **1.3 Add the minimal mod entry point.** Add constants, logger, config shell, and startup logging; keep client initialization separate from common/server code.
+- [x] **1.4 Verify the scaffold.**
+  - [x] **1.4.1** Run `./gradlew --version` and `./gradlew clean build --no-daemon --stacktrace` with the chosen JDK (Windows: `.\gradlew.bat`). Inspect jar metadata.
+  - [x] **1.4.2** Run `runClient`; confirm main menu, Mods list, and a new test world without external threat mods.
+  - [x] **1.4.3** Run `runServer` in an isolated test directory through readiness and clean shutdown. Record an EULA stop as incomplete launch verification, not a successful server test.
 - [ ] **1.5 Commit the scaffold, merge the verified work into `main`, and record local/CI results and push status.** Confirm `1.12` is unchanged.
 
 Exit gate:
