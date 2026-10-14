@@ -5,13 +5,13 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 ## How To Track Work
 
 - Phase M1 uses steps `1.1`, `1.2`, and so on. A larger step uses `1.1.1`, `1.1.2`, and so on. Phase M0 uses `0.x`.
-- Keep identifiers stable. Append new subtasks when work grows and record scope changes in the progress log.
+- Keep existing identifiers stable. Add a subtask only before work genuinely needs splitting, never retroactively or deeper than `x.y.z`; retain historical task IDs.
 - `[x]` means completed and verified; `[ ]` means outstanding. A parent is complete only when all its subtasks and verification pass.
-- Record active work, blockers, actual test results, and the next exact step in [Progress Log](progress-log.md). Do not mark a build or launch passed without observing it.
-- Update the checklist after each completed step. Commit logical changes and record their commit IDs when committed; record push status separately.
+- Keep live state in [STATUS.md](STATUS.md) and append concise observed results to [Progress Log](progress-log.md), following [AGENTS.md](../../AGENTS.md). Do not mark a build or launch passed without observing it.
+- Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M1, next step 1.1.3**. M0, legacy inventory, and the modern README/identity/documentation transition are complete. The work branch is `codex/modern-neoforge-scaffold`. Implementation/build replacement and modern runtime verification remain open.
+Current position: **Phase M1, step 1.1.3 on hold**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -54,11 +54,11 @@ Priority: P0
     - [x] **0.4.3.3** Require exact artifact/provenance, licence, transitive/side checks, runtime evidence, and maintainer approval for scope exceptions.
   - [x] **0.4.4** Check policy/roadmap consistency, links, unchanged implementation/toolchain, and publication evidence; record the exact handoff.
 - [x] **0.5 Prepare the scaffold handoff.**
-  - [x] **0.5.1** Review the consolidated M0 decisions (pins, setup, scope, dependency/save policy) and confirm their commit/push status separately from the scaffold. Evidence: [M0 Decision Review](m0-decision-review.md), 2026-10-14; decisions required no correction and all four checkpoints are published on `origin/main`.
+  - [x] **0.5.1** Review the consolidated M0 decisions (pins, setup, scope, dependency/save policy) and confirm their commit/push status separately from the scaffold. Evidence: [M0 Decision Review](archive/m0-decision-review.md), 2026-10-14; decisions required no correction and all four checkpoints are published on `origin/main`.
     - [x] **0.5.1.1** Review the canonical decisions and their scope/setup/verification boundaries for consistency.
     - [x] **0.5.1.2** Fetch GitHub and verify checkpoint ancestry, matching main refs, preserved `1.12`/alpha-tag refs, and unchanged legacy implementation.
     - [x] **0.5.1.3** Record review evidence, validate documents/task states, and publish the progress handoff to 0.5.2.
-  - [x] **0.5.2** Recheck remote refs and user changes; prepare `codex/modern-neoforge-scaffold` from the agreed `main` baseline, with a merge back to `main` after verification. Evidence: [Scaffold Branch Handoff](scaffold-handoff.md), 2026-10-14; reused checkout, preserved local files, and published M0 completion checkpoint.
+  - [x] **0.5.2** Recheck remote refs and user changes; prepare `codex/modern-neoforge-scaffold` from the agreed `main` baseline, with a merge back to `main` after verification. Evidence: [Scaffold Branch Handoff](archive/scaffold-handoff.md), 2026-10-14; reused checkout, preserved local files, and published M0 completion checkpoint.
     - [x] **0.5.2.1** Refresh GitHub refs, confirm a clean published baseline, and recheck preserved branch/tag and work-branch availability.
     - [x] **0.5.2.2** Inventory ignored/untracked local files and validate the saved JDK path without moving or deleting user content.
     - [x] **0.5.2.3** Create the requested local work branch from the published baseline and record the reused checkout path.
@@ -328,7 +328,3 @@ Exit gate:
 
 - NeoForge build is stable enough that multi-loader work will not slow core gameplay.
 - The evaluation has a recorded proceed/defer decision; a Fabric release additionally requires working parity checks.
-
-## Immediate Next Step
-
-**Phase M1 - Clean NeoForge Scaffold, step 1.1.3: replace the inventoried legacy implementation/build files with the selected MDK layout, preserving modern notes, project identity, and local files.** The [inventory](legacy-inventory.md) and modern README now provide the transition context. Build configuration and actual verification follow the owning M1 tasks.

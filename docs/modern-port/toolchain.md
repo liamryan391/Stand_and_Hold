@@ -62,14 +62,6 @@ Run the selector in the shell that will run Gradle. Calling it through a separat
 
 ## Verification Boundary
 
-Step 0.3.3 verifies published pins, the installed JDK, and local selector behavior. Modern wrapper `--version`, dependency resolution, `clean build`, client launch, and dedicated-server readiness remain M1 gates. No modern CI/build success is inferred from legacy results.
-
-Step 0.3.4 has now documented [Windows build commands, IDE setup, and the fallback decision rule](building.md); this does not replace M1 build/runtime proof.
-
-Step 0.4 now records the accepted [foundation scope and dependency policy](foundation-scope.md), without changing these pins or adding libraries.
-
-The [M0 decision review](m0-decision-review.md) has confirmed these decisions and their publication.
-
-The [scaffold branch handoff](scaffold-handoff.md) now closes M0 preparation; these pins still await implementation and verification in M1.
-
-**Next: Phase M1, step 1.1.3 - replace the inventoried legacy implementation/build files with the selected MDK layout, preserving modern notes, project identity, and local files.** These pins still await installation/verification.
+Published pins, artifact metadata, and local selector tests do not establish modern build or launch success.
+Require the wrapper JVM, dependency resolution, clean build, client, and dedicated-server evidence defined in
+[Building](building.md) and the [foundation policy](foundation-scope.md). Use [STATUS.md](STATUS.md) for live results.

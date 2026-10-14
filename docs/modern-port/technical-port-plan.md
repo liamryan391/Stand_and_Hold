@@ -4,16 +4,31 @@
 
 - `1.12`: preserved Forge 1.12.2 alpha branch.
 - `main`: modern NeoForge rewrite branch once scaffolding starts.
-- Prepared work branch: `codex/modern-neoforge-scaffold`, using the existing checkout. [Scaffold Branch Handoff](scaffold-handoff.md) records its baseline, local-file inventory, publication route, and active checkout. Merge the verified M1 scaffold into `main`; do not replace the preserved `1.12` branch.
+- Work branch: `codex/modern-neoforge-scaffold`, using the existing checkout. Merge into `main` only after the M1 exit gate has observed evidence. Never commit to, rebase, delete, or force-push `1.12` or the `v0.1.0-alpha.1` tag; never rewrite published history.
 
-Before replacing files on `main`, confirm:
+Before replacing legacy files on the work branch:
 
 - `1.12` exists on GitHub.
 - `git status` is clean.
-- Planning docs are committed separately, with their push status recorded.
+- Planning docs are committed separately; Git history records publication.
 - Local worlds and unrelated user files have been identified and are excluded from the replacement.
 
-Step 1.1.1 records the [legacy transition inventory](legacy-inventory.md) and exact baseline manifest. Step 1.1.2 has updated the modern README/identity and legacy documentation references. Step 1.1.3 replaces the old compile/resource/build inputs while retaining all planning notes and local files. The inventory/documentation steps change no implementation.
+The [legacy transition inventory](legacy-inventory.md) and exact baseline manifest describe the replacement boundaries. Preserve modern notes, archived history, project identity, and local files during that transition. The TSV is an immutable baseline snapshot; archived documentation paths in it are historical, not live navigation.
+
+## Project Identity And Engineering Rules
+
+- Name: Stand and Hold. Mod ID/resource namespace: `standandhold`. Package/group: `com.liamryan.standandhold`. Author: Liam Ryan. Retain version `0.1.0-alpha.1` unless a separately approved release task changes it.
+- The identity is the human response layer: escalation, research, supplies, bases, and defenders against optional world threats. Rebuild the concepts and lessons, not the legacy files verbatim.
+- Never copy another mod's code, assets, models, textures, or internal systems. External mods are design references or optional integrations, not an asset library.
+- Keep common/server logic free of client-only classes; authority for saved state, rewards, missions, bases, and AI decisions stays on the server.
+- Keep builds compiling before adding systems. Bound ticking, queries, and spawn counts; do not add global scans or force-load chunks for cleanup.
+- Retain ignored `.local/modern-jdk.json` and any user files. Before replacement, recheck local content and back up valuable worlds/configs outside the checkout; a preserved branch does not protect ignored files. Use fresh, separate modern worlds; no legacy save/config/NBT conversion.
+- Use the process-local Java selector and isolated modern Gradle cache in [Building](building.md); do not change global Java settings or run the legacy wrapper under Java 25.
+- Start with vanilla AI in M6; consider SmartBrainLib only for a concrete need. Evaluate one animation library in M8 (GeckoLib prototype preference, AzureLib alternative), subject to approval and a fresh artifact/licence check. Fabric follows a stable NeoForge foundation.
+- Optional Undead Nights/Contagion tests follow a working standalone baseline. Published matching artifacts and legacy SRP results do not prove modern runtime compatibility.
+- Liam accepts the Minecraft EULA himself in `run/modern-server/eula.txt`. An EULA stop is not a passed server test.
+
+Workflow, approval boundaries, and evidence rules are in [AGENTS.md](../../AGENTS.md).
 
 ## Target Selection
 
@@ -28,7 +43,7 @@ Fallback target:
 - Minecraft 26.2 is the closest verified alternative with non-beta NeoForge builds. Also retain 26.1.2, 1.21.11, and 1.21.1 for the ecosystem comparison.
 - Step 0.3.2 confirms matching libraries and Undead Nights/Contagion for both 26.3 and 26.2. See [Ecosystem Compatibility](ecosystem-compatibility.md). A non-beta loader label or matching metadata is not proof of modpack runtime compatibility.
 
-Step 0.3.3 is complete. [Selected Modern Toolchain](toolchain.md) owns the pins, rationale, distribution checksum, and immutable MDK snapshot. It deliberately selects loader 26.3.0.57-beta instead of the MDK default 26.3.0.52-beta while retaining the template's plugin/wrapper. Verify that choice with the M1 build; no root legacy Gradle files are changed yet.
+[Selected Modern Toolchain](toolchain.md) owns the pins, rationale, distribution checksum, and immutable MDK snapshot. The decision selects loader 26.3.0.57-beta instead of the MDK default 26.3.0.52-beta while retaining the template's plugin/wrapper. Require build/launch evidence for that combination; pin changes and fallback decisions need Liam's approval.
 
 The ecosystem check supports the selected 26.3 target. If Spore specifically becomes mandatory, 1.21.1 is the verified match and would require an explicit target decision change, not an automatic downgrade.
 
@@ -140,4 +155,4 @@ Every modern phase should answer:
 - Does the feature fail safely with malformed config?
 - Does the feature avoid unbounded scans, ticks, or spawns?
 
-For documentation-only changes, check links, numbered tasks, and `git diff --check`; record that a runtime build was not required/run. For implementation, keep failures or unavailable tests open in the progress log. Complete a phase only when its relevant exit gates have evidence.
+For documentation-only changes, run `git diff --check`; no link/task/handoff counting or runtime build is required. For implementation, record observed commands/results and leave failures or unavailable tests open. Follow [AGENTS.md](../../AGENTS.md) for the concise session record. Complete a phase only when its relevant exit gates have evidence.

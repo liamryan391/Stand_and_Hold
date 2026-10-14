@@ -78,12 +78,10 @@ M1 contains no custom blocks, weapons, units, or recipes. Old resources are not 
 - [build.yml](https://github.com/liamryan391/Stand_and_Hold/blob/6df4c3fea5a6fa31f22589339a4c978b4e6e6d89/.github/workflows/build.yml) runs Windows/Temurin 8 and the legacy wrapper, uploading `build/libs/*.jar`. Convert build JVM/tasks/artifact selection in 1.2.3; current workflow presence does not prove the future scaffold builds.
 - [test-actions.yml](https://github.com/liamryan391/Stand_and_Hold/blob/6df4c3fea5a6fa31f22589339a4c978b4e6e6d89/.github/workflows/test-actions.yml) is an Ubuntu push/manual job that only prints an availability message. It can remain as a repository probe; it does not compile or test the mod.
 - Rewrite the root README for the modern scaffold and point old installation/gameplay instructions at `1.12` in 1.1.2. Keep changelog history labelled as legacy; rewrite current known issues for the actual modern state. The ten old QA/build/mission/SRP/structure guides are historical references, not tests of features available in M1.
-- Preserve every `docs/modern-port/` file, including new inventory/handoff records. This inventory supplies the next documentation/file transition; it does not perform that transition or change the existing CI.
+- Preserve modern notes and archived history during implementation replacement. This immutable manifest describes the original baseline; later documentation moves do not alter its historical paths. The inventory itself performs no file transition or CI change.
 
-## Result And Handoff
+## Inventory Result
 
 Preservation, baseline coverage, proposed dispositions, local-file protection, and document consistency are the verification gates for this step. No build or game launch was run because the runtime/build remains unchanged; modern build/launch verification is scheduled in M1 / 1.4.
 
-Inventory checkpoint `4cac6b9` was published on `codex/modern-neoforge-scaffold`. Step 1.1.2 subsequently updated the root README/current port issues and labelled changelog history, preserving modern notes/identity and linking legacy guides on `1.12`. The exact manifest remains the original baseline snapshot; runtime/build replacement has not started. `main`, `1.12`, and the alpha tag retain their recorded refs.
-
-**Next: Phase M1, step 1.1.3 - replace the inventoried legacy implementation/build files with the selected MDK layout, preserving modern notes, project identity, and local files.**
+Inventory checkpoint `4cac6b9` records the baseline on `codex/modern-neoforge-scaffold`. The exact manifest retains its original paths and blob IDs even when documentation is later archived; it is not a live file list. See [STATUS.md](STATUS.md) for implementation state and [AGENTS.md](../../AGENTS.md) for workflow.

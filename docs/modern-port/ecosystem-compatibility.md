@@ -110,5 +110,3 @@ GeckoLib and AzureLib project metadata list MIT; SmartBrainLib lists MPL-2.0. Ke
 6. Test removal of the optional mod in a backed-up test world, unknown mappings, and server performance. If choosing 1.21.1 for Spore, repeat the same checks with its exact release and manifest dependencies.
 
 None of these runtime checks has been run in this step. Stand and Hold's modern APIs and content must exist first.
-
-**Current next step: Phase M1, step 1.1.3 - replace the inventoried legacy implementation/build files with the selected MDK layout, preserving modern notes, project identity, and local files.** Published ecosystem matches still require runtime testing in later phases.

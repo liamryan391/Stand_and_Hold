@@ -4,7 +4,7 @@ Stand and Hold is being rebuilt for modern Minecraft as a human military resista
 
 ## Development Status
 
-The modern port is in **Phase M1 - Clean NeoForge Scaffold**, on `codex/modern-neoforge-scaffold`. M0 decisions, repository preparation, and the legacy-file inventory are complete; this step updates documentation and preserves project identity.
+See [STATUS.md](docs/modern-port/STATUS.md) for live port state and the active milestone. Contributor workflow is defined in [AGENTS.md](AGENTS.md).
 
 **A modern NeoForge build is not ready to install yet.** The source, Gradle wrapper, scripts, and CI still contain the Forge 1.12.2 implementation until the upcoming file/build transition. Legacy alpha features and test results do not establish modern feature availability or build/launch success.
 
@@ -58,7 +58,7 @@ Progress and decisions are tracked in this repository:
 
 - [Modern port index](docs/modern-port/README.md)
 - [Phase roadmap and task checkboxes](docs/modern-port/phase-roadmap.md)
-- [Project memory](docs/modern-port/project-memory.md)
+- [Status](docs/modern-port/STATUS.md)
 - [Progress log and publication checkpoints](docs/modern-port/progress-log.md)
 - [Technical plan](docs/modern-port/technical-port-plan.md)
 - [Legacy transition inventory and exact file manifest](docs/modern-port/legacy-inventory.md)
@@ -84,7 +84,3 @@ Use the preserved `1.12` branch for the existing alpha, its Java 8 build, and it
 | Release process | [Legacy release checklist](https://github.com/liamryan391/Stand_and_Hold/blob/1.12/docs/release-checklist.md) |
 | Known issues | [Legacy issue notes](https://github.com/liamryan391/Stand_and_Hold/blob/1.12/KNOWN_ISSUES.md) |
 | Alpha changelog | [Legacy changelog](https://github.com/liamryan391/Stand_and_Hold/blob/1.12/CHANGELOG.md) |
-
-## Next Step
-
-**Phase M1, step 1.1.3 - replace the inventoried legacy implementation/build files with the selected MDK layout, preserving modern notes, project identity, and local files.**

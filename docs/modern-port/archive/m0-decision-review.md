@@ -1,19 +1,21 @@
 # M0 Decision Review
 
+Archived reference, 2026-10-14. This is historical evidence, not an operational handoff. Use [STATUS.md](../STATUS.md) and [AGENTS.md](../../../AGENTS.md) for live workflow.
+
 Phase M0, step 0.5.1. Reviewed 2026-10-14. Result: **complete**. The toolchain, setup, scope, and dependency/save decisions are consistent and published. Subsequent branch preparation is recorded in [Scaffold Branch Handoff](scaffold-handoff.md).
 
 ## Consolidated Decisions
 
 | Decision | Accepted result | Owning document |
 | --- | --- | --- |
-| Toolchain | Minecraft 26.3, NeoForge 26.3.0.57-beta, Java 25 (local baseline Temurin 25.0.4+7), Gradle 9.2.1, ModDevGradle 2.0.148, Foojay resolver 1.0.0 | [Toolchain](toolchain.md), including MDK commit/checksum |
-| Loader status | Beta-loader risk accepted for the scaffold; actual build/launch evidence remains required in M1 | [Toolchain](toolchain.md) |
-| Windows/IDE setup | Explicit Java 25 selection for modern work, reviewed wrapper commands, IDE JVM settings, and separate modern caches/run directories | [Building](building.md) |
-| Failure handling | Diagnose environment/scaffold failures and reproduce the minimal template before proposing a coherent fallback | [Building](building.md#fallback-decision-rule) |
-| M1 scope | Minimal entry point/logger/config shell, identity/metadata, build/CI support, and launch verification | [Foundation policy](foundation-scope.md) |
-| Dependencies | Platform/build tooling only in M1; no added runtime library or approved exception. AI/animation evaluation stays in later phases; threat mods remain optional | [Foundation policy](foundation-scope.md) |
-| Saves and local files | Separate modern worlds; no legacy world/config/NBT conversion. Preserve ignored local files separately from Git history | [Foundation policy](foundation-scope.md#saves-and-local-files) |
-| Implementation route | Prepare `codex/modern-neoforge-scaffold`, inventory and replace legacy implementation in M1, then merge verified work into `main` | [Technical plan](technical-port-plan.md) and [Roadmap](phase-roadmap.md) |
+| Toolchain | Minecraft 26.3, NeoForge 26.3.0.57-beta, Java 25 (local baseline Temurin 25.0.4+7), Gradle 9.2.1, ModDevGradle 2.0.148, Foojay resolver 1.0.0 | [Toolchain](../toolchain.md), including MDK commit/checksum |
+| Loader status | Beta-loader risk accepted for the scaffold; actual build/launch evidence remains required in M1 | [Toolchain](../toolchain.md) |
+| Windows/IDE setup | Explicit Java 25 selection for modern work, reviewed wrapper commands, IDE JVM settings, and separate modern caches/run directories | [Building](../building.md) |
+| Failure handling | Diagnose environment/scaffold failures and reproduce the minimal template before proposing a coherent fallback | [Building](../building.md#fallback-decision-rule) |
+| M1 scope | Minimal entry point/logger/config shell, identity/metadata, build/CI support, and launch verification | [Foundation policy](../foundation-scope.md) |
+| Dependencies | Platform/build tooling only in M1; no added runtime library or approved exception. AI/animation evaluation stays in later phases; threat mods remain optional | [Foundation policy](../foundation-scope.md) |
+| Saves and local files | Separate modern worlds; no legacy world/config/NBT conversion. Preserve ignored local files separately from Git history | [Foundation policy](../foundation-scope.md#saves-and-local-files) |
+| Implementation route | Prepare `codex/modern-neoforge-scaffold`, inventory and replace legacy implementation in M1, then merge verified work into `main` | [Technical plan](../technical-port-plan.md) and [Roadmap](../phase-roadmap.md) |
 
 No decision correction, version change, or new dependency was needed. Deferred library choices and future gameplay are recorded in their owning phases and do not block branch preparation. Research reports retain their dated evidence; this review does not refresh release availability or claim a tested mod combination.
 
@@ -36,9 +38,3 @@ Existing commits satisfy publication of the decisions. This review adds only its
 - Local and remote `v0.1.0-alpha.1` tag refs match `28fd40a81a50ea2f2382489e60d9015b4725cc92`.
 - The initial working tree was clean. Source, legacy build files/wrapper, CI, and the Java 8 helper have no differences from the preserved branch. M0 additions remain planning documents, the modern Java selector, and its ignore rule.
 - Modern Gradle/build, jar, IDE, client, and dedicated-server checks remain outstanding in M1. The current root project remains Forge 1.12.2 / Java 8; no modern build or launch was run during this review.
-
-## Handoff
-
-This review created no branch or scaffold. Step 0.5.2 subsequently prepared `codex/modern-neoforge-scaffold`; [Scaffold Branch Handoff](scaffold-handoff.md) records its baseline, checkout path, local files, and publication route. Legacy file replacement belongs to M1's inventory/transition steps.
-
-**Next: Phase M1, step 1.1.3 - replace the inventoried legacy implementation/build files with the selected MDK layout, preserving modern notes, project identity, and local files.** The subsequent inventory/documentation steps are complete.

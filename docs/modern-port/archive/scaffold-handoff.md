@@ -1,6 +1,8 @@
 # Scaffold Branch Handoff
 
-Phase M0, step 0.5.2, 2026-10-14. M0 preparation and the subsequent M1 inventory/documentation tasks are complete; the next task is 1.1.3, the actual file transition.
+Archived reference, 2026-10-14. This is historical evidence, not an operational handoff. Use [STATUS.md](../STATUS.md) and [AGENTS.md](../../../AGENTS.md) for live workflow.
+
+Phase M0, step 0.5.2, 2026-10-14. Snapshot of branch preparation and the local-file inventory.
 
 ## Branch And Checkout
 
@@ -15,7 +17,7 @@ Phase M0, step 0.5.2, 2026-10-14. M0 preparation and the subsequent M1 inventory
 
 The branch was created locally from the verified published baseline. The completion record is committed on `main`; the work branch then advances to that same commit with a fast-forward-only merge and is pushed with its own upstream. No implementation commit is merged into `main` here. Use Git history/live refs and the final session report for the checkpoint hash and publication confirmation.
 
-Subsequent M1 commits belong on the work branch. Merge the scaffold into `main` after the [roadmap's build/runtime verification](phase-roadmap.md) is recorded. The current source and wrapper still target Forge 1.12.2/Java 8 until the planned M1 replacement.
+Subsequent M1 commits belong on the work branch. Merge the scaffold into `main` after the [roadmap's build/runtime verification](../phase-roadmap.md) is recorded. The current source and wrapper still target Forge 1.12.2/Java 8 until the planned M1 replacement.
 
 ## Preservation Checks
 
@@ -37,12 +39,4 @@ This inventory covers the repository checkout only, not worlds or installations 
 | Generated outputs/caches | `build/`, `out/`, `.gradle/`, `.gradle-home/`, `.jdks/` absent |
 | External jars/IDE output | `libs/`, `.idea/`, `eclipse/` absent |
 
-No local file was removed, moved, or copied during preparation. Verify the ignored JDK configuration's content hash remains unchanged across the final branch switch. Any new local files or worlds added after this snapshot must be considered again before M1 replaces tracked files. The [foundation save/local-file policy](foundation-scope.md#saves-and-local-files) remains applicable.
-
-## M1 Starting Point
-
-Step 1.1.1 has [inventoried the legacy build/source/resources/scripts/CI](legacy-inventory.md) and rechecked the preserved refs. Step 1.1.2 has updated modern guidance/legacy reference links and retained project identity. Preserve the modern planning notes and existing local selection during 1.1.3's file transition; step 1.2 configures the [selected toolchain](toolchain.md). Modern build/run commands remain behind that replacement in [Building](building.md).
-
-Branch preparation is verified with refs/upstream/clean status, documentation checks, unchanged legacy implementation, and local-file preservation. No Gradle build, client, or server launch was run during M0 completion; these are M1 verification tasks.
-
-**Next: Phase M1, step 1.1.3 - replace the inventoried legacy implementation/build files with the selected MDK layout, preserving modern notes, project identity, and local files.**
+No local file was removed, moved, or copied during preparation. Verify the ignored JDK configuration's content hash remains unchanged across the final branch switch. Any new local files or worlds added after this snapshot must be considered again before M1 replaces tracked files. The [foundation save/local-file policy](../foundation-scope.md#saves-and-local-files) remains applicable.

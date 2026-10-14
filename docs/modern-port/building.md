@@ -128,14 +128,10 @@ The selected target remains 26.3. **A failed command alone is not a reason to do
 3. For a build or baseline launch failure, reproduce using the recorded official MDK snapshot and selected pins in an isolated scratch project with no optional mods. Preserve the main checkout and logs. If the clean template works, fix Stand and Hold's scaffold/configuration. If only an optional library/mod fails, defer that integration before reconsidering Minecraft.
 4. Consider a target fallback only for a reproducible toolchain/loader blocker in the minimal template that cannot be resolved by a small verified fix, or an explicitly essential dependency unavailable on 26.3. Check official issue/release evidence. A newly published version is a separate reviewed pin update, not an automatic fix.
 5. Propose the reason and test evidence to the maintainer before changing target. First candidate: **Minecraft 26.2 / NeoForge 26.2.0.88**, Java 25, Gradle 9.2.1, ModDevGradle 2.0.148, from the [verified 26.2 MDK snapshot](release-verification.md). Recheck artifact availability and dependency ranges when invoking the fallback; keep the whole toolchain coherent. Reconsider 1.21.1/Java 21 only if a specific requirement such as Spore makes it necessary, not as the default fallback.
-6. After approval, update [toolchain.md](toolchain.md), memory, logs, wrapper/checksum, metadata ranges, build/CI pins, and test instructions together on the scaffold work branch. Repeat M1 clean build, client, and dedicated-server gates. Do not modify `1.12` or claim that a non-beta label proves runtime compatibility.
+6. After approval, update [toolchain.md](toolchain.md), STATUS.md, logs, wrapper/checksum, metadata ranges, build/CI pins, and test instructions together on the scaffold work branch. Repeat M1 clean build, client, and dedicated-server gates. Do not modify `1.12` or claim that a non-beta label proves runtime compatibility.
 
-## Evidence And Handoff
+## Instruction Verification
 
 Modern Gradle execution, artifact inspection, IDE sync/build, client, and server tests remain **not run** at this step. M0 verifies the instructions, local selector, and safe rejection of the legacy checkout, not a modern mod build.
 
 Verification passed for all seven PowerShell examples' syntax under PowerShell 7.6.5 and Windows PowerShell 5.1. The preparation guard was executed against the legacy checkout and rejected it before changing Java/cache settings or running Gradle. The saved Java 25 selection and documentation links/task consistency were also checked. Build/run examples were not executed past that guard.
-
-The accepted [foundation scope and dependency policy](foundation-scope.md) now closes step 0.4. These commands still wait for the actual M1 scaffold.
-
-**Next: Phase M1, step 1.1.3 - replace the inventoried legacy implementation/build files with the selected MDK layout, preserving modern notes, project identity, and local files.** Modern command execution follows that replacement/configuration.
