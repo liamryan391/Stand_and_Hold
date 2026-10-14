@@ -158,6 +158,7 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 
 ## 2026-10-14 - M3 Research, Supplies, And Missions
 
-- Added bounded JSON research/mission definitions and validation without new runtime dependencies or pin/version changes.
-- `clean build --no-daemon --stacktrace` passed: 50 progression and 20 definition assertions; M3 runtime verification has not run yet.
-- Transactions, persistence, mission commands, CI/publication, and remaining verification are in progress; live milestone is in STATUS.md. Legacy refs/local files remain untouched.
+- Added bounded JSON definitions, atomic supplies/research, schema 2 migration, persistent missions/receipts, and commands without new runtime dependencies or pin/version changes.
+- `clean build --no-daemon --stacktrace` passed: 50 progression and 96 foundation assertions; jar metadata/resources/test exclusion were checked.
+- Three dedicated `runServer` runs reached Done/stopped cleanly; partial/full missions, supplies, research, cross-dimension state, once-only rewards, and restart passed (chain 250/55; later QA override 251/54).
+- Live datapack override/reload, cyclic/malformed rejection without spending, and safe default restoration passed; an atomic-start fix passes `build` with 148 assertions. Client resources loaded; final clean/visual checks/CI/publication remain in STATUS.md. Legacy refs/local files remain untouched.

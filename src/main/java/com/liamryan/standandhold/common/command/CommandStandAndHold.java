@@ -25,7 +25,7 @@ public final class CommandStandAndHold {
     }
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("standandhold")
+        var root = Commands.literal("standandhold")
                 .executes(context -> status(context.getSource()))
                 .then(Commands.literal("status").executes(context -> status(context.getSource())))
                 .then(Commands.literal("addpoints")
@@ -39,7 +39,9 @@ public final class CommandStandAndHold {
                         .then(Commands.argument("stage", IntegerArgumentType.integer(0, 6))
                                 .executes(context -> respond(context.getSource(),
                                         () -> HumanPointManager.setStage(context.getSource().getServer(),
-                                                HumanStage.fromLevel(IntegerArgumentType.getInteger(context, "stage"))), true)))));
+                                                HumanStage.fromLevel(IntegerArgumentType.getInteger(context, "stage"))), true))));
+        CommandFoundation.addChildren(root);
+        dispatcher.register(root);
     }
 
     private static int status(CommandSourceStack source) throws CommandSyntaxException {

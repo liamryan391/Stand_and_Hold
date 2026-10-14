@@ -12,7 +12,9 @@ These notes describe the modern NeoForge foundation. The retained `0.1.0-alpha.1
 
 ## Foundation Limits
 
-- Human progression currently has commands and persistence only; no automatic point sources or stage-gated content. Research, buildings, NPCs, equipment, structures, and events remain planned. Their presence in legacy source/docs is not modern feature completion.
+- Human progression, supplies, research, and missions have command/persistence foundations only. Physical point sources, buildings, samples, NPCs, equipment, structures, and events remain planned. Their presence in legacy source/docs is not modern feature completion.
+- Physical mission objectives have definitions/debug progress only. Supply/research/stage objectives are checked by explicit commands, not continuously. Nonzero research sample costs block safely until M5; no sample items or virtual sample currency are added. See [Foundation Data](docs/modern-port/foundation-data.md) for commands and limits.
+- Schema 2 preserves unknown research/mission IDs and receipts. Malformed or missing current-schema receipt maps refuse access instead of silently resetting completion; keep backups, since lost/corrupt reward history cannot safely be reconstructed.
 - Progression schema hooks normalize missing/malformed fields and preserve unknown fields, but cannot recover a physically corrupt save file. Newer schemas refuse progression access; restore a compatible mod/backup. See [save contract and tests](docs/modern-port/progression.md).
 - Legacy worlds, saved NBT, and configs have no supported conversion path in the foundation. Use separate modern test worlds and retain valuable legacy saves outside the checkout.
 - External threat mods remain optional. Legacy SRP mapping/test results do not prove support on the modern Minecraft/NeoForge target. Exact artifacts and IDs need later verification.

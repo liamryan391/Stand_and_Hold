@@ -57,7 +57,7 @@ public final class ProgressionChecks {
         old.putInt("stage", 1);
         old.putString("future_field", "keep me");
         HumanWorldData migrated = decode(old);
-        check(migrated.dataVersion() == 1 && migrated.points() == 321, "version zero migration keeps points");
+        check(migrated.dataVersion() == HumanWorldData.CURRENT_VERSION && migrated.points() == 321, "version zero migration keeps points");
         check(migrated.isDirty(), "migration dirty");
         check(encode(migrated).getStringOr("future_field", "").equals("keep me"), "unknown field retained");
         migrated.setDirty(false);
@@ -80,7 +80,7 @@ public final class ProgressionChecks {
         check(reloaded.isDirty(), "stage-only repair dirty");
 
         HumanWorldData empty = decode(new CompoundTag());
-        check(empty.points() == 0 && empty.stage() == HumanStage.SURVIVORS && empty.dataVersion() == 1,
+        check(empty.points() == 0 && empty.stage() == HumanStage.SURVIVORS && empty.dataVersion() == HumanWorldData.CURRENT_VERSION,
                 "missing fields default safely");
         CompoundTag malformed = new CompoundTag();
         malformed.putString("data_version", "bad");
@@ -93,7 +93,7 @@ public final class ProgressionChecks {
         check(decode(malformed).points() == 0, "negative saved points");
 
         CompoundTag future = encode(migrated);
-        future.putInt("data_version", 2);
+        future.putInt("data_version", HumanWorldData.CURRENT_VERSION + 1);
         future.putString("newer_system", "must not lose this");
         HumanWorldData unsupported = decode(future);
         check(!unsupported.isDirty(), "future schema not dirty");

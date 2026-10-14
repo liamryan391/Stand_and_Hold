@@ -11,6 +11,13 @@ Modern port work uses one phase branch at a time, merged into `main` after verif
 - Added public status and operator-only addpoints/setstage commands with invalid-input and overflow handling.
 - Added dependency-free threshold/NBT regression checks to the build and documented modern progression commands, config, save contract, and runtime tests; no automatic rewards or extra runtime libraries.
 
+### Research, Supplies, And Missions Foundation
+
+- Added bounded JSON research/mission definitions with stable IDs, prerequisite/cycle validation, capability unlocks, and optional server datapack overrides.
+- Extended modern saves to schema 2 with global supplies, research completion, mission progress, and once-only reward receipts; retained modern schema 0/1 data and unknown IDs/fields.
+- Added atomic supply/research/mission operations and public inspection/operator debug commands. Overflow, insufficient costs, repeated completion, and malformed receipts fail safely.
+- Added a seven-objective alpha mission chain; existing supply/research/stage state is observable now, while physical sample/building/defence hooks remain with their owning phases. No runtime library, tick handler, or physical gameplay feature is added.
+
 ### Clean NeoForge Scaffold
 
 - Replaced legacy compile/resource inputs with the pinned official MDK layout, preserving the Forge alpha on `1.12` and retaining template notices.
