@@ -18,7 +18,7 @@ For the pinned Minecraft 26.3 target, a test pack at `<world>/datapacks/my-found
 
 Use `/datapack list` to check activation after `/reload`; `/datapack enable "file/my-foundation-pack"` enables it if needed. `/datapack disable "file/my-foundation-pack"` restores lower-priority/default definitions without deleting the pack or saved receipts. This is a whole-file override, not an additive merge of individual entries.
 
-The catalog is an immutable snapshot resolved once per foundation command through the server resource manager. There is no static world cache, directory scan, tick handler, or client-side definition authority. It is limited to 64 KiB and 64 entries in each list; repeated automated gameplay hooks will need a server reload-owned snapshot in their owning phase rather than loading JSON each tick.
+The catalog is an immutable snapshot owned by the server's reloadable resources, prepared once per reload and shared by commands/buildings. There is no static world cache, directory scan, per-tick JSON parsing, or client-side definition authority. It is limited to 64 KiB and 64 entries in each list. Invalid definitions pause affected operations; close/reopen building menus after `/reload`.
 
 - IDs are lower-case namespaced strings, at most 128 characters. Commands accept short IDs in the `standandhold` namespace. Keep published IDs stable.
 - Research fields: `id`, `title`, `required_stage` (0-6), `prerequisites`, `supply_cost`, `sample_cost`, `reward` (`points`, `supplies`), and `unlocks` (capability IDs for later systems).
@@ -40,7 +40,7 @@ Research spends supplies, not human progression points. Stage and prerequisite r
 | `field_communications` | 1 | `parasite_samples` | 20 / 0 | 20 points | `outpost_coordination` |
 | `special_division_training` | 5 | `field_communications` | 100 / 5 | 25 points | `special_division_deployment` |
 
-Physical samples are not implemented until M5. Any entry with a nonzero sample cost safely refuses completion before charging anything; there is no virtual sample balance or admin bypass. Initial Sample Analysis deliberately costs zero physical samples so the foundation can be tested independently. It is not a final gameplay balance.
+Physical samples are not implemented until M5. Any entry with a nonzero sample cost safely refuses command completion before charging anything. Buildings have bounded saved sample storage for the future insertion API, but no obtainable sample item/admin insertion command. Initial Sample Analysis deliberately costs zero physical samples so the foundation can be tested independently. It is not a final gameplay balance. [Labs](buildings.md) spend local supplies after timed work; commands spend global supplies immediately. Both share the same once-only research receipt.
 
 ## Mission State And Feedback
 
@@ -56,9 +56,9 @@ Missions are global cooperative objectives, not per-player quests. They must be 
 | `defend_outpost` | Outpost defence / 5 | Early army | 25 / 10 |
 | `establish_main_base` | Main base discovery / 1 | Defence | 50 / 25 |
 
-Supply totals, research completion, and human stage can be observed now: checked on mission start, `/mission status`, and successful supply/research mutation commands. Progress is monotonic. Stage mutations are observed at the next mission status check. These bounded checks run only on explicit commands, not every tick. No global scans, automatic campaign, or recursive reward callbacks are added.
+Supply totals, research completion, human stage, and registered Command Posts can be observed now: checked on mission start, `/mission status`, successful supply/research mutation commands, post registration, and bounded building transactions/intervals. Progress is monotonic. Stage mutations are observed at the next such refresh. No global scans, automatic campaign, per-tick mission checks, or recursive reward callbacks are added.
 
-Physical sample recovery, command post placement, outpost defence, and base discovery have definitions/debug progress only. Their real gameplay hooks arrive in their owning phases. `mission progress` and `mission complete` are explicit operator test overrides, not claims that those activities already exist. Feedback is sent by the invoking command only, with reward messages only for a new completion.
+Physical sample recovery, outpost defence, and base discovery still have definitions/debug progress only. Their real gameplay hooks arrive in their owning phases. `mission progress` and `mission complete` are explicit operator test overrides, not claims that those activities already exist. Command Post registration is a real building hook; silent interval refreshes never spam chat. Command feedback reports rewards only for a new completion.
 
 ## Commands
 
@@ -83,7 +83,7 @@ Short IDs in the table above and their full `standandhold:` forms both work. Unk
 
 ## Saved Data
 
-Modern schema 2 extends `<world>/data/standandhold/human_progression.dat` with `supplies`, `research`, and `missions` compounds. The same server-global owner is used in every dimension. Version 0/1 modern saves retain points, stage, and unknown fields, with empty new state. No legacy save import is added.
+Modern schema 3 stores `<world>/data/standandhold/human_progression.dat` with `supplies`, `research`, `missions`, and dimension-aware `command_posts` compounds. The same server-global owner is used in every dimension. Version 0-2 modern saves retain progression, receipts, and unknown fields, with empty newly introduced state. No legacy save import is added.
 
 Research entries store `completed` and `rewarded` flags. Mission entries also store `progress`. A receipt and its balance changes are committed together. Either historical completion/reward flag is conservatively treated as claimed, preventing uncertain old rewards being regranted. Missing fields in an existing mission entry default safely; invalid progress/flags or invalid map types refuse that entry/map rather than silently resetting it. A current-schema missing receipt map also refuses access, since prior rewards cannot safely be inferred.
 
