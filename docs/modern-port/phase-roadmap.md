@@ -155,7 +155,7 @@ Priority: P1
   - [x] **4.3.1** Display progression, research requirements, storage, and blocked/completed states clearly.
   - [x] **4.3.2** Validate player distance, dimension, block entity, active menu, and action values; change state on the server thread and sync only needed data.
   - [x] **4.3.3** Keep client screen/render classes out of dedicated-server initialization.
-- [ ] **4.4 Verify buildings.** Build; test placement/removal, unload/reload, GUI reopen, two-player transfers, rejected remote actions, and research/mission hooks.
+- [x] **4.4 Verify buildings.** Build; test placement/removal, unload/reload, GUI reopen, two-player transfers, rejected remote actions, and research/mission hooks. Local/runtime and Liam's integrated exit checks passed; competing transactions and packet guards were checked, but actual two-client/network-fuzz coverage remains explicitly unverified in STATUS.md and the buildings QA recipe.
 
 Exit gate:
 

@@ -66,8 +66,7 @@ public final class MissionManager {
             case SUPPLY_TOTAL -> data.supplies();
             case RESEARCH_COMPLETION -> data.isResearchComplete(mission.subject()) ? 1 : 0;
             case HUMAN_STAGE -> ProgressionRules.stageFor(data.points(), thresholds).level();
-            case COMMAND_POST -> data.commandPostKeys().stream().anyMatch(key ->
-                    com.liamryan.standandhold.common.building.BuildingPosition.parse(key).isPresent()) ? 1 : 0;
+            case COMMAND_POST -> data.hasCommandPosts() ? 1 : 0;
             default -> 0; // Physical gameplay hooks belong to the sample/building/defence phases.
         };
     }

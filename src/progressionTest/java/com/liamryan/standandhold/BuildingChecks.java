@@ -5,6 +5,8 @@ import com.liamryan.standandhold.common.building.BuildingState;
 import com.liamryan.standandhold.common.building.BuildingTransactions;
 import com.liamryan.standandhold.common.building.MenuValues;
 import com.liamryan.standandhold.common.mission.MissionManager;
+import com.liamryan.standandhold.common.foundation.FoundationReward;
+import com.liamryan.standandhold.common.research.ResearchEntry;
 import com.liamryan.standandhold.common.progression.HumanStage;
 import com.liamryan.standandhold.common.progression.ProgressionRules;
 import com.liamryan.standandhold.common.world.HumanWorldData;
@@ -75,6 +77,17 @@ final class BuildingChecks {
         var overflow = new HumanWorldData(); overflow.setProgression(Long.MAX_VALUE, HumanStage.MAIN_BASE_COUNTER_OFFENSIVE);
         expect(() -> BuildingTransactions.finishResearch(ready, overflow, first, thresholds, 12));
         check(!overflow.isResearchComplete(first.id()) && ready.supplies() == 10, "overflow before receipt/cost leaves both unchanged");
+        var sampled = new ResearchEntry("standandhold:sample_api_test", "Sample API Test", 0, List.of(), 10, 2,
+                new FoundationReward(1, 0), List.of());
+        var sampledState = BuildingState.EMPTY.supplies(10).target(sampled.id()).work(2);
+        var sampledData = new HumanWorldData();
+        expect(() -> BuildingTransactions.finishResearch(sampledState, sampledData, sampled, thresholds, 2));
+        check(sampledData.points() == 0 && !sampledData.isResearchComplete(sampled.id()), "missing samples cannot partially charge local/global state");
+        var sampledFinish = BuildingTransactions.finishResearch(sampledState.insertSamples(2), sampledData, sampled, thresholds, 2);
+        check(sampledFinish.samples() == 0 && sampledFinish.supplies() == 0 && sampledData.points() == 1, "bounded sample path consumes exact local costs once");
+        var sampleUpgrade = new BuildingTransactions.Upgrade(0, 10, 2, "");
+        expect(() -> BuildingTransactions.upgrade(ready, data, sampleUpgrade));
+        check(BuildingTransactions.upgrade(ready.insertSamples(2), data, sampleUpgrade).samples() == 0, "upgrade consumes required sample count");
     }
     private static void savesAndPositions() throws Exception {
         var original = new BuildingState(3, 321, 7, "standandhold:parasite_samples", 8);
@@ -93,11 +106,17 @@ final class BuildingChecks {
             check(BuildingPosition.parse(bad).isEmpty(), "malformed/out-of-bounds position skipped: " + bad);
         }
         var data = new HumanWorldData();
+        check(!data.hasCommandPosts(), "empty registry is not a mission objective");
         check(data.registerCommandPost(position), "first registration changes data"); data.setDirty(false);
+        check(data.hasCommandPosts() && !data.isDirty(), "bounded unsorted mission observation is read-only");
         check(!data.registerCommandPost(position) && !data.isDirty(), "repeat load/registration does not dirty");
         CompoundTag saved = (CompoundTag) HumanWorldData.CODEC.encodeStart(NbtOps.INSTANCE, data).getOrThrow();
         var restored = HumanWorldData.CODEC.parse(NbtOps.INSTANCE, saved).getOrThrow();
         check(restored.commandPostKeys().equals(List.of(key)), "global registry survives reload");
+        var nether = BuildingPosition.parse("minecraft:the_nether@1,64,-1").orElseThrow();
+        restored.registerCommandPost(nether);
+        check(restored.commandPostKeys().size() == 2, "same coordinates in different dimensions do not collide");
+        restored.removeCommandPost(nether.key());
         restored.removeCommandPost(key); check(restored.commandPostKeys().isEmpty(), "removal unregisters"); restored.setDirty(false);
         restored.removeCommandPost(key); check(!restored.isDirty(), "repeated removal no-op");
         saved.putInt("data_version", 2); saved.remove("command_posts");

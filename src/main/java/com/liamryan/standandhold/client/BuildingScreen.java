@@ -39,7 +39,10 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
         deposit.active = valid && batch > 0 && menu.number(GLOBAL) >= batch && menu.number(LOCAL) <= menu.number(CAPACITY) - batch;
         withdraw.active = valid && batch > 0 && menu.number(LOCAL) >= batch && menu.number(GLOBAL) <= Long.MAX_VALUE - batch;
         if (upgrade != null) { upgrade.active = valid && menu.number(UPGRADE_STATUS) == 0; }
-        if (next != null) { next.active = valid; pause.active = valid && menu.target() != null; }
+        if (next != null) {
+            next.active = valid && menu.hasResearchOptions();
+            pause.active = valid && (menu.target() != null || menu.number(STATUS) == 10);
+        }
     }
     @Override public void extractBackground(GuiGraphicsExtractor graphics, int mx, int my, float partial) {
         super.extractBackground(graphics, mx, my, partial);
@@ -66,7 +69,7 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
             wrap(g, BuildingMenu.statusText(menu.number(UPGRADE_STATUS)), 178);
         } else if (menu.kind() == BuildingKind.LAB) {
             var option = menu.target();
-            wrap(g, option == null ? "No research selected" : option.title(), 88);
+            wrap(g, option == null ? menu.number(STATUS) == 10 ? "Target no longer defined" : "No research selected" : option.title(), 88);
             line(g, 113, "gui.standandhold.work", menu.number(WORK), menu.number(REQUIRED_WORK), menu.number(LAB_INTERVAL) / 20.0);
             if (option != null) { line(g, 127, "gui.standandhold.research_cost", option.supplies(), option.samples(), option.stage()); }
             wrap(g, BuildingMenu.statusText(menu.number(STATUS)), 146);

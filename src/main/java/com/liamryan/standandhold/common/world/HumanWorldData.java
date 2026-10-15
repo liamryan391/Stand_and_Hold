@@ -55,13 +55,23 @@ public final class HumanWorldData extends SavedData {
     public long supplies() { requireSupportedVersion(); return supplies; }
 
     public List<String> commandPostKeys() {
-        requireSupportedVersion();
-        if (malformedCommandPosts) { throw new IllegalStateException("Malformed command-post registry; restore a backup."); }
+        requirePostRegistry();
         return commandPosts.keySet().stream().sorted().toList();
     }
 
+    public boolean hasCommandPosts() {
+        requirePostRegistry();
+        return commandPosts.keySet().stream().limit(4096).anyMatch(key -> BuildingPosition.parse(key).isPresent());
+    }
+
+    private void requirePostRegistry() {
+        requireSupportedVersion();
+        if (malformedCommandPosts) { throw new IllegalStateException("Malformed command-post registry; restore a backup."); }
+    }
+
     public boolean registerCommandPost(BuildingPosition position) {
-        if (commandPostKeys().contains(position.key())) { return false; }
+        requirePostRegistry();
+        if (commandPosts.contains(position.key())) { return false; }
         if (commandPosts.size() >= 4096) { throw new IllegalStateException("Command-post registry full (4096); clean stale loaded records."); }
         commandPosts.putBoolean(position.key(), true);
         setDirty();

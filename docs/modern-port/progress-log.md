@@ -167,6 +167,8 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 
 ## 2026-10-15 - M4 Core Buildings And Menus
 - Added original blocks/resources, shared saved storage, schema 3 post registration/loaded-only cleanup, bounded generation/lab work, upgrades/transfers, and server-owned vanilla menus; pins/version/dependencies unchanged.
-- `clean build --no-daemon --stacktrace` passed (6s), 211 assertions; jar metadata/resources/test exclusion inspected. Empty dimension parsing was fixed by regression coverage.
-- Two dedicated runs reached Done/stopped cleanly; registration/mission hook, passive generation, lab completion once, upgraded storage restart, normal supply recovery and stale loaded cleanup passed.
-- Client loaded/entered a fresh world; visual/menu checks and final clean/CI/publication are pending. Two-player/network-fuzz/packaged install are unobserved; live milestone is in STATUS.md.
+- Final `clean build --no-daemon --stacktrace` passed (6s), 219 assertions; jar metadata/resources/test exclusion inspected. Empty dimension parsing was fixed by regression coverage.
+- Four dedicated runs reached Done/stopped cleanly; registration/mission hooks, generation, research once, partial/upgraded saves, normal removal/stale cleanup, unloaded preservation, and malformed/newer NBT passed.
+- Resource override/reload/repeat and invalid-definition refusal passed; defaults restored with the valid QA pack disabled. Improved removed-target menu recovery/upgrade gates and bounded registry observation.
+- Liam reported integrated blocks/menus/lab/transfers/upgrade/reload passed; client saved/exited BUILD SUCCESSFUL (9m 4s). Two-client/network-fuzz/removed-target visual retest/packaged install remain unobserved.
+- Initial Windows CI 38718922314 passed; final QA refinement CI and publication pending. Live milestone is in STATUS.md; protected refs and user files were not changed by agent actions.

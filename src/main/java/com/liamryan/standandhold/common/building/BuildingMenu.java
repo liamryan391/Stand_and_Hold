@@ -65,6 +65,7 @@ public final class BuildingMenu extends AbstractContainerMenu {
     }
     public long number(int field) { return numbers[field]; }
     public BuildingKind kind() { return kind; }
+    public boolean hasResearchOptions() { return !options.isEmpty(); }
     public Option target() { int index = (int) numbers[TARGET]; return index >= 0 && index < options.size() ? options.get(index) : null; }
     public String upgradeResearch() {
         int index = (int) numbers[UPGRADE_RESEARCH];
@@ -76,7 +77,9 @@ public final class BuildingMenu extends AbstractContainerMenu {
             case 3 -> "Prerequisite research incomplete"; case 4 -> "Insufficient local supplies";
             case 5 -> "Insufficient samples (insertion in M5)"; case 6 -> "No research selected";
             case 7 -> "Unavailable: save/data changed; reopen"; case 8 -> "Maximum level";
-            case 9 -> "Human point requirement not reached"; default -> "Blocked";
+            case 9 -> "Human point requirement not reached";
+            case 10 -> "Target removed: select another research";
+            default -> "Blocked";
         };
     }
     private static int statusCode(String reason) {
@@ -106,7 +109,8 @@ public final class BuildingMenu extends AbstractContainerMenu {
             numbers[LEVEL] = state.level(); numbers[SAMPLES] = state.samples(); numbers[WORK] = state.work();
             numbers[TARGET] = optionIndex(state.target()); numbers[STATUS] = 6;
             if (!state.target().isEmpty()) {
-                numbers[STATUS] = statusCode(BuildingTransactions.researchBlocked(state, data, catalog.research(state.target()), HumanProgressionConfig.thresholds()));
+                var entry = catalog.research().get(state.target());
+                numbers[STATUS] = entry == null ? 10 : statusCode(BuildingTransactions.researchBlocked(state, data, entry, HumanProgressionConfig.thresholds()));
             }
             numbers[CAPACITY] = BuildingConfig.CAPACITY.get(); numbers[REQUIRED_WORK] = BuildingConfig.LAB_WORK.get();
             numbers[GENERATION_INTERVAL] = BuildingConfig.INTERVAL.get(); numbers[GENERATION_POINTS] = BuildingConfig.POINTS.get();
@@ -114,7 +118,8 @@ public final class BuildingMenu extends AbstractContainerMenu {
             numbers[LAB_INTERVAL] = BuildingConfig.LAB_INTERVAL.get();
             var cost = building.upgradeCost();
             numbers[UPGRADE_POINTS] = cost.points(); numbers[UPGRADE_SUPPLIES] = cost.supplies(); numbers[UPGRADE_SAMPLES] = cost.samples();
-            numbers[UPGRADE_STATUS] = statusCode(BuildingTransactions.upgradeBlocked(state, data, cost));
+            numbers[UPGRADE_STATUS] = !cost.research().isEmpty() && !catalog.research().containsKey(cost.research()) ? 3
+                    : statusCode(BuildingTransactions.upgradeBlocked(state, data, cost));
             numbers[UPGRADE_RESEARCH] = cost.research().isEmpty() ? -1 : optionIndex(cost.research()) < 0 ? -2 : optionIndex(cost.research());
         } catch (IllegalArgumentException | IllegalStateException exception) { numbers[STATUS] = 7; numbers[UPGRADE_STATUS] = 7; }
     }
@@ -141,7 +146,9 @@ public final class BuildingMenu extends AbstractContainerMenu {
                 }
                 case UPGRADE -> {
                     if (kind != BuildingKind.COMMAND_POST) { return false; }
-                    building.change(BuildingTransactions.upgrade(state, data, building.upgradeCost()));
+                    var cost = building.upgradeCost();
+                    if (!cost.research().isEmpty()) { catalog.research(cost.research()); }
+                    building.change(BuildingTransactions.upgrade(state, data, cost));
                 }
                 case PAUSE -> { if (kind != BuildingKind.LAB) { return false; } building.change(state.target("")); }
                 case NEXT_RESEARCH -> {
