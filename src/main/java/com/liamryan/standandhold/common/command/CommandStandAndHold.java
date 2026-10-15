@@ -41,6 +41,7 @@ public final class CommandStandAndHold {
                                         () -> HumanPointManager.setStage(context.getSource().getServer(),
                                                 HumanStage.fromLevel(IntegerArgumentType.getInteger(context, "stage"))), true))));
         CommandFoundation.addChildren(root);
+        CommandBuildings.addChildren(root);
         dispatcher.register(root);
     }
 

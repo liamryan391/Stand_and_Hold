@@ -137,7 +137,9 @@ final class CommandFoundation {
     }
 
     private static HumanWorldData data(CommandSourceStack source) { return HumanWorldData.get(source.getServer()); }
-    private static FoundationCatalog catalog(CommandSourceStack source) { return FoundationCatalog.load(source.getServer().getResourceManager()); }
+    private static FoundationCatalog catalog(CommandSourceStack source) {
+        return com.liamryan.standandhold.common.foundation.FoundationResources.get(source.getServer());
+    }
 
     private static int respond(CommandSourceStack source, Supplier<List<String>> action, boolean broadcast) throws CommandSyntaxException {
         try {

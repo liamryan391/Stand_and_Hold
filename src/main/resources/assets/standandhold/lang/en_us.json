@@ -1,0 +1,21 @@
+{
+  "block.standandhold.field_command_post": "Field Command Post",
+  "block.standandhold.research_lab": "Research Lab",
+  "block.standandhold.supply_crate": "Supply Crate",
+  "itemGroup.standandhold": "Stand and Hold",
+  "gui.standandhold.import": "Import supplies",
+  "gui.standandhold.export": "Export supplies",
+  "gui.standandhold.upgrade": "Upgrade",
+  "gui.standandhold.next_research": "Select next research",
+  "gui.standandhold.pause": "Clear target",
+  "gui.standandhold.progression": "Human points: %s  |  Stage %s",
+  "gui.standandhold.global": "Global supplies: %s",
+  "gui.standandhold.local": "Local supplies: %s / %s",
+  "gui.standandhold.samples": "Stored samples: %s  |  Transfer batch: %s",
+  "gui.standandhold.level": "Level %s: %s",
+  "gui.standandhold.generation": "Generation: +%s points / +%s supplies per %ss",
+  "gui.standandhold.upgrade_cost": "Upgrade cost: %s local supplies, %s samples",
+  "gui.standandhold.upgrade_points": "Requires %s human points (not spent)",
+  "gui.standandhold.work": "Work: %s / %s  |  Interval: %ss",
+  "gui.standandhold.research_cost": "Cost: %s supplies, %s samples  |  Stage %s"
+}

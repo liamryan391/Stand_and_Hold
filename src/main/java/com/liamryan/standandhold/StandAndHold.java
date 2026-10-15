@@ -1,6 +1,9 @@
 package com.liamryan.standandhold;
 
 import com.liamryan.standandhold.common.command.CommandStandAndHold;
+import com.liamryan.standandhold.common.building.BuildingRegistry;
+import com.liamryan.standandhold.common.foundation.FoundationResources;
+import com.liamryan.standandhold.config.BuildingConfig;
 import com.liamryan.standandhold.config.HumanProgressionConfig;
 import com.liamryan.standandhold.config.StandAndHoldConfig;
 import com.mojang.logging.LogUtils;
@@ -21,6 +24,9 @@ public final class StandAndHold {
         version = modContainer.getModInfo().getVersion().toString();
         modContainer.registerConfig(ModConfig.Type.LOCAL, StandAndHoldConfig.SPEC);
         modContainer.registerConfig(ModConfig.Type.SYNCED, HumanProgressionConfig.SPEC, "standandhold-progression.toml");
+        modContainer.registerConfig(ModConfig.Type.SYNCED, BuildingConfig.SPEC, "standandhold-buildings.toml");
+        BuildingRegistry.register(modEventBus);
+        NeoForge.EVENT_BUS.addListener(FoundationResources::register);
         NeoForge.EVENT_BUS.addListener(CommandStandAndHold::onRegister);
         modEventBus.addListener(this::commonSetup);
     }

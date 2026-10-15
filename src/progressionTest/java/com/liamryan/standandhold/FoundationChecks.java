@@ -125,7 +125,7 @@ final class FoundationChecks {
         v1.putInt("stage", 2);
         v1.putString("unknown", "retained");
         HumanWorldData migrated = decode(v1);
-        check(migrated.dataVersion() == 2 && migrated.points() == 500 && migrated.supplies() == 0, "M2 migration retains progression");
+        check(migrated.dataVersion() == HumanWorldData.CURRENT_VERSION && migrated.points() == 500 && migrated.supplies() == 0, "M2 migration retains progression");
         check(encode(migrated).getStringOr("unknown", "").equals("retained"), "unknown top-level field survives");
         CompoundTag receipt = new CompoundTag();
         receipt.putBoolean("completed", true);

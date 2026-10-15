@@ -19,6 +19,7 @@ public final class ProgressionChecks {
         thresholdsAndBounds();
         savedData();
         FoundationChecks.run();
+        BuildingChecks.run();
         System.out.println("Progression checks passed: " + assertions + " assertions.");
     }
 

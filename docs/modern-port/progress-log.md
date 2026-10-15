@@ -164,3 +164,9 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Datapack override/reload, cyclic/malformed rejection without spending, safe restoration, and atomic immediate-start failure passed.
 - Client loaded/entered/saved/exited normally (BUILD SUCCESSFUL, 7m 1s); Liam reported integrated checks passed. Private non-operator/packaged-installation tests remain unobserved.
 - Windows CI run 38646896892 passed its clean build/148 assertions/jar upload; merged M3 into main with docs-only handoff. Live milestone is in STATUS.md; legacy refs/local files remain untouched.
+
+## 2026-10-15 - M4 Core Buildings And Menus
+- Added original blocks/resources, shared saved storage, schema 3 post registration/loaded-only cleanup, bounded generation/lab work, upgrades/transfers, and server-owned vanilla menus; pins/version/dependencies unchanged.
+- `clean build --no-daemon --stacktrace` passed (6s), 211 assertions; jar metadata/resources/test exclusion inspected. Empty dimension parsing was fixed by regression coverage.
+- Two dedicated runs reached Done/stopped cleanly; registration/mission hook, passive generation, lab completion once, upgraded storage restart, normal supply recovery and stale loaded cleanup passed.
+- Client loaded/entered a fresh world; visual/menu checks and final clean/CI/publication are pending. Two-player/network-fuzz/packaged install are unobserved; live milestone is in STATUS.md.

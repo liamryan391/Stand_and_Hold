@@ -145,16 +145,16 @@ Exit gate:
 
 Priority: P1
 
-- [ ] **4.1 Register Field Command Post, Research Lab, and Supply Crate blocks/items.** Add simple original resources, names, creative entries, and basic access for testing.
-- [ ] **4.2 Implement building state and storage.**
-  - [ ] **4.2.1** Save command-post level/storage and dimension-aware registration; unregister on removal and ignore unloaded positions during cleanup.
-  - [ ] **4.2.2** Save lab target/progress/storage and supply crate state. Expose a bounded sample-consumption path for M5.
-  - [ ] **4.2.3** Add bounded passive points/supply generation and research work, respecting loaded state, intervals, and configurable caps.
-  - [ ] **4.2.4** Implement upgrade requirement checks and local/global supply transfer without duplication or partial spending.
-- [ ] **4.3 Add basic menus, screens, and server actions.**
-  - [ ] **4.3.1** Display progression, research requirements, storage, and blocked/completed states clearly.
-  - [ ] **4.3.2** Validate player distance, dimension, block entity, active menu, and action values; change state on the server thread and sync only needed data.
-  - [ ] **4.3.3** Keep client screen/render classes out of dedicated-server initialization.
+- [x] **4.1 Register Field Command Post, Research Lab, and Supply Crate blocks/items.** Add simple original resources, names, creative entries, and basic access for testing.
+- [x] **4.2 Implement building state and storage.**
+  - [x] **4.2.1** Save command-post level/storage and dimension-aware registration; unregister on removal and ignore unloaded positions during cleanup.
+  - [x] **4.2.2** Save lab target/progress/storage and supply crate state. Expose a bounded sample-consumption path for M5.
+  - [x] **4.2.3** Add bounded passive points/supply generation and research work, respecting loaded state, intervals, and configurable caps.
+  - [x] **4.2.4** Implement upgrade requirement checks and local/global supply transfer without duplication or partial spending.
+- [x] **4.3 Add basic menus, screens, and server actions.**
+  - [x] **4.3.1** Display progression, research requirements, storage, and blocked/completed states clearly.
+  - [x] **4.3.2** Validate player distance, dimension, block entity, active menu, and action values; change state on the server thread and sync only needed data.
+  - [x] **4.3.3** Keep client screen/render classes out of dedicated-server initialization.
 - [ ] **4.4 Verify buildings.** Build; test placement/removal, unload/reload, GUI reopen, two-player transfers, rejected remote actions, and research/mission hooks.
 
 Exit gate:

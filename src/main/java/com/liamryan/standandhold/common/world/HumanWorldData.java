@@ -1,6 +1,7 @@
 package com.liamryan.standandhold.common.world;
 
 import com.liamryan.standandhold.StandAndHoldConstants;
+import com.liamryan.standandhold.common.building.BuildingPosition;
 import com.liamryan.standandhold.common.foundation.FoundationCatalog;
 import com.liamryan.standandhold.common.mission.MissionState;
 import com.liamryan.standandhold.common.progression.HumanStage;
@@ -8,6 +9,7 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.List;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
@@ -22,7 +24,7 @@ import net.minecraft.world.level.saveddata.SavedDataType;
 import org.slf4j.Logger;
 
 public final class HumanWorldData extends SavedData {
-    public static final int CURRENT_VERSION = 2;
+    public static final int CURRENT_VERSION = 3;
     public static final Codec<HumanWorldData> CODEC = CompoundTag.CODEC.xmap(HumanWorldData::load, HumanWorldData::save);
     public static final SavedDataType<HumanWorldData> TYPE = new SavedDataType<>(
             Identifier.fromNamespaceAndPath(StandAndHoldConstants.MOD_ID, "human_progression"), HumanWorldData::new, CODEC);
@@ -36,6 +38,8 @@ public final class HumanWorldData extends SavedData {
     private boolean malformedResearch;
     private CompoundTag missions = new CompoundTag();
     private boolean malformedMissions;
+    private CompoundTag commandPosts = new CompoundTag();
+    private boolean malformedCommandPosts;
     private CompoundTag retainedFields = new CompoundTag();
 
     public static HumanWorldData get(MinecraftServer server) {
@@ -49,6 +53,26 @@ public final class HumanWorldData extends SavedData {
     public long points() { return points; }
     public HumanStage stage() { return stage; }
     public long supplies() { requireSupportedVersion(); return supplies; }
+
+    public List<String> commandPostKeys() {
+        requireSupportedVersion();
+        if (malformedCommandPosts) { throw new IllegalStateException("Malformed command-post registry; restore a backup."); }
+        return commandPosts.keySet().stream().sorted().toList();
+    }
+
+    public boolean registerCommandPost(BuildingPosition position) {
+        if (commandPostKeys().contains(position.key())) { return false; }
+        if (commandPosts.size() >= 4096) { throw new IllegalStateException("Command-post registry full (4096); clean stale loaded records."); }
+        commandPosts.putBoolean(position.key(), true);
+        setDirty();
+        return true;
+    }
+
+    public void removeCommandPost(String key) {
+        requireSupportedVersion();
+        if (malformedCommandPosts) { throw new IllegalStateException("Malformed command-post registry."); }
+        if (commandPosts.contains(key)) { commandPosts.remove(key); setDirty(); }
+    }
 
     public boolean setSupplies(long newSupplies) {
         requireSupportedVersion();
@@ -169,6 +193,8 @@ public final class HumanWorldData extends SavedData {
         data.missions = tag.getCompoundOrEmpty("missions").copy();
         data.malformedMissions = tag.contains("missions") && !(tag.get("missions") instanceof CompoundTag)
                 || data.dataVersion >= 2 && !tag.contains("missions");
+        data.commandPosts = tag.getCompoundOrEmpty("command_posts").copy();
+        data.malformedCommandPosts = tag.contains("command_posts") && !(tag.get("command_posts") instanceof CompoundTag);
         data.migrateIfNeeded();
         if (storedPoints != data.points || storedStage != data.stage.level()
                 || !isIntegral(tag.get("points")) || !isIntegral(tag.get("stage"))
@@ -197,6 +223,7 @@ public final class HumanWorldData extends SavedData {
             tag.putLong("supplies", supplies);
             if (!malformedResearch) { tag.put("research", research.copy()); }
             if (!malformedMissions) { tag.put("missions", missions.copy()); }
+            if (!malformedCommandPosts) { tag.put("command_posts", commandPosts.copy()); }
         }
         return tag;
     }
