@@ -4,7 +4,7 @@ import com.liamryan.standandhold.common.foundation.FoundationCatalog;
 import com.mojang.serialization.Codec;
 import net.minecraft.nbt.CompoundTag;
 
-/** Virtual storage only; physical sample insertion is supplied by M5. */
+/** Saved fungible local supplies and samples; item transfer is checked on the server. */
 public record BuildingState(int level, long supplies, int samples, String target, int work) {
     public static final int MAX_SAMPLES = 4096;
     public static final Codec<BuildingState> CODEC = CompoundTag.CODEC.xmap(BuildingState::load, BuildingState::save);

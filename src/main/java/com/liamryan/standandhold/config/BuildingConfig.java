@@ -27,7 +27,7 @@ public final class BuildingConfig {
             .comment("Local supplies spent for upgrades to levels 2, 3, 4, 5.")
             .define("upgradeSupplyCosts", List.of(20, 50, 100, 200), BuildingConfig::fourCosts);
     public static final ModConfigSpec.ConfigValue<List<? extends Number>> UPGRADE_SAMPLES = B
-            .comment("Local samples spent for upgrades to levels 2, 3, 4, 5. Physical insertion arrives in M5.")
+            .comment("Local samples spent for upgrades to levels 2, 3, 4, 5. Use Samples mode in the building menu to store physical items.")
             .define("upgradeSampleCosts", List.of(0, 0, 2, 5), BuildingConfig::fourCosts);
     public static final ModConfigSpec.ConfigValue<List<? extends String>> UPGRADE_RESEARCH = B
             .comment("Research IDs required for levels 2, 3, 4, 5; empty string means none. Four entries; unknown IDs block safely.")

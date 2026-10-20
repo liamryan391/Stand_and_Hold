@@ -172,3 +172,9 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Resource override/reload/repeat and invalid-definition refusal passed; defaults restored with the valid QA pack disabled. Improved removed-target menu recovery/upgrade gates and bounded registry observation.
 - Liam reported integrated blocks/menus/lab/transfers/upgrade/reload passed; client saved/exited BUILD SUCCESSFUL (9m 4s). Two-client/network-fuzz/removed-target visual retest/packaged install remain unobserved.
 - Windows CI 38719872847 passed final runtime 29c6da5: clean build/219 assertions/jar upload; merged verified M4 into main with docs-only handoff. Live milestone is in STATUS.md; protected refs and user files were not changed by agent actions.
+
+## 2026-10-20 - M5 Samples And Optional Threat Rewards
+- Added original samples, bounded optional ID/tag mappings, server death/pickup hooks, real item transfers/recovery and carry-count mission observations; pins/version/runtime dependencies unchanged.
+- `clean build --no-daemon --stacktrace` passed (7s), 260 assertions; jar metadata/resources/test exclusion inspected.
+- First dedicated run reached Done/stopped cleanly; exact/tag/missing/invalid config mappings, precedence, chance 0/1, 64-stack bound, mob_drops suppression and processed-victim guard passed with documented temporary QA overrides.
+- Client resources loaded; Liam's integrated checks, remaining lab/restart QA, final clean and CI/publication pending. External-mod/two-client/packet-fuzz/packaged tests unobserved; live milestone is in STATUS.md.
