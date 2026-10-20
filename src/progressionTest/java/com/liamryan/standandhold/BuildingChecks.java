@@ -52,13 +52,24 @@ final class BuildingChecks {
         long[] thresholds = ProgressionRules.thresholds(ProgressionRules.DEFAULT_THRESHOLDS);
         var data = new HumanWorldData();
         var first = catalog.research("parasite_samples");
-        var ready = BuildingState.EMPTY.supplies(10).target(first.id()).work(12);
+        var selected = BuildingState.EMPTY.supplies(10).target(first.id()).work(12);
+        check(!selected.researching(), "selecting research does not start it");
+        expect(() -> BuildingTransactions.finishResearch(selected, data, first, thresholds, 12));
+        var ready = BuildingTransactions.toggleResearch(selected, data, first, thresholds);
+        check(ready.researching() && ready.work() == 12 && ready.supplies() == 10, "start preserves work and does not charge costs");
+        var paused = BuildingTransactions.toggleResearch(ready, data, first, thresholds);
+        check(!paused.researching() && paused.work() == 12 && paused.supplies() == 10, "pause preserves work and storage");
+        check(BuildingTransactions.toggleResearch(paused, data, first, thresholds).equals(ready), "resume preserves progress");
+        check(!ready.target(first.id()).researching(), "next selection resets to stopped");
+        check(ready.supplies(20).insertSamples(1).researching(), "supply and sample transfers preserve running state");
         expect(() -> BuildingTransactions.finishResearch(ready.work(11), data, first, thresholds, 12));
         check(!data.isResearchComplete(first.id()) && data.points() == 0, "early work cannot spend/reward");
         expect(() -> BuildingTransactions.finishResearch(ready.supplies(9), data, first, thresholds, 12));
         check(data.supplies() == 0 && data.points() == 0, "local insufficiency cannot spend global balances");
         var finished = BuildingTransactions.finishResearch(ready, data, first, thresholds, 12);
         check(finished.supplies() == 0 && data.points() == 10 && data.isResearchComplete(first.id()), "lab consumes local cost and grants global receipt once");
+        check(!finished.researching(), "completion stops the lab");
+        expect(() -> BuildingTransactions.toggleResearch(finished, data, first, thresholds));
         expect(() -> BuildingTransactions.finishResearch(ready, data, first, thresholds, 12));
         check(data.points() == 10 && ready.supplies() == 10, "second lab cannot pay/reward already completed research");
         check(BuildingTransactions.researchBlocked(ready, data, first, thresholds).equals("Completed"), "completed research cannot re-enter the lab completion/notification branch");
@@ -84,7 +95,7 @@ final class BuildingChecks {
         check(!overflow.isResearchComplete(first.id()) && ready.supplies() == 10, "overflow before receipt/cost leaves both unchanged");
         var sampled = new ResearchEntry("standandhold:sample_api_test", "Sample API Test", 0, List.of(), 10, 2,
                 new FoundationReward(1, 0), List.of());
-        var sampledState = BuildingState.EMPTY.supplies(10).target(sampled.id()).work(2);
+        var sampledState = BuildingState.EMPTY.supplies(10).target(sampled.id()).work(2).running(true);
         var sampledData = new HumanWorldData();
         expect(() -> BuildingTransactions.finishResearch(sampledState, sampledData, sampled, thresholds, 2));
         check(sampledData.points() == 0 && !sampledData.isResearchComplete(sampled.id()), "missing samples cannot partially charge local/global state");
@@ -95,7 +106,7 @@ final class BuildingChecks {
         check(BuildingTransactions.upgrade(ready.insertSamples(2), data, sampleUpgrade).samples() == 0, "upgrade consumes required sample count");
     }
     private static void savesAndPositions() throws Exception {
-        var original = new BuildingState(3, 321, 7, "standandhold:parasite_samples", 8);
+        var original = new BuildingState(3, 321, 7, "standandhold:parasite_samples", 8, true);
         CompoundTag encoded = (CompoundTag) BuildingState.CODEC.encodeStart(NbtOps.INSTANCE, original).getOrThrow();
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(); NbtIo.writeCompressed(encoded, bytes);
         CompoundTag roundTrip = NbtIo.readCompressed(new ByteArrayInputStream(bytes.toByteArray()), NbtAccounter.unlimitedHeap());
@@ -104,6 +115,8 @@ final class BuildingChecks {
         var safe = BuildingState.CODEC.parse(NbtOps.INSTANCE, encoded).getOrThrow();
         check(safe.level() == 5 && safe.supplies() == 0 && safe.samples() == 0 && safe.target().isEmpty() && safe.work() == 0, "malformed values normalize safely");
         check(BuildingState.CODEC.parse(NbtOps.INSTANCE, new CompoundTag()).getOrThrow().equals(BuildingState.EMPTY), "missing building fields initialize safely");
+        var oldLab = original.save(); oldLab.remove("researching");
+        check(!BuildingState.CODEC.parse(NbtOps.INSTANCE, oldLab).getOrThrow().researching(), "old modern labs retain work but wait for explicit Start");
         String key = "minecraft:overworld@1,64,-1";
         var position = BuildingPosition.parse(key).orElseThrow();
         check(position.key().equals(key), "dimension-aware position round trip");
@@ -126,7 +139,7 @@ final class BuildingChecks {
         restored.removeCommandPost(key); check(!restored.isDirty(), "repeated removal no-op");
         saved.putInt("data_version", 2); saved.remove("command_posts");
         restored = HumanWorldData.CODEC.parse(NbtOps.INSTANCE, saved).getOrThrow();
-        check(restored.dataVersion() == 3 && restored.commandPostKeys().isEmpty(), "schema two migration adds registry without loss");
+        check(restored.dataVersion() == HumanWorldData.CURRENT_VERSION && restored.commandPostKeys().isEmpty(), "schema two migration adds registry without loss");
         var catalog = FoundationChecks.defaults(); long[] thresholds = ProgressionRules.thresholds(ProgressionRules.DEFAULT_THRESHOLDS);
         MissionManager.start(data, catalog, thresholds, "recover_parasite_samples");
         MissionManager.advance(data, catalog, thresholds, "recover_parasite_samples", 3);
@@ -136,6 +149,11 @@ final class BuildingChecks {
         check(data.points() == points, "building mission receipt prevents repeated rewards");
     }
     private static void menuValues() {
+        check(MenuValues.progressWidth(0, 12, 282) == 0, "empty progress bar");
+        check(MenuValues.progressWidth(6, 12, 282) == 141, "half progress bar");
+        check(MenuValues.progressWidth(12, 12, 282) == 282, "completed progress bar");
+        check(MenuValues.progressWidth(Long.MAX_VALUE, 12, 282) == 282, "progress bar cannot overflow its panel");
+        check(MenuValues.progressWidth(-1, 12, 282) == 0 && MenuValues.progressWidth(1, 0, 282) == 0, "invalid progress remains bounded");
         for (long value : new long[] {0, 32767, 32768, 65535, 65536, Integer.MAX_VALUE, 4294967296L, Long.MAX_VALUE, -1}) {
             long result = 0;
             for (int limb = 0; limb < 4; limb++) { result = MenuValues.accept(result, limb, (short) MenuValues.limb(value, limb)); }

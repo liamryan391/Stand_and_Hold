@@ -1,6 +1,6 @@
 # Human Progression Foundation
 
-The modern foundation provides world-global human points and seven stages. [Research, supplies, and missions](foundation-data.md) build on that state through commands. No physical point sources, buildings, units, or client HUD exist yet; this is not a conversion of Forge 1.12 saves.
+The modern foundation provides world-global human points and seven stages. [Research, supplies and missions](foundation-data.md), [buildings](buildings.md), [sample/threat rewards](samples-and-threats.md) and [initial NPC deployment](human-npcs.md) build on that state. No client HUD or Forge 1.12 save conversion is provided.
 
 ## Stages And Configuration
 
@@ -38,8 +38,8 @@ Singleplayer mutations require commands enabled. Dedicated-server console comman
 
 - `HumanWorldData` uses the server's global `SavedDataStorage`, shared by Overworld, Nether, End, and other dimensions. It is accessed on the server thread, without a static world cache or tick handler.
 - Save file: `<world>/data/standandhold/human_progression.dat`. Minecraft wraps the mod compound under `data` with its own `DataVersion`.
-- Mod schema: `data_version` (integer, currently 2), `points` (long), `stage` (integer, 0-6), and supply/research/mission state described in the foundation guide. Keep existing stage ordering and IDs stable; incompatible changes need a migration.
-- Missing schema is modern version 0. Migration to 2 retains modern points and unknown fields and initializes new foundation state. Missing/malformed progression fields receive safe defaults; negative points become zero. This does **not** read legacy NBT or repair physically corrupt/compressed files.
+- Mod schema: `data_version` (integer, currently 4), `points` (long), `stage` (integer, 0-6), and supply/research/mission/building registration/defender quota state described in the foundation guides. Keep existing stage ordering and IDs stable; incompatible changes need a migration.
+- Missing schema is modern version 0. Migration to 4 retains modern points and unknown fields and initializes new foundation state. Missing/malformed progression fields receive safe defaults; negative points become zero. This does **not** read legacy NBT or repair physically corrupt/compressed files.
 - Migration, normalization, and actual changes mark data dirty. Identical operations and valid reloads do not. Minecraft handles saving and atomic file replacement.
 - A schema newer than supported is retained verbatim and progression operations refuse access with a clear error. Restore the matching mod/backup instead of downgrading or manually deleting the data.
 

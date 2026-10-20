@@ -2,6 +2,7 @@ package com.liamryan.standandhold.common.building;
 
 import com.liamryan.standandhold.StandAndHoldConstants;
 import com.liamryan.standandhold.common.sample.SampleItems;
+import com.liamryan.standandhold.common.npc.NpcRegistry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.MenuType;
@@ -32,6 +33,8 @@ public final class BuildingRegistry {
             .icon(() -> COMMAND_POST.asItem().getDefaultInstance()).displayItems((parameters, output) -> {
                 ITEMS.getEntries().forEach(item -> output.accept(item.get()));
                 output.accept(SampleItems.TISSUE.get());
+                output.accept(NpcRegistry.SURVIVOR_EGG.get());
+                output.accept(NpcRegistry.ARMY_EGG.get());
             }).build());
     private BuildingRegistry() { }
     private static DeferredBlock<BuildingBlock> block(BuildingKind kind) {

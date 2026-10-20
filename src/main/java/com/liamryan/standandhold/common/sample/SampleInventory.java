@@ -31,7 +31,7 @@ public final class SampleInventory {
         Inventory inventory = player.getInventory();
         int amount = deposit ? SampleTransferRules.deposit(count(inventory), state.samples()) : SampleTransferRules.withdraw(room(inventory), state.samples());
         BuildingState next = deposit ? state.insertSamples(amount)
-                : new BuildingState(state.level(), state.supplies(), state.samples() - amount, state.target(), state.work());
+                : new BuildingState(state.level(), state.supplies(), state.samples() - amount, state.target(), state.work(), state.researching());
         int remaining = amount;
         ItemStack sample = SampleItems.TISSUE.get().getDefaultInstance();
         // All capacity/schema checks precede mutations; no creative-mode add() shortcut may discard a full stack.

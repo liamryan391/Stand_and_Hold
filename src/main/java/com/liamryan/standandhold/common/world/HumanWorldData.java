@@ -10,6 +10,7 @@ import com.mojang.serialization.Codec;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.List;
+import java.util.UUID;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
@@ -24,7 +25,7 @@ import net.minecraft.world.level.saveddata.SavedDataType;
 import org.slf4j.Logger;
 
 public final class HumanWorldData extends SavedData {
-    public static final int CURRENT_VERSION = 3;
+    public static final int CURRENT_VERSION = 4;
     public static final Codec<HumanWorldData> CODEC = CompoundTag.CODEC.xmap(HumanWorldData::load, HumanWorldData::save);
     public static final SavedDataType<HumanWorldData> TYPE = new SavedDataType<>(
             Identifier.fromNamespaceAndPath(StandAndHoldConstants.MOD_ID, "human_progression"), HumanWorldData::new, CODEC);
@@ -40,6 +41,8 @@ public final class HumanWorldData extends SavedData {
     private boolean malformedMissions;
     private CompoundTag commandPosts = new CompoundTag();
     private boolean malformedCommandPosts;
+    private CompoundTag defenders = new CompoundTag();
+    private boolean malformedDefenders;
     private CompoundTag retainedFields = new CompoundTag();
 
     public static HumanWorldData get(MinecraftServer server) {
@@ -82,6 +85,39 @@ public final class HumanWorldData extends SavedData {
         requireSupportedVersion();
         if (malformedCommandPosts) { throw new IllegalStateException("Malformed command-post registry."); }
         if (commandPosts.contains(key)) { commandPosts.remove(key); setDirty(); }
+    }
+
+    private CompoundTag defenderRoster(String key) {
+        requireSupportedVersion();
+        if (BuildingPosition.parse(key).isEmpty()) { throw new IllegalArgumentException("Invalid defender home."); }
+        if (malformedDefenders || defenders.size() > 4096) { throw new IllegalStateException("Malformed/full defender ledger; automatic deployment paused."); }
+        Tag raw = defenders.get(key);
+        if (raw == null) { return new CompoundTag(); }
+        if (!(raw instanceof CompoundTag roster) || roster.size() > 16) { throw new IllegalStateException("Malformed defender roster."); }
+        for (String id : roster.keySet()) {
+            if (!UUID.fromString(id).toString().equals(id) || !savedFlag(roster, id)) { throw new IllegalStateException("Malformed defender reservation."); }
+        }
+        return roster;
+    }
+    public int defenderCount(String key) { return defenderRoster(key).size(); }
+    public boolean reserveDefender(String key, UUID id, int limit) {
+        requirePostRegistry();
+        if (limit < 0 || limit > 16) { throw new IllegalArgumentException("Invalid defender limit."); }
+        if (!commandPosts.contains(key)) { throw new IllegalStateException("Command post is not registered."); }
+        CompoundTag roster = defenderRoster(key).copy();
+        if (roster.contains(id.toString()) || roster.size() >= limit) { return false; }
+        if (!defenders.contains(key) && defenders.size() >= 4096) { throw new IllegalStateException("Defender ledger full."); }
+        roster.putBoolean(id.toString(), true);
+        defenders.put(key, roster);
+        setDirty();
+        return true;
+    }
+    public void releaseDefender(String key, UUID id) {
+        CompoundTag roster = defenderRoster(key).copy();
+        if (!roster.contains(id.toString())) { return; }
+        roster.remove(id.toString());
+        if (roster.isEmpty()) { defenders.remove(key); } else { defenders.put(key, roster); }
+        setDirty();
     }
 
     public boolean setSupplies(long newSupplies) {
@@ -205,6 +241,9 @@ public final class HumanWorldData extends SavedData {
                 || data.dataVersion >= 2 && !tag.contains("missions");
         data.commandPosts = tag.getCompoundOrEmpty("command_posts").copy();
         data.malformedCommandPosts = tag.contains("command_posts") && !(tag.get("command_posts") instanceof CompoundTag);
+        data.defenders = tag.getCompoundOrEmpty("defenders").copy();
+        data.malformedDefenders = tag.contains("defenders") && !(tag.get("defenders") instanceof CompoundTag)
+                || data.dataVersion >= 4 && !tag.contains("defenders");
         data.migrateIfNeeded();
         if (storedPoints != data.points || storedStage != data.stage.level()
                 || !isIntegral(tag.get("points")) || !isIntegral(tag.get("stage"))
@@ -234,6 +273,7 @@ public final class HumanWorldData extends SavedData {
             if (!malformedResearch) { tag.put("research", research.copy()); }
             if (!malformedMissions) { tag.put("missions", missions.copy()); }
             if (!malformedCommandPosts) { tag.put("command_posts", commandPosts.copy()); }
+            if (!malformedDefenders) { tag.put("defenders", defenders.copy()); }
         }
         return tag;
     }

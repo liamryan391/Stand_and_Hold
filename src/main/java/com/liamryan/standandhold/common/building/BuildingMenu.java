@@ -25,9 +25,9 @@ public final class BuildingMenu extends AbstractContainerMenu {
     public static final int POINTS = 0, GLOBAL = 1, LOCAL = 2, STAGE = 3, LEVEL = 4, SAMPLES = 5, WORK = 6,
             TARGET = 7, STATUS = 8, CAPACITY = 9, REQUIRED_WORK = 10, GENERATION_INTERVAL = 11, GENERATION_POINTS = 12,
             GENERATION_SUPPLIES = 13, UPGRADE_POINTS = 14, UPGRADE_SUPPLIES = 15, UPGRADE_SAMPLES = 16,
-            UPGRADE_STATUS = 17, BATCH = 18, UPGRADE_RESEARCH = 19, LAB_INTERVAL = 20, HELD_SAMPLES = 21, SAMPLE_ROOM = 22;
-    public static final int IMPORT = 0, EXPORT = 1, UPGRADE = 2, PAUSE = 3, NEXT_RESEARCH = 4, DEPOSIT_SAMPLES = 5, TAKE_SAMPLES = 6;
-    private final long[] numbers = new long[23];
+            UPGRADE_STATUS = 17, BATCH = 18, UPGRADE_RESEARCH = 19, LAB_INTERVAL = 20, HELD_SAMPLES = 21, SAMPLE_ROOM = 22, RUNNING = 23;
+    public static final int IMPORT = 0, EXPORT = 1, UPGRADE = 2, PAUSE = 3, NEXT_RESEARCH = 4, DEPOSIT_SAMPLES = 5, TAKE_SAMPLES = 6, TOGGLE_RESEARCH = 7;
+    private final long[] numbers = new long[24];
     private final BlockPos pos;
     private final BuildingKind kind;
     private final List<Option> options;
@@ -110,6 +110,7 @@ public final class BuildingMenu extends AbstractContainerMenu {
             numbers[POINTS] = data.points(); numbers[GLOBAL] = data.supplies(); numbers[LOCAL] = state.supplies();
             numbers[STAGE] = ProgressionRules.stageFor(data.points(), HumanProgressionConfig.thresholds()).level();
             numbers[LEVEL] = state.level(); numbers[SAMPLES] = state.samples(); numbers[WORK] = state.work();
+            numbers[RUNNING] = state.researching() ? 1 : 0;
             numbers[TARGET] = optionIndex(state.target()); numbers[STATUS] = 6;
             if (!state.target().isEmpty()) {
                 var entry = catalog.research().get(state.target());
@@ -136,7 +137,7 @@ public final class BuildingMenu extends AbstractContainerMenu {
     @Override public boolean clickMenuButton(Player player, int action) {
         if (building == null || player.containerMenu != this || player.isSpectator() || !stillValid(player)
                 || !(player.level() instanceof ServerLevel server) || !server.getServer().isSameThread()
-                || action < IMPORT || action > TAKE_SAMPLES) { return false; }
+                || action < IMPORT || action > TOGGLE_RESEARCH) { return false; }
         try {
             building.requireWritable();
             if (FoundationResources.get(server.getServer()) != catalog) { throw new IllegalStateException("Definitions changed; close and reopen this menu."); }
@@ -159,6 +160,10 @@ public final class BuildingMenu extends AbstractContainerMenu {
                     if (kind != BuildingKind.LAB || options.isEmpty()) { return false; }
                     int index = (optionIndex(state.target()) + 1) % options.size();
                     building.change(state.target(options.get(index).id()));
+                }
+                case TOGGLE_RESEARCH -> {
+                    if (kind != BuildingKind.LAB) { return false; }
+                    building.change(BuildingTransactions.toggleResearch(state, data, catalog.research(state.target()), HumanProgressionConfig.thresholds()));
                 }
                 case DEPOSIT_SAMPLES, TAKE_SAMPLES -> {
                     if (!(player instanceof ServerPlayer serverPlayer)) { return false; }
