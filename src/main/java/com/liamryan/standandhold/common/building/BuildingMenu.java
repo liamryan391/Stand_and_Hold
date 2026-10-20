@@ -119,6 +119,7 @@ public final class BuildingMenu extends AbstractContainerMenu {
             numbers[CAPACITY] = BuildingConfig.CAPACITY.get(); numbers[REQUIRED_WORK] = BuildingConfig.LAB_WORK.get();
             numbers[GENERATION_INTERVAL] = BuildingConfig.INTERVAL.get(); numbers[GENERATION_POINTS] = BuildingConfig.POINTS.get();
             numbers[GENERATION_SUPPLIES] = BuildingConfig.SUPPLIES.get(); numbers[BATCH] = BuildingConfig.TRANSFER.get();
+            if (building.isMainBase() && !building.operational(data)) { numbers[GENERATION_POINTS] = 0; numbers[GENERATION_SUPPLIES] = 0; }
             numbers[LAB_INTERVAL] = BuildingConfig.LAB_INTERVAL.get();
             numbers[HELD_SAMPLES] = SampleInventory.count(owner.getInventory()); numbers[SAMPLE_ROOM] = SampleInventory.room(owner.getInventory());
             var cost = building.upgradeCost();

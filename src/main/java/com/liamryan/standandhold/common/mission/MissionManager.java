@@ -85,6 +85,7 @@ public final class MissionManager {
             case RESEARCH_COMPLETION -> data.isResearchComplete(mission.subject()) ? 1 : 0;
             case HUMAN_STAGE -> ProgressionRules.stageFor(data.points(), thresholds).level();
             case COMMAND_POST -> data.hasCommandPosts() ? 1 : 0;
+            case MAIN_BASE_DISCOVERY -> data.hasDiscoveredMainBase() ? 1 : 0;
             default -> 0; // Physical gameplay hooks belong to the sample/building/defence phases.
         };
     }

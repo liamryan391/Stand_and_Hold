@@ -38,8 +38,8 @@ Singleplayer mutations require commands enabled. Dedicated-server console comman
 
 - `HumanWorldData` uses the server's global `SavedDataStorage`, shared by Overworld, Nether, End, and other dimensions. It is accessed on the server thread, without a static world cache or tick handler.
 - Save file: `<world>/data/standandhold/human_progression.dat`. Minecraft wraps the mod compound under `data` with its own `DataVersion`.
-- Mod schema: `data_version` (integer, currently 4), `points` (long), `stage` (integer, 0-6), and supply/research/mission/building registration/defender quota state described in the foundation guides. Keep existing stage ordering and IDs stable; incompatible changes need a migration.
-- Missing schema is modern version 0. Migration to 4 retains modern points and unknown fields and initializes new foundation state. Missing/malformed progression fields receive safe defaults; negative points become zero. This does **not** read legacy NBT or repair physically corrupt/compressed files.
+- Mod schema: `data_version` (integer, currently 5), `points` (long), `stage` (integer, 0-6), and supply/research/mission/building registration/defender quota state described in the foundation guides. [Structure data](structures.md) adds Main Base registration/discovery. Keep existing stage ordering and IDs stable; incompatible changes need a migration.
+- Missing schema is modern version 0. Migration to 5 retains modern points and unknown fields and initializes new foundation state. Missing/malformed progression fields receive safe defaults; negative points become zero. This does **not** read legacy NBT or repair physically corrupt/compressed files.
 - Migration, normalization, and actual changes mark data dirty. Identical operations and valid reloads do not. Minecraft handles saving and atomic file replacement.
 - A schema newer than supported is retained verbatim and progression operations refuse access with a clear error. Restore the matching mod/backup instead of downgrading or manually deleting the data.
 

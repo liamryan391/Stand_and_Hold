@@ -25,7 +25,7 @@ import net.minecraft.world.level.saveddata.SavedDataType;
 import org.slf4j.Logger;
 
 public final class HumanWorldData extends SavedData {
-    public static final int CURRENT_VERSION = 4;
+    public static final int CURRENT_VERSION = 5;
     public static final Codec<HumanWorldData> CODEC = CompoundTag.CODEC.xmap(HumanWorldData::load, HumanWorldData::save);
     public static final SavedDataType<HumanWorldData> TYPE = new SavedDataType<>(
             Identifier.fromNamespaceAndPath(StandAndHoldConstants.MOD_ID, "human_progression"), HumanWorldData::new, CODEC);
@@ -43,6 +43,10 @@ public final class HumanWorldData extends SavedData {
     private boolean malformedCommandPosts;
     private CompoundTag defenders = new CompoundTag();
     private boolean malformedDefenders;
+    private CompoundTag mainBases = new CompoundTag();
+    private boolean malformedMainBases;
+    private boolean discoveredMainBase;
+    private boolean malformedDiscovery;
     private CompoundTag retainedFields = new CompoundTag();
 
     public static HumanWorldData get(MinecraftServer server) {
@@ -69,7 +73,7 @@ public final class HumanWorldData extends SavedData {
 
     private void requirePostRegistry() {
         requireSupportedVersion();
-        if (malformedCommandPosts) { throw new IllegalStateException("Malformed command-post registry; restore a backup."); }
+        if (malformedCommandPosts || commandPosts.size() > 4096) { throw new IllegalStateException("Malformed/full command-post registry; restore a backup."); }
     }
 
     public boolean registerCommandPost(BuildingPosition position) {
@@ -98,6 +102,47 @@ public final class HumanWorldData extends SavedData {
             if (!UUID.fromString(id).toString().equals(id) || !savedFlag(roster, id)) { throw new IllegalStateException("Malformed defender reservation."); }
         }
         return roster;
+    }
+
+    private void requireBaseRegistry() {
+        requireSupportedVersion();
+        if (malformedMainBases || mainBases.size() > 4096) { throw new IllegalStateException("Malformed/full Main Base registry; restore a backup."); }
+    }
+    public List<String> mainBaseKeys() { requireBaseRegistry(); return mainBases.keySet().stream().sorted().toList(); }
+    public boolean isMainBase(BuildingPosition position) {
+        requireBaseRegistry();
+        return mainBases.contains(position.key()) && savedFlag(mainBases, position.key());
+    }
+    public void checkSiteCapacity(BuildingPosition position, boolean mainBase) {
+        requirePostRegistry();
+        if (!commandPosts.contains(position.key()) && commandPosts.size() >= 4096) { throw new IllegalStateException("Command-post registry full (4096)."); }
+        if (mainBase) {
+            requireBaseRegistry();
+            if (!mainBases.contains(position.key()) && mainBases.size() >= 4096) { throw new IllegalStateException("Main Base registry full (4096)."); }
+        }
+    }
+    public boolean registerMainBase(BuildingPosition position) {
+        checkSiteCapacity(position, true);
+        boolean registered = isMainBase(position);
+        boolean added = registerCommandPost(position);
+        if (!registered) { mainBases.putBoolean(position.key(), true); setDirty(); return true; }
+        return added;
+    }
+    public void removeMainBase(String key) {
+        requireBaseRegistry();
+        if (mainBases.contains(key)) { mainBases.remove(key); setDirty(); }
+        // Discovery and mission completion are historical receipts, not live block references.
+    }
+    public boolean hasDiscoveredMainBase() {
+        requireSupportedVersion();
+        if (malformedDiscovery) { throw new IllegalStateException("Malformed Main Base discovery receipt; restore a backup."); }
+        return discoveredMainBase;
+    }
+    public boolean discoverMainBase(BuildingPosition position) {
+        if (hasDiscoveredMainBase() || !isMainBase(position)) { return false; }
+        discoveredMainBase = true;
+        setDirty();
+        return true;
     }
     public int defenderCount(String key) { return defenderRoster(key).size(); }
     public boolean reserveDefender(String key, UUID id, int limit) {
@@ -244,6 +289,12 @@ public final class HumanWorldData extends SavedData {
         data.defenders = tag.getCompoundOrEmpty("defenders").copy();
         data.malformedDefenders = tag.contains("defenders") && !(tag.get("defenders") instanceof CompoundTag)
                 || data.dataVersion >= 4 && !tag.contains("defenders");
+        data.mainBases = tag.getCompoundOrEmpty("main_bases").copy();
+        data.malformedMainBases = tag.contains("main_bases") && !(tag.get("main_bases") instanceof CompoundTag)
+                || data.dataVersion >= 5 && !tag.contains("main_bases");
+        data.malformedDiscovery = tag.contains("discovered_main_base") && (!(tag.get("discovered_main_base") instanceof ByteTag flag)
+                || flag.byteValue() < 0 || flag.byteValue() > 1) || data.dataVersion >= 5 && !tag.contains("discovered_main_base");
+        data.discoveredMainBase = !data.malformedDiscovery && tag.getBooleanOr("discovered_main_base", false);
         data.migrateIfNeeded();
         if (storedPoints != data.points || storedStage != data.stage.level()
                 || !isIntegral(tag.get("points")) || !isIntegral(tag.get("stage"))
@@ -274,6 +325,8 @@ public final class HumanWorldData extends SavedData {
             if (!malformedMissions) { tag.put("missions", missions.copy()); }
             if (!malformedCommandPosts) { tag.put("command_posts", commandPosts.copy()); }
             if (!malformedDefenders) { tag.put("defenders", defenders.copy()); }
+            if (!malformedMainBases) { tag.put("main_bases", mainBases.copy()); }
+            if (!malformedDiscovery) { tag.putBoolean("discovered_main_base", discoveredMainBase); }
         }
         return tag;
     }

@@ -195,3 +195,10 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Six dedicated runs reached Done/accepted stop/exited cleanly; melee/stages/caps/reload/removal, optional mappings and paused/competing lab receipts passed. Night/fire isolation verified live attack disable/resume; a final own-column exclusion fixed isolated floating-post spawning (ground control 3, floating 0).
 - Liam reported NPC and focused lab-control checks passed; both clients entered/reloaded/exited normally (7m 43s, 4m 8s). Two-client/external-mod/packaged tests remain unverified; QA settings/tickets restored and disposable world retained.
 - Windows CI 39437110203 passed runtime 44ec4b3 (329 assertions/jar upload); merged M6 with docs-only handoff. Live milestone is in STATUS.md.
+
+## 2026-10-20 - M7 Structure Foundations And Grass QA
+- Added bounded original checkpoints/Main Bases, natural/debug placement, terrain/config checks, schema 5 registration/discovery, stage activation and loaded-only cleanup; no dependencies/pin/version/legacy-ref changes.
+- Initial and grass-fix `clean build --no-daemon --stacktrace` passed (939 assertions); normal jar metadata/resources/test exclusion inspected. Final clean verification remains pending runtime exit.
+- Dedicated tests observed debug/natural generation, stage activation, persistence, unloaded retention, stale cleanup and safe rejection of occupied/wet/steep/unavailable/disallowed sites; interrupted server later stopped normally.
+- Liam's first visual test failed on ordinary grass: 26.3 separates grass_blocks from dirt. Added both tags, improved rejection coordinates, verified grass-over-dirt placement on dedicated; corrected client retest is running.
+- Added structure/config/test documentation and corrected existing feature/schema references. Disposable worlds retained; dense settings restored, final storage reload/server-selection restoration and CI/publication pending. Live milestone is in STATUS.md.

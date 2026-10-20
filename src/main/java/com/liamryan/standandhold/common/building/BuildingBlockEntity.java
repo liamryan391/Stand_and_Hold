@@ -9,6 +9,8 @@ import com.liamryan.standandhold.common.sample.SampleItems;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.BuildingConfig;
 import com.liamryan.standandhold.config.HumanProgressionConfig;
+import com.liamryan.standandhold.config.StructureConfig;
+import com.liamryan.standandhold.common.progression.ProgressionRules;
 import com.liamryan.standandhold.common.npc.DefenderDeployment;
 import com.liamryan.standandhold.config.NpcConfig;
 import com.mojang.logging.LogUtils;
@@ -41,10 +43,17 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
     private boolean malformed;
     private boolean removalHandled;
     private boolean reportedFailure;
+    private boolean mainBase;
 
     public BuildingBlockEntity(BlockPos pos, BlockState block) { super(BuildingRegistry.ENTITY.get(), pos, block); }
     public BuildingKind kind() { return ((BuildingBlock) getBlockState().getBlock()).kind(); }
     public BuildingState state() { return state; }
+    public boolean isMainBase() { return mainBase && kind() == BuildingKind.COMMAND_POST; }
+    public void initializeMainBase() { requireWritable(); if (!mainBase) { mainBase = true; setChanged(); } }
+    public boolean operational(HumanWorldData data) {
+        return !isMainBase() || data.isMainBase(new BuildingPosition(level.dimension().identifier(), worldPosition))
+                && ProgressionRules.stageFor(data.points(), HumanProgressionConfig.thresholds()).level() >= StructureConfig.ACTIVATION_STAGE.get();
+    }
     public void requireWritable() {
         if (schema != 1 || malformed) { throw new IllegalStateException("Unsupported/malformed building save; restore a compatible mod/backup."); }
     }
@@ -61,6 +70,7 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
     @Override protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         output.putInt("building_version", schema);
+        output.putBoolean("main_base", mainBase);
         if ((schema != 1 || malformed) && retainedState != null) {
             output.store("building", Codec.PASSTHROUGH, retainedState);
         } else {
@@ -73,6 +83,7 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
     @Override protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         schema = input.getIntOr("building_version", 1);
+        mainBase = input.getBooleanOr("main_base", false);
         retainedState = input.read("building", Codec.PASSTHROUGH).orElse(null);
         malformed = retainedState != null && !(retainedState.convert(NbtOps.INSTANCE).getValue() instanceof CompoundTag);
         state = malformed || retainedState == null ? BuildingState.EMPTY : BuildingState.CODEC.parse(retainedState).getOrThrow();
@@ -84,7 +95,7 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         if (level instanceof ServerLevel server && kind() == BuildingKind.COMMAND_POST) {
             try {
                 HumanWorldData data = HumanWorldData.get(server.getServer());
-                if (data.registerCommandPost(position(server))) { refreshMissions(server, data); }
+                if (isMainBase() ? data.registerMainBase(position(server)) : data.registerCommandPost(position(server))) { refreshMissions(server, data); }
             } catch (IllegalArgumentException | IllegalStateException exception) { reportOnce(exception); }
         }
     }
@@ -98,6 +109,7 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
             requireWritable();
             HumanWorldData data = HumanWorldData.get(server.getServer());
             if (kind() == BuildingKind.COMMAND_POST) { data.removeCommandPost(position(server).key()); }
+            if (isMainBase()) { data.removeMainBase(position(server).key()); }
             int samples = state.samples();
             try { data.setSupplies(FoundationAmounts.credit(data.supplies(), state.supplies())); }
             catch (IllegalArgumentException exception) { LogUtils.getLogger().warn("Supply recovery overflow at {}: {}", pos, exception.getMessage()); }
@@ -116,7 +128,10 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         if (!(level instanceof ServerLevel server)) { return; }
         if (building.kind() == BuildingKind.COMMAND_POST && ++building.deploymentElapsed >= NpcConfig.INTERVAL.get()) {
             building.deploymentElapsed = 0;
-            try { building.requireWritable(); DefenderDeployment.attempt(server, building); }
+            try {
+                building.requireWritable();
+                if (building.operational(HumanWorldData.get(server.getServer()))) { DefenderDeployment.attempt(server, building); }
+            }
             catch (IllegalArgumentException | IllegalStateException exception) { building.reportOnce(exception); }
         }
         int interval = building.kind() == BuildingKind.COMMAND_POST ? BuildingConfig.INTERVAL.get() : BuildingConfig.LAB_INTERVAL.get();
@@ -128,6 +143,7 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
             data.requireSupportedVersion();
             boolean changed = false;
             if (building.kind() == BuildingKind.COMMAND_POST) {
+                if (!building.operational(data)) { return; }
                 int points = BuildingConfig.POINTS.get();
                 if (points > 0 && data.points() <= Long.MAX_VALUE - points) {
                     HumanPointManager.addPoints(server.getServer(), points);

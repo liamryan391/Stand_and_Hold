@@ -1,35 +1,31 @@
 # Status
 
-Updated: 2026-10-20 - Branch: `main` (M6 merge handoff)
+Updated: 2026-10-20 - Branch: `codex/m7-structures`
 
 ## Where we are
 
-- M1-M6 are verified and merged. M6 adds Survivor Defender/Army Rifleman entities, configurable stats/stage gates, original UV-matched uniforms/test eggs, bounded vanilla melee AI and command-post deployment. No new runtime libraries, toolchain/version changes or protected legacy-ref changes. See [Human NPCs](human-npcs.md).
-- Automatic deployment uses saved per-post UUID reservations (including unloaded units), a loaded-area early-exit quota query and bounded safe spawn candidates. Modern global schema 4 retains earlier progression/receipts/registrations/unknown fields. Missing/malformed current quota data refuses deployment rather than forgetting units; unresolved reservations remain conservative.
-- Liam reported the M6 integrated checks passed: eggs/uniforms, combat, no player retaliation, stage-selected deployment, caps and save/reopen. He noted slow target detection, retained as later AI polish. At his request the lab now has explicit Start/Pause, separate Next/Clear controls, saved running state, Work/Left values and a progress bar; he reported the focused UI/pause/reload/completion retest passed too. Old modern labs retain work but load paused if the new optional flag is missing. See [Buildings](buildings.md).
-- Final `clean build --no-daemon --stacktrace` passed after all runtimes exited (5s): 50 progression +98 foundation +89 building +41 sample/threat +51 NPC assertions (329). Coverage includes quotas/reload/malformed data, stage selection, pause/start/conservation, bar bounds and opaque 64x32 texture-face coverage. Jar metadata/assets/test-class exclusion were inspected; the jar remains `build/libs/standandhold-0.1.0-alpha.1.jar`.
-- Six private dedicated `runServer` launches reached Done, accepted stop and exited cleanly. Tests observed distinct 20/30 health, zombie melee damage, stage 0 Survivor deployment, a Stage 1 Rifleman replacement, shared cap 8 with 3/3/2 post groups, unchanged populations after restart and loaded missing-home release. A final edge-case fix excludes the post's own column: grounded control spawned 3; isolated floating post spawned none across multiple attempts.
-- Concrete config Loading/Reloading listeners rebuild cached threat rules. Server tests covered empty rules, live tag activation, malformed-entry warnings and missing-mod IDs/tags without pig fallback. A night/fire-cleared test isolated NPC damage: empty rules held zombie health stable, restored defaults resumed attacks. Daylight burning was not treated as proof of NPC targeting.
-- Paused lab work/storage survived restart; resuming/competing labs spent/rewarded only once and stopped. Blocked prerequisites did not advance. Both client runs loaded resources, entered/saved/reopened worlds and fully exited normally (7m 43s, 4m 8s); completion chat was observed in the client log. The final column-exclusion correction received the dedicated retest, not an additional visual pass.
-- [Windows CI 39437110203](https://github.com/liamryan391/Stand_and_Hold/actions/runs/39437110203) passed final runtime commit `44ec4b3`: Java 25 clean build, all 329 assertions and normal-jar upload. The M6 merge adds final evidence documentation only. M7's branch is prepared from updated main; no M7 gameplay has started.
-- The disposable `m6-npcs-qa` world is retained, QA force-load tickets removed, default threat mappings/deployment interval/enable setting restored, and prior server world selection/60-second empty-server pausing restored. No ignored/user worlds or local files were deleted.
+- M1-M6 are verified and merged. M7 implements original one-chunk Checkpoint/Main Base foundations, sparse seeded natural placement, terrain/dimension/border/occupancy preflight, admin placement/inspection, dormant Main Base activation and loaded-only cleanup. No pins, version, runtime dependencies or protected legacy refs changed. See [Structures](structures.md).
+- Global modern schema 5 preserves earlier progression, research/mission receipts, post registrations, defender reservations and unknown fields, adding bounded Main Base registration and a shared discovery receipt. Right-clicking a registered base command post records discovery; generation/listing alone does not. Cleanup never resets discovery/completed missions.
+- Initial `clean build --no-daemon --stacktrace` passed with 939 assertions (610 structure, 329 existing), but Liam's first client check exposed grass-ground rejection. The pinned 26.3 `dirt` tag excludes the separate `grass_blocks` tag; the whitelist now accepts both. A clean rebuild passed, and actual grass-over-dirt dedicated placement succeeded for both sites with correct registrations and 2/5-supply crates. The failure was not treated as a visual pass.
+- Dedicated tests observed Stage 0 dormancy versus Stage 5 generation/deployment, save/reload of the base flag/storage, preservation of unloaded records and removal of loaded stale base/post records after strict admin edits. Disallowed dimensions, unavailable chunks, water, a chest, occupied structures and steep terrain were refused. Natural checkpoint and Main Base generation were observed in new flat chunks with explicit biome decoration and temporary dense settings, not inferred from JSON loading.
+- Normal jar metadata/resources were inspected: `0.1.0-alpha.1`, Minecraft 26.3 and NeoForge 26.3.0.57-beta; no test classes or extra dependency were packaged. Final clean verification, publication/CI and the corrected client retest are still in progress.
+- The interrupted dedicated server was stopped normally; no user files/worlds were deleted. Disposable M7 worlds remain separate. Dense generation and deployment toggles have been restored to defaults; the final save/reload test and prior server-world selection restoration remain to finish.
 
 ## Next milestone
 
 `Continue: M7 steps 7.1-7.5 (bounded structure placement/config, Small Army Checkpoint, Main Base foundation, safe registration/cleanup, and verification) on codex/m7-structures.`
-Keep the pinned toolchain and version `0.1.0-alpha.1`; no new runtime libraries or legacy save conversion.
 
 ## Needs Liam
 
-- No blocking decision or repeat of the passed integrated checks is required. Genuine two-client/network-fuzz, external threat-mod and packaged-installation coverage remains unverified. [NPC QA](human-npcs.md) and [building QA](buildings.md) keep those tests separate from singleplayer/pure checks.
-- If a future installed-server test requests EULA acceptance, only Liam can agree. Development runs skipped that check; no acceptance file was written.
+- The fixed client is open for the combined structure/menu/activation/save-reload/removal retest. Initial grass rejection is fixed in code and verified on a dedicated server, not yet recorded as a client pass.
+- Only Liam may accept an installed-server EULA if requested; development runs skipped that check and no acceptance file was written.
 
 ## Open risks
 
-- The loader remains beta; follow the [fallback rule](building.md) and ask before changing pins.
-- Target discovery can feel slow because acquisition is throttled and requires visibility/reachability. Uniforms and melee-only riflemen remain alpha placeholders; no advanced squad or firearm behavior is implied.
-- Quotas/chunk files and world data are not a power-loss journal. Partial restores/external entity edits can strand conservative reservations; back up whole worlds. Never infer death from an unloaded UUID.
-- Windows OSHI/Perflib startup warnings continued through successful loads; no Windows registry changes were made. See [known issues](../../KNOWN_ISSUES.md).
-- Preserve `.local/modern-jdk.json` and ignored worlds/configs. Branches do not back up ignored files. External-mod/library metadata is not combined runtime proof; later dependencies require approval under [policy](foundation-scope.md).
+- Sparse natural generation intentionally skips unsuitable terrain. Default Superflat disables biome features; use debug placement there, or explicitly enable decoration in disposable natural-generation QA.
+- These are open-air foundations, not finished bases, deep support surveys or a full locate-structure system. Other mods/later features can modify a site. Registration validates the command tile, not every perimeter block.
+- Cross-file saves are not a power-loss journal. Back up entire worlds; partial restores/external edits can strand conservative NPC reservations. Two-client/network-fuzz, external threat-mod and packaged-installation coverage remains separate and unverified.
+- Beta-loader risk, original placeholder visuals/slow target acquisition and Windows OSHI/Perflib warnings remain documented in [Known Issues](../../KNOWN_ISSUES.md). No Windows registry changes or legacy world conversion were made.
+- Preserve `.local/modern-jdk.json` and ignored worlds/configs. Git branches do not back up ignored files.
 
-Follow [AGENTS.md](../../AGENTS.md); the [roadmap](phase-roadmap.md) owns task checkboxes and [technical plan](technical-port-plan.md) retains design rules.
+Follow [AGENTS.md](../../AGENTS.md); the [roadmap](phase-roadmap.md) owns task checkboxes.

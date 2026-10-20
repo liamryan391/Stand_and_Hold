@@ -29,5 +29,7 @@
   "gui.standandhold.upgrade_cost": "Upgrade cost: %s local supplies, %s samples",
   "gui.standandhold.upgrade_points": "Requires %s human points (not spent)",
   "gui.standandhold.work": "Work: %s / %s | Left: %s | %ss/step",
-  "gui.standandhold.research_cost": "Cost: %s supplies, %s samples  |  Stage %s"
+  "gui.standandhold.research_cost": "Cost: %s supplies, %s samples  |  Stage %s",
+  "message.standandhold.main_base_active": "Main Base command active.",
+  "message.standandhold.main_base_dormant": "Main Base command dormant: requires human stage %s. Lab/crate remain usable."
 }

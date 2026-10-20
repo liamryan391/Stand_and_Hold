@@ -203,13 +203,13 @@ Exit gate:
 
 Priority: P2
 
-- [ ] **7.1 Choose bounded structure placement and config.** Define allowed dimensions, spacing/chance, footprint, terrain limits, and debug command policy.
-- [ ] **7.2 Build a Small Army Checkpoint.** Add an original lightweight layout with an entrance, lighting, protected command post, and restrained supply access.
-- [ ] **7.3 Build a distinct Main Base foundation.** Add simple command/research/supply zones and stage-based activation without a large base expansion.
-- [ ] **7.4 Make placement and registration safe.**
-  - [ ] **7.4.1** Preflight relevant terrain, height, fluids, and occupied space; use the chosen worldgen context without triggering extra chunk loads.
-  - [ ] **7.4.2** Register dimension/position data only for successfully placed required blocks; report failed placement clearly.
-  - [ ] **7.4.3** Clean stale loaded command-post/main-base records; preserve unloaded records and completed mission history.
+- [x] **7.1 Choose bounded structure placement and config.** Define allowed dimensions, spacing/chance, footprint, terrain limits, and debug command policy.
+- [x] **7.2 Build a Small Army Checkpoint.** Add an original lightweight layout with an entrance, lighting, protected command post, and restrained supply access.
+- [x] **7.3 Build a distinct Main Base foundation.** Add simple command/research/supply zones and stage-based activation without a large base expansion.
+- [x] **7.4 Make placement and registration safe.**
+  - [x] **7.4.1** Preflight relevant terrain, height, fluids, and occupied space; use the chosen worldgen context without triggering extra chunk loads.
+  - [x] **7.4.2** Register dimension/position data only for successfully placed required blocks; report failed placement clearly.
+  - [x] **7.4.3** Clean stale loaded command-post/main-base records; preserve unloaded records and completed mission history.
 - [ ] **7.5 Verify world presence.** Build; test debug placement and natural generation, unsuitable terrain, break/removal, save/reload, and discovery missions. Update structure documentation.
 
 Exit gate:

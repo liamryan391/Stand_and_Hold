@@ -1,6 +1,13 @@
 package com.liamryan.standandhold.common.building;
 
+import com.liamryan.standandhold.common.foundation.FoundationResources;
+import com.liamryan.standandhold.common.mission.MissionManager;
+import com.liamryan.standandhold.common.world.HumanWorldData;
+import com.liamryan.standandhold.config.HumanProgressionConfig;
+import com.liamryan.standandhold.config.StructureConfig;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -18,7 +25,17 @@ public final class BuildingBlock extends BaseEntityBlock {
     @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new BuildingBlockEntity(pos, state); }
     @Override protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (!level.isClientSide() && !player.isSpectator() && level.getBlockEntity(pos) instanceof BuildingBlockEntity building) {
-            try { player.openMenu(building, building::writeMenuData); }
+            try {
+                if (level instanceof ServerLevel server && building.isMainBase()) {
+                    var data = HumanWorldData.get(server.getServer());
+                    data.discoverMainBase(new BuildingPosition(server.dimension().identifier(), pos));
+                    var messages = MissionManager.refresh(data, FoundationResources.get(server.getServer()), HumanProgressionConfig.thresholds());
+                    messages.forEach(message -> player.sendSystemMessage(Component.literal(message)));
+                    player.sendSystemMessage(building.operational(data) ? Component.translatable("message.standandhold.main_base_active")
+                            : Component.translatable("message.standandhold.main_base_dormant", StructureConfig.ACTIVATION_STAGE.get()));
+                }
+                player.openMenu(building, building::writeMenuData);
+            }
             catch (IllegalArgumentException | IllegalStateException exception) {
                 player.sendSystemMessage(net.minecraft.network.chat.Component.literal(exception.getMessage()));
             }
