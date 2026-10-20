@@ -9,6 +9,8 @@ import com.liamryan.standandhold.common.sample.SampleItems;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.BuildingConfig;
 import com.liamryan.standandhold.config.HumanProgressionConfig;
+import com.liamryan.standandhold.common.npc.DefenderDeployment;
+import com.liamryan.standandhold.config.NpcConfig;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
@@ -33,6 +35,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 public final class BuildingBlockEntity extends BlockEntity implements MenuProvider {
     private BuildingState state = BuildingState.EMPTY;
     private int elapsed;
+    private int deploymentElapsed;
     private int schema = 1;
     private Dynamic<?> retainedState;
     private boolean malformed;
@@ -74,6 +77,7 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         malformed = retainedState != null && !(retainedState.convert(NbtOps.INSTANCE).getValue() instanceof CompoundTag);
         state = malformed || retainedState == null ? BuildingState.EMPTY : BuildingState.CODEC.parse(retainedState).getOrThrow();
         elapsed = 0; // Deliberately no offline catch-up or saved wall-clock timestamps.
+        deploymentElapsed = 0;
     }
     @Override public void onLoad() {
         super.onLoad();
@@ -110,6 +114,11 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
 
     public static void tick(Level level, BlockPos pos, BlockState block, BuildingBlockEntity building) {
         if (!(level instanceof ServerLevel server)) { return; }
+        if (building.kind() == BuildingKind.COMMAND_POST && ++building.deploymentElapsed >= NpcConfig.INTERVAL.get()) {
+            building.deploymentElapsed = 0;
+            try { building.requireWritable(); DefenderDeployment.attempt(server, building); }
+            catch (IllegalArgumentException | IllegalStateException exception) { building.reportOnce(exception); }
+        }
         int interval = building.kind() == BuildingKind.COMMAND_POST ? BuildingConfig.INTERVAL.get() : BuildingConfig.LAB_INTERVAL.get();
         if (++building.elapsed < interval) { return; }
         building.elapsed = 0;
@@ -130,7 +139,8 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
                 FoundationCatalog catalog = FoundationResources.get(server.getServer());
                 var entry = catalog.research(building.state.target());
                 long[] thresholds = HumanProgressionConfig.thresholds();
-                if (BuildingTransactions.researchBlocked(building.state, data, entry, thresholds).equals("Ready")) {
+                String blocked = BuildingTransactions.researchBlocked(building.state, data, entry, thresholds);
+                if (building.state.researching() && blocked.equals("Ready")) {
                     int required = BuildingConfig.LAB_WORK.get();
                     BuildingState next = building.state.work(Math.min(required, building.state.work() + (building.state.work() < required ? 1 : 0)));
                     boolean completed = next.work() >= required;
@@ -143,6 +153,8 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
                         server.getServer().getPlayerList().broadcastSystemMessage(
                                 Component.translatable("message.standandhold.research_complete", entry.title()), false);
                     }
+                } else if (building.state.researching() && blocked.equals("Completed")) {
+                    building.change(building.state.running(false));
                 }
             }
             if (changed) { refreshMissions(server, data); }

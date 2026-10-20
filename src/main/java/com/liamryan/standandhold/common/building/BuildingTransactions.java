@@ -54,7 +54,7 @@ public final class BuildingTransactions {
     public static BuildingState finishResearch(BuildingState state, HumanWorldData data, ResearchEntry entry, long[] thresholds, int requiredWork) {
         String blocked = researchBlocked(state, data, entry, thresholds);
         if (!blocked.equals("Ready")) { throw new IllegalArgumentException(blocked); }
-        if (!state.target().equals(entry.id()) || state.work() < requiredWork || requiredWork < 1) {
+        if (!state.researching() || !state.target().equals(entry.id()) || state.work() < requiredWork || requiredWork < 1) {
             throw new IllegalArgumentException("Research work is not complete.");
         }
         BuildingState next = new BuildingState(state.level(), state.supplies() - entry.supplyCost(),
@@ -63,5 +63,14 @@ public final class BuildingTransactions {
         long supplies = FoundationAmounts.credit(data.supplies(), entry.reward().supplies());
         data.completeResearch(entry.id(), points, ProgressionRules.stageFor(points, thresholds), supplies);
         return next;
+    }
+
+    public static BuildingState toggleResearch(BuildingState state, HumanWorldData data, ResearchEntry entry, long[] thresholds) {
+        data.requireSupportedVersion();
+        if (state.researching()) { return state.running(false); }
+        if (!state.target().equals(entry.id())) { throw new IllegalArgumentException("Select research before starting."); }
+        String blocked = researchBlocked(state, data, entry, thresholds);
+        if (!blocked.equals("Ready")) { throw new IllegalArgumentException(blocked); }
+        return state.running(true);
     }
 }

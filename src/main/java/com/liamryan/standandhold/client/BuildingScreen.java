@@ -3,6 +3,7 @@ package com.liamryan.standandhold.client;
 import com.liamryan.standandhold.common.building.BuildingKind;
 import com.liamryan.standandhold.common.building.BuildingMenu;
 import com.liamryan.standandhold.common.building.BuildingState;
+import com.liamryan.standandhold.common.building.MenuValues;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -15,6 +16,7 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
     private Button upgrade;
     private Button next;
     private Button pause;
+    private Button start;
     private Button deposit;
     private Button withdraw;
     private boolean sampleMode;
@@ -33,7 +35,8 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
         }).bounds(leftPos + 202, topPos + 202, 90, 20).build());
         if (menu.kind() == BuildingKind.COMMAND_POST) { upgrade = button("upgrade", 202, 177, 90, UPGRADE); }
         if (menu.kind() == BuildingKind.LAB) {
-            next = button("next_research", 8, 177, 184, NEXT_RESEARCH);
+            start = button("start_research", 8, 177, 90, TOGGLE_RESEARCH);
+            next = button("next_research", 102, 177, 90, NEXT_RESEARCH);
             pause = button("pause", 202, 177, 90, PAUSE);
         }
     }
@@ -60,6 +63,9 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
         if (next != null) {
             next.active = valid && menu.hasResearchOptions();
             pause.active = valid && (menu.target() != null || menu.number(STATUS) == 10);
+            boolean running = menu.number(RUNNING) != 0;
+            start.setMessage(Component.translatable(running ? "gui.standandhold.pause_research" : "gui.standandhold.start_research"));
+            start.active = valid && menu.target() != null && (running || menu.number(STATUS) == 0);
         }
     }
     @Override public void extractBackground(GuiGraphicsExtractor graphics, int mx, int my, float partial) {
@@ -88,9 +94,16 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
         } else if (menu.kind() == BuildingKind.LAB) {
             var option = menu.target();
             wrap(g, option == null ? menu.number(STATUS) == 10 ? "Target no longer defined" : "No research selected" : option.title(), 88);
-            line(g, 113, "gui.standandhold.work", menu.number(WORK), menu.number(REQUIRED_WORK), menu.number(LAB_INTERVAL) / 20.0);
+            line(g, 113, "gui.standandhold.work", menu.number(WORK), menu.number(REQUIRED_WORK),
+                    Math.max(0, menu.number(REQUIRED_WORK) - menu.number(WORK)), menu.number(LAB_INTERVAL) / 20.0);
             if (option != null) { line(g, 127, "gui.standandhold.research_cost", option.supplies(), option.samples(), option.stage()); }
-            wrap(g, BuildingMenu.statusText(menu.number(STATUS)), 146);
+            String status = menu.number(STATUS) == 0 ? menu.number(RUNNING) != 0 ? "Researching" : menu.number(WORK) > 0 ? "Paused" : "Ready to start"
+                    : BuildingMenu.statusText(menu.number(STATUS));
+            wrap(g, status, 141);
+            g.fill(8, 164, 292, 171, 0xff101916);
+            int progress = MenuValues.progressWidth(menu.number(WORK), menu.number(REQUIRED_WORK), 282);
+            g.fill(9, 165, 9 + progress, 170, menu.number(STATUS) == 1 ? 0xff9db85a : 0xff4caba5);
+            g.outline(8, 164, 284, 7, 0xff81918b);
         }
     }
     private void line(GuiGraphicsExtractor g, int y, String key, Object... values) {

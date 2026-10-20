@@ -71,8 +71,9 @@ Run each separately from a prepared Java 25 shell:
 
 Check main menu without errors, Mods list showing Stand and Hold / 0.1.0-alpha.1,
 then create a fresh disposable world, enter it, save/quit, and exit the client.
-No Stand and Hold items, units, or structures are present. Progression commands are available;
-check them in a disposable world with commands enabled, then save/reopen to test persistence.
+Check the sample, buildings and two human test eggs in a disposable world with commands enabled;
+the [NPC guide](human-npcs.md) separates test-egg access from automatic deployment gates. No generated
+structures are present yet. Save/reopen to test persistence.
 
 ```powershell
 .\gradlew.bat runServer --no-daemon --stacktrace

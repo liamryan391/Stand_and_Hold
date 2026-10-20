@@ -83,7 +83,7 @@ Short IDs in the table above and their full `standandhold:` forms both work. Unk
 
 ## Saved Data
 
-Modern schema 3 stores `<world>/data/standandhold/human_progression.dat` with `supplies`, `research`, `missions`, and dimension-aware `command_posts` compounds. The same server-global owner is used in every dimension. Version 0-2 modern saves retain progression, receipts, and unknown fields, with empty newly introduced state. No legacy save import is added.
+Modern schema 4 stores `<world>/data/standandhold/human_progression.dat` with `supplies`, `research`, `missions`, dimension-aware `command_posts` and bounded `defenders` reservation compounds. The same server-global owner is used in every dimension. Version 0-3 modern saves retain progression, receipts and unknown fields, with empty newly introduced state. [NPC quotas](human-npcs.md) retain unloaded defenders rather than treating their absence as a free slot. No legacy save import is added.
 
 Research entries store `completed` and `rewarded` flags. Mission entries also store `progress`. A receipt and its balance changes are committed together. Either historical completion/reward flag is conservatively treated as claimed, preventing uncertain old rewards being regranted. Missing fields in an existing mission entry default safely; invalid progress/flags or invalid map types refuse that entry/map rather than silently resetting it. A current-schema missing receipt map also refuses access, since prior rewards cannot safely be inferred.
 

@@ -187,3 +187,11 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Two interactive dedicated runs reached Done/accepted stop/exited cleanly: competing labs emitted once/spent once, repeat and restart emitted nothing, banks/rewards persisted. Initial closed-stdin run saved/exited via guarded ignored JDK helper; disposable world retained, QA ticket removed and prior world selection restored.
 - Restarted pre-fix client entered/saved/reopened and fully exited normally (16m); new notice rendering/two-client delivery/external mods remain unverified. Live milestone is in STATUS.md.
 - Windows CI 39429897484 passed runtime fc41e3e (263 assertions/normal jar upload); merged M5 follow-up with documentation, keeping M6 unstarted and protected refs unchanged.
+
+## 2026-10-20 - M6 Human NPCs And Lab Feedback
+- Added two configurable human tiers, original UV-tested uniforms/eggs, vanilla bounded AI, optional mapping reuse and schema 4 saved deployment quotas; no libraries/pin/version/legacy-ref changes.
+- Added Liam's requested explicit lab Start/Pause, separate selection/clear, saved running state and progress bar; older modern labs keep work but load paused. Slow target acquisition remains documented polish.
+- Final `clean build --no-daemon --stacktrace` passed after runtime exit (5s), 329 assertions; jar metadata/assets/test exclusion inspected; `git diff --check` passed.
+- Six dedicated runs reached Done/accepted stop/exited cleanly; melee/stages/caps/reload/removal, optional mappings and paused/competing lab receipts passed. Night/fire isolation verified live attack disable/resume; a final own-column exclusion fixed isolated floating-post spawning (ground control 3, floating 0).
+- Liam reported NPC and focused lab-control checks passed; both clients entered/reloaded/exited normally (7m 43s, 4m 8s). Two-client/external-mod/packaged tests remain unverified; QA settings/tickets restored and disposable world retained.
+- Windows CI 39437110203 passed runtime 44ec4b3 (329 assertions/jar upload); merged M6 with docs-only handoff. Live milestone is in STATUS.md.

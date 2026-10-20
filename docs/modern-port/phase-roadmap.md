@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M6**; see [STATUS.md](STATUS.md).
+Current position: **Phase M7**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -183,13 +183,16 @@ Exit gate:
 
 Priority: P2
 
-- [ ] **6.1 Register the base human NPC and initial survivor/army tiers.** Configure stats, attributes, stage requirements, spawn eggs, and temporary original visuals.
-- [ ] **6.2 Add simple, stable AI.**
-  - [ ] **6.2.1** Evaluate the chosen version's vanilla Goal/Brain APIs before selecting any helper library.
-  - [ ] **6.2.2** Add bounded wander/look/target tasks; reuse threat mappings and avoid attacking players by default.
-  - [ ] **6.2.3** Handle removed targets, unreachable positions, unloaded regions, and server/client separation.
-- [ ] **6.3 Add controlled command-post deployment.** Enforce stages, per-post/area caps, intervals, and valid spawn locations; document test egg behavior separately.
-- [ ] **6.4 Verify NPCs.** Build; test spawning, combat, stage gates, several nearby posts, unload/reload, missing mappings, and dedicated-server loading.
+- [x] **6.1 Register the base human NPC and initial survivor/army tiers.** Configure stats, attributes, stage requirements, spawn eggs, and temporary original visuals.
+- [x] **6.2 Add simple, stable AI.**
+  - [x] **6.2.1** Evaluate the chosen version's vanilla Goal/Brain APIs before selecting any helper library. Pinned platform sources support simple goals, bounded target queries and server-side melee; no additional library is needed.
+  - [x] **6.2.2** Add bounded wander/look/target tasks; reuse threat mappings and avoid attacking players by default.
+  - [x] **6.2.3** Handle removed targets, unreachable positions, unloaded regions, and server/client separation.
+- [x] **6.3 Add controlled command-post deployment.** Enforce stages, per-post/area caps, intervals, and valid spawn locations; document test egg behavior separately.
+  - [x] **6.3.1** Save bounded defender reservations so unloaded NPCs cannot free post quota; preserve existing modern data.
+  - [x] **6.3.2** Select an unlocked tier and validate bounded loaded spawn candidates, area caps and cancellation.
+  - [x] **6.3.3** Wire tile-local intervals and release reservations only on confirmed removal or loaded missing homes.
+- [x] **6.4 Verify NPCs.** Build; test spawning, combat, stage gates, several nearby posts, unload/reload, missing mappings, and dedicated-server loading. Automated/server evidence and Liam's integrated NPC and requested lab-control retest passed; extended multiplayer/external-mod limits are recorded in STATUS.md.
 
 Exit gate:
 

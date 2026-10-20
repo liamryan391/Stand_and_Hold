@@ -6,7 +6,7 @@ Stand and Hold is being rebuilt for modern Minecraft as a human military resista
 
 See [STATUS.md](docs/modern-port/STATUS.md) for live port state and the active milestone. Contributor workflow is defined in [AGENTS.md](AGENTS.md).
 
-**This is a modern NeoForge foundation, not a complete port or public release.** Human progression, research, supplies, and missions have command foundations; three core buildings add storage and basic server-owned menus. The remaining physical gameplay systems are not ported from `1.12`. Build/launch results are recorded in STATUS.md; legacy alpha results do not establish modern feature availability.
+**This is a modern NeoForge foundation, not a complete port or public release.** Progression, research, supplies and missions have command foundations; core buildings add storage and menus, physical samples connect the first resource loop, and two human NPC tiers provide bounded melee defence. The remaining gameplay systems are not ported from `1.12`. Build/launch results are recorded in STATUS.md; legacy alpha results do not establish modern feature availability.
 
 | Branch | Purpose |
 | --- | --- |
@@ -49,15 +49,17 @@ Follow the [Windows build and IDE guide](docs/modern-port/building.md) for Java 
 
 M1 delivers the build foundation, metadata, entry point, logger/config shell, and verification. It adds no gameplay systems or extra runtime libraries. The [foundation policy](docs/modern-port/foundation-scope.md) and [numbered roadmap](docs/modern-port/phase-roadmap.md) define the boundaries.
 
-The [human progression foundation](docs/modern-port/progression.md) adds seven configurable stages, versioned world-global saves, and `/standandhold status`, `/standandhold addpoints <amount>`, and `/standandhold setstage <0..6>`. Mutations require operator level 2; setting a stage resets points to its configured minimum. It adds no physical point sources or unlockable units yet. Use fresh modern worlds, not legacy saves.
+The [human progression foundation](docs/modern-port/progression.md) adds seven configurable stages, versioned world-global saves, and `/standandhold status`, `/standandhold addpoints <amount>`, and `/standandhold setstage <0..6>`. Mutations require operator level 2; setting a stage resets points to its configured minimum. Use fresh modern worlds, not legacy saves.
 
 The [research/supply/mission foundation](docs/modern-port/foundation-data.md) provides three JSON research definitions, global supply balances, seven small missions, persistent once-only rewards, and server-authoritative inspection/admin commands. For a minimal test: `/standandhold supplies add 10`, then `/standandhold research complete parasite_samples`; expect 10 human points and zero supplies, with no extra reward on repetition. Defence hooks and a mission GUI remain deferred.
 
-The [core buildings guide](docs/modern-port/buildings.md) covers Field Command Posts, Research Labs, and Supply Crates: creative access, original utility textures, local/global supply transfers, loaded-only point/supply generation, timed lab work, upgrades, safe registration cleanup, menus, configuration, and the manual test recipe. Generated structures and defenders are not part of these blocks yet.
+The [core buildings guide](docs/modern-port/buildings.md) covers Field Command Posts, Research Labs, and Supply Crates: creative access, original utility textures, local/global supply transfers, loaded-only point/supply generation, timed lab work, upgrades, safe registration cleanup, menus, configuration, and the manual test recipe. Generated structures remain separate work.
 
 [Samples and optional threat rewards](docs/modern-port/samples-and-threats.md) add the physical tissue item, configurable entity/tag mappings, server-owned kill/drop rewards, real sample storage/consumption and recovery mission hooks. The safe default test zombie gives 5 points and a 35% chance of one sample on a player-attributed kill. No external threat mod is required, and no external entity mappings are enabled by default.
 
-The partial modern loop can recover test-threat samples, establish a command post/lab, and fund research/progression. Defender deployment and outpost attacks still need their owning phases. Original models, richer combat, larger bases, vehicles/aircraft, and Fabric evaluation also follow later phase gates; they are not features of an available modern release.
+The [human NPC foundation](docs/modern-port/human-npcs.md) adds Survivor Defenders and Army Riflemen with original uniforms/test eggs, configurable stats/stage gates, simple melee AI using optional threat mappings, and capped command-post deployment backed by saved quotas. Test eggs/summons bypass automatic stage gates. Both tiers are melee prototypes, not firearm users yet.
+
+The partial modern loop can recover samples, establish a command post/lab, fund research/progression and obtain defenders. Outpost attacks, richer combat, larger bases, vehicles/aircraft and Fabric evaluation follow later phase gates; they are not features of an available modern release.
 
 Compatibility with external threat mods remains optional. Registry/tag mappings and integrations must be verified for the exact modern target when implemented; legacy SRP compatibility does not imply modern SRP support.
 
