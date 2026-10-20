@@ -40,6 +40,7 @@ public final class DefenderDeployment {
         for (int attempt = 0; attempt < 8; attempt++) {
             int dx = level.getRandom().nextInt(radius * 2 + 1) - radius;
             int dz = level.getRandom().nextInt(radius * 2 + 1) - radius;
+            if (dx == 0 && dz == 0) { continue; }
             for (int dy : new int[] {0, 1, -1, 2, -2}) {
                 BlockPos pos = home.pos().offset(dx, dy, dz);
                 if (!level.hasChunksAt(pos.offset(-1, -1, -1), pos.offset(1, 2, 1))

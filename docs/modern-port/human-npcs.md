@@ -36,7 +36,7 @@ A loaded, writable Field Command Post may deploy one unlocked unit every **1,200
 
 - Default per-post quota: **3 saved reservations**, including unloaded defenders.
 - Default area cap: **8 living loaded humans within a 48-block box**, including nearby posts and manually spawned test units. The local query stops when it reaches the cap.
-- At most 8 horizontal candidates within 6 blocks, with 5 vertical offsets each. Spawn checks require already-loaded neighboring chunks, safe walkable ground, two air blocks, no fluid at the support, collision clearance and the world border. Unsuitable terrain simply skips that interval; there is no retry every tick.
+- At most 8 horizontal candidates within 6 blocks, with 5 vertical offsets each, never in the post's own column. Spawn checks require already-loaded neighboring chunks, safe walkable ground, two air blocks, no fluid at the support, collision clearance and the world border. A lone floating post is not a spawn platform. Unsuitable terrain simply skips that interval; there is no retry every tick.
 - Deployed units have a saved dimension/position home and a 16-block vanilla home/pursuit radius. They can move back toward home; they never teleport or force-load it. No offline catch-up occurs. The attempt timer restarts after unload; returning to a post is not an immediate spawn.
 - Caps and deployment enable/interval/radii are configurable. Setting the per-post cap to 0 disables deployment. Lowering a cap never deletes existing humans. Test eggs can exceed quotas manually, but still count against automatic area deployment.
 
