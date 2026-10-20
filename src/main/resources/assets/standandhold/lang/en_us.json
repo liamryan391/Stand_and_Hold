@@ -4,6 +4,7 @@
   "block.standandhold.supply_crate": "Supply Crate",
   "itemGroup.standandhold": "Stand and Hold",
   "item.standandhold.parasite_tissue_sample": "Parasite Tissue Sample",
+  "message.standandhold.research_complete": "Research complete: %s",
   "gui.standandhold.supply_mode": "Supplies",
   "gui.standandhold.sample_mode": "Samples",
   "gui.standandhold.deposit_samples": "Store samples",

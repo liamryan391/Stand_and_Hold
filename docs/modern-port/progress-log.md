@@ -180,3 +180,10 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Labs consumed exact local samples/supplies once, rejected insufficient samples, preserved partial/completed saves and blocked competing/repeated rewards. Normal breaking returned samples even during supply overflow; valid probe retained disabled, QA force ticket removed and empty-server pausing restored.
 - Client resources/window loaded and closed normally (18m 40s); no world entry or Liam result. Actual player kills/pickups/menu/full-inventory/visual, external-mod/two-client/packet-fuzz/packaged tests remain unverified.
 - Windows CI 39415621033 passed runtime 70211b8 (clean build/260 assertions/jar upload); merged implementation with docs-only evidence handoff. Live milestone is in STATUS.md.
+
+## 2026-10-20 - M5 Client QA And Research Feedback
+- Liam reported the integrated M5 checks passed, except missing automatic lab completion chat; added one translated server-wide notice after successful completion, with no costs/timing/schema changes.
+- Final `clean build --no-daemon --stacktrace` passed after runtime exits (5s), 263 assertions; jar pins/version and completion translation inspected; `git diff --check` passed.
+- Two interactive dedicated runs reached Done/accepted stop/exited cleanly: competing labs emitted once/spent once, repeat and restart emitted nothing, banks/rewards persisted. Initial closed-stdin run saved/exited via guarded ignored JDK helper; disposable world retained, QA ticket removed and prior world selection restored.
+- Restarted pre-fix client entered/saved/reopened and fully exited normally (16m); new notice rendering/two-client delivery/external mods remain unverified. Live milestone is in STATUS.md.
+- Windows CI 39429897484 passed runtime fc41e3e (263 assertions/normal jar upload); merged M5 follow-up with documentation, keeping M6 unstarted and protected refs unchanged.

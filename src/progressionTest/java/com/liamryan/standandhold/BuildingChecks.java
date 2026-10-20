@@ -61,6 +61,11 @@ final class BuildingChecks {
         check(finished.supplies() == 0 && data.points() == 10 && data.isResearchComplete(first.id()), "lab consumes local cost and grants global receipt once");
         expect(() -> BuildingTransactions.finishResearch(ready, data, first, thresholds, 12));
         check(data.points() == 10 && ready.supplies() == 10, "second lab cannot pay/reward already completed research");
+        check(BuildingTransactions.researchBlocked(ready, data, first, thresholds).equals("Completed"), "completed research cannot re-enter the lab completion/notification branch");
+        CompoundTag savedResearch = (CompoundTag) HumanWorldData.CODEC.encodeStart(NbtOps.INSTANCE, data).getOrThrow();
+        var reloadedResearch = HumanWorldData.CODEC.parse(NbtOps.INSTANCE, savedResearch).getOrThrow();
+        check(BuildingTransactions.researchBlocked(ready, reloadedResearch, first, thresholds).equals("Completed"), "reload preserves the completion/notification gate");
+        expect(() -> BuildingTransactions.finishResearch(ready, reloadedResearch, first, thresholds, 12));
         check(ready.target("standandhold:field_communications").work() == 0, "changing/clearing target resets work");
         var cost = new BuildingTransactions.Upgrade(150, 20, 0, first.id());
         expect(() -> BuildingTransactions.upgrade(ready, data, cost));

@@ -133,11 +133,16 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
                 if (BuildingTransactions.researchBlocked(building.state, data, entry, thresholds).equals("Ready")) {
                     int required = BuildingConfig.LAB_WORK.get();
                     BuildingState next = building.state.work(Math.min(required, building.state.work() + (building.state.work() < required ? 1 : 0)));
-                    if (next.work() >= required) {
+                    boolean completed = next.work() >= required;
+                    if (completed) {
                         next = BuildingTransactions.finishResearch(next, data, entry, thresholds, required);
                         changed = true;
                     }
                     building.change(next);
+                    if (completed) {
+                        server.getServer().getPlayerList().broadcastSystemMessage(
+                                Component.translatable("message.standandhold.research_complete", entry.title()), false);
+                    }
                 }
             }
             if (changed) { refreshMissions(server, data); }
