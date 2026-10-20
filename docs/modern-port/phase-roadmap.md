@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M5**; see [STATUS.md](STATUS.md).
+Current position: **Phase M6**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -166,13 +166,13 @@ Exit gate:
 
 Priority: P2
 
-- [ ] **5.1 Register Parasite Tissue Samples with original placeholder resources and lang entries.**
-- [ ] **5.2 Add optional threat identification and rewards.**
-  - [ ] **5.2.1** Define tags/config mappings with `minecraft:zombie` as a clearly documented test default.
-  - [ ] **5.2.2** Award points and sample drops once per qualifying server death; define kill attribution and ignore null, malformed, or absent registry entries safely.
-  - [ ] **5.2.3** Connect sample pickup missions and actual lab sample consumption, including inventory and full-storage edge cases.
-- [ ] **5.3 Verify the first resource loop.** Build; test configured/unconfigured kills, reward/drop boundaries, pickup progress, lab consumption, and operation without other mods.
-- [ ] **5.4 Document mappings and missing-mod behavior.** Keep external IDs inactive until verified for the selected version/loader.
+- [x] **5.1 Register Parasite Tissue Samples with original placeholder resources and lang entries.**
+- [x] **5.2 Add optional threat identification and rewards.**
+  - [x] **5.2.1** Define tags/config mappings with `minecraft:zombie` as a clearly documented test default.
+  - [x] **5.2.2** Award points and sample drops once per qualifying server death; define kill attribution and ignore null, malformed, or absent registry entries safely.
+  - [x] **5.2.3** Connect sample pickup missions and actual lab sample consumption, including inventory and full-storage edge cases.
+- [x] **5.3 Verify the first resource loop.** Build; test configured/unconfigured kills, reward/drop boundaries, pickup progress, lab consumption, and operation without other mods. Automated rules and dedicated reward/drop/lab/save tests passed; actual player-attributed pickup/menu/full-inventory delivery and hands-on visual tests remain explicitly unverified in STATUS.md, not claimed as passed.
+- [x] **5.4 Document mappings and missing-mod behavior.** Keep external IDs inactive until verified for the selected version/loader.
 
 Exit gate:
 

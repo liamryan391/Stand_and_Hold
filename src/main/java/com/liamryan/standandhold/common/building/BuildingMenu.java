@@ -3,6 +3,9 @@ package com.liamryan.standandhold.common.building;
 import com.liamryan.standandhold.common.foundation.FoundationCatalog;
 import com.liamryan.standandhold.common.foundation.FoundationResources;
 import com.liamryan.standandhold.common.progression.ProgressionRules;
+import com.liamryan.standandhold.common.sample.SampleEvents;
+import com.liamryan.standandhold.common.sample.SampleInventory;
+import net.minecraft.server.level.ServerPlayer;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.BuildingConfig;
 import com.liamryan.standandhold.config.HumanProgressionConfig;
@@ -22,9 +25,9 @@ public final class BuildingMenu extends AbstractContainerMenu {
     public static final int POINTS = 0, GLOBAL = 1, LOCAL = 2, STAGE = 3, LEVEL = 4, SAMPLES = 5, WORK = 6,
             TARGET = 7, STATUS = 8, CAPACITY = 9, REQUIRED_WORK = 10, GENERATION_INTERVAL = 11, GENERATION_POINTS = 12,
             GENERATION_SUPPLIES = 13, UPGRADE_POINTS = 14, UPGRADE_SUPPLIES = 15, UPGRADE_SAMPLES = 16,
-            UPGRADE_STATUS = 17, BATCH = 18, UPGRADE_RESEARCH = 19, LAB_INTERVAL = 20;
-    public static final int IMPORT = 0, EXPORT = 1, UPGRADE = 2, PAUSE = 3, NEXT_RESEARCH = 4;
-    private final long[] numbers = new long[21];
+            UPGRADE_STATUS = 17, BATCH = 18, UPGRADE_RESEARCH = 19, LAB_INTERVAL = 20, HELD_SAMPLES = 21, SAMPLE_ROOM = 22;
+    public static final int IMPORT = 0, EXPORT = 1, UPGRADE = 2, PAUSE = 3, NEXT_RESEARCH = 4, DEPOSIT_SAMPLES = 5, TAKE_SAMPLES = 6;
+    private final long[] numbers = new long[23];
     private final BlockPos pos;
     private final BuildingKind kind;
     private final List<Option> options;
@@ -75,7 +78,7 @@ public final class BuildingMenu extends AbstractContainerMenu {
         return switch ((int) status) {
             case 0 -> "Ready"; case 1 -> "Completed"; case 2 -> "Required stage not reached";
             case 3 -> "Prerequisite research incomplete"; case 4 -> "Insufficient local supplies";
-            case 5 -> "Insufficient samples (insertion in M5)"; case 6 -> "No research selected";
+            case 5 -> "Insufficient local samples"; case 6 -> "No research selected";
             case 7 -> "Unavailable: save/data changed; reopen"; case 8 -> "Maximum level";
             case 9 -> "Human point requirement not reached";
             case 10 -> "Target removed: select another research";
@@ -116,6 +119,7 @@ public final class BuildingMenu extends AbstractContainerMenu {
             numbers[GENERATION_INTERVAL] = BuildingConfig.INTERVAL.get(); numbers[GENERATION_POINTS] = BuildingConfig.POINTS.get();
             numbers[GENERATION_SUPPLIES] = BuildingConfig.SUPPLIES.get(); numbers[BATCH] = BuildingConfig.TRANSFER.get();
             numbers[LAB_INTERVAL] = BuildingConfig.LAB_INTERVAL.get();
+            numbers[HELD_SAMPLES] = SampleInventory.count(owner.getInventory()); numbers[SAMPLE_ROOM] = SampleInventory.room(owner.getInventory());
             var cost = building.upgradeCost();
             numbers[UPGRADE_POINTS] = cost.points(); numbers[UPGRADE_SUPPLIES] = cost.supplies(); numbers[UPGRADE_SAMPLES] = cost.samples();
             numbers[UPGRADE_STATUS] = !cost.research().isEmpty() && !catalog.research().containsKey(cost.research()) ? 3
@@ -132,7 +136,7 @@ public final class BuildingMenu extends AbstractContainerMenu {
     @Override public boolean clickMenuButton(Player player, int action) {
         if (building == null || player.containerMenu != this || player.isSpectator() || !stillValid(player)
                 || !(player.level() instanceof ServerLevel server) || !server.getServer().isSameThread()
-                || action < IMPORT || action > NEXT_RESEARCH) { return false; }
+                || action < IMPORT || action > TAKE_SAMPLES) { return false; }
         try {
             building.requireWritable();
             if (FoundationResources.get(server.getServer()) != catalog) { throw new IllegalStateException("Definitions changed; close and reopen this menu."); }
@@ -155,6 +159,11 @@ public final class BuildingMenu extends AbstractContainerMenu {
                     if (kind != BuildingKind.LAB || options.isEmpty()) { return false; }
                     int index = (optionIndex(state.target()) + 1) % options.size();
                     building.change(state.target(options.get(index).id()));
+                }
+                case DEPOSIT_SAMPLES, TAKE_SAMPLES -> {
+                    if (!(player instanceof ServerPlayer serverPlayer)) { return false; }
+                    SampleInventory.transfer(serverPlayer, building, action == DEPOSIT_SAMPLES);
+                    if (action == TAKE_SAMPLES) { SampleEvents.observe(serverPlayer); }
                 }
                 default -> { return false; }
             }

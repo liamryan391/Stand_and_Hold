@@ -40,7 +40,7 @@ Research spends supplies, not human progression points. Stage and prerequisite r
 | `field_communications` | 1 | `parasite_samples` | 20 / 0 | 20 points | `outpost_coordination` |
 | `special_division_training` | 5 | `field_communications` | 100 / 5 | 25 points | `special_division_deployment` |
 
-Physical samples are not implemented until M5. Any entry with a nonzero sample cost safely refuses command completion before charging anything. Buildings have bounded saved sample storage for the future insertion API, but no obtainable sample item/admin insertion command. Initial Sample Analysis deliberately costs zero physical samples so the foundation can be tested independently. It is not a final gameplay balance. [Labs](buildings.md) spend local supplies after timed work; commands spend global supplies immediately. Both share the same once-only research receipt.
+Physical [samples](samples-and-threats.md) can be recovered and stored in buildings. Entries with a nonzero sample cost must use a funded lab; command completion refuses before charging anything because it cannot select arbitrary local storage. Initial Sample Analysis retains its zero-sample M3 testing cost, not final gameplay balance. [Labs](buildings.md) spend local supplies/samples after timed work; commands spend global supplies immediately. Both share the same once-only research receipt.
 
 ## Mission State And Feedback
 
@@ -58,7 +58,7 @@ Missions are global cooperative objectives, not per-player quests. They must be 
 
 Supply totals, research completion, human stage, and registered Command Posts can be observed now: checked on mission start, `/mission status`, successful supply/research mutation commands, post registration, and bounded building transactions/intervals. Progress is monotonic. Stage mutations are observed at the next such refresh. No global scans, automatic campaign, per-tick mission checks, or recursive reward callbacks are added.
 
-Physical sample recovery, outpost defence, and base discovery still have definitions/debug progress only. Their real gameplay hooks arrive in their owning phases. `mission progress` and `mission complete` are explicit operator test overrides, not claims that those activities already exist. Command Post registration is a real building hook; silent interval refreshes never spam chat. Command feedback reports rewards only for a new completion.
+Sample recovery observes the highest number actually carried by one player on a successful pickup, withdrawal, or player-issued mission start. Carry 3 at once for the default mission; repeated drop/re-pick cannot farm progress. Partial progress and the once-only reward remain world-global. Outpost defence/base discovery still have debug progress only. `mission progress` and `mission complete` are explicit operator test overrides. Command Post registration is a real building hook; silent interval refreshes never spam chat. Command feedback reports rewards only for a new completion.
 
 ## Commands
 
@@ -97,5 +97,5 @@ Use a new disposable modern world and defaults. The build's `progressionTest` co
 2. On a separate fresh world, start `recover_parasite_samples`, debug-progress it by 2, save/reload, then progress by 1. Expect 25 points and 10 supplies. Repeat completion: no extra reward.
 3. Start/complete `establish_field_command`, then start `stockpile_supplies`. Existing 20 supplies completes the stockpile mission immediately. Start `complete_first_research`, then complete `parasite_samples`: expect 110 points and 20 supplies in total after both research and mission rewards.
 4. Start `early_army_response`, run `setstage 1`, then `mission status`: expect 175 points at Stage 1. Start/complete `defend_outpost` and `establish_main_base`: expect 250 points and 55 supplies. Save/restart and repeat completion attempts: balances must remain unchanged.
-5. Test missing/unknown IDs, negative/zero amounts, insufficient supplies, overflow, stage/prerequisite gates, and the deferred physical-sample gate. Test a non-operator: public inspection works; mutations/debug commands are denied.
+5. Test missing/unknown IDs, negative/zero amounts, insufficient supplies, overflow, stage/prerequisite gates, and command refusal of nonzero physical-sample costs. Test actual local sample consumption with the [sample QA recipe](samples-and-threats.md). Test a non-operator: public inspection works; mutations/debug commands are denied.
 6. In a disposable test datapack, override one definition/reward, `/reload`, and verify it applies only to an uncompleted entry. Test a duplicate/cyclic/malformed override: a clear command error, no resource changes, no server crash. Disable that pack and `/reload` to restore defaults; keep removed-ID receipts.

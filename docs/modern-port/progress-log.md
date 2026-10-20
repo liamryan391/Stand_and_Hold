@@ -172,3 +172,11 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Resource override/reload/repeat and invalid-definition refusal passed; defaults restored with the valid QA pack disabled. Improved removed-target menu recovery/upgrade gates and bounded registry observation.
 - Liam reported integrated blocks/menus/lab/transfers/upgrade/reload passed; client saved/exited BUILD SUCCESSFUL (9m 4s). Two-client/network-fuzz/removed-target visual retest/packaged install remain unobserved.
 - Windows CI 38719872847 passed final runtime 29c6da5: clean build/219 assertions/jar upload; merged verified M4 into main with docs-only handoff. Live milestone is in STATUS.md; protected refs and user files were not changed by agent actions.
+
+## 2026-10-20 - M5 Samples And Optional Threat Rewards
+- Added original samples, bounded optional ID/tag mappings, server death/pickup hooks, real item transfers/recovery and carry-count mission observations; pins/version/runtime dependencies unchanged.
+- Final `clean build --no-daemon --stacktrace` passed after runtime exit (4s), 260 assertions; jar metadata/resources/test exclusion inspected.
+- Four dedicated runs reached Done/stopped cleanly; exact/tag/missing/invalid mappings, precedence, chance 0/1, 64-stack bound, mob_drops suppression, processed-victim/default attribution guards passed with documented QA overrides restored.
+- Labs consumed exact local samples/supplies once, rejected insufficient samples, preserved partial/completed saves and blocked competing/repeated rewards. Normal breaking returned samples even during supply overflow; valid probe retained disabled, QA force ticket removed and empty-server pausing restored.
+- Client resources/window loaded and closed normally (18m 40s); no world entry or Liam result. Actual player kills/pickups/menu/full-inventory/visual, external-mod/two-client/packet-fuzz/packaged tests remain unverified.
+- Windows CI 39415621033 passed runtime 70211b8 (clean build/260 assertions/jar upload); merged implementation with docs-only evidence handoff. Live milestone is in STATUS.md.

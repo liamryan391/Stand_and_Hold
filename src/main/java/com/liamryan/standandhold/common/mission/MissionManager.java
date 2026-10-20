@@ -61,6 +61,24 @@ public final class MissionManager {
         return new Update(mission, state, changed);
     }
 
+    /** Highest actual carried count, never cumulative pickup events: dropping/re-picking cannot farm progress. */
+    public static List<String> observeSamples(HumanWorldData data, FoundationCatalog catalog, long[] thresholds, int carried) {
+        if (carried < 0) { throw new IllegalArgumentException("Negative carried sample count."); }
+        List<String> messages = new ArrayList<>();
+        for (Mission mission : catalog.missions().values()) {
+            if (mission.objective() != Mission.Objective.SAMPLE_RECOVERY) { continue; }
+            try {
+                var state = data.mission(mission.id());
+                if (state.isEmpty() || state.get().completed()) { continue; }
+                Update update = update(data, mission, thresholds, carried);
+                if (update.changed()) { messages.add(update.message()); }
+            } catch (IllegalArgumentException | IllegalStateException exception) {
+                messages.add("Mission update blocked: " + mission.id() + " - " + exception.getMessage());
+            }
+        }
+        return List.copyOf(messages);
+    }
+
     private static long observed(HumanWorldData data, Mission mission, long[] thresholds) {
         return switch (mission.objective()) {
             case SUPPLY_TOTAL -> data.supplies();

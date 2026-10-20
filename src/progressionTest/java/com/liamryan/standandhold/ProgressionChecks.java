@@ -20,6 +20,7 @@ public final class ProgressionChecks {
         savedData();
         FoundationChecks.run();
         BuildingChecks.run();
+        SampleChecks.run();
         System.out.println("Progression checks passed: " + assertions + " assertions.");
     }
 

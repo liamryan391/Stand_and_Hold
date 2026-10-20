@@ -132,7 +132,13 @@ final class CommandFoundation {
             String message = start && !update.state().completed()
                     ? "Mission active: " + update.mission().title() + " " + update.state().progress() + "/" + update.mission().target()
                     : update.message();
-            return List.of(message);
+            List<String> lines = new ArrayList<>();
+            lines.add(message);
+            if (start && source.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) {
+                lines.addAll(MissionManager.observeSamples(data, catalog, HumanProgressionConfig.thresholds(),
+                        com.liamryan.standandhold.common.sample.SampleInventory.count(player.getInventory())));
+            }
+            return lines;
         }, true);
     }
 

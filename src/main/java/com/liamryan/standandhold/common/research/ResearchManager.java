@@ -18,7 +18,7 @@ public final class ResearchManager {
         for (String prerequisite : entry.prerequisites()) {
             if (!data.isResearchComplete(prerequisite)) { return "requires research " + prerequisite; }
         }
-        if (entry.sampleCost() > 0) { return "requires " + entry.sampleCost() + " physical samples (available in M5, not this foundation)"; }
+        if (entry.sampleCost() > 0) { return "requires " + entry.sampleCost() + " physical samples; use a Research Lab (commands cannot spend local samples)"; }
         if (data.supplies() < entry.supplyCost()) { return "requires " + entry.supplyCost() + " supplies; stored " + data.supplies(); }
         return "ready";
     }

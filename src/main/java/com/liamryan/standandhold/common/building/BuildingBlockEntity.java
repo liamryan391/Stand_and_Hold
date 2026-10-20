@@ -5,6 +5,7 @@ import com.liamryan.standandhold.common.foundation.FoundationCatalog;
 import com.liamryan.standandhold.common.foundation.FoundationResources;
 import com.liamryan.standandhold.common.mission.MissionManager;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
+import com.liamryan.standandhold.common.sample.SampleItems;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.BuildingConfig;
 import com.liamryan.standandhold.config.HumanProgressionConfig;
@@ -21,6 +22,8 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -52,9 +55,6 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
                 BuildingConfig.UPGRADE_SUPPLIES.get().get(index).longValue(), BuildingConfig.UPGRADE_SAMPLES.get().get(index).intValue(),
                 BuildingConfig.UPGRADE_RESEARCH.get().get(index));
     }
-    /** Caller must first remove exactly this many physical samples; no inventory access until M5. */
-    public void acceptSamples(int amount) { change(state.insertSamples(amount)); }
-
     @Override protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         output.putInt("building_version", schema);
@@ -91,12 +91,18 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         if (removalHandled || !(level instanceof ServerLevel server)) { return; }
         removalHandled = true;
         try {
+            requireWritable();
             HumanWorldData data = HumanWorldData.get(server.getServer());
             if (kind() == BuildingKind.COMMAND_POST) { data.removeCommandPost(position(server).key()); }
-            requireWritable();
-            long recovered = FoundationAmounts.credit(data.supplies(), state.supplies());
-            data.setSupplies(recovered);
+            int samples = state.samples();
+            try { data.setSupplies(FoundationAmounts.credit(data.supplies(), state.supplies())); }
+            catch (IllegalArgumentException exception) { LogUtils.getLogger().warn("Supply recovery overflow at {}: {}", pos, exception.getMessage()); }
             change(BuildingState.EMPTY);
+            while (samples > 0) {
+                int count = Math.min(64, samples);
+                Block.popResource(server, pos, new ItemStack(SampleItems.TISSUE.get(), count));
+                samples -= count;
+            }
         } catch (IllegalArgumentException | IllegalStateException exception) {
             LogUtils.getLogger().warn("Building removal at {} could not recover virtual storage: {}", pos, exception.getMessage());
         }

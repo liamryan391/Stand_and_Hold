@@ -1,6 +1,7 @@
 package com.liamryan.standandhold.common.building;
 
 import com.liamryan.standandhold.StandAndHoldConstants;
+import com.liamryan.standandhold.common.sample.SampleItems;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.MenuType;
@@ -28,7 +29,10 @@ public final class BuildingRegistry {
     public static final DeferredHolder<MenuType<?>, MenuType<BuildingMenu>> MENU = MENUS.register("building", () -> IMenuTypeExtension.create(BuildingMenu::new));
     private static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = TABS.register("buildings", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.standandhold"))
-            .icon(() -> COMMAND_POST.asItem().getDefaultInstance()).displayItems(ITEMS.getEntries()).build());
+            .icon(() -> COMMAND_POST.asItem().getDefaultInstance()).displayItems((parameters, output) -> {
+                ITEMS.getEntries().forEach(item -> output.accept(item.get()));
+                output.accept(SampleItems.TISSUE.get());
+            }).build());
     private BuildingRegistry() { }
     private static DeferredBlock<BuildingBlock> block(BuildingKind kind) {
         var block = BLOCKS.registerBlock(kind.id(), properties -> new BuildingBlock(kind, properties),

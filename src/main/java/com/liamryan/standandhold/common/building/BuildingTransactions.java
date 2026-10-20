@@ -31,7 +31,7 @@ public final class BuildingTransactions {
         if (data.points() < cost.points()) { return "Requires " + cost.points() + " human points (not spent)"; }
         if (!cost.research().isEmpty() && !data.isResearchComplete(cost.research())) { return "Requires " + cost.research(); }
         if (state.supplies() < cost.supplies()) { return "Requires " + cost.supplies() + " local supplies"; }
-        if (state.samples() < cost.samples()) { return "Requires " + cost.samples() + " local samples (M5 insertion)"; }
+        if (state.samples() < cost.samples()) { return "Requires " + cost.samples() + " local samples"; }
         return "Ready";
     }
 
@@ -47,7 +47,7 @@ public final class BuildingTransactions {
         if (ProgressionRules.stageFor(data.points(), thresholds).level() < entry.requiredStage()) { return "Requires stage " + entry.requiredStage(); }
         for (String id : entry.prerequisites()) { if (!data.isResearchComplete(id)) { return "Requires " + id; } }
         if (state.supplies() < entry.supplyCost()) { return "Requires " + entry.supplyCost() + " local supplies"; }
-        if (state.samples() < entry.sampleCost()) { return "Requires " + entry.sampleCost() + " local samples (M5 insertion)"; }
+        if (state.samples() < entry.sampleCost()) { return "Requires " + entry.sampleCost() + " local samples"; }
         return "Ready";
     }
 
