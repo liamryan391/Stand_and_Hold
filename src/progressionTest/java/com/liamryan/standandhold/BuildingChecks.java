@@ -21,7 +21,7 @@ import net.minecraft.nbt.NbtOps;
 final class BuildingChecks {
     private static int assertions;
     static void run() throws Exception {
-        transfer(); researchAndUpgrades(); savesAndPositions(); menuValues();
+        transfer(); researchAndUpgrades(); savesAndPositions(); menuValues(); mainBaseNotices();
         System.out.println("Building checks passed: " + assertions + " assertions.");
     }
     private static void transfer() {
@@ -46,6 +46,17 @@ final class BuildingChecks {
         expect(() -> start.insertSamples(0));
         expect(() -> start.insertSamples(4097));
         check(start.insertSamples(4096).samples() == 4096, "bounded M5 sample insertion");
+    }
+    private static void mainBaseNotices() {
+        for (int seen = 0; seen <= 3; seen++) {
+            for (boolean active : new boolean[]{false, true}) {
+                int next = BuildingTransactions.claimMainBaseNotice(seen, active);
+                check(next == (seen | (active ? 2 : 1)), "claim only the observed base state, preserving prior notice");
+                check(BuildingTransactions.claimMainBaseNotice(next, active) == next, "reopen/reload cannot claim a seen state again");
+            }
+        }
+        expect(() -> BuildingTransactions.claimMainBaseNotice(-1, true));
+        expect(() -> BuildingTransactions.claimMainBaseNotice(4, false));
     }
     private static void researchAndUpgrades() throws Exception {
         var catalog = FoundationChecks.defaults();

@@ -198,7 +198,7 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 
 ## 2026-10-20 - M7 Structure Foundations And Grass QA
 - Added bounded original checkpoints/Main Bases, natural/debug placement, terrain/config checks, schema 5 registration/discovery, stage activation and loaded-only cleanup; no dependencies/pin/version/legacy-ref changes.
-- Initial and grass-fix `clean build --no-daemon --stacktrace` passed (939 assertions); normal jar metadata/resources/test exclusion inspected. Final clean verification remains pending runtime exit.
+- Initial/grass-fix clean builds passed (939 assertions); one-time notice fix clean build passed (957). Normal jar metadata/resources/test exclusion inspected; post-client clean verification remains pending.
 - Dedicated tests observed debug/natural generation, stage activation, persistence, unloaded retention, stale cleanup and safe rejection of occupied/wet/steep/unavailable/disallowed sites; interrupted server later stopped normally.
-- Liam's first visual test failed on ordinary grass: 26.3 separates grass_blocks from dirt. Added both tags, improved rejection coordinates, verified grass-over-dirt placement on dedicated; corrected client retest is running.
-- Added structure/config/test documentation and corrected existing feature/schema references. Disposable worlds retained; dense settings restored, final storage reload/server-selection restoration and CI/publication pending. Live milestone is in STATUS.md.
+- Liam's first visual test failed on ordinary grass: 26.3 separates grass_blocks from dirt. Added both tags and rejection coordinates; corrected integrated retest passed. His repeated-chat feedback now has saved per-base once-per-state notices; focused check pending.
+- Windows CI 39458559999 passed initial M7 runtime 2d23561; follow-up CI/merge pending. Five dedicated runs exited normally, natural base count stayed 19, changed crate stayed 1 after restart; defaults/tickets/world selection restored and disposable worlds retained. Live milestone is in STATUS.md.

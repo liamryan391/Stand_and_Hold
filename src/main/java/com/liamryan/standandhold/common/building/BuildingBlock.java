@@ -31,8 +31,11 @@ public final class BuildingBlock extends BaseEntityBlock {
                     data.discoverMainBase(new BuildingPosition(server.dimension().identifier(), pos));
                     var messages = MissionManager.refresh(data, FoundationResources.get(server.getServer()), HumanProgressionConfig.thresholds());
                     messages.forEach(message -> player.sendSystemMessage(Component.literal(message)));
-                    player.sendSystemMessage(building.operational(data) ? Component.translatable("message.standandhold.main_base_active")
-                            : Component.translatable("message.standandhold.main_base_dormant", StructureConfig.ACTIVATION_STAGE.get()));
+                    boolean active = building.operational(data);
+                    if (building.claimMainBaseNotice(active)) {
+                        player.sendSystemMessage(active ? Component.translatable("message.standandhold.main_base_active")
+                                : Component.translatable("message.standandhold.main_base_dormant", StructureConfig.ACTIVATION_STAGE.get()));
+                    }
                 }
                 player.openMenu(building, building::writeMenuData);
             }

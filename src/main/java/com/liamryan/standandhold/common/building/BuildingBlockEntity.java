@@ -44,12 +44,22 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
     private boolean removalHandled;
     private boolean reportedFailure;
     private boolean mainBase;
+    private int mainBaseNotices;
 
     public BuildingBlockEntity(BlockPos pos, BlockState block) { super(BuildingRegistry.ENTITY.get(), pos, block); }
     public BuildingKind kind() { return ((BuildingBlock) getBlockState().getBlock()).kind(); }
     public BuildingState state() { return state; }
     public boolean isMainBase() { return mainBase && kind() == BuildingKind.COMMAND_POST; }
     public void initializeMainBase() { requireWritable(); if (!mainBase) { mainBase = true; setChanged(); } }
+    public boolean claimMainBaseNotice(boolean active) {
+        requireWritable();
+        if (!isMainBase()) { return false; }
+        int next = BuildingTransactions.claimMainBaseNotice(mainBaseNotices, active);
+        if (next == mainBaseNotices) { return false; }
+        mainBaseNotices = next;
+        setChanged();
+        return true;
+    }
     public boolean operational(HumanWorldData data) {
         return !isMainBase() || data.isMainBase(new BuildingPosition(level.dimension().identifier(), worldPosition))
                 && ProgressionRules.stageFor(data.points(), HumanProgressionConfig.thresholds()).level() >= StructureConfig.ACTIVATION_STAGE.get();
@@ -71,6 +81,7 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         super.saveAdditional(output);
         output.putInt("building_version", schema);
         output.putBoolean("main_base", mainBase);
+        output.putInt("main_base_notices", mainBaseNotices);
         if ((schema != 1 || malformed) && retainedState != null) {
             output.store("building", Codec.PASSTHROUGH, retainedState);
         } else {
@@ -84,6 +95,7 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         super.loadAdditional(input);
         schema = input.getIntOr("building_version", 1);
         mainBase = input.getBooleanOr("main_base", false);
+        mainBaseNotices = Math.clamp(input.getIntOr("main_base_notices", 0), 0, 3);
         retainedState = input.read("building", Codec.PASSTHROUGH).orElse(null);
         malformed = retainedState != null && !(retainedState.convert(NbtOps.INSTANCE).getValue() instanceof CompoundTag);
         state = malformed || retainedState == null ? BuildingState.EMPTY : BuildingState.CODEC.parse(retainedState).getOrThrow();
