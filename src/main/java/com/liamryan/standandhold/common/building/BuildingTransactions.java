@@ -8,6 +8,11 @@ import com.liamryan.standandhold.common.world.HumanWorldData;
 /** Validate and construct the full result before any live building is changed. Server thread only. */
 public final class BuildingTransactions {
     private BuildingTransactions() { }
+    /** Two persistent per-base receipts: one dormant notice, one active notice, shared by viewers. */
+    public static int claimMainBaseNotice(int seen, boolean active) {
+        if (seen < 0 || seen > 3) { throw new IllegalArgumentException("Invalid Main Base notice history."); }
+        return seen | (active ? 2 : 1);
+    }
     public record Transfer(BuildingState local, long global) { }
     public record Upgrade(long points, long supplies, int samples, String research) {
         public Upgrade {

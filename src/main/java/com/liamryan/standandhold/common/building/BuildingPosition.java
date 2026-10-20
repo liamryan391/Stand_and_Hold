@@ -8,6 +8,7 @@ public record BuildingPosition(Identifier dimension, BlockPos pos) {
     public BuildingPosition { pos = pos.immutable(); }
     public String key() { return dimension + "@" + pos.getX() + "," + pos.getY() + "," + pos.getZ(); }
     public static Optional<BuildingPosition> parse(String key) {
+        if (key == null) { return Optional.empty(); }
         if (key.length() > 200) { return Optional.empty(); }
         String[] parts = key.split("@", -1);
         if (parts.length != 2) { return Optional.empty(); }

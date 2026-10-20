@@ -43,7 +43,7 @@ final class NpcChecks {
         check(restored.defenderCount(key) == 0 && !restored.isDirty(), "repeat removal no-op");
         var old = encode(data); old.putInt("data_version", 3); old.remove("defenders"); old.putString("future_note", "keep");
         var migrated = decode(old);
-        check(migrated.dataVersion() == 4 && migrated.defenderCount(key) == 0 && migrated.commandPostKeys().contains(key), "schema three gains empty quota without losing posts");
+        check(migrated.dataVersion() == HumanWorldData.CURRENT_VERSION && migrated.defenderCount(key) == 0 && migrated.commandPostKeys().contains(key), "schema three gains empty quota without losing posts");
         check(encode(migrated).getStringOr("future_note", "").equals("keep"), "migration keeps unknown fields");
         var malformed = encode(data); malformed.putString("defenders", "do not delete");
         var blocked = decode(malformed);

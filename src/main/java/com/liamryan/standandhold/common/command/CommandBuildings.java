@@ -28,7 +28,7 @@ final class CommandBuildings {
                     .sorted(Comparator.comparingDouble(position -> position.pos().distToCenterSqr(source.getPosition())))
                     .limit(nearest ? 1 : 20).toList();
             source.sendSuccess(() -> Component.literal("Registered Field Command Posts: " + data.commandPostKeys().size()
-                    + "; cleaned " + cleaned + " stale records. Showing " + positions.size() + (nearest ? " nearest in this dimension." : " (maximum 20).")), false);
+                    + "; cleaned " + cleaned + " stale building records. Showing " + positions.size() + (nearest ? " nearest in this dimension." : " (maximum 20).")), false);
             for (var position : positions) {
                 boolean loaded = position.dimension().equals(source.getLevel().dimension().identifier()) && source.getLevel().hasChunkAt(position.pos());
                 source.sendSuccess(() -> Component.literal(position.key() + (loaded ? " [loaded]" : " [not inspected/unloaded]")), false);

@@ -1,6 +1,6 @@
 # Core Buildings
 
-These are the small modern M4 buildings, not generated structures or the legacy base system. Use fresh modern worlds. All three are available in the Stand and Hold creative tab or through operator `/give` commands:
+These are the small modern buildings, also used by the [checkpoint/Main Base foundations](structures.md), not the legacy base system. Use fresh modern worlds. All three are available in the Stand and Hold creative tab or through operator `/give` commands:
 
 ```text
 /give @s standandhold:field_command_post
@@ -41,7 +41,7 @@ Building balance is in `config/standandhold-buildings.toml` (server-owned, synce
 
 ## Safety And Persistence
 
-- Schema 4 global SavedData preserves modern progression/research/missions, command-post registrations and defender reservations. Block entities use `building_version: 1` and a `building` compound; its additive `researching` flag defaults to false for older modern labs. Unknown nested building fields survive ordinary saves; future/invalid building schemas pause mutation rather than spending resources.
+- Schema 5 global SavedData preserves modern progression/research/missions, command-post registrations and defender reservations, adding Main Base registration/discovery. Block entities use `building_version: 1` and a `building` compound; its additive `researching` flag defaults to false for older modern labs. The additive top-level `main_base` flag defaults false for ordinary/older posts. Unknown nested building fields survive ordinary saves; future/invalid building schemas pause mutation rather than spending resources.
 - Generation and work run only in loaded ticking chunks, with constant-time interval counters. No offline catch-up, global world scan, or per-tick dirty writes. Partial interval time restarts on reload; completed lab work is saved.
 - Normal breaking/explosion side effects unregister posts, return local supplies to the global pool once, and drop remaining samples as bounded physical stacks (subject to block-drop rules). Blocks drop fresh level-1 items, not saved storage/levels; upgrades are not portable. Drain storage before destructive admin edits: vanilla `/setblock ... replace/strict`, `/fill`, or structure edits may suppress block-entity side effects and discard storage. `/setblock ... air destroy` exercises normal removal.
 - If the global balance is at the signed-long limit, destruction cannot return overflowing local storage; a single warning records the loss. Export before breaking when balances are near the limit. There is no cross-file crash journal: building chunks and global SavedData save separately. Normal save/reload is supported, but power loss/partial backup restoration can leave mixed snapshots. Back up the whole world, not individual data/chunk files.

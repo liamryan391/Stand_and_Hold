@@ -195,3 +195,10 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Six dedicated runs reached Done/accepted stop/exited cleanly; melee/stages/caps/reload/removal, optional mappings and paused/competing lab receipts passed. Night/fire isolation verified live attack disable/resume; a final own-column exclusion fixed isolated floating-post spawning (ground control 3, floating 0).
 - Liam reported NPC and focused lab-control checks passed; both clients entered/reloaded/exited normally (7m 43s, 4m 8s). Two-client/external-mod/packaged tests remain unverified; QA settings/tickets restored and disposable world retained.
 - Windows CI 39437110203 passed runtime 44ec4b3 (329 assertions/jar upload); merged M6 with docs-only handoff. Live milestone is in STATUS.md.
+
+## 2026-10-20 - M7 Structure Foundations And Grass QA
+- Added bounded original checkpoints/Main Bases, natural/debug placement, terrain/config checks, schema 5 registration/discovery, stage activation and loaded-only cleanup; no dependencies/pin/version/legacy-ref changes.
+- Final `clean build --no-daemon --stacktrace` passed after runtime exits (5s, 957 assertions); normal jar metadata/resources/translations/test exclusion inspected; `git diff --check` passed.
+- Dedicated tests observed debug/natural generation, stage activation, persistence, unloaded retention, stale cleanup and safe rejection of occupied/wet/steep/unavailable/disallowed sites; interrupted server later stopped normally.
+- Liam's initial grass test failed (26.3 separates grass_blocks from dirt); both tags/rejection coordinates fixed it. Corrected integrated retest and saved once-per-state chat/reopen/reload retest passed; all three clients exited normally. Multiplayer/external-mod/load/packaged tests remain unverified.
+- Windows CI 39459174705 passed final runtime fca39a6 (957 assertions/jar upload); merged M7 with docs-only handoff. Five dedicated runs exited normally, natural base count stayed 19, changed crate stayed 1 after restart; defaults/tickets/prior server settings restored and disposable worlds retained. Live milestone is in STATUS.md.
