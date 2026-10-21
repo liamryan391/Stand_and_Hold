@@ -39,9 +39,10 @@ final class EquipmentChecks {
         check(!EquipmentRules.unlocked(6, 7, "", id -> true, id -> true), "invalid required stage blocked");
     }
     private static void targetsAndFlight() {
-        for (int bits = 0; bits < 32; bits++) {
+        for (int bits = 0; bits < 64; bits++) {
             boolean living = (bits & 1) != 0, player = (bits & 2) != 0, human = (bits & 4) != 0, allied = (bits & 8) != 0, mapped = (bits & 16) != 0;
-            check(EquipmentRules.validTarget(living, player, human, allied, mapped) == (living && !player && !human && !allied && mapped), "all friendly/mapping combinations");
+            boolean hostile = (bits & 32) != 0;
+            check(EquipmentRules.validTarget(living, player, human, allied, mapped, hostile) == (living && !player && !human && !allied && (mapped || hostile)), "all friendly/mapping/hostile combinations");
         }
         for (double value : new double[]{Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, -1, 0, 6, 64, 256, 500}) {
             float damage = EquipmentRules.damage(value);
@@ -88,6 +89,9 @@ final class EquipmentChecks {
             boolean visible = false;
             for (int y = 0; y < 16; y++) { for (int x = 0; x < 16; x++) { visible |= image.getRGB(x, y) >>> 24 != 0; } }
             check(visible, "item icon nonblank");
+            if (id.equals("elite_helmet")) {
+                for (int y = 11; y < 16; y++) { for (int x = 0; x < 16; x++) { check(image.getRGB(x, y) >>> 24 == 0, "no detached helmet icon pixels"); } }
+            }
             if (id.equals("prototype_bolt")) { continue; }
             var recipe = json(data.resolve("recipe/" + id + ".json"));
             check(recipe.getAsJsonObject("result").get("id").getAsString().equals("standandhold:" + id), "recipe result correct");

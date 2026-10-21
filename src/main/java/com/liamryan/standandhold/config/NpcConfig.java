@@ -23,6 +23,8 @@ public final class NpcConfig {
     }
     public static final Stats SURVIVOR = new Stats(HumanTier.SURVIVOR_DEFENDER);
     public static final Stats ARMY = new Stats(HumanTier.ARMY_RIFLEMAN);
+    public static final ModConfigSpec.BooleanValue HOSTILE_TARGETS = B.comment("Human defenders also target vanilla Enemy-marked hostile mobs, not only configured infection/test IDs. Does not grant kill rewards or samples to those mobs. Normally neutral Enemy types such as Endermen are included; disable to use mappings only.")
+            .define("targetHostileMobs", true);
     public static final ModConfigSpec.BooleanValue DEPLOY = B.comment("Loaded command posts may deploy one defender per interval. No natural biome spawning or offline catch-up.")
             .define("deploymentEnabled", true);
     public static final ModConfigSpec.IntValue INTERVAL = B.comment("Loaded ticks per deployment attempt; timers restart after unload. At most one successful defender per attempt.")

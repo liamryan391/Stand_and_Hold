@@ -1,15 +1,16 @@
 # Status
 
-Updated: 2026-10-21 - Branch: `codex/m9-equipment`
+Updated: 2026-10-22 - Branch: `codex/m9-equipment`
 
 ## Where we are
 
 - M1-M8 are verified and merged. M9 is in progress on `codex/m9-equipment`: an Anti-Threat Blade, Army/Elite armour and a cooldown-based launcher with server-owned unlocks and safe Rifleman use. See [Equipment](equipment.md). No pin, version, runtime dependency, global schema or protected legacy-ref changes.
 - Added synced equip/use gates, ten ordinary recipes/discovery/repair tags and original item/worn art. Recipes/possession are not gated; normal armour equip and weapon use are. Already-worn/admin-edited armour is not forcibly stripped after stage resets.
 - Bolts save bounded age/lifetime/damage, stop at unavailable chunks and protect players/humans/allies. Riflemen can receive one non-dropping launcher in an empty hand after unlock, with line of sight, a 12-block firing limit, saved shot timing and existing melee/home/target/deployment safeguards. No ammo/reload or new unit.
-- Initial `clean build --no-daemon --stacktrace` passed (6s, 1,932 assertions). After final guards/tags/discovery, `build --no-daemon --stacktrace` passed (7s, 1,938: 1,363 prior +575 equipment). Final clean verification, jar inspection and remote M9 CI remain pending.
+- Final post-client `clean build --no-daemon --stacktrace` passed (5s, 2,050 assertions: 1,363 prior +687 equipment). Normal jar metadata matches Minecraft 26.3/NeoForge 26.3.0.57-beta and version 0.1.0-alpha.1; ten recipes are packaged and test classes excluded. Windows CI passed the first M9 implementation; latest feedback fixes still need their own CI.
 - Two private M9 dedicated launches reached Done, accepted status/research, saved/stopped/exited normally (3m13s, 2m). Restart retained 180 points/Stage 1 and two completed research entries. Constructors accepted the new entity types; subsequent selectors found no loaded entities, so no physical combat/flight proof is claimed from those commands. Prior server selection/60-second pausing are restored; disposable worlds retained.
-- Client resources loaded with the mod listed; Liam's combined equipment/gate/combat/crafting/reload check is in progress. Army armour F2 front/back frames were inspected with a visible face and no missing texture. Final client exit, clean build, CI and merge are unverified.
+- Liam reported the combined equipment/gate/combat/crafting/reload check passed, but found an inward held-launcher pose, detached Elite Helmet icon pixels and zombie-only targeting. The focused fixes add explicit held transforms, corrected original icon art and configurable Enemy-or-mapped targeting (no extra rewards). Broader combat includes normally neutral Enemy types such as Endermen; disable `targetHostileMobs` for mapping-only NPC defence. Armour/gun detail remains later art work.
+- Liam reported the focused pose/icon/hostile-targeting retest passed. F2 captures show the corrected icon and outward launcher; the client saved and exited normally (2m38s). A third dedicated launch of this code reached Done, retained 180 points/Stage 1/two completed research entries, accepted save/stop and exited normally (15s). Prior world selection/pausing are restored; no user files were deleted.
 
 ## Next milestone
 
@@ -19,7 +20,7 @@ Complete the phase on the prepared branch. Keep pins/version unchanged, retain o
 
 ## Needs Liam
 
-- Report the combined M9 check and fully Quit Game before final clean verification. No pin/dependency decision is needed. Actual two-client combat, custom enchantment/trim combinations and physical in-flight reload remain separate coverage unless observed.
+- No blocking client check or pin/dependency decision remains. Actual two-client combat, left-main-arm visual coverage, custom enchantment/trim combinations and physical in-flight reload remain separate coverage unless observed.
 - Only Liam may accept an installed-server EULA if requested; development runs skipped that check and no acceptance file was written.
 
 ## Open risks

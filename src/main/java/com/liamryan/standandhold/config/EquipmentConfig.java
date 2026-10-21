@@ -30,7 +30,7 @@ public final class EquipmentConfig {
             .defineList("eliteDefense", List.of(3, 7, 6, 3), () -> 0, value -> value instanceof Integer n && n >= 0 && n <= 10);
     public static final ModConfigSpec.DoubleValue ARMY_TOUGHNESS = B.comment("Toughness per Army armour piece; re-equip after edits.").defineInRange("armyToughness", 0.0, 0, 4);
     public static final ModConfigSpec.DoubleValue ELITE_TOUGHNESS = B.comment("Toughness per Elite armour piece; re-equip after edits.").defineInRange("eliteToughness", 1.0, 0, 4);
-    public static final ModConfigSpec.DoubleValue DAMAGE = B.comment("Prototype damage before vanilla mitigation. Only mapped threats can be damaged.").defineInRange("prototypeDamage", 6.0, 0, 64);
+    public static final ModConfigSpec.DoubleValue DAMAGE = B.comment("Prototype damage before vanilla mitigation. Only Enemy-marked hostile mobs or mapped threats can be damaged; no extra kill rewards are implied.").defineInRange("prototypeDamage", 6.0, 0, 64);
     public static final ModConfigSpec.IntValue COOLDOWN = B.comment("Shared player cooldown across both hands/all copies, in ticks. No ammo/reload system.").defineInRange("prototypeCooldownTicks", 20, 10, 200);
     public static final ModConfigSpec.IntValue LIFETIME = B.comment("Maximum bolt flight ticks; age/damage/lifetime persist and never reset on reload. No chunk tickets.").defineInRange("projectileLifetimeTicks", 30, 10, 100);
     public static final ModConfigSpec.DoubleValue SPEED = B.comment("Bolt speed in blocks/tick. Unavailable chunks/world border end flight safely.").defineInRange("projectileSpeed", 1.6, 0.5, 3);

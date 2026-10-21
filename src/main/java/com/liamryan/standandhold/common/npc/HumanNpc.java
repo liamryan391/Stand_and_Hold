@@ -34,6 +34,7 @@ import net.minecraft.world.entity.ai.goal.RangedAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.monster.RangedAttackMob;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
@@ -79,8 +80,9 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
                 || target.isRemoved() || target.level() != level() || !level().hasChunkAt(target.blockPosition())
                 || !isWithinHome(target.blockPosition())) { return false; }
         var id = BuiltInRegistries.ENTITY_TYPE.getResourceKey(target.getType()).map(key -> key.identifier().toString()).orElse(null);
-        return ThreatConfig.rules().match(id, tag -> target.getType().builtInRegistryHolder()
-                .is(TagKey.create(Registries.ENTITY_TYPE, Identifier.parse(tag)))).isPresent() && super.canAttack(target);
+        boolean mapped = ThreatConfig.rules().match(id, tag -> target.getType().builtInRegistryHolder()
+                .is(TagKey.create(Registries.ENTITY_TYPE, Identifier.parse(tag)))).isPresent();
+        return (NpcConfig.HOSTILE_TARGETS.get() && target instanceof Enemy || mapped) && !isAlliedTo(target) && super.canAttack(target);
     }
     @Override public boolean doHurtTarget(ServerLevel level, Entity target) {
         return target instanceof LivingEntity living && canAttack(living) && super.doHurtTarget(level, target);
@@ -156,7 +158,7 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
             long now = mob.level().getGameTime();
             if (now < nextSearch) { return false; }
             nextSearch = now + NpcConfig.TARGET_INTERVAL.get();
-            return !ThreatConfig.rules().rules().isEmpty() && super.canUse() && canAttack(target, targetConditions);
+            return (NpcConfig.HOSTILE_TARGETS.get() || !ThreatConfig.rules().rules().isEmpty()) && super.canUse() && canAttack(target, targetConditions);
         }
     }
 }

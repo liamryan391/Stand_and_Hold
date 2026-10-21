@@ -18,7 +18,10 @@ class GenerateEquipmentTextures {
                     case "leggings" -> { rect(icon, 3, 2, 10, 12, INK); rect(icon, 4, 3, 8, 10, shell); rect(icon, 7, 7, 2, 7, 0); rect(icon, 4, 3, 8, 2, mark); }
                     case "boots" -> { rect(icon, 2, 5, 5, 9, INK); rect(icon, 9, 5, 5, 9, INK); rect(icon, 3, 6, 3, 5, shell); rect(icon, 10, 6, 3, 5, shell); rect(icon, 3, 8, 3, 1, mark); rect(icon, 10, 8, 3, 1, mark); }
                 }
-                if (elite) { rect(icon, 4, 12, 2, 1, LIGHT); rect(icon, 10, 12, 2, 1, LIGHT); }
+                if (elite) {
+                    int y = type.equals("helmet") ? 6 : 12;
+                    rect(icon, 4, y, 2, 1, LIGHT); rect(icon, 10, y, 2, 1, LIGHT);
+                }
                 write(icon, "item/" + tier + "_" + type + ".png");
             }
             BufferedImage outer = new BufferedImage(64, 32, BufferedImage.TYPE_INT_ARGB);

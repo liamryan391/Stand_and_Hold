@@ -15,6 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.monster.Enemy;
 
 public final class EquipmentAccess {
     private EquipmentAccess() { }
@@ -34,7 +35,7 @@ public final class EquipmentAccess {
     }
     public static boolean validTarget(LivingEntity owner, LivingEntity target) {
         return owner.isAlive() && !owner.isRemoved() && !owner.isSpectator() && owner != target && target.isAlive() && !target.isRemoved() && target.level() == owner.level()
-                && EquipmentRules.validTarget(true, target instanceof Player, target instanceof HumanNpc, owner.isAlliedTo(target), mapped(target));
+                && EquipmentRules.validTarget(true, target instanceof Player, target instanceof HumanNpc, owner.isAlliedTo(target), mapped(target), target instanceof Enemy);
     }
     public static void notice(Player player, EquipmentKind kind) {
         var gate = EquipmentConfig.gate(kind);
