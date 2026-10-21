@@ -49,6 +49,7 @@ function AddGroup($node, $parent, $parentOrigin, $cubes, $seen, $names, $atlas) 
         }
         $size = @(0..2 | ForEach-Object { [double]$cube.to[$_] - [double]$cube.from[$_] })
         foreach ($n in $size) { if ($n -le 0 -or $n -gt 32 -or [Math]::Abs($n - [Math]::Round($n)) -gt 0.00001) { throw 'Cube dimensions must be positive whole pixels <=32.' } }
+        foreach ($offset in $cube.uv_offset) { if ([double]$offset -ne [Math]::Truncate([double]$offset)) { throw 'Box-UV offsets must be whole pixels.' } }
         $u = [int]$cube.uv_offset[0]; $v = [int]$cube.uv_offset[1]
         if ($u -lt 0 -or $v -lt 0 -or $u + 2 * ($size[0] + $size[2]) -gt $atlas.width -or $v + $size[2] + $size[1] -gt $atlas.height) { throw 'UV rectangle outside declared atlas.' }
         $x = Number ([double]$cube.from[0] - [double]$node.origin[0])
@@ -67,7 +68,7 @@ if ($models.Count -eq 0) { throw 'No editable art sources found.' }
 foreach ($file in $models) {
     $id = $file.BaseName
     if ($id -notin @('survivor_defender','army_rifleman','field_command_post','research_lab','supply_crate')) { throw "Unknown source id: $id" }
-    $model = Get-Content -LiteralPath $file.FullName -Raw | ConvertFrom-Json
+    $model = Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8 | ConvertFrom-Json
     if ($model.meta.model_format -eq 'modded_entity') {
         if ($model.elements.Count -gt 64 -or $model.textures.Count -ne 1 -or $model.resolution.width -ne 64 -or $model.resolution.height -ne 64) { throw 'Humanoid source must have <=64 cubes and one 64x64 texture.' }
         if ($model.textures[0].name -ne "$id.png") { throw 'Humanoid texture name must match its model id.' }
@@ -97,6 +98,7 @@ foreach ($file in $models) {
         if ($id -notin @('field_command_post','research_lab','supply_crate') -or $model.resolution.width -ne 16 -or $model.resolution.height -ne 16 -or $model.elements.Count -ne 1 -or $model.textures.Count -ne 3) { throw 'Only the three original full-cube 16px utility models are supported.' }
         $cube = $model.elements[0]
         if (($cube.from -join ',') -ne '0,0,0' -or ($cube.to -join ',') -ne '16,16,16') { throw 'Utility block geometry must match its unchanged full-cube collision.' }
+        if ($cube.type -ne 'cube' -or $cube.export -eq $false -or [double]$cube.inflate -ne 0 -or @($cube.rotation | Where-Object { $null -ne $_ -and $_ -ne 0 }).Count -gt 0) { throw 'Utility cube transforms are unsupported.' }
         $textures = [ordered]@{ particle="standandhold:block/$id" }
         for ($i = 0; $i -lt 3; $i++) {
             $name = @($id, "${id}_side", "${id}_top")[$i]
@@ -107,7 +109,7 @@ foreach ($file in $models) {
         $faces = [ordered]@{}
         foreach ($face in @('north','east','south','west','up','down')) {
             $entry = $cube.faces.$face
-            if ($entry.texture -lt 0 -or $entry.texture -gt 2 -or ($entry.uv -join ',') -ne '0,0,16,16') { throw 'Invalid utility face UV/texture.' }
+            if ($null -eq $entry.texture -or $entry.texture -lt 0 -or $entry.texture -gt 2 -or [double]$entry.rotation -ne 0 -or ($entry.uv -join ',') -ne '0,0,16,16') { throw 'Invalid utility face UV/texture.' }
             $faces[$face] = [ordered]@{ uv=@(0,0,16,16); texture=('#' + $entry.texture); cullface=$face }
         }
         $block = [ordered]@{ parent='minecraft:block/block'; textures=$textures; elements=@([ordered]@{from=@(0,0,0);to=@(16,16,16);faces=$faces}) }
