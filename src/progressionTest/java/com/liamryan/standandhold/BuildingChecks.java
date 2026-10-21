@@ -22,6 +22,10 @@ final class BuildingChecks {
     private static int assertions;
     static void run() throws Exception {
         transfer(); researchAndUpgrades(); savesAndPositions(); menuValues(); mainBaseNotices();
+        check(MenuValues.statusCode("Requires standandhold:parasite_samples") == 3, "sample-named prerequisite is not a physical sample shortage");
+        check(MenuValues.statusCode("Requires standandhold:stage_training") == 3, "stage-named prerequisite is not a stage shortage");
+        check(MenuValues.statusCode("Requires 5 local samples") == 5, "physical sample shortage keeps its code");
+        check(MenuValues.statusCode("Requires 20 local supplies") == 4, "physical supply shortage keeps its code");
         System.out.println("Building checks passed: " + assertions + " assertions.");
     }
     private static void transfer() {
