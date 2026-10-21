@@ -221,11 +221,11 @@ Exit gate:
 
 Priority: P2/P3
 
-- [ ] **8.1 Write the visual style guide.** Define silhouettes, tier colours/markings, UI readability, and original asset ownership/source records.
-- [ ] **8.2 Establish the Blockbench pipeline.**
-  - [ ] **8.2.1** Verify animation library support for the pinned loader/version; select one only if required.
-  - [ ] **8.2.2** Validate one model's UV layout, texture dimensions, export, and in-game animation before making variants.
-  - [ ] **8.2.3** Keep editable source models and export instructions in the repository or a documented linked asset location.
+- [x] **8.1 Write the visual style guide.** Define silhouettes, tier colours/markings, UI readability, and original asset ownership/source records.
+- [x] **8.2 Establish the Blockbench pipeline.**
+  - [x] **8.2.1** Verify animation library support for the pinned loader/version; select one only if required.
+  - [x] **8.2.2** Validate one model's UV layout, texture dimensions, export, and in-game animation before making variants.
+  - [x] **8.2.3** Keep editable source models and export instructions in the repository or a documented linked asset location.
 - [ ] **8.3 Create distinguishable visuals for implemented human tiers and core items/blocks.** Add further tier art when those units are implemented.
 - [ ] **8.4 Polish existing GUI labels and layout.** Test long research names, blocked states, and supported GUI scales.
 - [ ] **8.5 Verify art in game and build.** Check texture fit, missing resources, animation, held equipment, lighting, and dedicated-server isolation; capture reference screenshots.

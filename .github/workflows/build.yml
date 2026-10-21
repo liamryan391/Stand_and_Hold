@@ -33,6 +33,12 @@ jobs:
           .\gradlew.bat --version
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+      - name: Verify editable art exports
+        shell: pwsh
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\export-art.ps1 -Check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
       - name: Build with ModDevGradle
         shell: pwsh
         run: .\gradlew.bat clean build --no-daemon --stacktrace

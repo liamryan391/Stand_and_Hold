@@ -61,7 +61,7 @@ final class NpcChecks {
         for (HumanTier tier : HumanTier.values()) {
             try (var stream = NpcChecks.class.getResourceAsStream("/assets/standandhold/textures/entity/" + tier.id + ".png")) {
                 var image = ImageIO.read(stream);
-                check(image.getWidth() == 64 && image.getHeight() == 32, "texture dimensions match the registered classic humanoid atlas");
+                check(image.getWidth() == 64 && image.getHeight() == 64, "texture dimensions match the explicit humanoid and accessory atlas");
                 for (int[] rect : new int[][] {{8, 0, 16, 8}, {0, 8, 32, 8}, {20, 16, 16, 4}, {16, 20, 24, 12},
                         {44, 16, 8, 4}, {40, 20, 16, 12}, {4, 16, 8, 4}, {0, 20, 16, 12}}) {
                     boolean opaque = true;

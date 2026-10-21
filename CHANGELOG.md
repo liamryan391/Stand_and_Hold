@@ -4,6 +4,12 @@
 
 Modern port work uses one phase branch at a time, merged into `main` after verification. No modern release, version bump, or retag is announced by this entry. The source/build version remains `0.1.0-alpha.1`; observed verification results are recorded in [STATUS.md](docs/modern-port/STATUS.md).
 
+### Original Art And Menu Readability
+
+- Added an original visual guide, five editable Blockbench projects, deterministic bounded exports and CI source/runtime parity checks; no animation runtime dependency.
+- Added distinct Survivor cap/pack and Rifleman helmet/vest silhouettes, explicit 64x64 humanoid atlases, per-face utility block art and tissue-sample polish without gameplay/stat changes.
+- Added translated menu states/level names, bounded two-line labels with hover details, clearer transfer/action tooltips and full completed-research bars without changing server transactions.
+
 ### Human Progression Foundation
 
 - Added seven human stages with configurable thresholds, bounded long point totals, and explicit admin stage-reset semantics.

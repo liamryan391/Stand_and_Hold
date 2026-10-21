@@ -24,6 +24,8 @@ Lab selection cycles through the server's research definitions with **Next resea
 
 Costs are checked throughout work and deducted from **local** storage only on completion; research points/supply rewards and the once-only receipt are global. Multiple labs cannot reward the same research twice. Completion stops the lab, retains the visible result and sends one global chat notice. `/standandhold research complete` remains an operator alternative using **global** supplies; the two paths share the same receipt. Nonzero sample requirements must be completed in a funded lab, not bypassed by the command. Start/Pause is server-authoritative and uses the existing active-menu/owner/distance/definition/save checks, not a client timer.
 
+Menus use fixed rows with translated states and level names, bounded two-line titles/status text, and full-text hover details when a field is shortened. Transfer buttons show their batch in tooltips. Completed research displays a full progress bar even if another lab/command completed it; this display does not rewrite local work. The [art guide](art-pipeline.md) covers scale/long-text checks and the original north-front/side/top cabinet textures.
+
 Each loaded Command Post is registered by dimension and position (up to 4,096). Registration does not force-load chunks. A started `establish_field_command` mission can observe an existing registration or complete when a post loads; its reward is permanent and does not repeat. Supply/research/stage missions also refresh at successful building transactions and bounded world-affecting building intervals. No mission starts automatically, and block-local refreshes do not broadcast chat every interval.
 
 ## Upgrades

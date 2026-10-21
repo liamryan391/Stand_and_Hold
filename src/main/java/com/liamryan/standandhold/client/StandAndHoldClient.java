@@ -22,7 +22,7 @@ public final class StandAndHoldClient {
         event.registerEntityRenderer(NpcRegistry.ARMY.get(), context -> new HumanNpcRenderer(context, HumanTier.ARMY_RIFLEMAN));
     }
     private static void layers(EntityRenderersEvent.RegisterLayerDefinitions event) {
-        event.registerLayerDefinition(HumanNpcRenderer.LAYER, HumanNpcRenderer::layer);
+        for (HumanTier tier : HumanTier.values()) { event.registerLayerDefinition(HumanNpcRenderer.layerId(tier), () -> HumanNpcRenderer.layer(tier)); }
     }
     private static void screens(RegisterMenuScreensEvent event) { event.register(BuildingRegistry.MENU.get(), BuildingScreen::new); }
 }

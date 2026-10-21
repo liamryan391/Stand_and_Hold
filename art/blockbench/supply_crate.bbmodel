@@ -1,0 +1,120 @@
+{
+  "meta": {
+    "format_version": "4.12",
+    "model_format": "java_block",
+    "box_uv": false
+  },
+  "name": "supply_crate",
+  "credit": "Original Stand and Hold utility pixel art and model. No imported art.",
+  "resolution": {
+    "width": 16,
+    "height": 16
+  },
+  "elements": [
+    {
+      "uuid": "41000000-0000-4000-8000-000000000003",
+      "name": "supply_crate",
+      "type": "cube",
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "box_uv": false,
+      "export": true,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 1
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 1
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 1
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 1
+        }
+      }
+    }
+  ],
+  "outliner": [
+    "41000000-0000-4000-8000-000000000003"
+  ],
+  "textures": [
+    {
+      "uuid": "42000000-0000-4000-8000-000000000030",
+      "name": "supply_crate.png",
+      "id": "0",
+      "width": 16,
+      "height": 16,
+      "mode": "bitmap",
+      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAgklEQVR4XmMwsDH7TwlmABHRmYVwvHbjAhS+s18ITjkUA65cPwlXhKwJm+EwtSgGwDSh24LNAJhaorwAwyBN6HIEDUD3CskGoGN0ObgB+EIa3QBktXhd8GB3MgrGZjheA9D9T5QB2EIalwEgtRgGoCtCx+hyRBmAL4BRDBjYpEwJBgBN+ysXrvu9nwAAAABJRU5ErkJggg=="
+    },
+    {
+      "uuid": "42000000-0000-4000-8000-000000000031",
+      "name": "supply_crate_side.png",
+      "id": "1",
+      "width": 16,
+      "height": 16,
+      "mode": "bitmap",
+      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAATUlEQVR4XmMwsDH7TwlmABHRmYVwfGNzHAofnxyKAVeun8SqCJsBMLXUdQEuRfjkcBqgae2EFRNtALrNuORwGoBu86gL6OWCgU3KlGAAjM0c74jOf5AAAAAASUVORK5CYII="
+    },
+    {
+      "uuid": "42000000-0000-4000-8000-000000000032",
+      "name": "supply_crate_top.png",
+      "id": "2",
+      "width": 16,
+      "height": 16,
+      "mode": "bitmap",
+      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAATElEQVR4XmMwsDH7TwlmABHRmYVwfGNzHAofnxyKAVeun8SqCJsBMLXUdQEuRfjkaGsAyJ/IeCQagA2jyw0yA3D5E5sBMLXUcwElGACquz5HSM6OSwAAAABJRU5ErkJggg=="
+    }
+  ]
+}

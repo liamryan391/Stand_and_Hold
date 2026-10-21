@@ -23,6 +23,7 @@ public final class ProgressionChecks {
         SampleChecks.run();
         NpcChecks.run();
         StructureChecks.run();
+        ArtChecks.run();
         System.out.println("Progression checks passed: " + assertions + " assertions.");
     }
 
