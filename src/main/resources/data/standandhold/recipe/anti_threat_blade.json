@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "S": "standandhold:parasite_tissue_sample",
+    "L": "minecraft:leather"
+  },
+  "pattern": [
+    " I",
+    "SI",
+    "L "
+  ],
+  "result": {
+    "id": "standandhold:anti_threat_blade"
+  }
+}

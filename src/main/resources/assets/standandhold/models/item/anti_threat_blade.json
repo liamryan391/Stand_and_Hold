@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "standandhold:item/anti_threat_blade"
+  }
+}

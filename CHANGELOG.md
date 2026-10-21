@@ -4,6 +4,14 @@
 
 Modern port work uses one phase branch at a time, merged into `main` after verification. No modern release, version bump, or retag is announced by this entry. The source/build version remains `0.1.0-alpha.1`; observed verification results are recorded in [STATUS.md](docs/modern-port/STATUS.md).
 
+### Combat Equipment Foundation
+
+- Added server-gated Anti-Threat Blade, Army/Elite armour sets, ordinary crafting/discovery/repair support and original item/worn textures with synced balancing config.
+- Added one cooldown-based launcher and saved short-lived bolt, loaded-only flight checks, hostile/mapped-threat damage, friendly exclusions and bounded hit feedback; no ammo/reload/runtime library.
+- Added optional unlocked Rifleman loadout/ranged goal with saved shot timing, no equipment drops and existing melee/home/target/deployment safeguards.
+- Human defenders now target ordinary hostile mobs as well as mapped infection threats, with a mapping-only config opt-out; kill/sample rewards still require mappings. Adjusted the held-launcher pose and removed detached Elite Helmet icon pixels after alpha feedback.
+- Added equipment gate, friendly-target, flight-age, pre-config defaults and resource/recipe checks; physical multiplayer and external-mod coverage remain separate QA.
+
 ### Original Art And Menu Readability
 
 - Added an original visual guide, five editable Blockbench projects, deterministic bounded exports and CI source/runtime parity checks; no animation runtime dependency.

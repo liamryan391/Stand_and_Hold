@@ -209,3 +209,11 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Survivor-only prototype passed before variant creation; Liam reported final integrated models/buildings/menus/scales passed, both clients exited normally and F2 references were preserved. Text-only classifier fix, held-item/custom-title visuals and Blockbench desktop round-trip were not visually retested; multiplayer/external mods/packaged tests remain separate.
 - Two dedicated runs reached Done/accepted status/stop/exited cleanly, first with both NPC summons; unavailable-chunk placement refused, forced-chunk setup declined with no ticket added. Prior settings restored; disposable worlds retained.
 - Windows CI 39686277770 passed final code 55ac8c1 (five exports/1,363 assertions/jar upload); merged M8 with docs-only evidence handoff. Live milestone is in STATUS.md.
+
+## 2026-10-21/22 - M9 Combat Equipment
+- Added server-gated blade/Army/Elite armour, synced combat config, ten recipes/discovery/repair tags and original code-native art; no pin/version/dependency/global-schema/legacy-ref changes.
+- Added bounded saved-age bolts, friendly protection and optional unlocked Rifleman loadout/ranged goal with saved shot timing and melee/home/quota safeguards; no ammo/reloads.
+- Liam passed integrated gates/combat/crafting/reload and focused held-pose/icon/hostile-target fixes; both clients exited normally. Added Enemy-or-mapped defence with config opt-out; no extra rewards. Detailed art deferred.
+- Final post-client `clean build --no-daemon --stacktrace` passed (5s, 2,050 assertions); jar metadata/ten recipes/test exclusion inspected. Windows CI 39691907933 passed final branch exports/build/jar upload (1m11s).
+- Three dedicated launches reached Done/accepted status/save/stop/exited; restart retained 180 points/Stage 1/two research entries. Empty selectors were not combat/flight proof. Settings restored; worlds retained. Two-client/physical-flight-reload/external-mod checks unverified; live milestone is in STATUS.md.
+- Preserved unedited F2 references, merged verified M9 with a docs-only handoff and prepared the M10 branch. Detailed equipment art/left-main-arm coverage remain later work; no blocking decision. Live milestone is in STATUS.md.

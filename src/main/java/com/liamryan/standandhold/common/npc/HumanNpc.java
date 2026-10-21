@@ -6,6 +6,11 @@ import com.liamryan.standandhold.common.building.BuildingPosition;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.NpcConfig;
 import com.liamryan.standandhold.config.ThreatConfig;
+import com.liamryan.standandhold.config.EquipmentConfig;
+import com.liamryan.standandhold.common.equipment.EquipmentAccess;
+import com.liamryan.standandhold.common.equipment.EquipmentKind;
+import com.liamryan.standandhold.common.equipment.EquipmentRegistry;
+import com.liamryan.standandhold.common.equipment.PrototypeBolt;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -15,6 +20,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -24,14 +30,20 @@ import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.MoveTowardsRestrictionGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.RangedAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.monster.RangedAttackMob;
+import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-public final class HumanNpc extends PathfinderMob {
+public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
     private String commandPost = "";
+    private long nextPrototypeShot;
 
     public HumanNpc(EntityType<? extends HumanNpc> type, Level level) {
         super(type, level);
@@ -55,8 +67,9 @@ public final class HumanNpc extends PathfinderMob {
     }
     @Override protected void registerGoals() {
         goalSelector.addGoal(0, new FloatGoal(this));
-        goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.0, false));
-        goalSelector.addGoal(2, new MoveTowardsRestrictionGoal(this, 0.9));
+        goalSelector.addGoal(1, new PrototypeGoal(this));
+        goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0, false));
+        goalSelector.addGoal(3, new MoveTowardsRestrictionGoal(this, 0.9));
         goalSelector.addGoal(4, new RandomStrollGoal(this, 0.7, 120));
         goalSelector.addGoal(5, new LookAtPlayerGoal(this, Player.class, 6));
         goalSelector.addGoal(6, new RandomLookAroundGoal(this));
@@ -67,8 +80,9 @@ public final class HumanNpc extends PathfinderMob {
                 || target.isRemoved() || target.level() != level() || !level().hasChunkAt(target.blockPosition())
                 || !isWithinHome(target.blockPosition())) { return false; }
         var id = BuiltInRegistries.ENTITY_TYPE.getResourceKey(target.getType()).map(key -> key.identifier().toString()).orElse(null);
-        return ThreatConfig.rules().match(id, tag -> target.getType().builtInRegistryHolder()
-                .is(TagKey.create(Registries.ENTITY_TYPE, Identifier.parse(tag)))).isPresent() && super.canAttack(target);
+        boolean mapped = ThreatConfig.rules().match(id, tag -> target.getType().builtInRegistryHolder()
+                .is(TagKey.create(Registries.ENTITY_TYPE, Identifier.parse(tag)))).isPresent();
+        return (NpcConfig.HOSTILE_TARGETS.get() && target instanceof Enemy || mapped) && !isAlliedTo(target) && super.canAttack(target);
     }
     @Override public boolean doHurtTarget(ServerLevel level, Entity target) {
         return target instanceof LivingEntity living && canAttack(living) && super.doHurtTarget(level, target);
@@ -80,16 +94,24 @@ public final class HumanNpc extends PathfinderMob {
     @Override protected void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
         output.putString("standandhold_command_post", commandPost);
+        output.putLong("standandhold_next_prototype_shot", nextPrototypeShot);
     }
     @Override protected void readAdditionalSaveData(ValueInput input) {
         super.readAdditionalSaveData(input);
         commandPost = BuildingPosition.parse(input.getStringOr("standandhold_command_post", "")).map(BuildingPosition::key).orElse("");
         if (!level().isClientSide()) { applyStats(false); }
+        nextPrototypeShot = Math.clamp(input.getLongOr("standandhold_next_prototype_shot", 0), 0, level().getGameTime() + 200);
         BuildingPosition.parse(commandPost).ifPresent(position -> setHomeTo(position.pos(), NpcConfig.HOME_RADIUS.get()));
     }
     @Override protected void customServerAiStep(ServerLevel level) {
         super.customServerAiStep(level);
-        if (tickCount % 20 != 0 || commandPost.isEmpty()) { return; }
+        if (tickCount % 20 != 0) { return; }
+        if (tier() == HumanTier.ARMY_RIFLEMAN && EquipmentConfig.value(EquipmentConfig.NPC_ENABLED) && getMainHandItem().isEmpty()
+                && EquipmentAccess.allowed(level, EquipmentKind.PROTOTYPE)) {
+            setItemSlot(EquipmentSlot.MAINHAND, EquipmentRegistry.PROTOTYPE.get().getDefaultInstance());
+            setDropChance(EquipmentSlot.MAINHAND, 0);
+        }
+        if (commandPost.isEmpty()) { return; }
         var home = BuildingPosition.parse(commandPost).orElseThrow();
         if (!home.dimension().equals(level.dimension().identifier()) || level.hasChunkAt(home.pos())
                 && (!(level.getBlockEntity(home.pos()) instanceof BuildingBlockEntity post) || post.kind() != BuildingKind.COMMAND_POST)) {
@@ -107,6 +129,27 @@ public final class HumanNpc extends PathfinderMob {
         if (level() instanceof ServerLevel server && (reason.shouldDestroy() || reason == RemovalReason.CHANGED_DIMENSION)) { releasePost(server); }
         super.onRemoval(reason);
     }
+    private boolean rangedReady() {
+        return level() instanceof ServerLevel server && tier() == HumanTier.ARMY_RIFLEMAN && EquipmentConfig.value(EquipmentConfig.NPC_ENABLED)
+                && getMainHandItem().is(EquipmentRegistry.PROTOTYPE.get()) && EquipmentAccess.allowed(server, EquipmentKind.PROTOTYPE)
+                && getTarget() != null && canAttack(getTarget()) && distanceToSqr(getTarget()) > 9;
+    }
+    @Override public void performRangedAttack(LivingEntity target, float power) {
+        if (!(level() instanceof ServerLevel server) || !rangedReady() || !canAttack(target) || distanceToSqr(target) > 144
+                || !getSensing().hasLineOfSight(target) || server.getGameTime() < nextPrototypeShot) { return; }
+        var bolt = new PrototypeBolt(server, this);
+        bolt.shoot(target.getX() - bolt.getX(), target.getEyeY() - bolt.getY(), target.getZ() - bolt.getZ(), EquipmentConfig.value(EquipmentConfig.SPEED).floatValue(), 0);
+        if (server.addFreshEntity(bolt)) {
+            nextPrototypeShot = server.getGameTime() + EquipmentConfig.value(EquipmentConfig.NPC_INTERVAL);
+            server.playSound(null, getX(), getY(), getZ(), SoundEvents.SNOWBALL_THROW, SoundSource.NEUTRAL, 0.4F, 1.1F);
+        }
+    }
+    private static final class PrototypeGoal extends RangedAttackGoal {
+        private final HumanNpc npc;
+        PrototypeGoal(HumanNpc npc) { super(npc, 1.0, 10, 12); this.npc = npc; }
+        @Override public boolean canUse() { return npc.rangedReady() && super.canUse(); }
+        @Override public boolean canContinueToUse() { return canUse(); }
+    }
     private static final class ThreatTarget extends NearestAttackableTargetGoal<LivingEntity> {
         private long nextSearch;
         ThreatTarget(HumanNpc npc) { super(npc, LivingEntity.class, 1, true, true, (target, level) -> npc.canAttack(target)); }
@@ -115,7 +158,7 @@ public final class HumanNpc extends PathfinderMob {
             long now = mob.level().getGameTime();
             if (now < nextSearch) { return false; }
             nextSearch = now + NpcConfig.TARGET_INTERVAL.get();
-            return !ThreatConfig.rules().rules().isEmpty() && super.canUse() && canAttack(target, targetConditions);
+            return (NpcConfig.HOSTILE_TARGETS.get() || !ThreatConfig.rules().rules().isEmpty()) && super.canUse() && canAttack(target, targetConditions);
         }
     }
 }

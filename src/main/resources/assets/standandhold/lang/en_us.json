@@ -61,5 +61,20 @@
   "gui.standandhold.tip.pause_research": "Pause without losing saved work or storage.",
   "gui.standandhold.tip.next_research": "Select another target without starting it; selection resets local work.",
   "gui.standandhold.tip.pause": "Clear the selected target and reset local work.",
-  "gui.standandhold.tip.upgrade": "Attempt the next level using the displayed requirements."
+  "gui.standandhold.tip.upgrade": "Attempt the next level using the displayed requirements.",
+  "item.standandhold.anti_threat_blade": "Anti-Threat Blade",
+  "item.standandhold.prototype_launcher": "Prototype Launcher",
+  "item.standandhold.prototype_bolt": "Prototype Bolt",
+  "entity.standandhold.prototype_bolt": "Prototype Bolt",
+  "item.standandhold.army_helmet": "Army Helmet",
+  "item.standandhold.army_chestplate": "Army Chestplate",
+  "item.standandhold.army_leggings": "Army Leggings",
+  "item.standandhold.army_boots": "Army Boots",
+  "item.standandhold.elite_helmet": "Elite Helmet",
+  "item.standandhold.elite_chestplate": "Elite Chestplate",
+  "item.standandhold.elite_leggings": "Elite Leggings",
+  "item.standandhold.elite_boots": "Elite Boots",
+  "message.standandhold.equipment_locked": "Equipment locked: requires human stage %s and research %s. Data must also be available.",
+  "tooltip.standandhold.equipment_gate": "Requires stage %s and research %s (normal equip/use).",
+  "tooltip.standandhold.friendly_safe": "No damage to players or human NPCs."
 }

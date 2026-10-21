@@ -12,7 +12,7 @@ public final class NpcConfig {
             B.push(tier.id);
             health = B.comment("Maximum health for newly spawned/reloaded NPCs. Existing health is clamped, not healed on reload.")
                     .defineInRange("health", tier.health, 1, 1024);
-            damage = B.comment("Base melee damage; both initial tiers are melee prototypes, without gun mechanics.")
+            damage = B.comment("Base melee damage. Rifleman's optional prototype ranged damage/unlock/interval is in standandhold-equipment.toml.")
                     .defineInRange("damage", tier.damage, 0, 2048);
             speed = B.comment("Movement speed for newly spawned/reloaded NPCs.").defineInRange("speed", tier.speed, 0.05, 0.6);
             armor = B.comment("Intrinsic armor points; no equipment drops.").defineInRange("armor", tier.armor, 0, 30);
@@ -23,6 +23,8 @@ public final class NpcConfig {
     }
     public static final Stats SURVIVOR = new Stats(HumanTier.SURVIVOR_DEFENDER);
     public static final Stats ARMY = new Stats(HumanTier.ARMY_RIFLEMAN);
+    public static final ModConfigSpec.BooleanValue HOSTILE_TARGETS = B.comment("Human defenders also target vanilla Enemy-marked hostile mobs, not only configured infection/test IDs. Does not grant kill rewards or samples to those mobs. Normally neutral Enemy types such as Endermen are included; disable to use mappings only.")
+            .define("targetHostileMobs", true);
     public static final ModConfigSpec.BooleanValue DEPLOY = B.comment("Loaded command posts may deploy one defender per interval. No natural biome spawning or offline catch-up.")
             .define("deploymentEnabled", true);
     public static final ModConfigSpec.IntValue INTERVAL = B.comment("Loaded ticks per deployment attempt; timers restart after unload. At most one successful defender per attempt.")

@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M9 (unstarted)**; see [STATUS.md](STATUS.md).
+Current position: **Phase M10 (unstarted)**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -239,13 +239,17 @@ Exit gate:
 
 Priority: P2/P3
 
-- [ ] **9.1 Define a small equipment set and configurable stage/research gates.** Record costs and intended roles using Minecraft-scale combat.
-- [ ] **9.2 Add an anti-threat melee weapon and initial armour tiers.** Include attributes, recipes/test access, original models, and lang entries.
-- [ ] **9.3 Add a simple ranged prototype.**
-  - [ ] **9.3.1** Implement server-owned projectile spawn, cooldown, hit detection, and damage attribution.
-  - [ ] **9.3.2** Add bounded visual/audio feedback and safe use by one existing NPC tier if practical.
-  - [ ] **9.3.3** Verify unlock checks and friendly-target behavior; defer advanced reload/ammo mechanics.
-- [ ] **9.4 Verify equipment.** Build; test player/NPC use, multiplayer damage, cooldowns, recipes, stage gates, and save/reload. Evaluate external combat integrations later only if useful.
+- [x] **9.1 Define a small equipment set and configurable stage/research gates.** Record costs and intended roles using Minecraft-scale combat.
+- [x] **9.2 Add an anti-threat melee weapon and initial armour tiers.** Include attributes, recipes/test access, original models, and lang entries.
+  - [x] **9.2.1** Register the blade, two four-piece armour tiers and a shared server-side equip/use gate with synced balancing config.
+  - [x] **9.2.2** Add original item/worn armour resources, basic recipes and regression checks without a runtime art library.
+- [x] **9.3 Add a simple ranged prototype.**
+  - [x] **9.3.1** Implement server-owned projectile spawn, cooldown, hit detection, and damage attribution.
+  - [x] **9.3.2** Add bounded visual/audio feedback and safe use by one existing NPC tier if practical.
+  - [x] **9.3.3** Verify unlock checks and friendly-target behavior; defer advanced reload/ammo mechanics.
+- [x] **9.4 Verify equipment.** Build; test player/NPC use, multiplayer damage, cooldowns, recipes, stage gates, and save/reload. Evaluate external combat integrations later only if useful.
+
+Verification scope: local rule/resource tests, dedicated launch/restart and Liam's singleplayer equipment/gate/combat/crafting/reload checks passed, including the focused visual/hostile-targeting retest. Actual two-client damage, left-main-arm visuals, physical mid-flight reload and external-mod combinations remain separate unverified QA, not implied by the singleplayer pass. See [Equipment](equipment.md).
 
 Exit gate:
 

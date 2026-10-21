@@ -35,6 +35,7 @@ public final class BuildingRegistry {
                 output.accept(SampleItems.TISSUE.get());
                 output.accept(NpcRegistry.SURVIVOR_EGG.get());
                 output.accept(NpcRegistry.ARMY_EGG.get());
+                com.liamryan.standandhold.common.equipment.EquipmentRegistry.creativeItems(output::accept);
             }).build());
     private BuildingRegistry() { }
     private static DeferredBlock<BuildingBlock> block(BuildingKind kind) {

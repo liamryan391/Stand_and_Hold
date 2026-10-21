@@ -24,6 +24,7 @@ public final class ProgressionChecks {
         NpcChecks.run();
         StructureChecks.run();
         ArtChecks.run();
+        EquipmentChecks.run();
         System.out.println("Progression checks passed: " + assertions + " assertions.");
     }
 

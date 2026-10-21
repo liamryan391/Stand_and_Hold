@@ -1,0 +1,19 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "standandhold:army"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "standandhold:army"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "standandhold:army"
+      }
+    ]
+  }
+}
