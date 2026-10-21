@@ -1,0 +1,120 @@
+{
+  "meta": {
+    "format_version": "4.12",
+    "model_format": "java_block",
+    "box_uv": false
+  },
+  "name": "research_lab",
+  "credit": "Original Stand and Hold utility pixel art and model. No imported art.",
+  "resolution": {
+    "width": 16,
+    "height": 16
+  },
+  "elements": [
+    {
+      "uuid": "41000000-0000-4000-8000-000000000002",
+      "name": "research_lab",
+      "type": "cube",
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "box_uv": false,
+      "export": true,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 1
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 1
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 1
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 1
+        }
+      }
+    }
+  ],
+  "outliner": [
+    "41000000-0000-4000-8000-000000000002"
+  ],
+  "textures": [
+    {
+      "uuid": "42000000-0000-4000-8000-000000000020",
+      "name": "research_lab.png",
+      "id": "0",
+      "width": 16,
+      "height": 16,
+      "mode": "bitmap",
+      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAiElEQVR4XmMwsDH7TwlmABHbjhzAiTsmT8AQg2EUA65cP0mUJmS1KAaANJl6BRKFYRZgeAEkuejeHbwYpAamHqcBDvNW4cREG3A4v/l/g30inMZrAMxPyAYgawbReA2g2AXYDMCFCRpADAapBXkbwwBCGD2BEWUAuiacBlAlKaMrxIUxkjIlGABaQY8E2NowSQAAAABJRU5ErkJggg=="
+    },
+    {
+      "uuid": "42000000-0000-4000-8000-000000000021",
+      "name": "research_lab_side.png",
+      "id": "1",
+      "width": 16,
+      "height": 16,
+      "mode": "bitmap",
+      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAWUlEQVR4XmMwsDH7TwlmABHbjhwgC6MYcOX6SQwFuDBMLXVdQA7GaoCmtRNeTNAAUjBWA9BtRMcEDSAFYzUA3UZ0TNAAUjBWA9BtRMcEDSAFoxgwsEmZEgwA2A6n51pRhbEAAAAASUVORK5CYII="
+    },
+    {
+      "uuid": "42000000-0000-4000-8000-000000000022",
+      "name": "research_lab_top.png",
+      "id": "2",
+      "width": 16,
+      "height": 16,
+      "mode": "bitmap",
+      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAR0lEQVR4XmMwsDH7TwlmABHbjhwgC6MYcOX6SQwFuDBMLXVdAMMPnt7Hi4kywGHeKgyNMLFRA+hlAD5M0ABSMIoBA5uUKcEA8vfnlxvM/pkAAAAASUVORK5CYII="
+    }
+  ]
+}

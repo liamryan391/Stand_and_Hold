@@ -61,6 +61,8 @@ The [structure foundations](docs/modern-port/structures.md) add a Small Army Che
 
 The [human NPC foundation](docs/modern-port/human-npcs.md) adds Survivor Defenders and Army Riflemen with original uniforms/test eggs, configurable stats/stage gates, simple melee AI using optional threat mappings, and capped command-post deployment backed by saved quotas. Test eggs/summons bypass automatic stage gates. Both tiers are melee prototypes, not firearm users yet.
 
+The [art and identity guide](docs/modern-port/art-pipeline.md) documents original cap/pack and helmet/vest models, editable Blockbench sources, deterministic source-to-runtime exports, distinct utility-block faces and compact menu readability. These are alpha visuals using vanilla animation, with no external art or animation library bundled.
+
 The partial modern loop can recover samples, establish a command post/lab, fund research/progression and obtain defenders. Outpost attacks, richer combat, larger bases, vehicles/aircraft and Fabric evaluation follow later phase gates; they are not features of an available modern release.
 
 Compatibility with external threat mods remains optional. Registry/tag mappings and integrations must be verified for the exact modern target when implemented; legacy SRP compatibility does not imply modern SRP support.

@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M8**; see [STATUS.md](STATUS.md).
+Current position: **Phase M9 (unstarted)**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -221,14 +221,14 @@ Exit gate:
 
 Priority: P2/P3
 
-- [ ] **8.1 Write the visual style guide.** Define silhouettes, tier colours/markings, UI readability, and original asset ownership/source records.
-- [ ] **8.2 Establish the Blockbench pipeline.**
-  - [ ] **8.2.1** Verify animation library support for the pinned loader/version; select one only if required.
-  - [ ] **8.2.2** Validate one model's UV layout, texture dimensions, export, and in-game animation before making variants.
-  - [ ] **8.2.3** Keep editable source models and export instructions in the repository or a documented linked asset location.
-- [ ] **8.3 Create distinguishable visuals for implemented human tiers and core items/blocks.** Add further tier art when those units are implemented.
-- [ ] **8.4 Polish existing GUI labels and layout.** Test long research names, blocked states, and supported GUI scales.
-- [ ] **8.5 Verify art in game and build.** Check texture fit, missing resources, animation, held equipment, lighting, and dedicated-server isolation; capture reference screenshots.
+- [x] **8.1 Write the visual style guide.** Define silhouettes, tier colours/markings, UI readability, and original asset ownership/source records.
+- [x] **8.2 Establish the Blockbench pipeline.**
+  - [x] **8.2.1** Verify animation library support for the pinned loader/version; select one only if required.
+  - [x] **8.2.2** Validate one model's UV layout, texture dimensions, export, and in-game animation before making variants.
+  - [x] **8.2.3** Keep editable source models and export instructions in the repository or a documented linked asset location.
+- [x] **8.3 Create distinguishable visuals for implemented human tiers and core items/blocks.** Add further tier art when those units are implemented.
+- [x] **8.4 Polish existing GUI labels and layout.** Test long research names, blocked states, and supported GUI scales.
+- [x] **8.5 Verify art in game and build.** Check texture fit, missing resources, animation, held equipment, lighting, and dedicated-server isolation; capture reference screenshots. Observed evidence and remaining visual coverage are in STATUS.md; long-title limits have pure checks, while held-item/custom-title visual tests remain separate coverage.
 
 Exit gate:
 

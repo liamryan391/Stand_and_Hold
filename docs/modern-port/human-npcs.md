@@ -1,6 +1,6 @@
 # Human NPC Foundation
 
-Two small server-controlled humanoid tiers use vanilla pathfinding/goals and original placeholder uniforms. No AI/animation library or threat mod is required. This is not the legacy army system, and neither tier has a gun yet.
+Two small server-controlled humanoid tiers use vanilla pathfinding/goals and original alpha models/uniforms. No AI/animation library or threat mod is required. This is not the legacy army system, and neither tier has a gun yet.
 
 ## Units And Access
 
@@ -52,7 +52,7 @@ Unknown or malformed roster data refuses deployment rather than silently resetti
 
 ## Original Visuals
 
-`scripts/GenerateNpcTextures.java` generates each original uniform and egg icon. Run it with the selected JDK from the repository root when intentionally regenerating art. The registered model uses the platform's classic **64x32 HumanoidModel UV layout**, including mirrored limb faces, not the 64x64 player-skin layout. Tests verify atlas dimensions and opaque coverage of every base face; the unused hat layer is deliberately transparent. Survivor colors are burgundy/gray-green; Army colors are teal/dark gray with pale markings. Full art/animation/equipment belongs to later work.
+The [art pipeline](art-pipeline.md) holds editable original Blockbench projects and deterministic exports. Models use an explicit **64x64 box-UV atlas**, with classic humanoid body rectangles in the top half and accessory UVs below, not the player-skin layout. Survivor has a soft cap/brim, red jacket and ochre pack; Rifleman has a teal helmet, graphite vest and double sleeve marks. Geometry follows vanilla humanoid animation and held-item transforms, with no new collision/stats/equipment behavior. Tests check opaque base/accessory faces and exact source/runtime texture parity. `GenerateNpcTextures.java` seeds uniforms/eggs, but embedded Blockbench PNGs are authoritative after editing. These remain simple alpha visuals, not finished rigged characters or clip-driven animation.
 
 ## Manual QA
 

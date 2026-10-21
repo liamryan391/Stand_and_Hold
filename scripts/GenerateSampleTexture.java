@@ -12,6 +12,8 @@ class GenerateSampleTexture {
                 int color = y <= 3 ? 0xffb8c0c2 : x == 3 || x == 12 || y == 14 ? 0xff385459 : 0xff8dc3bd;
                 if (y >= 7 && y <= 11 && x >= 5 && x <= 10) { color = (x + y) % 3 == 0 ? 0xffcb6879 : 0xff803f61; }
                 if (y == 5 && x >= 5 && x <= 10) { color = 0xffe9ede0; }
+                if (x == 4 && y >= 6 && y <= 12) { color = 0xffc3e3df; }
+                if (y == 2 && x >= 4 && x <= 11) { color = 0xffe7eeeb; }
                 image.setRGB(x, y, color);
             }
         }

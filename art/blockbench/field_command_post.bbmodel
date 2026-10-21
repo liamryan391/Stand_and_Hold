@@ -1,0 +1,120 @@
+{
+  "meta": {
+    "format_version": "4.12",
+    "model_format": "java_block",
+    "box_uv": false
+  },
+  "name": "field_command_post",
+  "credit": "Original Stand and Hold utility pixel art and model. No imported art.",
+  "resolution": {
+    "width": 16,
+    "height": 16
+  },
+  "elements": [
+    {
+      "uuid": "41000000-0000-4000-8000-000000000001",
+      "name": "field_command_post",
+      "type": "cube",
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "box_uv": false,
+      "export": true,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 1
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 1
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 1
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 2
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": 1
+        }
+      }
+    }
+  ],
+  "outliner": [
+    "41000000-0000-4000-8000-000000000001"
+  ],
+  "textures": [
+    {
+      "uuid": "42000000-0000-4000-8000-000000000010",
+      "name": "field_command_post.png",
+      "id": "0",
+      "width": 16,
+      "height": 16,
+      "mode": "bitmap",
+      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAbUlEQVR4XmMwsDH7TwlmABHBmUE4sa2fLYYYDKMYcOX6SaI0IatFMYCQJmQMU4vVC9KmpnDccnkiCh+EkdXSxgCQJnwYqwHI/ifkAmS1WF1AyACsLqCaAaRGJYYBhDC6BUQZgK4JpwEDm5QpwQDFI+4hHr37ugAAAABJRU5ErkJggg=="
+    },
+    {
+      "uuid": "42000000-0000-4000-8000-000000000011",
+      "name": "field_command_post_side.png",
+      "id": "1",
+      "width": 16,
+      "height": 16,
+      "mode": "bitmap",
+      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAWElEQVR4XmMwsDH7TwlmABHBmUFkYRQDrlw/iaEAF4appa4LyMFYDdC0dsKLCRpACsZqALqN6JigAaRgrAag24iOCRpACsZqALqN6JigAaRgFAMGNilTggHL0OxYAZSEwwAAAABJRU5ErkJggg=="
+    },
+    {
+      "uuid": "42000000-0000-4000-8000-000000000012",
+      "name": "field_command_post_top.png",
+      "id": "2",
+      "width": 16,
+      "height": 16,
+      "mode": "bitmap",
+      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAASUlEQVR4XmMwsDH7TwlmABHBmUFkYRQDrlw/iaEAF4appa4LYNjE3wOOD13diMIH4ZFgAEgTPkzQAIpdMPAGkIJRDBjYpEwJBgCtqv7rZJHQpwAAAABJRU5ErkJggg=="
+    }
+  ]
+}

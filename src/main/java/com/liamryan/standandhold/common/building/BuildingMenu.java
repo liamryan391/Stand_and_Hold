@@ -86,14 +86,7 @@ public final class BuildingMenu extends AbstractContainerMenu {
         };
     }
     private static int statusCode(String reason) {
-        if (reason.equals("Ready")) { return 0; }
-        if (reason.equals("Completed")) { return 1; }
-        if (reason.equals("Maximum level")) { return 8; }
-        if (reason.contains("human points")) { return 9; }
-        if (reason.contains("stage")) { return 2; }
-        if (reason.contains("local supplies")) { return 4; }
-        if (reason.contains("samples")) { return 5; }
-        return 3;
+        return MenuValues.statusCode(reason);
     }
     private int optionIndex(String id) {
         for (int i = 0; i < options.size(); i++) { if (options.get(i).id().equals(id)) { return i; } }
