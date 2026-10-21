@@ -1,0 +1,19 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "standandhold:elite"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "standandhold:elite"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "standandhold:elite"
+      }
+    ]
+  }
+}

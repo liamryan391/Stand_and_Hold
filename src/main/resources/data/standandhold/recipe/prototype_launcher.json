@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "C": "minecraft:copper_ingot",
+    "S": "standandhold:parasite_tissue_sample",
+    "L": "minecraft:leather"
+  },
+  "pattern": [
+    "ICI",
+    "ISI",
+    " L "
+  ],
+  "result": {
+    "id": "standandhold:prototype_launcher"
+  }
+}

@@ -12,7 +12,7 @@ public final class NpcConfig {
             B.push(tier.id);
             health = B.comment("Maximum health for newly spawned/reloaded NPCs. Existing health is clamped, not healed on reload.")
                     .defineInRange("health", tier.health, 1, 1024);
-            damage = B.comment("Base melee damage; both initial tiers are melee prototypes, without gun mechanics.")
+            damage = B.comment("Base melee damage. Rifleman's optional prototype ranged damage/unlock/interval is in standandhold-equipment.toml.")
                     .defineInRange("damage", tier.damage, 0, 2048);
             speed = B.comment("Movement speed for newly spawned/reloaded NPCs.").defineInRange("speed", tier.speed, 0.05, 0.6);
             armor = B.comment("Intrinsic armor points; no equipment drops.").defineInRange("armor", tier.armor, 0, 30);

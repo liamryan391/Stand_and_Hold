@@ -209,3 +209,9 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Survivor-only prototype passed before variant creation; Liam reported final integrated models/buildings/menus/scales passed, both clients exited normally and F2 references were preserved. Text-only classifier fix, held-item/custom-title visuals and Blockbench desktop round-trip were not visually retested; multiplayer/external mods/packaged tests remain separate.
 - Two dedicated runs reached Done/accepted status/stop/exited cleanly, first with both NPC summons; unavailable-chunk placement refused, forced-chunk setup declined with no ticket added. Prior settings restored; disposable worlds retained.
 - Windows CI 39686277770 passed final code 55ac8c1 (five exports/1,363 assertions/jar upload); merged M8 with docs-only evidence handoff. Live milestone is in STATUS.md.
+
+## 2026-10-21 - M9 Combat Equipment
+- Added server-gated blade/Army/Elite armour, synced combat config, ten recipes/discovery/repair tags and original code-native art; no pin/version/dependency/global-schema/legacy-ref changes.
+- Added bounded saved-age threat-only bolts, friendly protection and optional unlocked Rifleman loadout/ranged goal with saved shot timing and melee/home/quota safeguards; no ammo/reloads.
+- Initial clean build passed (6s, 1,932 assertions); latest `build --no-daemon --stacktrace` passed (7s, 1,938). Final clean build/jar/CI remain pending client exit.
+- Two dedicated launches reached Done/accepted commands/saved/stopped/exited; restart retained 180 points/Stage 1/two research entries. New entity constructors worked but empty selectors were not combat proof. Settings restored; disposable worlds retained. Liam's integrated client check is in progress; live milestone is in STATUS.md.

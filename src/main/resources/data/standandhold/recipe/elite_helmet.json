@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "standandhold:army_helmet",
+    "minecraft:iron_ingot",
+    "minecraft:iron_ingot",
+    "minecraft:gold_ingot",
+    "standandhold:parasite_tissue_sample"
+  ],
+  "result": {
+    "id": "standandhold:elite_helmet"
+  }
+}

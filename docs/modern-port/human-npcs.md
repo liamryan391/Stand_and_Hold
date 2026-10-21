@@ -1,6 +1,6 @@
 # Human NPC Foundation
 
-Two small server-controlled humanoid tiers use vanilla pathfinding/goals and original alpha models/uniforms. No AI/animation library or threat mod is required. This is not the legacy army system, and neither tier has a gun yet.
+Two small server-controlled humanoid tiers use vanilla pathfinding/goals and original alpha models/uniforms. No AI/animation library or threat mod is required. This is not the legacy army system. Army Riflemen can use the [gated Prototype Launcher](equipment.md); Survivors remain melee defenders.
 
 ## Units And Access
 
@@ -25,6 +25,8 @@ Their named, original spawn eggs are in the Stand and Hold creative tab. For ope
 ## Targeting And Movement
 
 NPCs float, wander, look at nearby players and melee visible, reachable configured threats. Vanilla `Goal` APIs are sufficient for this foundation; a Brain/library would not simplify these tasks. Target acquisition uses the existing [optional ID/tag mappings](samples-and-threats.md), including the zombie test default. A mapping identifies a target even if its point/drop rewards are zero. Empty, malformed or missing mappings never turn into a fallback target.
+
+After the equipment stage/research unlock, an Army Rifleman's empty main hand may receive one non-dropping prototype. Vanilla ranged navigation uses the same target/home safety, checks line of sight and fires only within 12 blocks, at least 40 ticks apart by default. Inside 3 blocks or when ranged use is unavailable, melee remains the fallback. Weapon state and next-shot timestamp save with the entity; no new deployment source/quota is added. Existing held items are not overwritten, and the original intrinsic armour/melee stats do not change. See [Equipment](equipment.md) for config, friendly-hit protection and QA limits.
 
 Players and other Stand and Hold humans are excluded, even if explicitly mapped. There is no player retaliation goal. Intrinsic attack damage **and attack knockback** attributes are registered before combat. The server rechecks target eligibility before damage; removed/dead/unmapped targets are abandoned. Search is local (maximum 16 blocks) and throttled to at least 20 ticks; empty rules skip acquisition. Vanilla reach/line-of-sight/stuck-path checks handle blocked targets. No cross-world search or chunk ticket is used. The pinned pathfinding region reads `getChunkNow` and treats missing chunks as empty rather than requesting them.
 

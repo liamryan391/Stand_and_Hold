@@ -9,6 +9,8 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import net.minecraft.world.entity.HumanoidArm;
+import com.liamryan.standandhold.common.equipment.EquipmentRegistry;
 import net.minecraft.resources.Identifier;
 
 public final class HumanNpcRenderer extends HumanoidMobRenderer<HumanNpc, HumanoidRenderState, HumanoidModel<HumanoidRenderState>> {
@@ -25,5 +27,9 @@ public final class HumanNpcRenderer extends HumanoidMobRenderer<HumanNpc, Humano
         };
     }
     @Override public HumanoidRenderState createRenderState() { return new HumanoidRenderState(); }
+    @Override protected HumanoidModel.ArmPose getArmPose(HumanNpc mob, HumanoidArm arm) {
+        return mob.getMainHandItem().is(EquipmentRegistry.PROTOTYPE.get()) && arm == mob.getMainArm()
+                ? HumanoidModel.ArmPose.CROSSBOW_HOLD : super.getArmPose(mob, arm);
+    }
     @Override public Identifier getTextureLocation(HumanoidRenderState state) { return texture; }
 }
