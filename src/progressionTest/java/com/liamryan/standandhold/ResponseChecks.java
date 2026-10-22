@@ -45,7 +45,9 @@ final class ResponseChecks {
         check(!data.putRegion(new ThreatRegion(dimension, 1, 0), record, 1), "full records skip new without evicting history");
         String post = "minecraft:overworld@0,64,0";
         var id = UUID.randomUUID();
-        var response = ResponseRecord.initial(100, 1200).member(id, true).counted(true);
+        var initial = ResponseRecord.initial(100, 1200);
+        check(initial.raidReady(100) && initial.nextReinforcement() == 100 && initial.naturalAfter() == 1300, "admin first use immediate while natural grace stays saved");
+        var response = initial.timers(1300, 1400).member(id, true).counted(true);
         check(!response.raidReady(1300) && !response.member(id, false).raidReady(1299) && response.member(id, false).raidReady(1300), "cooldown boundary and unloaded reservations both enforced");
         for (int stage = 0; stage <= 6; stage++) { for (int cap = 1; cap <= 8; cap++) {
             check(ResponseRecord.waveSize(stage, cap) == Math.min(cap, 1 + stage / 2), "stage wave never exceeds cap");
@@ -79,7 +81,10 @@ final class ResponseChecks {
         bad = saved.copy(); bad.getCompoundOrEmpty("responses").getCompoundOrEmpty(post).getCompoundOrEmpty("raiders").putBoolean("not-uuid", true); assertBlockedRetained(bad, post);
         var old = new CompoundTag(); old.putString("unknown", "keep"); var migrated = decode(old);
         check(migrated.isDirty() && encode(migrated).getStringOr("unknown", "").equals("keep"), "empty version zero migrates without deleting unknown fields");
-        expect(() -> new ResponseRecord(0, 0, 0, 0, Set.of(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID())));
+        expect(() -> new ResponseRecord(0, 0, 0, 0, Set.of(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()), 0));
+        var oldResponse = response.save(); oldResponse.remove("natural_after");
+        check(ResponseRecord.load(oldResponse).nextRaid() == 1300 && ResponseRecord.load(oldResponse).raiders().contains(id), "older M10 timers/quotas retained without erasing cooldowns");
+        oldResponse.putDouble("natural_after", 1.5); expect(() -> ResponseRecord.load(oldResponse));
         expect(() -> data.putResponse("bad", response));
         var mission = new Mission("standandhold:defend_test", "Defence", Mission.Objective.OUTPOST_DEFENCE, 2, "", List.of(), new FoundationReward(5, 3));
         var catalog = new FoundationCatalog(List.of(), List.of(mission)); var progression = new HumanWorldData();

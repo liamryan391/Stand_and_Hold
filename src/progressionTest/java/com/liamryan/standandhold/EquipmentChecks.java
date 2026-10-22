@@ -20,6 +20,11 @@ final class EquipmentChecks {
         System.out.println("Equipment checks passed: " + assertions + " assertions.");
     }
     private static void gates() {
+        check(!EquipmentConfig.value(EquipmentConfig.PLAYER_GATES), "found player gear is usable by default before config load");
+        for (boolean player : new boolean[]{false, true}) { for (boolean strict : new boolean[]{false, true}) { for (boolean unlocked : new boolean[]{false, true}) {
+            check(EquipmentRules.actorUnlocked(player, strict, () -> unlocked) == (player && !strict || unlocked), "NPC gates remain mandatory; player gates opt-in");
+        } } }
+        check(EquipmentRules.actorUnlocked(true, false, () -> { throw new AssertionError("Free player gear must not query progression"); }), "found gear independent of progression/research availability");
         for (int stage = 0; stage <= 6; stage++) {
             for (int required = 0; required <= 6; required++) {
                 check(EquipmentRules.unlocked(stage, required, "standandhold:parasite_samples", id -> true, id -> true) == (stage >= required), "exact stage gate");

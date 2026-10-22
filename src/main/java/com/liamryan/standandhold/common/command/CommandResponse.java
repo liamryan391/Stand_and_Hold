@@ -56,7 +56,7 @@ final class CommandResponse {
             else if (action.equals("reinforcement")) { message = ThreatResponse.reinforce(level, post); }
             else {
                 var state = ThreatResponse.state(level, post); long now = level.getGameTime();
-                message = "Nearest post " + post.getBlockPos().toShortString() + ": raid cooldown " + Math.max(0, state.nextRaid() - now)
+                message = "Nearest post " + post.getBlockPos().toShortString() + ": natural grace " + Math.max(0, state.naturalAfter() - now) + " ticks; raid cooldown " + Math.max(0, state.nextRaid() - now)
                         + " ticks, reinforcement cooldown " + Math.max(0, state.nextReinforcement() - now) + " ticks; reserved raiders " + state.raiders().size()
                         + "; raids " + state.raids() + ", reinforcements " + state.reinforcements() + "; patrol region " + ThreatResponse.patrolRegion(level, post.getBlockPos()).key() + ".";
             }

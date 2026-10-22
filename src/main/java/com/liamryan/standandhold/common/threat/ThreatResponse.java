@@ -53,6 +53,7 @@ public final class ThreatResponse {
     public static void tick(ServerLevel level, BuildingBlockEntity post) {
         requirePost(level, post);
         var response = state(level, post); long now = level.getGameTime();
+        if (now < response.naturalAfter()) { return; }
         if (ResponseConfig.REINFORCEMENTS.get() && now >= response.nextReinforcement()
                 && inspect(level, patrolRegion(level, post.getBlockPos())).score() >= ResponseConfig.REINFORCEMENT_THRESHOLD.get()) { reinforce(level, post); }
         if (ResponseConfig.RAIDS.get() && response.raidReady(now)

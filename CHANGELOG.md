@@ -9,6 +9,7 @@ Modern port work uses one phase branch at a time, merged into `main` after verif
 - Added independent schema-1 bounded regional threat/event SavedData, lazy score decay, historical kills/deaths/losses/attack windows and conservative malformed/future-save handling.
 - Added tile-local, configurable vanilla-zombie raids and shared-quota reinforcements with saved grace/cooldowns/backoff, loaded-only placement, reserved raider expiry and near-home patrol orders.
 - Added operator threat/event diagnostics and triggers, bounded player warnings and once-only active defence-mission progress from credited raid kills; no toolchain/version/runtime dependency or progression-schema changes.
+- Following alpha feedback, initial grace now delays natural events only; fresh-post admin triggers are immediate but real cooldowns/caps remain. Players can use/equip found gear at any stage by default, with strict player gates opt-in; NPC launcher gates remain mandatory.
 
 ### Combat Equipment Foundation
 

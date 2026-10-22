@@ -221,5 +221,6 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 ## 2026-10-22 - M10 Threat Response And Events
 - Added separate versioned, bounded regional threat/event SavedData and balancing config; progression schema/pins/version/dependencies/legacy refs unchanged.
 - Added real death/damage hooks, tile-local capped vanilla-zombie raids/shared-quota reinforcements, saved near-home patrols, defence-mission hooks and admin diagnostics/triggers/warnings.
-- Integrated `clean build --no-daemon --stacktrace` passed (7s, 2,250 assertions, 200 response checks); later future-schema/pre-spawn cooldown guards passed `build` (6s). Final post-client clean proof pending.
-- Dedicated run reached Done/status/invalid-input/no-loaded-post checks/save/stop/clean exit (1m43s); prior settings restored. Client logs show reinforcement/two-zombie raid; Liam's combined check/final CI pending. No blocking decision; live milestone in STATUS.md.
+- Latest `clean build --no-daemon --stacktrace` passed (7s, 2,263 assertions); initial M10 Windows CI 39817763618 passed. Feedback/final CI pending.
+- Dedicated run reached Done/status/invalid/no-loaded-post/save/stop/clean exit (1m43s); settings restored. Liam passed combined client checks; client saved/exited normally (10m43s).
+- Split natural grace from initial admin use and made player found-gear access free by default with strict gates opt-in; NPC gates/caps preserved. Focused fast-natural QA pending; ignored client config backup retained for restoration. Live milestone in STATUS.md; no blocking decision.

@@ -1,4 +1,6 @@
 {
+  "tooltip.standandhold.player_equipment_free": "Players can use found gear at any stage",
+  "tooltip.standandhold.npc_equipment_gate": "NPC use: stage %s, research %s",
   "message.standandhold.raid": "Outpost attack near %s: %s raiders approaching.",
   "message.standandhold.reinforcement": "Human reinforcement near %s; patrol toward %s.",
   "block.standandhold.field_command_post": "Field Command Post",

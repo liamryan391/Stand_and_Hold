@@ -12,7 +12,7 @@ Regions are fixed 4x4-chunk (64x64-block) squares, floor-divided at negative coo
 
 ## Events And Bounds
 
-Loaded, writable, operational Command Posts check once per 200 loaded ticks by default. Dormant Main Base posts do not run events. The first response access saves 1,200 ticks of initial grace, including when accessed through status/debug commands. There is no offline catch-up.
+Loaded, writable, operational Command Posts check once per 200 loaded ticks by default. Dormant Main Base posts do not run events. The first response access saves 1,200 ticks of grace for **natural events only**. A new post's first admin trigger is immediately available; real saved cooldowns/backoff still apply afterward. There is no offline catch-up.
 
 | Rule | Default |
 | --- | --- |
@@ -35,7 +35,7 @@ Reinforcements reuse the existing defender reservation transaction. Their saved 
 
 ## Operator Commands And Missions
 
-All commands below require gamemaster/operator level 2. Event commands select the nearest **loaded** post within 64 blocks. Debug bypasses natural chance/score/player checks, but retains initial grace, cooldowns, operational stage, quotas, terrain and failed-spawn backoff.
+All commands below require gamemaster/operator level 2. Event commands select the nearest **loaded** post within 64 blocks. Debug bypasses natural grace/chance/score/player checks, but retains real cooldowns, operational stage, quotas, terrain and failed-spawn backoff. Status shows natural grace separately from those cooldowns.
 
 ```text
 /standandhold threat status
@@ -53,13 +53,13 @@ An active `outpost_defence` mission advances once per reserved raider killed by 
 
 ## Saves And Limitations
 
-`<world>/data/standandhold/threat_response.dat` uses schema 1, separate from progression schema 5. Empty version-zero data migrates non-destructively. Current missing/malformed maps, bad counters/UUIDs/positions, oversized collections or future versions refuse access and preserve the original payload, not free quota. Unknown root/record fields survive edits. Up to 4,096 post response records retain cooldown history even after post removal; full/malformed storage pauses new sites. Conservative ledger repair tooling is deferred.
+`<world>/data/standandhold/threat_response.dat` uses schema 1, separate from progression schema 5. Empty version-zero data migrates non-destructively. Current missing/malformed maps, bad counters/UUIDs/positions, oversized collections or future versions refuse access and preserve the original payload, not free quota. Unknown root/record fields survive edits. The optional `natural_after` timestamp separates natural grace; older M10 records without it retain all existing cooldowns/reservations, not a timer reset. Up to 4,096 post response records retain cooldown history even after post removal; full/malformed storage pauses new sites. Conservative ledger repair tooling is deferred.
 
 Cross-file world/chunk/entity saves are not a power-loss journal. Whole-world backups are required; external edits/partial restores can strand reservations. Missing loaded lookup is not proof of death. No legacy conversion or automatic ledger clearing is supported. Singleplayer/pure tests do not prove multiplayer, external-mod coexistence or long-session performance.
 
 ## Manual QA
 
-1. Fresh Creative/commands-enabled Superflat, Normal, night: generate a checkpoint, set stage 2, inspect event status. Wait 60 loaded seconds or `/tick sprint 1400t`; verify initial grace survives an intervening reload.
+1. Fresh Creative/commands-enabled Superflat, Normal, night: generate a checkpoint, set stage 2, inspect event status. A fresh post shows natural grace but no initial admin cooldown. Verify natural grace survives an intervening reload without blocking the first admin trigger. Existing saved cooldowns must not be erased.
 2. Trigger reinforcement with quota available: one eligible human, warning, saved cooldown, bounded patrol. Immediate repeat must not deploy again. Fill per-post/area quota; nearby posts must not bypass it. Unsupported/blocked/unloaded terrain must refuse safely.
 3. Trigger raid: up to 2 zombies at stage 2, subject to area/terrain checks. Expect one warning and human/zombie combat. Immediate repeat must refuse. Kill raiders normally; inspect threat list for deaths/kills/score. One human NPC death adds a loss. Unconfigured animals do not add infection kills/deaths.
 4. Save/reopen during a raid/cooldown: no extra wave, unresolved UUIDs retained. Loaded expiry grants no defence progress. Threat reset must not clear event cooldowns/quotas. Break a post/remove terrain without crashes or forced loading.

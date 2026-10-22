@@ -5,7 +5,9 @@ import java.util.List;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public final class EquipmentConfig {
+    public static final boolean DEFAULT_PLAYER_GATES = false;
     private static final ModConfigSpec.Builder B = new ModConfigSpec.Builder();
+    public static final ModConfigSpec.BooleanValue PLAYER_GATES = B.comment("By default players can use/equip found gear at any stage. Enable only for an opt-in strict player progression pack. NPC weapon/loadout gates always apply; this does not bypass cooldowns, durability or friendly-fire protection.").define("gatePlayerEquipment", DEFAULT_PLAYER_GATES);
     public static final class Gate {
         public final ModConfigSpec.IntValue stage;
         public final ModConfigSpec.ConfigValue<String> research;

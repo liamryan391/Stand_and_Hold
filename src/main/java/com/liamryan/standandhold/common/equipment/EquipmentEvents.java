@@ -36,7 +36,7 @@ public final class EquipmentEvents {
         Player player = event.getEntity();
         if (!(player.level() instanceof ServerLevel level) || !(player.getMainHandItem().getItem() instanceof EquipmentItem item)
                 || item.kind != EquipmentKind.BLADE && item.kind != EquipmentKind.PROTOTYPE) { return; }
-        boolean allowed = EquipmentAccess.allowed(level, item.kind);
+        boolean allowed = EquipmentAccess.allowedFor(player, item.kind);
         if (!allowed || item.kind == EquipmentKind.PROTOTYPE || item.kind == EquipmentKind.BLADE
                 && (event.getTarget() instanceof Player || event.getTarget() instanceof HumanNpc)) { event.setCanceled(true); }
         if (!allowed) { EquipmentAccess.notice(player, item.kind); }
@@ -45,7 +45,7 @@ public final class EquipmentEvents {
         if (!(event.getEntity().level() instanceof ServerLevel level) || !(event.getSource().getEntity() instanceof LivingEntity owner)
                 || event.getSource().getDirectEntity() != owner || !(event.getSource().is(DamageTypes.PLAYER_ATTACK) || event.getSource().is(DamageTypes.MOB_ATTACK))
                 || !(owner.getMainHandItem().getItem() instanceof EquipmentItem item) || item.kind != EquipmentKind.BLADE) { return; }
-        if (!EquipmentAccess.allowed(level, item.kind) || event.getEntity() instanceof Player || event.getEntity() instanceof HumanNpc || owner.isAlliedTo(event.getEntity())) {
+        if (!EquipmentAccess.allowedFor(owner, item.kind) || event.getEntity() instanceof Player || event.getEntity() instanceof HumanNpc || owner.isAlliedTo(event.getEntity())) {
             event.setCanceled(true); return;
         }
         if (EquipmentAccess.mapped(event.getEntity())) { event.setAmount(EquipmentRules.damage(event.getAmount() * EquipmentConfig.value(EquipmentConfig.THREAT_MULTIPLIER))); }

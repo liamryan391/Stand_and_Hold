@@ -4,16 +4,16 @@
 
 This is a small Minecraft-scale equipment set, not a modern weapons simulator. No ammo inventory, magazines, reload sequence, new NPC tier or runtime library is introduced. Optional entity/tag mappings identify infection threats and rewards; ordinary hostile mobs are also valid defensive targets. No external threat mod is required.
 
-| Equipment | Default unlock | Role and default stats |
+| Equipment | Configured stage/research gate | Role and default stats |
 | --- | --- | --- |
 | Anti-Threat Blade | Stage 1 + Initial Sample Analysis | Iron-speed melee, 6 total base attack damage, 1.5x damage to configured threats; no damage to players or human NPCs |
 | Army armour, four pieces | Stage 1 + Field Communications | Helmet/chest/legs/boots defence 2/6/5/2; ordinary durable field protection |
 | Elite armour, four pieces | Stage 3 + Field Communications | Defence 3/7/6/3 and 1 toughness per piece; later protection, no set bonuses |
 | Prototype Launcher | Stage 1 + Field Communications | One original bolt per use, 6 damage, 20-tick player cooldown, 30-tick maximum flight; hostile mobs or configured threats |
 
-Equipment is available in the existing creative tab and through `/give`, with ordinary JSON crafting recipes. Recipes remain visible/craftable before unlock: the server gates weapon use and normal armour equipping, not possession or ingredient spending. Check the tooltip before crafting. Creative/admin inventory edits and `/item replace` are testing tools, not a security boundary; already-worn armour is not forcibly removed after an administrative stage reset.
+Equipment is available in the existing creative tab, through `/give` and ordinary JSON crafting recipes. **Players can use/equip found gear at any stage by default**, including Elite armour and the launcher; research is not required simply to use an item. NPC launcher/loadout gates remain mandatory. Modpacks can opt into the former strict player gates with `gatePlayerEquipment=true`; only in that mode do the table's gates restrict player use/equip. Recipes/possession are never gated. Creative/admin inventory edits are not a security boundary; already-worn armour is not stripped after an administrative stage reset.
 
-Unlocks use world-global progression and research. Missing/malformed/future saved data or a missing required research definition fails closed. No unlock receipts, supplies or research are consumed by equipping/firing. Synced `standandhold-equipment.toml` controls required stages/research and combat values; static durability and basic JSON recipe ingredients are intentionally simple. Re-equip armour after changing configured protection values.
+NPC/opt-in strict-player unlocks use world-global progression and research. Missing/malformed/future saved data or a missing required definition fails those gates closed; ordinary free player gear does not query progression at all. No unlock receipts, supplies or research are consumed by equipping/firing. Synced `standandhold-equipment.toml` controls this policy, gate values and combat stats; static durability/basic recipes remain simple. Re-equip armour after configured protection changes.
 
 Army Riflemen may receive a non-dropping prototype in an empty main hand after unlock, controlled by config. They use vanilla ranged-goal movement/line-of-sight and the existing bounded target search/home restriction; no players/humans become valid targets. The launcher has an independent NPC shot interval and melee fallback when ranged use is unavailable. Survivor loadouts and deployment caps are unchanged. No real weapon construction details or external assets are used.
 
@@ -35,7 +35,7 @@ Use an ordinary crafting table. Obtaining iron teaches the ten recipes through o
 
 ## Authority And Bounds
 
-- Stage/research gates are checked on the logical server, including blade damage and bolt impact. Creative possession is not an unlock bypass for weapon use. Armour right-click and ordinary inventory slot placement check the gate; dispenser armour equipping is intentionally disabled. Already-worn protection is not stripped after admin stage resets or external save edits.
+- NPC and opt-in strict-player stage/research gates are checked on the logical server, including melee and bolt impact. Default player access is free, not an admin/Creative-only bypass. In strict mode, armour right-click/ordinary slots check the gate; already-worn protection is not stripped after admin resets. Dispenser armour equipping remains disabled. Friendly protection, cooldowns and durability still apply in both modes.
 - Armour and blade modifiers use synced config. Re-equip after config edits so the living entity refreshes its modifiers. Recipe ingredients, durability and visuals are static; they are not driven by research rewards or supply transactions. Invalid-length defence lists fall back to the documented four defaults.
 - Launcher cooldown uses vanilla item cooldowns shared across copies/hands. Relogging follows vanilla cooldown behavior, not a new persisted player timer. A shot spends durability and starts cooldown only after successful server spawn. No client packet supplies damage, position or a victim.
 - Bolts save age, lifetime, damage and vanilla owner/velocity. Invalid/missing age or invalid lifetime expires safely; reload never grants a fresh lifetime. Invalid/unavailable/dead/other-dimension owners cannot damage anything. Ownerless admin summons are harmless. No portals, explosions, terrain damage, redstone projectile callbacks, homing or pickup drops.
@@ -46,7 +46,7 @@ Use an ordinary crafting table. Obtaining iron teaches the ten recipes through o
 
 ## Reproducible QA
 
-1. Use a fresh modern world with cheats enabled, no threat mods. Confirm Mods, creative items, tooltips and all model/texture faces. At Stage 0, launcher use and normal right-click/Survival armour-slot equip must fail without deleting items. Creative inventory packets/admin replacement are explicitly test access, not permission tests.
+1. Use a fresh modern world with cheats enabled, no threat mods. Confirm Mods, items, tooltips/models. At Stage 0 with no research, player blade/launcher use and normal right-click/Survival armour-slot equip must work for both sets, while a test Rifleman must not receive a launcher. In a separate disposable config with `gatePlayerEquipment=true`, repeat the old fail-without-item-loss checks; Creative/admin replacement is not a permission boundary.
 2. Run the following setup once. In a fresh world it spends exactly 30 global supplies, completes two research entries and leaves 180 human points at Stage 1:
 
    ```text
@@ -56,11 +56,11 @@ Use an ordinary crafting table. Obtaining iron teaches the ten recipes through o
    /standandhold research complete field_communications
    ```
 
-3. Equip Army armour, inspect F5 front/back/sides and visible face, then confirm Elite remains locked until `/standandhold setstage 3`. Compare armour/toughness attributes before/after removal; save/reopen with partial durability and verify no duplicated items or stacked attributes. Test actual recipes/anvil repair in Survival using disposable materials.
+3. Equip Army and Elite armour at Stage 0, inspect F5 front/back/sides/face and attributes. Only opt-in strict player mode locks Elite until stage 3/research. Save/reopen with partial durability and verify no duplicates/stacked attributes. Test recipes/anvil repair in Survival with disposable materials.
 4. Kill zombies with the blade and launcher (not `/kill`). A player-attributed kill still gives the default +5 human points and possible tissue drop. Keep firing/alternate copies and hands: no faster than the configured cooldown. Test walls, water, misses, shield/ally interception and range expiry; no terrain changes or accumulating bolts. Check Survival durability loss/breaking and Creative behavior separately.
 5. Shoot human NPCs, an unmapped animal and, in dedicated multiplayer, a second player: no damage. Temporarily use a mapping/tag that includes protected types in a disposable config and repeat to verify exclusion wins over mapping. Restore the config; no external threat mod is required. Test one verified optional threat ID separately when an exact compatible mod is available.
 6. Spawn a Rifleman and a zombie 4-12 blocks apart after unlock. Expect one held launcher pointing away from his face, bounded shots/sounds and no friendly hits. Check a skeleton/creeper is also targeted, without new points/samples under the default zombie-only reward mapping; Survivors should approach those mobs too. Inspect both main-arm poses and the Elite Helmet icon (no detached bright pixels). Reset stage or disable prototype use, move targets behind a wall/outside home and confirm no ranged shots; do not treat eggs as automatic deployment tests. Save/reopen and confirm one existing weapon/quota, not extra units/items. Inspect a reload with an in-flight bolt: no new lifetime or damage reset.
-7. Retest failed/removed research definitions and unsupported saved data in disposable backups: no weapon authorization or crash. Config armour changes need re-equipping. Check console/logs for repeated per-tick warnings and test missing/invalid optional threat mappings independently of unit tests.
+7. Retest failed/removed research and unsupported saves in disposable backups: NPC/strict-player authorization must fail closed without crashes; default player found gear remains usable. Config armour changes need re-equipping. Check no per-tick log spam and missing/invalid optional threat mappings separately from pure tests.
 
 Original icons and 64x32 worn atlases are generated from `scripts/GenerateEquipmentTextures.java`, not imported player skins. Select the modern JDK and run `java .\scripts\GenerateEquipmentTextures.java` only when intentionally resetting this art. Armour uses the platform's ordinary equipment model/layer format, not custom animated geometry or an external library. Unedited [F2 references](../../art/references/README.md) record the worn Army set, corrected inventory icon and held launcher; the simple flat sprite is not final weapon art. The pinned platform source is the API reference; [NeoForge's item documentation](https://docs.neoforged.net/docs/items/) explains the component-based approach but may describe a different documentation version.
 

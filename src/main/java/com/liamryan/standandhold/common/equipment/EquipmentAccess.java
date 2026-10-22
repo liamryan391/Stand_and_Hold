@@ -33,6 +33,10 @@ public final class EquipmentAccess {
         var id = BuiltInRegistries.ENTITY_TYPE.getResourceKey(target.getType()).map(key -> key.identifier().toString()).orElse(null);
         return ThreatConfig.rules().match(id, tag -> target.typeHolder().is(TagKey.create(Registries.ENTITY_TYPE, Identifier.parse(tag)))).isPresent();
     }
+    public static boolean allowedFor(LivingEntity actor, EquipmentKind kind) {
+        return actor.level() instanceof ServerLevel server && EquipmentRules.actorUnlocked(actor instanceof Player,
+                EquipmentConfig.value(EquipmentConfig.PLAYER_GATES), () -> allowed(server, kind));
+    }
     public static boolean validTarget(LivingEntity owner, LivingEntity target) {
         return owner.isAlive() && !owner.isRemoved() && !owner.isSpectator() && owner != target && target.isAlive() && !target.isRemoved() && target.level() == owner.level()
                 && EquipmentRules.validTarget(true, target instanceof Player, target instanceof HumanNpc, owner.isAlliedTo(target), mapped(target), target instanceof Enemy);
