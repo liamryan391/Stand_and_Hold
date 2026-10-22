@@ -44,6 +44,7 @@ public final class CommandStandAndHold {
         CommandBuildings.addChildren(root);
         CommandStructures.addChildren(root);
         CommandResponse.addChildren(root);
+        CommandCompatibility.addChildren(root);
         dispatcher.register(root);
     }
 

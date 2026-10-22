@@ -231,3 +231,10 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Declared platform ranges include the pins; no additional required mod is declared. Contagion's project/jar licence discrepancy is recorded; no code/assets copied or jar installed/executed/saved into the checkout.
 - `git diff --check` passed for this docs-only checkpoint. No build or client/server launch run; artifact metadata is not runtime support proof.
 - Paused at the AGENTS.md runtime-admission decision: requested approval for exact Contagion-only isolated QA. No implementation/pin/version/default-run changes; M11 remains unmerged. Remaining milestone is in STATUS.md.
+
+## 2026-10-22 - M11 Presets And Runtime Verification
+- Liam approved exact Contagion-only isolated QA. Added bounded opt-in presets, verified vanilla tag, mod/version guard, operator diagnostics, isolated run tasks and 27 regression assertions; defaults/pins/version/runtime requirements unchanged.
+- Final code `clean build --no-daemon --stacktrace` passed (6s, 2,364 assertions); jar metadata and absence of bundled external/test content inspected. Implementation CI pending publication.
+- No-mod dedicated baseline reached Done/status/progression/research/save/stop/clean exit (30s). Approved jar failed both client/server bootstrap: missing `ModConfig.Type.SERVER`; verified pinned FML enum. Client exited 1 after Liam closed error window; server exited 1 in 8s.
+- Moved only installed QA jar copies outside mods, retaining artifacts/crash reports/logs/baseline backup. Recovery server reached Done, retained 27 points/research, safely skipped invalid/missing rules and saved/stopped/exited (15s). Liam passed baseline/generic client gameplay/reload; F2 frames reviewed and client exited normally (5m9s).
+- External infection/removal exit gate unmet; no merge/M12 branch or unapproved substitution/pin change. Exact failure, reproduction-only preset and remaining milestone/decision are recorded in STATUS.md and compatibility.md.

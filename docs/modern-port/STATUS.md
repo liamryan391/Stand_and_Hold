@@ -4,32 +4,35 @@ Updated: 2026-10-22 - Branch: `codex/m11-compatibility`
 
 ## Where we are
 
-- M1-M10 are merged into `main`; M11 is on its prepared phase branch. The worktree started clean, GitHub refs were fetched and `origin/1.12` still matches the preserved commit. No implementation, build, toolchain, version or dependency changes in this checkpoint.
-- M11 11.1 is complete for artifact metadata: Contagion 2.1.1 and Undead Nights 2.2.6 have exact author-labelled Minecraft 26.3/NeoForge releases. SHA-512 checks and in-memory jar manifests confirm declared platform ranges include our pins and no additional required mod is declared. See [Optional Threat Compatibility](compatibility.md) for exact files, sources, licence caveats and proposed admission.
-- Contagion is the proposed isolated infection-mod QA fixture; Undead Nights is a separate horde-scheduler candidate. Neither was installed, saved into the checkout or executed. Contagion's project MIT badge conflicts with its jar's All Rights Reserved metadata; no code/assets/jars will be copied into or bundled with the mod.
-- Presets/adapters and M11 with/without/removal runtime checks are not implemented or passed. M11 must not be merged until its actual exit gate is observed. The existing safe zombie mapping and optional-mod behavior are unchanged.
-- M10's final code clean build passed 2,337 assertions; main CI 39824129254 passed. That earlier proof is not M11 runtime proof. This docs-only checkpoint uses `git diff --check`; no new build/game launch was needed or claimed.
+- M1-M10 remain merged into main. M11 11.1-11.2 are implemented on the phase branch; 11.3-11.4 and the external-infection exit gate are incomplete. Do not merge M11 or prepare M12 while that gate is unmet.
+- Added bounded opt-in presets, original vanilla-undead tag, safe exact mod/version probe and operator `/standandhold compat status`. Manual priority and zombie-only defaults are unchanged; no external imports, runtime dependency, per-tick probe or global scan. The Contagion candidate is reproduction-only, explicitly not supported play.
+- Liam approved exact Contagion 2.1.1 for isolated QA only. Both client and dedicated launch fail before gameplay with `NoSuchFieldError: ModConfig.Type.SERVER` in Contagion's constructor. The pinned FML 12.0.9 enum has no such field. Artifact metadata matches the pins, but binary compatibility does not. See [Optional Threat Compatibility](compatibility.md) and [Known Issues](../../KNOWN_ISSUES.md).
+- Latest clean build passed (6s, 2,364 assertions including 27 compatibility checks). Normal jar metadata/pins inspected; no nested jars, Contagion classes/assets or test classes packaged. Branch CI for the new implementation is pending publication.
+- No-mod dedicated baseline reached Done, accepted progression/research/save/stop and exited cleanly (30s). The failed with-mod server run exited 1 (8s); failed client exited 1 after Liam closed its error window (2m14s). These are failed compatibility results, not passed launches.
+- After moving only our installed jar copies to each isolated run's `mods-disabled/`, the backed-up server reached Done again, retained 27 points/completed Initial Sample Analysis, refused repeat rewards, skipped missing/invalid rules and saved/stopped/exited cleanly (15s). All crash logs/reports, artifact copies and baseline backup are retained under the QA directories/`.local/m11-qa/`; no user files were deleted.
+- Liam passed recovery/generic client gameplay, mapping-only targeting, mission and save/reload checks; client saved and fully exited normally (5m9s). Reviewed F2 frames show the active generic preset/skipped absent candidate, mission reward and human/zombie combat. Normal run folders/configs are untouched; no pins/version/EULA acceptance changed.
 
 ## Next milestone
 
-After the runtime-test admission decision:
+Blocked on a compatible external runtime candidate/admission decision:
 
-`Continue: M11 steps 11.2-11.4 (optional mapping presets/adapters, isolated with/without-mod and removal testing, and supported-combination documentation) on codex/m11-compatibility.`
+`Continue: M11 steps 11.3-11.4 (approved compatible infection-mod runtime/removal tests and supported-combination documentation) on codex/m11-compatibility.`
 
-Do not install or execute the external test mod before Liam approves its exact isolated QA use.
+The preferred constraint is to keep the existing pins. A corrected upstream Contagion artifact or a separately verified/approved alternative is needed; do not patch the external jar, silently substitute a release or treat Undead Nights metadata as infection-mod proof.
 
 ## Needs Liam
 
-- Approve or decline Contagion `Contagion-2.1.1-NeoForge-mc26.3.jar` (Modrinth release `4tdqhokG`) for a separate disposable client/server QA instance. No default development runs, build dependencies, release contents or toolchain pins would change. This is the explicit runtime-admission gate in AGENTS.md, not a proposal to make Contagion required.
-- Only Liam may accept an installed-server EULA if requested. No EULA acceptance file was written.
-- Optional M10 retention retest: issue a Survivor blade at Stage 1 + Initial Sample Analysis, reset to Stage 0, spawn a new Survivor and save/reopen. The old unit should retain its usable blade; the new unit should stay unarmed.
+- No further baseline client check is needed for this checkpoint. The reported pass and reviewed frames establish generic/no-mod behavior only, not Contagion compatibility.
+- Decide the external-test path after the recorded failure: retain pins and wait for a compatible upstream artifact, or evaluate another pinned-target infection candidate before separately approving its runtime use. No other external mod or pin change is approved.
+- Only Liam may accept a server EULA if requested. The development launches did not prompt for one; Codex performed no EULA acceptance.
+- Optional M10 retention retest remains separate: previously issued Survivor blade stays usable at Stage 0 after reload; a new unarmed Survivor still needs Stage 1 + Initial Sample Analysis.
 
 ## Open risks
 
-- Published version/range/hash checks do not establish mixin, binary, gameplay, performance or removal compatibility. Exact external registry IDs/tags must be verified before any preset is activated. Infection effects must not broaden NPC targets to players.
-- Response storage remains conservative: unresolved unloaded raiders and removed-post cooldown records are retained. Full/malformed storage pauses new sites; whole-world backups remain required.
-- Long-session multi-outpost counts, physical patrol/projectile reload and real multiplayer remain unverified. Player weapons can hurt human/passive mobs; players/allied teams stay protected.
-- Art remains alpha quality; fixed building fronts, conservative one-chunk placement and loaded-only cleanup are unchanged. See [Known Issues](../../KNOWN_ISSUES.md) for retained platform/render warnings.
-- Preserve `.local/modern-jdk.json`, ignored worlds/configs and the protected legacy branch/tag. No legacy world/config conversion is supported.
+- Config guards cannot stop another installed mod's constructor from crashing before game initialization. Safe missing-mod behavior is not a promise to load incompatible binaries.
+- Removal recovery followed an early bootstrap failure, not a successfully played external-modded world. Infection effects, external gameplay and full modded-world removal remain unverified.
+- Response storage retains unresolved raiders and removed-post cooldown records. Whole-world backups are required. Long-session multi-outpost counts, physical patrol/projectile reload and multiplayer remain unverified.
+- Player weapons can hurt human/passive mobs; NPC player/human exclusions and team protections remain separate. Art and structure limits are unchanged; see Known Issues for platform warnings.
+- Preserve ignored worlds/configs, `.local/modern-jdk.json`, the protected legacy branch/tag and all retained QA evidence. No legacy save conversion is supported.
 
 Follow [AGENTS.md](../../AGENTS.md); the [roadmap](phase-roadmap.md) owns task checkboxes.

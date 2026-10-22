@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M11 (prepared, not started)**; see [STATUS.md](STATUS.md).
+Current position: **Phase M11 (runtime compatibility blocked)**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -277,10 +277,10 @@ Exit gate:
 Priority: P3
 
 - [x] **11.1 Recheck candidate mods against the pinned Minecraft and NeoForge versions.** Exact release records, hashes, jar requirements and licence evidence checked on 2026-10-22; see [Optional Threat Compatibility](compatibility.md). These are metadata-compatible candidates, not runtime-supported combinations.
-- [ ] **11.2 Add generic presets and optional adapters.**
-  - [ ] **11.2.1** Verify registry IDs/tags for rewards, samples, targeting, and missions before activating any preset.
-  - [ ] **11.2.2** Isolate integrations behind mod-loaded checks; avoid importing external classes in common initialization.
-  - [ ] **11.2.3** Document presets and their source versions for modpack authors.
+- [x] **11.2 Add generic presets and optional adapters.** Bounded opt-in config resolution and diagnostics; defaults unchanged. The Contagion candidate is explicitly reproduction-only, not supported play.
+  - [x] **11.2.1** Verify registry IDs/tags for rewards, samples, targeting, and missions before activating any preset. Shipped vanilla names checked against pinned game sources; Contagion's vanilla-zombie target annotation inspected without copying implementation.
+  - [x] **11.2.2** Isolate integrations behind mod-loaded checks; avoid importing external classes in common initialization.
+  - [x] **11.2.3** Document presets and their source versions for modpack authors. See [Optional Threat Compatibility](compatibility.md) for exact sources and runtime failures.
 - [ ] **11.3 Verify with and without external mods.** Build; test at least one available modern threat mod, removal in a backed-up test environment, and unknown mappings.
 - [ ] **11.4 Record supported combinations and deferred integrations.** A 1.12 SRP jar is not evidence of modern-loader compatibility.
 
