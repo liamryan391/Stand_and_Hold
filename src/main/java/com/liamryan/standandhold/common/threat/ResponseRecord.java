@@ -12,6 +12,11 @@ public record ResponseRecord(long nextRaid, long nextReinforcement, long raids, 
     }
     public static long after(long now, int ticks) { return ThreatRecord.credit(now, ticks); }
     public static ResponseRecord initial(long now, int grace) { return new ResponseRecord(after(now, grace), after(now, grace), 0, 0, Set.of()); }
+    public boolean raidReady(long now) { return now >= nextRaid && raiders.isEmpty(); }
+    public static int waveSize(int stage, int cap) {
+        if (stage < 0 || stage > 6 || cap < 1 || cap > 8) { throw new IllegalArgumentException("Invalid raid stage/cap."); }
+        return Math.min(cap, 1 + stage / 2);
+    }
     public ResponseRecord timers(long raid, long reinforcement) { return new ResponseRecord(raid, reinforcement, raids, reinforcements, raiders); }
     public ResponseRecord counted(boolean raid) { return new ResponseRecord(nextRaid, nextReinforcement, ThreatRecord.credit(raids, raid ? 1 : 0), ThreatRecord.credit(reinforcements, raid ? 0 : 1), raiders); }
     public ResponseRecord member(UUID id, boolean add) {

@@ -18,24 +18,24 @@ import net.minecraft.world.phys.AABB;
 /** Called only by a loaded post's interval; all queries are bounded and never request chunks. */
 public final class DefenderDeployment {
     private DefenderDeployment() { }
-    public static void attempt(ServerLevel level, BuildingBlockEntity post) {
-        if (!NpcConfig.DEPLOY.get() || NpcConfig.POST_CAP.get() == 0) { return; }
+    public static HumanNpc attempt(ServerLevel level, BuildingBlockEntity post) {
+        if (!NpcConfig.DEPLOY.get() || NpcConfig.POST_CAP.get() == 0) { return null; }
         var data = HumanWorldData.get(level.getServer());
         int stage = ProgressionRules.stageFor(data.points(), HumanProgressionConfig.thresholds()).level();
         var tier = HumanTier.unlocked(stage, NpcConfig.SURVIVOR.stage.get(), NpcConfig.ARMY.stage.get());
-        if (tier == null) { return; }
+        if (tier == null) { return null; }
         var home = new BuildingPosition(level.dimension().identifier(), post.getBlockPos());
         int reserved = data.defenderCount(home.key());
-        if (reserved >= NpcConfig.POST_CAP.get()) { return; }
+        if (reserved >= NpcConfig.POST_CAP.get()) { return null; }
         int[] nearby = {0};
         level.getEntities().get(EntityTypeTest.forClass(HumanNpc.class), new AABB(home.pos()).inflate(NpcConfig.AREA_RADIUS.get()), npc -> {
             if (npc.isAlive()) { nearby[0]++; }
             return nearby[0] >= NpcConfig.AREA_CAP.get() ? Continuation.ABORT : Continuation.CONTINUE;
         });
-        if (!HumanTier.hasRoom(reserved, NpcConfig.POST_CAP.get(), nearby[0], NpcConfig.AREA_CAP.get())) { return; }
+        if (!HumanTier.hasRoom(reserved, NpcConfig.POST_CAP.get(), nearby[0], NpcConfig.AREA_CAP.get())) { return null; }
         var type = tier == HumanTier.ARMY_RIFLEMAN ? NpcRegistry.ARMY.get() : NpcRegistry.SURVIVOR.get();
         var npc = type.create(level, EntitySpawnReason.REINFORCEMENT);
-        if (npc == null) { return; }
+        if (npc == null) { return null; }
         int radius = NpcConfig.SPAWN_RADIUS.get();
         for (int attempt = 0; attempt < 8; attempt++) {
             int dx = level.getRandom().nextInt(radius * 2 + 1) - radius;
@@ -51,14 +51,15 @@ public final class DefenderDeployment {
                 if (!level.getWorldBorder().isWithinBounds(npc.getBoundingBox()) || !level.noCollision(npc)
                         || !level.isUnobstructed(npc) || WalkNodeEvaluator.getPathTypeStatic(npc, pos) != PathType.WALKABLE) { continue; }
                 npc.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), EntitySpawnReason.REINFORCEMENT, null);
-                if (npc.isSpawnCancelled() || npc.isRemoved()) { return; }
+                if (npc.isSpawnCancelled() || npc.isRemoved()) { return null; }
                 npc.assignPost(home);
-                if (!data.reserveDefender(home.key(), npc.getUUID(), NpcConfig.POST_CAP.get())) { return; }
+                if (!data.reserveDefender(home.key(), npc.getUUID(), NpcConfig.POST_CAP.get())) { return null; }
                 boolean added = false;
                 try { added = level.addFreshEntity(npc); }
                 finally { if (!added) { data.releaseDefender(home.key(), npc.getUUID()); } }
-                return;
+                return added ? npc : null;
             }
         }
+        return null;
     }
 }

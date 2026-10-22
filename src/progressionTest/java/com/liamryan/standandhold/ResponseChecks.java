@@ -7,6 +7,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.Identifier;
+import com.liamryan.standandhold.common.foundation.*;
+import com.liamryan.standandhold.common.mission.*;
+import com.liamryan.standandhold.common.progression.*;
+import com.liamryan.standandhold.common.world.HumanWorldData;
+import java.util.List;
 
 final class ResponseChecks {
     private static int assertions;
@@ -41,6 +46,15 @@ final class ResponseChecks {
         String post = "minecraft:overworld@0,64,0";
         var id = UUID.randomUUID();
         var response = ResponseRecord.initial(100, 1200).member(id, true).counted(true);
+        check(!response.raidReady(1300) && !response.member(id, false).raidReady(1299) && response.member(id, false).raidReady(1300), "cooldown boundary and unloaded reservations both enforced");
+        for (int stage = 0; stage <= 6; stage++) { for (int cap = 1; cap <= 8; cap++) {
+            check(ResponseRecord.waveSize(stage, cap) == Math.min(cap, 1 + stage / 2), "stage wave never exceeds cap");
+        } }
+        for (int x = -2; x <= 2; x++) { for (int z = -2; z <= 2; z++) { for (int radius : new int[]{8, 16, 24}) {
+            var origin = new BlockPos(31, 64, 31); var patrol = ThreatResponse.patrolPoint(origin, new ThreatRegion(dimension, x, z), radius);
+            check(patrol.distSqr(origin) <= radius * radius && patrol.getY() == 64, "region patrol remains inside home radius");
+        } } }
+        expect(() -> ResponseRecord.waveSize(7, 4)); expect(() -> ResponseRecord.waveSize(1, 0));
         data.putResponse(post, response); data.setDirty(false); data.putResponse(post, response);
         check(!data.isDirty(), "unchanged cooldown/roster does not dirty");
         var saved = encode(data); saved.putString("unknown", "keep");
@@ -67,6 +81,15 @@ final class ResponseChecks {
         check(migrated.isDirty() && encode(migrated).getStringOr("unknown", "").equals("keep"), "empty version zero migrates without deleting unknown fields");
         expect(() -> new ResponseRecord(0, 0, 0, 0, Set.of(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID())));
         expect(() -> data.putResponse("bad", response));
+        var mission = new Mission("standandhold:defend_test", "Defence", Mission.Objective.OUTPOST_DEFENCE, 2, "", List.of(), new FoundationReward(5, 3));
+        var catalog = new FoundationCatalog(List.of(), List.of(mission)); var progression = new HumanWorldData();
+        var thresholds = ProgressionRules.thresholds(ProgressionRules.DEFAULT_THRESHOLDS);
+        check(MissionManager.observeDefence(progression, catalog, thresholds).isEmpty(), "inactive defence mission not advanced");
+        MissionManager.start(progression, catalog, thresholds, mission.id());
+        check(MissionManager.observeDefence(progression, catalog, thresholds).size() == 1 && progression.mission(mission.id()).orElseThrow().progress() == 1, "real defence hook advances active objective");
+        MissionManager.observeDefence(progression, catalog, thresholds);
+        check(progression.points() == 5 && progression.supplies() == 3, "defence reward once");
+        check(MissionManager.observeDefence(progression, catalog, thresholds).isEmpty() && progression.points() == 5, "repeat defence cannot regrant reward");
         System.out.println("Threat response checks passed: " + assertions + " assertions.");
     }
     private static void assertBlockedRetained(CompoundTag tag, String post) {

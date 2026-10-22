@@ -1,4 +1,6 @@
 {
+  "message.standandhold.raid": "Outpost attack near %s: %s raiders approaching.",
+  "message.standandhold.reinforcement": "Human reinforcement near %s; patrol toward %s.",
   "block.standandhold.field_command_post": "Field Command Post",
   "block.standandhold.research_lab": "Research Lab",
   "block.standandhold.supply_crate": "Supply Crate",

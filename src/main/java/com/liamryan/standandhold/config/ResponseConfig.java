@@ -10,7 +10,7 @@ public final class ResponseConfig {
     public static final ModConfigSpec.IntValue ATTACK_SCORE = B.comment("Score per attack window on assigned defenders; max one window per region per 20 ticks.").defineInRange("outpostAttackScore", 4, 0, 100);
     public static final ModConfigSpec.IntValue DECAY_INTERVAL = B.comment("Game ticks per lazy decay period. Only events, commands and loaded posts touch records; no global tick scan. Unloaded time is accounted when next inspected.").defineInRange("decayIntervalTicks", 1200, 200, 72000);
     public static final ModConfigSpec.IntValue DECAY_AMOUNT = B.comment("Score removed per period; counters never decay. Zero disables score decay.").defineInRange("decayAmount", 2, 0, 1000);
-    public static final ModConfigSpec.BooleanValue RAIDS = B.comment("Natural raids require a loaded operational post, nearby non-spectator player, threat threshold, chance and saved cooldown. Debug trigger bypasses chance/threshold/player/grace, never quotas or cooldown after an attempt.").define("naturalRaids", true);
+    public static final ModConfigSpec.BooleanValue RAIDS = B.comment("Natural raids require a loaded operational post, nearby non-spectator player, threat threshold, chance and saved cooldown. Debug bypasses chance/threshold/player, never quotas, initial grace or cooldown.").define("naturalRaids", true);
     public static final ModConfigSpec.BooleanValue REINFORCEMENTS = B.comment("Natural reinforcements share existing deployment enable/stage/post/area quotas, not an extra defender budget.").define("naturalReinforcements", true);
     public static final ModConfigSpec.BooleanValue WARNINGS = B.comment("Notify nearby non-spectators once per successful raid/deployment. Debug failures only reply to the operator.").define("playerWarnings", true);
     public static final ModConfigSpec.IntValue CHECK_INTERVAL = B.comment("Loaded post ticks between bounded event checks; no offline catch-up.").defineInRange("checkIntervalTicks", 200, 100, 1200);
@@ -22,8 +22,9 @@ public final class ResponseConfig {
     public static final ModConfigSpec.IntValue REINFORCEMENT_COOLDOWN = B.comment("Saved ticks between successful reinforcement deployments.").defineInRange("reinforcementCooldownTicks", 2400, 200, 72000);
     public static final ModConfigSpec.IntValue BACKOFF = B.comment("Saved delay after an eligible attempt cannot spawn; not retried every tick.").defineInRange("failedSpawnBackoffTicks", 400, 200, 72000);
     public static final ModConfigSpec.IntValue RAID_CAP = B.comment("Per-post raiders incl. unloaded UUID reservations. Stage count is min(cap, 1 + stage/2); only vanilla zombies in this foundation.").defineInRange("maxRaidersPerPost", 4, 1, 8);
-    public static final ModConfigSpec.IntValue RAID_AREA_CAP = B.comment("Max living loaded hostile Enemy mobs in a 32-block box, including ordinary monsters and nearby raids. Unsafe/full terrain refuses the event.").defineInRange("maxHostilesInArea", 8, 1, 32);
+    public static final ModConfigSpec.IntValue RAID_AREA_CAP = B.comment("Max living loaded Enemy/mapped mobs in a 32-block box, including ordinary monsters and nearby raids. At most 128 mobs inspected; dense/unsafe/unloaded sites refuse the event.").defineInRange("maxHostilesInArea", 8, 1, 32);
     public static final ModConfigSpec.IntValue RAID_LIFETIME = B.comment("Tagged raiders expire after these game ticks when loaded. Unloaded UUIDs remain reserved; absence never proves death. No force loading.").defineInRange("raiderLifetimeTicks", 2400, 200, 72000);
+    public static final ModConfigSpec.IntValue PATROL_DURATION = B.comment("Reinforcement patrol duration in game ticks; target is clamped inside the existing home radius, no distant/unloaded pursuit. Combat has priority.").defineInRange("patrolDurationTicks", 1200, 200, 72000);
     public static final ModConfigSpec SPEC = B.build();
     private ResponseConfig() { }
 }

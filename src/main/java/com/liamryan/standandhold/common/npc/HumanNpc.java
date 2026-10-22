@@ -31,6 +31,8 @@ import net.minecraft.world.entity.ai.goal.MoveTowardsRestrictionGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.RangedAttackGoal;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.monster.RangedAttackMob;
@@ -44,6 +46,8 @@ import net.minecraft.world.level.storage.ValueOutput;
 public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
     private String commandPost = "";
     private long nextPrototypeShot;
+    private BlockPos patrolTarget;
+    private long patrolUntil;
 
     public HumanNpc(EntityType<? extends HumanNpc> type, Level level) {
         super(type, level);
@@ -70,6 +74,7 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         goalSelector.addGoal(1, new PrototypeGoal(this));
         goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0, false));
         goalSelector.addGoal(3, new MoveTowardsRestrictionGoal(this, 0.9));
+        goalSelector.addGoal(3, new PatrolGoal());
         goalSelector.addGoal(4, new RandomStrollGoal(this, 0.7, 120));
         goalSelector.addGoal(5, new LookAtPlayerGoal(this, Player.class, 6));
         goalSelector.addGoal(6, new RandomLookAroundGoal(this));
@@ -91,10 +96,15 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         commandPost = position.key();
         setHomeTo(position.pos(), NpcConfig.HOME_RADIUS.get());
     }
+    public java.util.Optional<BuildingPosition> commandPost() { return BuildingPosition.parse(commandPost); }
+    public void assignPatrol(BlockPos target, long until) {
+        if (!commandPost.isEmpty() && isWithinHome(target)) { patrolTarget = target.immutable(); patrolUntil = until; }
+    }
     @Override protected void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
         output.putString("standandhold_command_post", commandPost);
         output.putLong("standandhold_next_prototype_shot", nextPrototypeShot);
+        if (patrolTarget != null) { output.putLong("standandhold_patrol_target", patrolTarget.asLong()); output.putLong("standandhold_patrol_until", patrolUntil); }
     }
     @Override protected void readAdditionalSaveData(ValueInput input) {
         super.readAdditionalSaveData(input);
@@ -102,6 +112,8 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         if (!level().isClientSide()) { applyStats(false); }
         nextPrototypeShot = Math.clamp(input.getLongOr("standandhold_next_prototype_shot", 0), 0, level().getGameTime() + 200);
         BuildingPosition.parse(commandPost).ifPresent(position -> setHomeTo(position.pos(), NpcConfig.HOME_RADIUS.get()));
+        patrolUntil = Math.clamp(input.getLongOr("standandhold_patrol_until", 0), 0, level().getGameTime() + 72000);
+        patrolTarget = input.getLong("standandhold_patrol_target").map(BlockPos::of).filter(this::isWithinHome).orElse(null);
     }
     @Override protected void customServerAiStep(ServerLevel level) {
         super.customServerAiStep(level);
@@ -117,6 +129,7 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
                 && (!(level.getBlockEntity(home.pos()) instanceof BuildingBlockEntity post) || post.kind() != BuildingKind.COMMAND_POST)) {
             releasePost(level);
             clearHome();
+            patrolTarget = null;
         }
     }
     private void releasePost(ServerLevel level) {
@@ -160,5 +173,21 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
             nextSearch = now + NpcConfig.TARGET_INTERVAL.get();
             return (NpcConfig.HOSTILE_TARGETS.get() || !ThreatConfig.rules().rules().isEmpty()) && super.canUse() && canAttack(target, targetConditions);
         }
+    }
+    private final class PatrolGoal extends Goal {
+        private long nextPath;
+        PatrolGoal() { setFlags(java.util.EnumSet.of(Flag.MOVE)); }
+        @Override public boolean canUse() {
+            return getTarget() == null && patrolTarget != null && !commandPost.isEmpty() && level().getGameTime() < patrolUntil
+                    && isWithinHome(patrolTarget) && level().hasChunksAt(patrolTarget.offset(-1, -1, -1), patrolTarget.offset(1, 2, 1))
+                    && level().getWorldBorder().isWithinBounds(patrolTarget) && patrolTarget.distToCenterSqr(position()) > 4;
+        }
+        @Override public boolean canContinueToUse() { return canUse(); }
+        @Override public void tick() {
+            if (level().getGameTime() < nextPath) { return; }
+            nextPath = level().getGameTime() + 40;
+            getNavigation().moveTo(patrolTarget.getX() + 0.5, patrolTarget.getY(), patrolTarget.getZ() + 0.5, 0.8);
+        }
+        @Override public void stop() { getNavigation().stop(); }
     }
 }
