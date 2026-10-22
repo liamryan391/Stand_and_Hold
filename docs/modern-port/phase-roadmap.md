@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M10 (unstarted)**; see [STATUS.md](STATUS.md).
+Current position: **Phase M11 (prepared, not started)**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -259,13 +259,13 @@ Exit gate:
 
 Priority: P2/P3
 
-- [ ] **10.1 Define bounded regional threat state.** Persist scores, losses, kill/attack counters, decay timestamps, and record limits.
-- [ ] **10.2 Add event hooks and decay.** Update from real server events; throttle decay and use loaded-region/tile-local work without global per-tick scans.
-- [ ] **10.3 Add outpost attacks and reinforcements.**
-  - [ ] **10.3.1** Enforce stage-based selection, cooldowns, per-post/area caps, and failed-spawn backoff.
-  - [ ] **10.3.2** Assign bounded patrol targets, connect defence missions, and persist event state across reload.
-  - [ ] **10.3.3** Add admin trigger/status commands and configurable player warnings without chat spam.
-- [ ] **10.4 Verify response behavior.** Build; test natural/debug events, cooldown reload, multiple outposts, invalid targets, and long-session entity counts.
+- [x] **10.1 Define bounded regional threat state.** Persist scores, losses, kill/attack counters, decay timestamps, and record limits.
+- [x] **10.2 Add event hooks and decay.** Update from real server events; throttle decay and use loaded-region/tile-local work without global per-tick scans.
+- [x] **10.3 Add outpost attacks and reinforcements.**
+  - [x] **10.3.1** Enforce stage-based selection, cooldowns, per-post/area caps, and failed-spawn backoff.
+  - [x] **10.3.2** Assign bounded patrol targets, connect defence missions, and persist event state across reload.
+  - [x] **10.3.3** Add admin trigger/status commands and configurable player warnings without chat spam.
+- [x] **10.4 Verify response behavior.** Clean build/jar and final Windows CI passed; three dedicated launches and Liam's combined/natural/debug/cooldown/reload/cap checks passed. Phase exit gates are observed. Long-session multi-outpost soak, physical patrol reload, multiplayer and the final issued-blade retention/reload retest remain explicitly unverified in STATUS.md.
 
 Exit gate:
 

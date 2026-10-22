@@ -1,34 +1,34 @@
 # Status
 
-Updated: 2026-10-22 - Branch: `codex/m10-threat-response`
+Updated: 2026-10-22 - Branch: `codex/m11-compatibility` (prepared after the M10 merge)
 
 ## Where we are
 
-- M1-M9 are verified and merged. M10 is unstarted on the prepared `codex/m10-threat-response` branch. M9 adds an Anti-Threat Blade, Army/Elite armour and a cooldown-based launcher with server-owned unlocks and safe Rifleman use. See [Equipment](equipment.md). No pin, version, runtime dependency, global schema or protected legacy-ref changes.
-- Added synced equip/use gates, ten ordinary recipes/discovery/repair tags and original item/worn art. Recipes/possession are not gated; normal armour equip and weapon use are. Already-worn/admin-edited armour is not forcibly stripped after stage resets.
-- Bolts save bounded age/lifetime/damage, stop at unavailable chunks and protect players/humans/allies. Riflemen can receive one non-dropping launcher in an empty hand after unlock, with line of sight, a 12-block firing limit, saved shot timing and existing melee/home/target/deployment safeguards. No ammo/reload or new unit.
-- Final post-client `clean build --no-daemon --stacktrace` passed (5s, 2,050 assertions: 1,363 prior +687 equipment). Normal jar metadata matches Minecraft 26.3/NeoForge 26.3.0.57-beta and version 0.1.0-alpha.1; ten recipes are packaged and test classes excluded. [Windows CI 39691907933](https://github.com/liamryan391/Stand_and_Hold/actions/runs/39691907933) passed the final M9 branch tip, including exports/build/jar upload (1m11s). The merge handoff changes only docs, not verified code/assets.
-- Two private M9 dedicated launches reached Done, accepted status/research, saved/stopped/exited normally (3m13s, 2m). Restart retained 180 points/Stage 1 and two completed research entries. Constructors accepted the new entity types; subsequent selectors found no loaded entities, so no physical combat/flight proof is claimed from those commands. Prior server selection/60-second pausing are restored; disposable worlds retained.
-- Liam reported the combined equipment/gate/combat/crafting/reload check passed, but found an inward held-launcher pose, detached Elite Helmet icon pixels and zombie-only targeting. The focused fixes add explicit held transforms, corrected original icon art and configurable Enemy-or-mapped targeting (no extra rewards). Broader combat includes normally neutral Enemy types such as Endermen; disable `targetHostileMobs` for mapping-only NPC defence. Armour/gun detail remains later art work.
-- Liam reported the focused pose/icon/hostile-targeting retest passed. [Unedited F2 references](../../art/references/README.md) show the corrected icon, outward launcher and worn Army set; the client saved and exited normally (2m38s). A third dedicated launch of this code reached Done, retained 180 points/Stage 1/two completed research entries, accepted save/stop and exited normally (15s). Prior world selection/pausing are restored; no user files were deleted.
+- M1-M10 have passed their phase exit gates and are merged. M11 is not started. No toolchain/version/runtime dependency/protected-ref changes.
+- M10 adds independent `threat_response` SavedData schema 1: bounded 64x64-block regions, lazy decay, death/kill/loss/attack counters and saved event cooldowns/raider reservations. Progression schema 5 is unchanged. See [Threat Response](threat-response.md).
+- Loaded operational posts run capped vanilla-zombie raids and shared-quota reinforcements, with saved near-home patrols, defence-mission kill hooks and operator diagnostics/triggers. No new mob type, global per-tick scan or forced chunk loading.
+- Final code `clean build --no-daemon --stacktrace` passed (8s, 2,337 assertions: 203 response and 771 equipment). Jar metadata/pins/test exclusion inspected. [Windows CI 39823522409](https://github.com/liamryan391/Stand_and_Hold/actions/runs/39823522409) passed the final retention fix and uploaded the normal jar (1m42s).
+- Three dedicated launches reached Done, saved, accepted stop and exited cleanly; command/invalid-region/no-loaded-post checks passed. Those console checks are not loaded-actor combat proof. Original server world selection/pause settings are restored and the disposable world is retained.
+- Liam passed combined threat/combat/caps/cooldown/reload/dormant-base checks, fast-natural/grace/free-player-gear checks and the final all-mob player-hit/Survivor blade-issue checks. All three clients saved/exited normally. Logs independently show natural raid/reinforcement warnings. Eight temporary development config values are restored; backup/worlds are retained.
+- On his latest feedback, already-issued Survivor blades retain use after stage drops, while new/unarmed units still require Stage 1 + Initial Sample Analysis. Default raw damage is 8 (12 against mapped threats, before mitigation). This last retention policy has automated coverage but no new manual retention/reload test.
 
 ## Next milestone
 
-`Continue: M10 steps 10.1-10.4 (bounded regional threat state, event hooks and decay, capped outpost attacks/reinforcements and patrol targets, and verification) on codex/m10-threat-response.`
+`Continue: M11 steps 11.1-11.4 (verify pinned-target threat mods, optional mapping presets/adapters, with/without-mod testing, and supported-combination documentation) on codex/m11-compatibility.`
 
-Complete the phase on the prepared branch. Keep pins/version unchanged, threat mods optional and ticking/spawns bounded; retain existing deployment reservations and cooldown safety.
+Verify exact compatible artifacts before proposing any dependency or pin change. Threat integrations remain optional.
 
 ## Needs Liam
 
-- No blocking client check or pin/dependency decision remains. Actual two-client combat, left-main-arm visual coverage, custom enchantment/trim combinations and physical in-flight reload remain separate coverage unless observed.
-- Only Liam may accept an installed-server EULA if requested; development runs skipped that check and no acceptance file was written.
+- No blocking decision. Optional focused retest: issue a Survivor blade at Stage 1 + Initial Sample Analysis, reset to Stage 0, spawn a new Survivor and save/reopen. The old unit should retain its usable blade; the new unit should stay unarmed.
+- Only Liam may accept an installed-server EULA if requested. No EULA acceptance file was written during M10.
 
 ## Open risks
 
-- Art remains intentionally simple alpha art. Blockbench desktop import/save round-trips, clip-driven animation, custom fonts/shaders/resource packs and unusual display scales are separate unverified coverage.
-- Building fronts are fixed north; no new facing/collision behavior is implied. Slow NPC acquisition, two-player/network-fuzz, external threat/worldgen mod combinations and packaged/long-load testing remain separate work.
-- Structures use conservative one-chunk placement and loaded-only registration cleanup; they are open-air foundations, not finished bases or a full support survey. Cross-file world/chunk saves are not a power-loss journal. Whole-world backups are required.
-- Beta-loader and Windows OSHI/Perflib warning risks remain in [Known Issues](../../KNOWN_ISSUES.md). No legacy save conversion or Windows registry edits are made.
-- Preserve `.local/modern-jdk.json` and ignored worlds/configs; Git branches do not back them up.
+- Full/malformed response storage pauses new sites. Unloaded UUIDs remain reserved and removed-post cooldown history is retained; external edits/partial backups can strand conservative records. Whole-world backups are required; cross-file saves are not a power-loss journal.
+- Vanilla raid zombies still burn/despawn normally. Patrols remain near home and may be obstructed. Long-session multi-outpost counts, physical patrol reload and real multiplayer remain unverified; short capped tests are not soak-test proof.
+- Player weapons can hurt human NPCs/passive mobs; players/allied teams stay protected and NPC targeting remains separate. Art/equipment remain alpha visuals. Left-main-arm, in-flight projectile reload, custom fonts/shaders, external mods and packaged/long-load coverage remain separate work.
+- Building fronts are fixed north; structures use conservative one-chunk placement and loaded-only cleanup. See [Known Issues](../../KNOWN_ISSUES.md) for beta-loader/Windows OSHI/minimized-window warnings and retained limitations.
+- Preserve `.local/modern-jdk.json`, ignored worlds/configs and the protected legacy branch/tag. No legacy world/config conversion is supported.
 
 Follow [AGENTS.md](../../AGENTS.md); the [roadmap](phase-roadmap.md) owns task checkboxes.

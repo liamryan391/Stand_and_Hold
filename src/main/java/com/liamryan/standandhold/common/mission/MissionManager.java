@@ -79,6 +79,21 @@ public final class MissionManager {
         return List.copyOf(messages);
     }
 
+    /** Called once for a reserved raider killed by a player/human, never for /kill or unload. */
+    public static List<String> observeDefence(HumanWorldData data, FoundationCatalog catalog, long[] thresholds) {
+        List<String> messages = new ArrayList<>();
+        for (Mission mission : catalog.missions().values()) {
+            if (mission.objective() != Mission.Objective.OUTPOST_DEFENCE) { continue; }
+            var state = data.mission(mission.id());
+            if (state.isEmpty() || state.get().completed()) { continue; }
+            try {
+                var result = advance(data, catalog, thresholds, mission.id(), 1);
+                if (result.changed()) { messages.add(result.message()); }
+            } catch (IllegalArgumentException | IllegalStateException exception) { messages.add("Defence mission blocked: " + exception.getMessage()); }
+        }
+        return List.copyOf(messages);
+    }
+
     private static long observed(HumanWorldData data, Mission mission, long[] thresholds) {
         return switch (mission.objective()) {
             case SUPPLY_TOTAL -> data.supplies();

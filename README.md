@@ -61,13 +61,15 @@ The [structure foundations](docs/modern-port/structures.md) add a Small Army Che
 
 The [human NPC foundation](docs/modern-port/human-npcs.md) adds Survivor Defenders and Army Riflemen with original uniforms/test eggs, configurable stats/stage gates, simple AI targeting hostile mobs plus optional threat mappings, and capped command-post deployment backed by saved quotas. Test eggs/summons bypass automatic stage gates. Survivors remain melee; Riflemen can use the unlocked equipment prototype with melee fallback.
 
-[Combat equipment](docs/modern-port/equipment.md) adds an Anti-Threat Blade, Army/Elite armour sets and one server-owned cooldown-based Prototype Launcher. Ordinary recipes and original item/worn textures support creative and survival tests; normal equip/use is gated by world stage/research. Bolts damage hostile mobs or mapped threats, protect players/human NPCs, expire in bounded loaded-only flight and reuse existing kill attribution. Points/samples still require configured reward mappings. Ammo, reloads, advanced firearms and further armour tiers remain deferred.
+[Combat equipment](docs/modern-port/equipment.md) adds an Anti-Threat Blade, Army/Elite armour sets and one server-owned cooldown-based Prototype Launcher. Players can use/equip found gear at any stage and hurt all non-player mobs, including human units; players/allied teams remain protected. NPC weapon gates/target restrictions remain separate: Survivors can receive a Blade at Stage 1 + Initial Sample Analysis, Riflemen retain their launcher role. Strict player gates are opt-in. Recipes/original textures support creative/survival tests. Bolts expire in bounded loaded-only flight; points/samples still require reward mappings. Ammo, reloads, advanced firearms and further armour tiers remain deferred.
 
 The [art and identity guide](docs/modern-port/art-pipeline.md) documents original cap/pack and helmet/vest models, editable Blockbench sources, deterministic source-to-runtime exports, distinct utility-block faces and compact menu readability. These are alpha visuals using vanilla animation, with no external art or animation library bundled.
 
 The partial modern loop can recover samples, establish a command post/lab, fund research/progression and obtain defenders. Outpost attacks, richer combat, larger bases, vehicles/aircraft and Fabric evaluation follow later phase gates; they are not features of an available modern release.
 
 Compatibility with external threat mods remains optional. Registry/tag mappings and integrations must be verified for the exact modern target when implemented; legacy SRP compatibility does not imply modern SRP support.
+
+[Threat response and events](docs/modern-port/threat-response.md) track regional mapped kills/deaths, human losses and outpost attacks with lazy decay. Loaded operational posts can trigger bounded vanilla-zombie raids and stage-appropriate reinforcements using existing defender quotas. Saved cooldowns/raider reservations prevent reload spam; patrols stay near home. Operator `threat status/list/reset` and `event status/raid/reinforcement` commands support disposable tests; active defence missions count credited raid kills.
 
 ## Project Notes
 

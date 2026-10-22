@@ -4,6 +4,14 @@
 
 Modern port work uses one phase branch at a time, merged into `main` after verification. No modern release, version bump, or retag is announced by this entry. The source/build version remains `0.1.0-alpha.1`; observed verification results are recorded in [STATUS.md](docs/modern-port/STATUS.md).
 
+### Threat Response Foundation
+
+- Added independent schema-1 bounded regional threat/event SavedData, lazy score decay, historical kills/deaths/losses/attack windows and conservative malformed/future-save handling.
+- Added tile-local, configurable vanilla-zombie raids and shared-quota reinforcements with saved grace/cooldowns/backoff, loaded-only placement, reserved raider expiry and near-home patrol orders.
+- Added operator threat/event diagnostics and triggers, bounded player warnings and once-only active defence-mission progress from credited raid kills; no toolchain/version/runtime dependency or progression-schema changes.
+- Following alpha feedback, initial grace now delays natural events only; fresh-post admin triggers are immediate but real cooldowns/caps remain. Players can use/equip found gear at any stage by default, with strict player gates opt-in; NPC launcher gates remain mandatory.
+- Player hits now damage non-player mobs, including humans/passive mobs, without broadening NPC targets or enabling PVP. Empty-handed Survivors can receive a non-dropping Blade after Stage 1 + Initial Sample Analysis. Saved issued blades remain usable after stage drops, while new unarmed units still need the gate.
+
 ### Combat Equipment Foundation
 
 - Added server-gated Anti-Threat Blade, Army/Elite armour sets, ordinary crafting/discovery/repair support and original item/worn textures with synced balancing config.

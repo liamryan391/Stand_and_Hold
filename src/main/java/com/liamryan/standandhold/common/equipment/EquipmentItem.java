@@ -23,11 +23,11 @@ public class EquipmentItem extends Item {
         super(properties); this.kind = kind; this.armorType = armorType;
     }
     @Override public boolean canEquip(ItemStack stack, EquipmentSlot slot, LivingEntity entity) {
-        return super.canEquip(stack, slot, entity) && (!(entity.level() instanceof ServerLevel level) || EquipmentAccess.allowed(level, kind));
+        return super.canEquip(stack, slot, entity) && (!(entity.level() instanceof ServerLevel) || EquipmentAccess.allowedFor(entity, kind));
     }
     @Override public InteractionResult use(Level level, Player player, InteractionHand hand) {
         if (level.isClientSide() && armorType != null) { return InteractionResult.SUCCESS; }
-        if (level instanceof ServerLevel server && !EquipmentAccess.allowed(server, kind)) {
+        if (level instanceof ServerLevel && !EquipmentAccess.allowedFor(player, kind)) {
             EquipmentAccess.notice(player, kind); return InteractionResult.FAIL;
         }
         return super.use(level, player, hand);
@@ -35,7 +35,12 @@ public class EquipmentItem extends Item {
     @Override public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> output, TooltipFlag flag) {
         super.appendHoverText(stack, context, display, output, flag);
         var gate = EquipmentConfig.gate(kind);
-        output.accept(Component.translatable("tooltip.standandhold.equipment_gate", EquipmentConfig.value(gate.stage), EquipmentConfig.value(gate.research)));
-        if (kind == EquipmentKind.BLADE || kind == EquipmentKind.PROTOTYPE) { output.accept(Component.translatable("tooltip.standandhold.friendly_safe")); }
+        output.accept(Component.translatable(EquipmentConfig.value(EquipmentConfig.PLAYER_GATES) ? "tooltip.standandhold.equipment_gate" : "tooltip.standandhold.player_equipment_free",
+                EquipmentConfig.value(gate.stage), EquipmentConfig.value(gate.research)));
+        if (kind == EquipmentKind.PROTOTYPE) { output.accept(Component.translatable("tooltip.standandhold.npc_equipment_gate", EquipmentConfig.value(gate.stage), EquipmentConfig.value(gate.research))); }
+        if (kind == EquipmentKind.BLADE || kind == EquipmentKind.PROTOTYPE) {
+            output.accept(Component.translatable("tooltip.standandhold.player_targets"));
+            output.accept(Component.translatable("tooltip.standandhold.friendly_safe"));
+        }
     }
 }

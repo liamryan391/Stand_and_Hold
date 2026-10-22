@@ -20,6 +20,13 @@ final class EquipmentChecks {
         System.out.println("Equipment checks passed: " + assertions + " assertions.");
     }
     private static void gates() {
+        check(!EquipmentConfig.value(EquipmentConfig.PLAYER_GATES), "found player gear is usable by default before config load");
+        for (boolean player : new boolean[]{false, true}) { for (boolean strict : new boolean[]{false, true}) { for (boolean unlocked : new boolean[]{false, true}) { for (boolean issued : new boolean[]{false, true}) {
+            check(EquipmentRules.actorUnlocked(player, strict, issued, () -> unlocked) == (issued || player && !strict || unlocked), "existing blade entitlement persists; new NPC/player strict gates still apply");
+        } } } }
+        check(EquipmentRules.actorUnlocked(true, false, false, () -> { throw new AssertionError("Free player gear must not query progression"); }), "found gear independent of progression/research availability");
+        check(EquipmentRules.actorUnlocked(false, true, true, () -> { throw new AssertionError("Issued blade must not be disabled by stage loss"); }), "previously issued blade usable at stage zero");
+        check(!EquipmentRules.actorUnlocked(false, false, false, () -> false), "new unarmed NPC cannot get low-stage access from free-player policy");
         for (int stage = 0; stage <= 6; stage++) {
             for (int required = 0; required <= 6; required++) {
                 check(EquipmentRules.unlocked(stage, required, "standandhold:parasite_samples", id -> true, id -> true) == (stage >= required), "exact stage gate");
@@ -39,10 +46,12 @@ final class EquipmentChecks {
         check(!EquipmentRules.unlocked(6, 7, "", id -> true, id -> true), "invalid required stage blocked");
     }
     private static void targetsAndFlight() {
-        for (int bits = 0; bits < 64; bits++) {
+        for (int bits = 0; bits < 128; bits++) {
             boolean living = (bits & 1) != 0, player = (bits & 2) != 0, human = (bits & 4) != 0, allied = (bits & 8) != 0, mapped = (bits & 16) != 0;
             boolean hostile = (bits & 32) != 0;
-            check(EquipmentRules.validTarget(living, player, human, allied, mapped, hostile) == (living && !player && !human && !allied && (mapped || hostile)), "all friendly/mapping/hostile combinations");
+            boolean playerOwner = (bits & 64) != 0;
+            check(EquipmentRules.validTarget(living, player, human, allied, mapped, hostile, playerOwner)
+                    == (living && !player && !allied && (playerOwner || !human && (mapped || hostile))), "player all-mob hits and NPC target protection remain separate");
         }
         for (double value : new double[]{Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, -1, 0, 6, 64, 256, 500}) {
             float damage = EquipmentRules.damage(value);

@@ -13,7 +13,7 @@ public final class PrototypeLauncherItem extends EquipmentItem {
     public PrototypeLauncherItem(Properties properties) { super(properties, EquipmentKind.PROTOTYPE, null); }
     @Override public InteractionResult use(Level level, Player player, InteractionHand hand) {
         if (!(level instanceof ServerLevel server)) { return InteractionResult.SUCCESS; }
-        if (player.isSpectator() || !EquipmentAccess.allowed(server, kind)) { EquipmentAccess.notice(player, kind); return InteractionResult.FAIL; }
+        if (player.isSpectator() || !EquipmentAccess.allowedFor(player, kind)) { EquipmentAccess.notice(player, kind); return InteractionResult.FAIL; }
         var stack = player.getItemInHand(hand);
         if (player.getCooldowns().isOnCooldown(stack) || stack.isBroken()) { return InteractionResult.FAIL; }
         var bolt = new PrototypeBolt(server, player);

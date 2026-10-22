@@ -13,6 +13,8 @@ import com.liamryan.standandhold.config.StructureConfig;
 import com.liamryan.standandhold.common.progression.ProgressionRules;
 import com.liamryan.standandhold.common.npc.DefenderDeployment;
 import com.liamryan.standandhold.config.NpcConfig;
+import com.liamryan.standandhold.config.ResponseConfig;
+import com.liamryan.standandhold.common.threat.ThreatResponse;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
@@ -38,6 +40,7 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
     private BuildingState state = BuildingState.EMPTY;
     private int elapsed;
     private int deploymentElapsed;
+    private int responseElapsed;
     private int schema = 1;
     private Dynamic<?> retainedState;
     private boolean malformed;
@@ -138,6 +141,13 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
 
     public static void tick(Level level, BlockPos pos, BlockState block, BuildingBlockEntity building) {
         if (!(level instanceof ServerLevel server)) { return; }
+        if (building.kind() == BuildingKind.COMMAND_POST && ++building.responseElapsed >= ResponseConfig.CHECK_INTERVAL.get()) {
+            building.responseElapsed = 0;
+            try {
+                building.requireWritable();
+                if (building.operational(HumanWorldData.get(server.getServer()))) { ThreatResponse.tick(server, building); }
+            } catch (IllegalArgumentException | IllegalStateException exception) { building.reportOnce(exception); }
+        }
         if (building.kind() == BuildingKind.COMMAND_POST && ++building.deploymentElapsed >= NpcConfig.INTERVAL.get()) {
             building.deploymentElapsed = 0;
             try {

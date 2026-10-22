@@ -217,3 +217,11 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Final post-client `clean build --no-daemon --stacktrace` passed (5s, 2,050 assertions); jar metadata/ten recipes/test exclusion inspected. Windows CI 39691907933 passed final branch exports/build/jar upload (1m11s).
 - Three dedicated launches reached Done/accepted status/save/stop/exited; restart retained 180 points/Stage 1/two research entries. Empty selectors were not combat/flight proof. Settings restored; worlds retained. Two-client/physical-flight-reload/external-mod checks unverified; live milestone is in STATUS.md.
 - Preserved unedited F2 references, merged verified M9 with a docs-only handoff and prepared the M10 branch. Detailed equipment art/left-main-arm coverage remain later work; no blocking decision. Live milestone is in STATUS.md.
+
+## 2026-10-22 - M10 Threat Response And Events
+- Added separate versioned, bounded regional threat/event SavedData and balancing config; progression schema/pins/version/dependencies/legacy refs unchanged.
+- Added real death/damage hooks, tile-local capped vanilla-zombie raids/shared-quota reinforcements, saved near-home patrols, defence-mission hooks and admin diagnostics/triggers/warnings.
+- Final code `clean build --no-daemon --stacktrace` passed (8s, 2,337 assertions); jar metadata/test exclusion inspected. Windows CI 39823522409 passed final retention fix/build/normal-jar upload (1m42s).
+- Three dedicated runs reached Done/save/stop/clean exit; command/error checks passed, no loaded-actor proof inferred. Liam passed combined, fast-natural and final hit/loadout client checks; all three clients exited normally. Eight temporary config values restored; settings/backup/worlds retained.
+- Player gear is free by default; player hits affect non-player mobs, not players/teams. New Survivor blades require Stage 1/research; issued blades retain use after stage drops. Retention is unit-tested, not manually retested; long-load/multiplayer/patrol reload remain unverified. Live milestone in STATUS.md; no blocking decision.
+- Merged verified M10 with this docs-only handoff; prepared the next phase branch from updated main. No user files deleted or legacy refs modified.

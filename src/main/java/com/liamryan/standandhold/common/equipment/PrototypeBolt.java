@@ -54,7 +54,7 @@ public final class PrototypeBolt extends ThrowableItemProjectile {
         if (!(level() instanceof ServerLevel server)) { return; }
         if (hit instanceof EntityHitResult entityHit && entityHit.getEntity() instanceof LivingEntity victim
                 && getOwner() instanceof LivingEntity owner && (owner instanceof Player || owner instanceof HumanNpc)
-                && EquipmentAccess.validTarget(owner, victim) && EquipmentAccess.allowed(server, EquipmentKind.PROTOTYPE)
+                && EquipmentAccess.validTarget(owner, victim) && EquipmentAccess.allowedFor(owner, EquipmentKind.PROTOTYPE)
                 && (!(owner instanceof HumanNpc npc) || npc.canAttack(victim))) {
             victim.hurtServer(server, damageSources().thrown(this, owner), damage);
         }
