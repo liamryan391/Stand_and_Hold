@@ -57,6 +57,15 @@ neoForge {
             gameDirectory = project.file('run/m11-compat-server')
             programArgument '--nogui'
         }
+        showcaseClient {
+            client()
+            gameDirectory = project.file('run/showcase-client')
+        }
+        showcaseServer {
+            server()
+            gameDirectory = project.file('run/showcase-server')
+            programArgument '--nogui'
+        }
         configureEach {
             logLevel = org.slf4j.event.Level.INFO
         }
@@ -86,12 +95,14 @@ var generateModMetadata = tasks.register('generateModMetadata', ProcessResources
 sourceSets.main.resources.srcDir generateModMetadata
 neoForge.ideSyncTask generateModMetadata
 
-['runServer', 'runCompatServer'].each { runName -> tasks.named(runName, JavaExec).configure {
-    // Resolve the interactive stream at execution time, not in the configuration cache.
-    doFirst { task ->
-        task.standardInput = System.in
+['runServer', 'runCompatServer', 'runShowcaseServer'].each { runName ->
+    tasks.named(runName, JavaExec).configure {
+        // Resolve the interactive stream at execution time, not in the configuration cache.
+        doFirst { task ->
+            task.standardInput = System.in
+        }
     }
-} }
+}
 
 tasks.named('jar', Jar).configure {
     from('TEMPLATE_LICENSE.txt') {
