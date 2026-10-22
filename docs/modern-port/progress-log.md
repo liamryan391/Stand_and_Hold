@@ -225,3 +225,9 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Three dedicated runs reached Done/save/stop/clean exit; command/error checks passed, no loaded-actor proof inferred. Liam passed combined, fast-natural and final hit/loadout client checks; all three clients exited normally. Eight temporary config values restored; settings/backup/worlds retained.
 - Player gear is free by default; player hits affect non-player mobs, not players/teams. New Survivor blades require Stage 1/research; issued blades retain use after stage drops. Retention is unit-tested, not manually retested; long-load/multiplayer/patrol reload remain unverified. Live milestone in STATUS.md; no blocking decision.
 - Merged verified M10 with this docs-only handoff; prepared the next phase branch from updated main. No user files deleted or legacy refs modified.
+
+## 2026-10-22 - M11 Artifact Review And Admission Gate
+- Clean phase branch/fetch/preserved legacy ref checked. Verified exact 26.3 NeoForge Contagion/Undead Nights release records and SHA-512-matching in-memory jar requirements/licences; recorded proposed isolated QA admission in compatibility.md.
+- Declared platform ranges include the pins; no additional required mod is declared. Contagion's project/jar licence discrepancy is recorded; no code/assets copied or jar installed/executed/saved into the checkout.
+- `git diff --check` passed for this docs-only checkpoint. No build or client/server launch run; artifact metadata is not runtime support proof.
+- Paused at the AGENTS.md runtime-admission decision: requested approval for exact Contagion-only isolated QA. No implementation/pin/version/default-run changes; M11 remains unmerged. Remaining milestone is in STATUS.md.

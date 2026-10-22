@@ -1,34 +1,35 @@
 # Status
 
-Updated: 2026-10-22 - Branch: `codex/m11-compatibility` (prepared after the M10 merge)
+Updated: 2026-10-22 - Branch: `codex/m11-compatibility`
 
 ## Where we are
 
-- M1-M10 have passed their phase exit gates and are merged. M11 is not started. No toolchain/version/runtime dependency/protected-ref changes.
-- M10 adds independent `threat_response` SavedData schema 1: bounded 64x64-block regions, lazy decay, death/kill/loss/attack counters and saved event cooldowns/raider reservations. Progression schema 5 is unchanged. See [Threat Response](threat-response.md).
-- Loaded operational posts run capped vanilla-zombie raids and shared-quota reinforcements, with saved near-home patrols, defence-mission kill hooks and operator diagnostics/triggers. No new mob type, global per-tick scan or forced chunk loading.
-- Final code `clean build --no-daemon --stacktrace` passed (8s, 2,337 assertions: 203 response and 771 equipment). Jar metadata/pins/test exclusion inspected. [Windows CI 39823522409](https://github.com/liamryan391/Stand_and_Hold/actions/runs/39823522409) passed the final retention fix and uploaded the normal jar (1m42s).
-- Three dedicated launches reached Done, saved, accepted stop and exited cleanly; command/invalid-region/no-loaded-post checks passed. Those console checks are not loaded-actor combat proof. Original server world selection/pause settings are restored and the disposable world is retained.
-- Liam passed combined threat/combat/caps/cooldown/reload/dormant-base checks, fast-natural/grace/free-player-gear checks and the final all-mob player-hit/Survivor blade-issue checks. All three clients saved/exited normally. Logs independently show natural raid/reinforcement warnings. Eight temporary development config values are restored; backup/worlds are retained.
-- On his latest feedback, already-issued Survivor blades retain use after stage drops, while new/unarmed units still require Stage 1 + Initial Sample Analysis. Default raw damage is 8 (12 against mapped threats, before mitigation). This last retention policy has automated coverage but no new manual retention/reload test.
+- M1-M10 are merged into `main`; M11 is on its prepared phase branch. The worktree started clean, GitHub refs were fetched and `origin/1.12` still matches the preserved commit. No implementation, build, toolchain, version or dependency changes in this checkpoint.
+- M11 11.1 is complete for artifact metadata: Contagion 2.1.1 and Undead Nights 2.2.6 have exact author-labelled Minecraft 26.3/NeoForge releases. SHA-512 checks and in-memory jar manifests confirm declared platform ranges include our pins and no additional required mod is declared. See [Optional Threat Compatibility](compatibility.md) for exact files, sources, licence caveats and proposed admission.
+- Contagion is the proposed isolated infection-mod QA fixture; Undead Nights is a separate horde-scheduler candidate. Neither was installed, saved into the checkout or executed. Contagion's project MIT badge conflicts with its jar's All Rights Reserved metadata; no code/assets/jars will be copied into or bundled with the mod.
+- Presets/adapters and M11 with/without/removal runtime checks are not implemented or passed. M11 must not be merged until its actual exit gate is observed. The existing safe zombie mapping and optional-mod behavior are unchanged.
+- M10's final code clean build passed 2,337 assertions; main CI 39824129254 passed. That earlier proof is not M11 runtime proof. This docs-only checkpoint uses `git diff --check`; no new build/game launch was needed or claimed.
 
 ## Next milestone
 
-`Continue: M11 steps 11.1-11.4 (verify pinned-target threat mods, optional mapping presets/adapters, with/without-mod testing, and supported-combination documentation) on codex/m11-compatibility.`
+After the runtime-test admission decision:
 
-Verify exact compatible artifacts before proposing any dependency or pin change. Threat integrations remain optional.
+`Continue: M11 steps 11.2-11.4 (optional mapping presets/adapters, isolated with/without-mod and removal testing, and supported-combination documentation) on codex/m11-compatibility.`
+
+Do not install or execute the external test mod before Liam approves its exact isolated QA use.
 
 ## Needs Liam
 
-- No blocking decision. Optional focused retest: issue a Survivor blade at Stage 1 + Initial Sample Analysis, reset to Stage 0, spawn a new Survivor and save/reopen. The old unit should retain its usable blade; the new unit should stay unarmed.
-- Only Liam may accept an installed-server EULA if requested. No EULA acceptance file was written during M10.
+- Approve or decline Contagion `Contagion-2.1.1-NeoForge-mc26.3.jar` (Modrinth release `4tdqhokG`) for a separate disposable client/server QA instance. No default development runs, build dependencies, release contents or toolchain pins would change. This is the explicit runtime-admission gate in AGENTS.md, not a proposal to make Contagion required.
+- Only Liam may accept an installed-server EULA if requested. No EULA acceptance file was written.
+- Optional M10 retention retest: issue a Survivor blade at Stage 1 + Initial Sample Analysis, reset to Stage 0, spawn a new Survivor and save/reopen. The old unit should retain its usable blade; the new unit should stay unarmed.
 
 ## Open risks
 
-- Full/malformed response storage pauses new sites. Unloaded UUIDs remain reserved and removed-post cooldown history is retained; external edits/partial backups can strand conservative records. Whole-world backups are required; cross-file saves are not a power-loss journal.
-- Vanilla raid zombies still burn/despawn normally. Patrols remain near home and may be obstructed. Long-session multi-outpost counts, physical patrol reload and real multiplayer remain unverified; short capped tests are not soak-test proof.
-- Player weapons can hurt human NPCs/passive mobs; players/allied teams stay protected and NPC targeting remains separate. Art/equipment remain alpha visuals. Left-main-arm, in-flight projectile reload, custom fonts/shaders, external mods and packaged/long-load coverage remain separate work.
-- Building fronts are fixed north; structures use conservative one-chunk placement and loaded-only cleanup. See [Known Issues](../../KNOWN_ISSUES.md) for beta-loader/Windows OSHI/minimized-window warnings and retained limitations.
+- Published version/range/hash checks do not establish mixin, binary, gameplay, performance or removal compatibility. Exact external registry IDs/tags must be verified before any preset is activated. Infection effects must not broaden NPC targets to players.
+- Response storage remains conservative: unresolved unloaded raiders and removed-post cooldown records are retained. Full/malformed storage pauses new sites; whole-world backups remain required.
+- Long-session multi-outpost counts, physical patrol/projectile reload and real multiplayer remain unverified. Player weapons can hurt human/passive mobs; players/allied teams stay protected.
+- Art remains alpha quality; fixed building fronts, conservative one-chunk placement and loaded-only cleanup are unchanged. See [Known Issues](../../KNOWN_ISSUES.md) for retained platform/render warnings.
 - Preserve `.local/modern-jdk.json`, ignored worlds/configs and the protected legacy branch/tag. No legacy world/config conversion is supported.
 
 Follow [AGENTS.md](../../AGENTS.md); the [roadmap](phase-roadmap.md) owns task checkboxes.

@@ -276,7 +276,7 @@ Exit gate:
 
 Priority: P3
 
-- [ ] **11.1 Recheck candidate mods against the pinned Minecraft and NeoForge versions.** Record exact compatible artifacts and licences; do not infer compatibility from similar version numbers.
+- [x] **11.1 Recheck candidate mods against the pinned Minecraft and NeoForge versions.** Exact release records, hashes, jar requirements and licence evidence checked on 2026-10-22; see [Optional Threat Compatibility](compatibility.md). These are metadata-compatible candidates, not runtime-supported combinations.
 - [ ] **11.2 Add generic presets and optional adapters.**
   - [ ] **11.2.1** Verify registry IDs/tags for rewards, samples, targeting, and missions before activating any preset.
   - [ ] **11.2.2** Isolate integrations behind mod-loaded checks; avoid importing external classes in common initialization.
