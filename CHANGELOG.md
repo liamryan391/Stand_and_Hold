@@ -4,6 +4,12 @@
 
 Modern port work uses one phase branch at a time, merged into `main` after verification. No modern release, version bump, or retag is announced by this entry. The source/build version remains `0.1.0-alpha.1`; observed verification results are recorded in [STATUS.md](docs/modern-port/STATUS.md).
 
+### Guided Alpha Loop Preparation
+
+- Added public, read-only `/standandhold help` and `guide`, using loaded mission/research definitions without grants, automatic mission starts, state refresh or ticking.
+- Added default-loop transaction and guidance regressions, plus isolated showcase client/server run profiles. Gameplay costs, rewards, toolchain and mod version are unchanged.
+- Added a Creative/operator-assisted play sheet, honest community-page/capture drafts and technical candidate instructions. Preparation is not publication, independent usability proof or a complete Survival economy.
+
 ### Optional Compatibility Foundation
 
 - Added bounded opt-in mapping presets, a verified vanilla-undead tag and operator compatibility diagnostics, retaining manual priority and unchanged zombie-only defaults. No external runtime requirement or class import.

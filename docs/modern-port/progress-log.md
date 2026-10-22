@@ -242,4 +242,7 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 ## 2026-10-22 - M11 Deferral And M12 Showcase
 - Liam explicitly deferred the successful external-infection gameplay/removal gate, approving the green generic foundation merge. Recorded the amended gate without claiming Contagion support or changing pins/dependencies.
 - Confirmed final M11 head CI 39857071341 passed; docs-only deferral/handoff passed `git diff --check`. M11 source/runtime proof remains the earlier observed 2,364-check build and no-mod/generic launches.
-- Merged M11 with the explicit decision and prepared the M12 phase branch from updated main. M12 implementation/verification is in progress; live milestone and human checks are in STATUS.md.
+- Merged M11 with the explicit decision; M12 adds read-only loaded-definition help/guide, isolated runs, 63 guidance/loop assertions and play-sheet/community/candidate drafts, with no balance/pin/version/dependency change.
+- Resumed after credit interruption on 2026-10-23: corrected new regression test namespacing, then `clean build --no-daemon --stacktrace` passed (6s, 2,427 assertions); normal-jar metadata and external/test exclusion inspected.
+- Both isolated dedicated launches reached Done/help/guide/invalid-input/save/stop/clean exit (43s/34s). Restart retained 2/3 progress and reward applied once. Client resource loading observed; Liam's agreed maintainer rehearsal/real clip and independent new-user proof remain distinct pending evidence.
+- Pushed M12 implementation for Windows CI; preparation is not public release approval. Live milestone, remaining checks and merge gate are in STATUS.md.

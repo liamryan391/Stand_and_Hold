@@ -295,7 +295,7 @@ Priority: P3
 
 - [ ] **12.1 Assemble the existing loop.** Sample recovery, command post, lab research, supplies, defender, one attack, and save/reload should be playable with clear guidance.
 - [ ] **12.2 Run a new-tester session.**
-  - [ ] **12.2.1** Provide a guidebook or command-based tutorial with expected results and blocked-state explanations.
+  - [x] **12.2.1** Provide a guidebook or command-based tutorial with expected results and blocked-state explanations. Read-only help/guide use loaded definitions; [play sheet](showcase-loop.md) covers costs, mission order and cooldowns without grants.
   - [ ] **12.2.2** Observe a tester trying the loop for about 15 minutes; record confusion, failures, and command dependence.
   - [ ] **12.2.3** Fix issues within the implemented loop and retest before expanding scope.
 - [ ] **12.3 Prepare community materials.** Capture original gameplay screenshots, a short defence clip, page drafts, and an honest done/next/later roadmap.
