@@ -26,7 +26,7 @@ Independent new-user observation, packaged installation, real multiplayer/load t
 
 ### Longer-Term Design Topics
 
-More distinctive unit roles and animation, richer base/logistics behavior and broader threat mappings can build on the foundation. Vehicles, aircraft and further loaders remain separate design/dependency/performance decisions, not available features or dated promises.
+More distinctive unit roles and animation, richer base/logistics behavior and broader threat mappings can build on the foundation. [Locally upgraded, expanding outposts](structures.md#base-evolution-proposal), with stage-appropriate defender budgets, are a recorded design proposal, not current behavior. Vehicles, aircraft and further loaders remain separate design/dependency/performance decisions, not available features or dated promises.
 
 ## Capture Brief
 
@@ -49,8 +49,11 @@ These are original, unedited Liam F2 captures from the isolated 2026-10-23 maint
 | --- | --- | --- |
 | [Checkpoint and units](media/showcase/checkpoint-units.png) | Generated command shelter/crate, human silhouettes and a recovery completion message; not proof of how samples were acquired | `2026-10-23_00.10.42.png` |
 | [Completed Lab](media/showcase/research-completed.png) | Initial Sample Analysis at 12/12, full bar, costs, local/global storage and completed state | `2026-10-23_00.12.53.png` |
+| [Defender combat frame](media/showcase/defender-combat.png) | A human facing manually staged vanilla zombies beside the checkpoint; extracted at source 03:15, not an F2 still or reserved-wave identification | `unknown_2026.10.23-00.22.mp4` |
 
-A real defence clip and a clean combat frame require separate captured evidence; do not synthesize video from these stills or caption a warning-only frame as combat.
+Liam's original Radeon ReLive recording is retained outside Git at `%USERPROFILE%\Videos\Radeon ReLive\unknown\unknown_2026.10.23-00.22.mp4` (253.637s, 1920x1080/60fps, 713,987,697 bytes). Source SHA-256: `0A66C2D395F218ACC47EDE3F06B50C68CA2CBE8DD34FC974B130F8EE59546543`.
+
+A local **13-second contiguous combat excerpt**, source 03:10-03:23, is prepared at `.local/m12-qa/media/defender-combat-short.mp4`: video-only/muted, scaled to 1280x720/30fps, 1,727,233 bytes, SHA-256 `B7C6D9A4FF5088ABE3991F0EA70E11C121B3EFEACA51D5B4541EE17D84F3AE4B`. It shows real existing human/vanilla-hostile combat with Creative staging visible, not synthetic animation, a balanced win, proof that those enemies belong to a reserved raid, or external-mod support. Original footage is unmodified; no clip/page/binary is published. Keep videos out of Git and request approval before any external upload.
 
 ## Publication Checklist
 

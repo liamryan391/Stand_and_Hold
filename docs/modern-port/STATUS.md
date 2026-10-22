@@ -8,27 +8,28 @@ Updated: 2026-10-23 - Branch: `codex/m12-showcase`
 - M11 adds opt-in presets, verified vanilla tags, safe mod/version probing and operator diagnostics. Manual priority/zombie-only defaults remain unchanged. No external class imports, added runtime dependency, per-tick probe or pin/version change.
 - Exact Contagion 2.1.1 fails client/server bootstrap on the pinned loader (`NoSuchFieldError: ModConfig.Type.SERVER`). It is retained only as a disabled isolated reproduction fixture. See [compatibility results/deferral](compatibility.md) and [Known Issues](../../KNOWN_ISSUES.md). No other runtime mod is approved.
 - M11 clean build passed 2,364 assertions; jar metadata/test/external-content exclusion inspected. Windows implementation CI 39856404656 and final branch-head CI 39857071341 passed. No-mod/generic client and dedicated baseline/recovery checks passed; client saved/exited normally and screenshots were reviewed.
-- M12 is the active batched milestone: assemble/document the existing loop, provide bounded guidance, observe a roughly 15-minute usability session, prepare original community materials and a technical test candidate. This is not a survival-release or public-publishing approval.
-- M12 read-only `/standandhold help` and `guide`, default-loop transaction regression, isolated showcase runs and tester/community/candidate documents are implemented. Final `clean build --no-daemon --stacktrace` passed (5s, 2,429 assertions); Windows implementation CI 39869561568 and final-code CI 39870620661 passed, including normal-jar upload. Metadata/external/test exclusion inspected. Dedicated initial/restart/fixture/final-guide launches reached Done, retained mission progress/receipt, rejected invalid input and saved/stopped cleanly.
-- Rehearsal screenshots/logs exposed long guide wrapping and an incomplete mission-start input. Compact click-to-fill (not auto-run) guidance and missing-ID feedback are fixed and server/regression verified. Refreshed client resource loading observed; short readability/click/reload check requested and pending Liam's report.
-- First client ran/exited normally (22m32s). Logs/F2 show recovery and command-post mission completions, completed Lab, natural raid/reinforcement and an admin raid with real repeat cooldown refusals. Stockpile/first-research/stage mission sequence and earned sample acquisition are not confirmed; screenshot includes a 64-sample stack and Liam was asked its source. Two original rehearsal frames retained with qualified captions in community-draft.md; real clip path is pending.
+- M12 implementation, maintainer rehearsal, original community-material preparation and technical candidate verification are done. The independent new-tester/earned-only exit gate remains open: M12 is not merged, M13 is not started, and no public release/tag is authorized.
+- Read-only `/standandhold help` and `guide`, default-loop transaction regression and isolated showcase runs are implemented. Latest `clean build --no-daemon --stacktrace` passed (5s, 2,442 assertions); metadata/external/test exclusion inspected. Windows final-code CI 39874147169 passed, including normal-jar upload; prior implementation/capture CI also passed.
+- Rehearsal exposed long guide wrapping, missing-ID feedback and the old word parser rejecting namespaced IDs. Fixed all three without costs/permission/save changes. Vanilla identifier parsing retains the exact token for short-ID defaults; 13 parser regressions pass. Dedicated namespaced start/progress/complete/research, short-alias repeats, unknown namespace/save/stop passed (28s). Liam's final click retest passed; log shows the exact suggested command starts Stockpile Supplies 0/20, with normal save/exit (2m18s). Guide screenshot fits its first/last lines.
+- First client ran/exited normally (22m32s); Liam reports a maintainer functional pass, save/reload and real zombie sample drops. Logs/F2 show recovery and command-post missions, completed Lab, natural raid/reinforcement and admin raid/repeat cooldown refusals. Subsequent reopen/save/exit checks also completed cleanly. Creative-assisted footage, including a 64-sample stack and later unfinished stockpiling, is not strict earned-only mission-chain or independent-new-user proof.
+- Reviewed the provided 253.637s Radeon recording; retained three qualified gameplay frames and prepared a 13s local contiguous human/zombie combat excerpt under `.local/m12-qa/media/`. Exact source/excerpt paths, hashes and captions are in community-draft.md; no video upload. Stage-scaled defender budgets and locally expanding bases recorded as future proposals in structures.md, with no balance/code change.
 - `/debug` summary: 995.08 seconds, 16,499 ticks, 16.58 TPS across a session with pause entries. No mod exception or repeated per-tick error observed; known OSHI startup warnings remain. This is not clean sustained-load proof; an unpaused controlled sample is still needed. Local logs retained under `.local/m12-qa/evidence/`.
 
 ## Local Candidate
 
-- `build/libs/standandhold-0.1.0-alpha.1.jar`: 304,971 bytes; SHA-256 `3629320D3428F30E93D58BBE00ABAE04E78414CF919B752DEB71121B179B51D1`.
+- `build/libs/standandhold-0.1.0-alpha.1.jar`: 305,318 bytes; SHA-256 `94DB0AE6AC87E6D40D47F5139E4F3C77B93C4C466375C46849E334C60D718FD9`. Rebuilt after fixing the namespaced-ID bug; supersedes earlier rehearsal previews.
 - Exact target unchanged: Minecraft 26.3 / NeoForge 26.3.0.57-beta / Java 25. This source-run-verified candidate is not a published/tagged release or packaged-launcher/multiplayer pass.
 
 ## Next milestone
 
-`Continue: M12 steps 12.1-12.4 (assemble the guided alpha loop, observe a new-tester session, prepare original community materials, and verify a technical test candidate) on codex/m12-showcase.`
+`Continue: M12 steps 12.1-12.4 (finish independent new-tester and earned-loop verification, resolve any usability findings, and merge only after the exit gate passes) on codex/m12-showcase.`
 
 Keep existing gameplay and toolchain pins. Do not imply the deferred external-mod test passed or bundle the failed fixture.
 
 ## Needs Liam
 
-- Liam chose a maintainer rehearsal and agreed to record a real defence clip. Short-check client is open in the isolated showcase instance; pending readability/click/reload report, sample-source clarification and clip path. Independent new-user evidence is still required by M12's exit gate, not waived by the M11 decision.
-- Original F2 screenshots and a short real defence clip are community-material evidence; draft copy must not substitute for captured gameplay. No external publishing is authorized by preparation.
+- No immediate repeated maintainer check remains: client is closed and the final click fix passed. Arrange an unfamiliar tester for about 15 minutes using the play sheet, real dropped samples, ordered supply/research missions and no progression/resource grants. This exit gate was not waived by the M11 decision.
+- Original F2 frames and reviewed real combat footage are retained with qualified captions; publishing still requires separate authorization. Larger stage-scaled defender caps/local base expansion are proposals only.
 - Only Liam may accept a server EULA if requested. No new runtime dependency or pin change is approved.
 
 ## Open risks
