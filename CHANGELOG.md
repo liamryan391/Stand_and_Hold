@@ -9,6 +9,7 @@ Modern port work uses one phase branch at a time, merged into `main` after verif
 - Added public, read-only `/standandhold help` and `guide`, using loaded mission/research definitions without grants, automatic mission starts, state refresh or ticking.
 - Added default-loop transaction and guidance regressions, plus isolated showcase client/server run profiles. Gameplay costs, rewards, toolchain and mod version are unchanged.
 - Shortened guide chat after a large-scale screenshot exposed wrapping, added click-to-fill (never auto-run) mission starts and explicit missing-ID feedback. Documented recovery after supplies were imported too early.
+- Fixed namespaced research/mission ID parsing found by the clickable-guide retest, preserving short Stand and Hold aliases and separate progress amounts. Added Brigadier parser regressions; costs, permissions and saved data are unchanged.
 - Added a Creative/operator-assisted play sheet, honest community-page/capture drafts and technical candidate instructions. Preparation is not publication, independent usability proof or a complete Survival economy.
 
 ### Optional Compatibility Foundation
