@@ -16,8 +16,8 @@ public final class EquipmentRules {
         catch (IllegalArgumentException exception) { return false; }
         return defined.test(research) && completed.test(research);
     }
-    public static boolean validTarget(boolean living, boolean player, boolean human, boolean allied, boolean mapped, boolean hostile) {
-        return living && !player && !human && !allied && (mapped || hostile);
+    public static boolean validTarget(boolean living, boolean player, boolean human, boolean allied, boolean mapped, boolean hostile, boolean playerOwner) {
+        return living && !player && !allied && (playerOwner || !human && (mapped || hostile));
     }
     public static float damage(double value) { return Double.isFinite(value) ? (float) Math.clamp(value, 0, 256) : 0; }
     public static int flightAge(int saved) { return saved >= 0 && saved <= 100 ? saved : 100; }

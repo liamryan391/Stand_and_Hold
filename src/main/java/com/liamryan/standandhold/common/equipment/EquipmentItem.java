@@ -38,6 +38,9 @@ public class EquipmentItem extends Item {
         output.accept(Component.translatable(EquipmentConfig.value(EquipmentConfig.PLAYER_GATES) ? "tooltip.standandhold.equipment_gate" : "tooltip.standandhold.player_equipment_free",
                 EquipmentConfig.value(gate.stage), EquipmentConfig.value(gate.research)));
         if (kind == EquipmentKind.PROTOTYPE) { output.accept(Component.translatable("tooltip.standandhold.npc_equipment_gate", EquipmentConfig.value(gate.stage), EquipmentConfig.value(gate.research))); }
-        if (kind == EquipmentKind.BLADE || kind == EquipmentKind.PROTOTYPE) { output.accept(Component.translatable("tooltip.standandhold.friendly_safe")); }
+        if (kind == EquipmentKind.BLADE || kind == EquipmentKind.PROTOTYPE) {
+            output.accept(Component.translatable("tooltip.standandhold.player_targets"));
+            output.accept(Component.translatable("tooltip.standandhold.friendly_safe"));
+        }
     }
 }

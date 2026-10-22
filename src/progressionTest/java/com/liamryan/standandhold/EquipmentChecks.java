@@ -44,10 +44,12 @@ final class EquipmentChecks {
         check(!EquipmentRules.unlocked(6, 7, "", id -> true, id -> true), "invalid required stage blocked");
     }
     private static void targetsAndFlight() {
-        for (int bits = 0; bits < 64; bits++) {
+        for (int bits = 0; bits < 128; bits++) {
             boolean living = (bits & 1) != 0, player = (bits & 2) != 0, human = (bits & 4) != 0, allied = (bits & 8) != 0, mapped = (bits & 16) != 0;
             boolean hostile = (bits & 32) != 0;
-            check(EquipmentRules.validTarget(living, player, human, allied, mapped, hostile) == (living && !player && !human && !allied && (mapped || hostile)), "all friendly/mapping/hostile combinations");
+            boolean playerOwner = (bits & 64) != 0;
+            check(EquipmentRules.validTarget(living, player, human, allied, mapped, hostile, playerOwner)
+                    == (living && !player && !allied && (playerOwner || !human && (mapped || hostile))), "player all-mob hits and NPC target protection remain separate");
         }
         for (double value : new double[]{Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, -1, 0, 6, 64, 256, 500}) {
             float damage = EquipmentRules.damage(value);

@@ -1,4 +1,5 @@
 {
+  "tooltip.standandhold.player_targets": "Player hits can hurt any mob, including human units",
   "tooltip.standandhold.player_equipment_free": "Players can use found gear at any stage",
   "tooltip.standandhold.npc_equipment_gate": "NPC use: stage %s, research %s",
   "message.standandhold.raid": "Outpost attack near %s: %s raiders approaching.",
@@ -80,5 +81,5 @@
   "item.standandhold.elite_boots": "Elite Boots",
   "message.standandhold.equipment_locked": "Equipment locked: requires human stage %s and research %s. Data must also be available.",
   "tooltip.standandhold.equipment_gate": "Requires stage %s and research %s (normal equip/use).",
-  "tooltip.standandhold.friendly_safe": "No damage to players or human NPCs."
+  "tooltip.standandhold.friendly_safe": "Players and allied teams are protected."
 }

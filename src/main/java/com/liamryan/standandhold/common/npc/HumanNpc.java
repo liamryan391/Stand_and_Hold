@@ -46,6 +46,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
     private String commandPost = "";
     private long nextPrototypeShot;
+    private boolean issuedBlade;
     private BlockPos patrolTarget;
     private long patrolUntil;
 
@@ -104,6 +105,7 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         super.addAdditionalSaveData(output);
         output.putString("standandhold_command_post", commandPost);
         output.putLong("standandhold_next_prototype_shot", nextPrototypeShot);
+        output.putBoolean("standandhold_issued_blade", issuedBlade);
         if (patrolTarget != null) { output.putLong("standandhold_patrol_target", patrolTarget.asLong()); output.putLong("standandhold_patrol_until", patrolUntil); }
     }
     @Override protected void readAdditionalSaveData(ValueInput input) {
@@ -111,6 +113,7 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         commandPost = BuildingPosition.parse(input.getStringOr("standandhold_command_post", "")).map(BuildingPosition::key).orElse("");
         if (!level().isClientSide()) { applyStats(false); }
         nextPrototypeShot = Math.clamp(input.getLongOr("standandhold_next_prototype_shot", 0), 0, level().getGameTime() + 200);
+        issuedBlade = input.getBooleanOr("standandhold_issued_blade", false);
         BuildingPosition.parse(commandPost).ifPresent(position -> setHomeTo(position.pos(), NpcConfig.HOME_RADIUS.get()));
         patrolUntil = Math.clamp(input.getLongOr("standandhold_patrol_until", 0), 0, level().getGameTime() + 72000);
         patrolTarget = input.getLong("standandhold_patrol_target").map(BlockPos::of).filter(this::isWithinHome).orElse(null);
@@ -118,6 +121,13 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
     @Override protected void customServerAiStep(ServerLevel level) {
         super.customServerAiStep(level);
         if (tickCount % 20 != 0) { return; }
+        if (!getMainHandItem().is(EquipmentRegistry.BLADE.get())) { issuedBlade = false; }
+        boolean bladeAllowed = tier() == HumanTier.SURVIVOR_DEFENDER && EquipmentConfig.value(EquipmentConfig.NPC_BLADE) && EquipmentAccess.allowed(level, EquipmentKind.BLADE);
+        if (issuedBlade && !bladeAllowed) { setItemSlot(EquipmentSlot.MAINHAND, net.minecraft.world.item.ItemStack.EMPTY); issuedBlade = false; }
+        if (bladeAllowed && getMainHandItem().isEmpty()) {
+            setItemSlot(EquipmentSlot.MAINHAND, EquipmentRegistry.BLADE.get().getDefaultInstance());
+            setDropChance(EquipmentSlot.MAINHAND, 0); issuedBlade = true;
+        }
         if (tier() == HumanTier.ARMY_RIFLEMAN && EquipmentConfig.value(EquipmentConfig.NPC_ENABLED) && getMainHandItem().isEmpty()
                 && EquipmentAccess.allowed(level, EquipmentKind.PROTOTYPE)) {
             setItemSlot(EquipmentSlot.MAINHAND, EquipmentRegistry.PROTOTYPE.get().getDefaultInstance());

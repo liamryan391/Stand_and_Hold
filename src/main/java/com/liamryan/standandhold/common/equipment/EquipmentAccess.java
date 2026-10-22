@@ -39,7 +39,7 @@ public final class EquipmentAccess {
     }
     public static boolean validTarget(LivingEntity owner, LivingEntity target) {
         return owner.isAlive() && !owner.isRemoved() && !owner.isSpectator() && owner != target && target.isAlive() && !target.isRemoved() && target.level() == owner.level()
-                && EquipmentRules.validTarget(true, target instanceof Player, target instanceof HumanNpc, owner.isAlliedTo(target), mapped(target), target instanceof Enemy);
+                && EquipmentRules.validTarget(true, target instanceof Player, target instanceof HumanNpc, owner.isAlliedTo(target), mapped(target), target instanceof Enemy, owner instanceof Player);
     }
     public static void notice(Player player, EquipmentKind kind) {
         var gate = EquipmentConfig.gate(kind);

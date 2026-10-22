@@ -1,6 +1,6 @@
 # Human NPC Foundation
 
-Two small server-controlled humanoid tiers use vanilla pathfinding/goals and original alpha models/uniforms. No AI/animation library or threat mod is required. This is not the legacy army system. Army Riflemen can use the [gated Prototype Launcher](equipment.md); Survivors remain melee defenders.
+Two small server-controlled humanoid tiers use vanilla pathfinding/goals and original alpha models/uniforms. No AI/animation library or threat mod is required. This is not the legacy army system. Army Riflemen can use the [gated Prototype Launcher](equipment.md); Survivors remain melee defenders and may receive a Blade after Stage 1 + Initial Sample Analysis. Player equipment access is separate from NPC gates.
 
 ## Units And Access
 
@@ -29,6 +29,8 @@ NPCs float, wander, look at nearby players and fight visible, reachable hostile 
 Set `targetHostileMobs=false` in `standandhold-npcs.toml` to restore mapping-only defence. The default broad classification includes normally neutral monsters such as Endermen, not every angry animal. Optional threat mobs outside `Enemy` still need explicit IDs/tags. Targeting a skeleton/creeper does not grant points or samples under the default zombie-only reward mapping. Elite is an equipment tier here, not a registered Elite NPC.
 
 After the equipment stage/research unlock, an Army Rifleman's empty main hand may receive one non-dropping prototype. Vanilla ranged navigation uses the same target/home safety, checks line of sight and fires only within 12 blocks, at least 40 ticks apart by default. Inside 3 blocks or when ranged use is unavailable, melee remains the fallback. Weapon state and next-shot timestamp save with the entity; no new deployment source/quota is added. Existing held items are not overwritten, and the original intrinsic armour/melee stats do not change. See [Equipment](equipment.md) for config, friendly-hit protection and QA limits.
+
+`survivorBladeEnabled` controls empty-handed Survivors' gated blade issue. The held-item modifier is additional to intrinsic damage (default 8 total before the mapped bonus), not a new base stat. The issued marker/stack save normally. Losing the gate/disable clears only an auto-issued blade with no drop, restoring unarmed combat; unrelated held items are not replaced. Player weapons can now hurt human mobs just like other mobs, but NPCs still cannot attack/retaliate against players or humans.
 
 Players, other Stand and Hold humans and allies are excluded, even if explicitly mapped. There is no player retaliation goal. Intrinsic attack damage **and attack knockback** attributes are registered before combat. The server rechecks target eligibility before damage; removed/dead/ineligible targets are abandoned. Search is local (maximum 16 blocks) and throttled to at least 20 ticks; empty rules skip acquisition only when hostile targeting is disabled. Vanilla reach/line-of-sight/stuck-path checks handle blocked targets. No cross-world search or chunk ticket is used. The pinned pathfinding region reads `getChunkNow` and treats missing chunks as empty rather than requesting them.
 
