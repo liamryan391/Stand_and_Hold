@@ -35,7 +35,7 @@ public final class EquipmentAccess {
     }
     public static boolean allowedFor(LivingEntity actor, EquipmentKind kind) {
         return actor.level() instanceof ServerLevel server && EquipmentRules.actorUnlocked(actor instanceof Player,
-                EquipmentConfig.value(EquipmentConfig.PLAYER_GATES), () -> allowed(server, kind));
+                EquipmentConfig.value(EquipmentConfig.PLAYER_GATES), kind == EquipmentKind.BLADE && actor instanceof HumanNpc npc && npc.hasIssuedBlade(), () -> allowed(server, kind));
     }
     public static boolean validTarget(LivingEntity owner, LivingEntity target) {
         return owner.isAlive() && !owner.isRemoved() && !owner.isSpectator() && owner != target && target.isAlive() && !target.isRemoved() && target.level() == owner.level()

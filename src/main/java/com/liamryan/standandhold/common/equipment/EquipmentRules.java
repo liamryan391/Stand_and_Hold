@@ -5,8 +5,8 @@ import java.util.function.Predicate;
 
 /** Registry-independent policy, also exercised by headless regression checks. */
 public final class EquipmentRules {
-    public static boolean actorUnlocked(boolean player, boolean gatePlayers, java.util.function.BooleanSupplier unlock) {
-        return player && !gatePlayers || unlock.getAsBoolean();
+    public static boolean actorUnlocked(boolean player, boolean gatePlayers, boolean issued, java.util.function.BooleanSupplier unlock) {
+        return issued || player && !gatePlayers || unlock.getAsBoolean();
     }
     private EquipmentRules() { }
     public static boolean unlocked(int stage, int required, String research, Predicate<String> defined, Predicate<String> completed) {

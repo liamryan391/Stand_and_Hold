@@ -7,7 +7,7 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 public final class EquipmentConfig {
     public static final boolean DEFAULT_PLAYER_GATES = false;
     private static final ModConfigSpec.Builder B = new ModConfigSpec.Builder();
-    public static final ModConfigSpec.BooleanValue PLAYER_GATES = B.comment("By default players can use/equip found gear at any stage. Enable only for an opt-in strict player progression pack. NPC weapon/loadout gates always apply; this does not bypass cooldowns, durability or friendly-fire protection.").define("gatePlayerEquipment", DEFAULT_PLAYER_GATES);
+    public static final ModConfigSpec.BooleanValue PLAYER_GATES = B.comment("By default players can use/equip found gear at any stage. Enable only for an opt-in strict player progression pack. NPC launcher/new blade issue gates apply; previously issued blades stay usable after stage drops. No cooldown, durability or team protection bypass.").define("gatePlayerEquipment", DEFAULT_PLAYER_GATES);
     public static final class Gate {
         public final ModConfigSpec.IntValue stage;
         public final ModConfigSpec.ConfigValue<String> research;
@@ -33,7 +33,7 @@ public final class EquipmentConfig {
     public static final ModConfigSpec.DoubleValue ARMY_TOUGHNESS = B.comment("Toughness per Army armour piece; re-equip after edits.").defineInRange("armyToughness", 0.0, 0, 4);
     public static final ModConfigSpec.DoubleValue ELITE_TOUGHNESS = B.comment("Toughness per Elite armour piece; re-equip after edits.").defineInRange("eliteToughness", 1.0, 0, 4);
     public static final ModConfigSpec.DoubleValue DAMAGE = B.comment("Prototype damage before vanilla mitigation. Player shots can hurt any non-player mob (including humans); NPC shots still require hostile/mapped targets. Players/allied teams protected; no extra kill rewards implied.").defineInRange("prototypeDamage", 6.0, 0, 64);
-    public static final ModConfigSpec.BooleanValue NPC_BLADE = B.comment("Empty-handed Survivor Defenders receive a non-dropping blade after its configured NPC gate (default stage 1 + Initial Sample Analysis). Normal held-item attack modifiers add to their intrinsic melee damage. Riflemen keep the launcher role; no existing held item is overwritten.").define("survivorBladeEnabled", true);
+    public static final ModConfigSpec.BooleanValue NPC_BLADE = B.comment("Controls NEW blade issue to empty-handed Survivors after the configured gate (default stage 1 + Initial Sample Analysis). Issued blades stay usable through stage drops/reload, including when new issue is disabled. Held-item modifiers add to intrinsic melee damage. Riflemen keep their launcher role; no held item overwritten.").define("survivorBladeEnabled", true);
     public static final ModConfigSpec.IntValue COOLDOWN = B.comment("Shared player cooldown across both hands/all copies, in ticks. No ammo/reload system.").defineInRange("prototypeCooldownTicks", 20, 10, 200);
     public static final ModConfigSpec.IntValue LIFETIME = B.comment("Maximum bolt flight ticks; age/damage/lifetime persist and never reset on reload. No chunk tickets.").defineInRange("projectileLifetimeTicks", 30, 10, 100);
     public static final ModConfigSpec.DoubleValue SPEED = B.comment("Bolt speed in blocks/tick. Unavailable chunks/world border end flight safely.").defineInRange("projectileSpeed", 1.6, 0.5, 3);

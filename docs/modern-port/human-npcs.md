@@ -4,7 +4,7 @@ Two small server-controlled humanoid tiers use vanilla pathfinding/goals and ori
 
 ## Units And Access
 
-| Entity ID (`standandhold:` prefix) | Health | Melee damage | Armor | Automatic minimum stage |
+| Entity ID (`standandhold:` prefix) | Health | Unarmed damage | Armor | Automatic minimum stage |
 | --- | --- | --- | --- | --- |
 | `survivor_defender` | 20 | 3 | 2 | 0 |
 | `army_rifleman` | 30 | 5 | 4 | 1 |
@@ -30,7 +30,7 @@ Set `targetHostileMobs=false` in `standandhold-npcs.toml` to restore mapping-onl
 
 After the equipment stage/research unlock, an Army Rifleman's empty main hand may receive one non-dropping prototype. Vanilla ranged navigation uses the same target/home safety, checks line of sight and fires only within 12 blocks, at least 40 ticks apart by default. Inside 3 blocks or when ranged use is unavailable, melee remains the fallback. Weapon state and next-shot timestamp save with the entity; no new deployment source/quota is added. Existing held items are not overwritten, and the original intrinsic armour/melee stats do not change. See [Equipment](equipment.md) for config, friendly-hit protection and QA limits.
 
-`survivorBladeEnabled` controls empty-handed Survivors' gated blade issue. The held-item modifier is additional to intrinsic damage (default 8 total before the mapped bonus), not a new base stat. The issued marker/stack save normally. Losing the gate/disable clears only an auto-issued blade with no drop, restoring unarmed combat; unrelated held items are not replaced. Player weapons can now hurt human mobs just like other mobs, but NPCs still cannot attack/retaliate against players or humans.
+`survivorBladeEnabled` controls new gated issue to empty-handed Survivors. The held modifier adds to intrinsic damage (default 8 raw, 12 against mapped threats before mitigation), not a new base stat. The issued marker/stack save normally and retain use after stage drops or disabling new issue. New/unarmed defenders still need the gate; losing the physical blade cannot reissue one below it. Unrelated held items are not replaced and issued gear does not drop. Player weapons can now hurt human mobs like other mobs, but NPCs cannot attack/retaliate against players or humans.
 
 Players, other Stand and Hold humans and allies are excluded, even if explicitly mapped. There is no player retaliation goal. Intrinsic attack damage **and attack knockback** attributes are registered before combat. The server rechecks target eligibility before damage; removed/dead/ineligible targets are abandoned. Search is local (maximum 16 blocks) and throttled to at least 20 ticks; empty rules skip acquisition only when hostile targeting is disabled. Vanilla reach/line-of-sight/stuck-path checks handle blocked targets. No cross-world search or chunk ticket is used. The pinned pathfinding region reads `getChunkNow` and treats missing chunks as empty rather than requesting them.
 

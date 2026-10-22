@@ -98,6 +98,7 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         setHomeTo(position.pos(), NpcConfig.HOME_RADIUS.get());
     }
     public java.util.Optional<BuildingPosition> commandPost() { return BuildingPosition.parse(commandPost); }
+    public boolean hasIssuedBlade() { return issuedBlade && getMainHandItem().is(EquipmentRegistry.BLADE.get()); }
     public void assignPatrol(BlockPos target, long until) {
         if (!commandPost.isEmpty() && isWithinHome(target)) { patrolTarget = target.immutable(); patrolUntil = until; }
     }
@@ -123,7 +124,6 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         if (tickCount % 20 != 0) { return; }
         if (!getMainHandItem().is(EquipmentRegistry.BLADE.get())) { issuedBlade = false; }
         boolean bladeAllowed = tier() == HumanTier.SURVIVOR_DEFENDER && EquipmentConfig.value(EquipmentConfig.NPC_BLADE) && EquipmentAccess.allowed(level, EquipmentKind.BLADE);
-        if (issuedBlade && !bladeAllowed) { setItemSlot(EquipmentSlot.MAINHAND, net.minecraft.world.item.ItemStack.EMPTY); issuedBlade = false; }
         if (bladeAllowed && getMainHandItem().isEmpty()) {
             setItemSlot(EquipmentSlot.MAINHAND, EquipmentRegistry.BLADE.get().getDefaultInstance());
             setDropChance(EquipmentSlot.MAINHAND, 0); issuedBlade = true;
