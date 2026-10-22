@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M11 (prepared, not started)**; see [STATUS.md](STATUS.md).
+Current position: **Phase M12 (implementation)**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -276,18 +276,18 @@ Exit gate:
 
 Priority: P3
 
-- [ ] **11.1 Recheck candidate mods against the pinned Minecraft and NeoForge versions.** Record exact compatible artifacts and licences; do not infer compatibility from similar version numbers.
-- [ ] **11.2 Add generic presets and optional adapters.**
-  - [ ] **11.2.1** Verify registry IDs/tags for rewards, samples, targeting, and missions before activating any preset.
-  - [ ] **11.2.2** Isolate integrations behind mod-loaded checks; avoid importing external classes in common initialization.
-  - [ ] **11.2.3** Document presets and their source versions for modpack authors.
-- [ ] **11.3 Verify with and without external mods.** Build; test at least one available modern threat mod, removal in a backed-up test environment, and unknown mappings.
-- [ ] **11.4 Record supported combinations and deferred integrations.** A 1.12 SRP jar is not evidence of modern-loader compatibility.
+- [x] **11.1 Recheck candidate mods against the pinned Minecraft and NeoForge versions.** Exact release records, hashes, jar requirements and licence evidence checked on 2026-10-22; see [Optional Threat Compatibility](compatibility.md). These are metadata-compatible candidates, not runtime-supported combinations.
+- [x] **11.2 Add generic presets and optional adapters.** Bounded opt-in config resolution and diagnostics; defaults unchanged. The Contagion candidate is explicitly reproduction-only, not supported play.
+  - [x] **11.2.1** Verify registry IDs/tags for rewards, samples, targeting, and missions before activating any preset. Shipped vanilla names checked against pinned game sources; Contagion's vanilla-zombie target annotation inspected without copying implementation.
+  - [x] **11.2.2** Isolate integrations behind mod-loaded checks; avoid importing external classes in common initialization.
+  - [x] **11.2.3** Document presets and their source versions for modpack authors. See [Optional Threat Compatibility](compatibility.md) for exact sources and runtime failures.
+- [x] **11.3 Execute the compatibility verification checkpoint.** Build, no-mod client/server, unknown mappings and failed-jar removal recovery passed; approved Contagion failed bootstrap on both sides. Liam explicitly deferred successful external-infection gameplay/modded-world removal on 2026-10-22. Those tests are not passed and no external support is claimed.
+- [x] **11.4 Record supported combinations and deferred integrations.** Exact unsupported artifact, crash/API evidence, generic baseline and explicit deferral recorded in [Optional Threat Compatibility](compatibility.md). A 1.12 SRP jar is not evidence of modern-loader compatibility.
 
 Exit gate:
 
 - Works with vanilla-only test threats.
-- Works with at least one modern infection mod through config/tags.
+- Original external-infection gameplay/removal gate: **explicitly deferred by Liam on 2026-10-22**, not passed, after the exact Contagion artifact failed bootstrap. Foundation merge is approved on observed no-mod/generic checks, build and green CI; compatible external integration remains unverified and separately gated.
 
 ## Phase M12 - Showcase Vertical Slice
 

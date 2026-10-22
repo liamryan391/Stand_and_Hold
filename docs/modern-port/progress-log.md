@@ -225,3 +225,21 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Three dedicated runs reached Done/save/stop/clean exit; command/error checks passed, no loaded-actor proof inferred. Liam passed combined, fast-natural and final hit/loadout client checks; all three clients exited normally. Eight temporary config values restored; settings/backup/worlds retained.
 - Player gear is free by default; player hits affect non-player mobs, not players/teams. New Survivor blades require Stage 1/research; issued blades retain use after stage drops. Retention is unit-tested, not manually retested; long-load/multiplayer/patrol reload remain unverified. Live milestone in STATUS.md; no blocking decision.
 - Merged verified M10 with this docs-only handoff; prepared the next phase branch from updated main. No user files deleted or legacy refs modified.
+
+## 2026-10-22 - M11 Artifact Review And Admission Gate
+- Clean phase branch/fetch/preserved legacy ref checked. Verified exact 26.3 NeoForge Contagion/Undead Nights release records and SHA-512-matching in-memory jar requirements/licences; recorded proposed isolated QA admission in compatibility.md.
+- Declared platform ranges include the pins; no additional required mod is declared. Contagion's project/jar licence discrepancy is recorded; no code/assets copied or jar installed/executed/saved into the checkout.
+- `git diff --check` passed for this docs-only checkpoint. No build or client/server launch run; artifact metadata is not runtime support proof.
+- Paused at the AGENTS.md runtime-admission decision: requested approval for exact Contagion-only isolated QA. No implementation/pin/version/default-run changes; M11 remains unmerged. Remaining milestone is in STATUS.md.
+
+## 2026-10-22 - M11 Presets And Runtime Verification
+- Liam approved exact Contagion-only isolated QA. Added bounded opt-in presets, verified vanilla tag, mod/version guard, operator diagnostics, isolated run tasks and 27 regression assertions; defaults/pins/version/runtime requirements unchanged.
+- Final code `clean build --no-daemon --stacktrace` passed (6s, 2,364 assertions); jar metadata/external/test exclusion inspected. Windows CI 39856404656 passed implementation/build/normal-jar upload (1m41s).
+- No-mod dedicated baseline reached Done/status/progression/research/save/stop/clean exit (30s). Approved jar failed both client/server bootstrap: missing `ModConfig.Type.SERVER`; verified pinned FML enum. Client exited 1 after Liam closed error window; server exited 1 in 8s.
+- Moved only installed QA jar copies outside mods, retaining artifacts/crash reports/logs/baseline backup. Recovery server reached Done, retained 27 points/research, safely skipped invalid/missing rules and saved/stopped/exited (15s). Liam passed baseline/generic client gameplay/reload; F2 frames reviewed and client exited normally (5m9s).
+- External infection/removal exit gate unmet; limited catalog recheck found no verified replacement. Requested explicit defer-gate-or-remain-blocked decision; no merge/M12 branch, unapproved runtime substitution or pin change. Live milestone/decision in STATUS.md; exact evidence in compatibility.md.
+
+## 2026-10-22 - M11 Deferral And M12 Showcase
+- Liam explicitly deferred the successful external-infection gameplay/removal gate, approving the green generic foundation merge. Recorded the amended gate without claiming Contagion support or changing pins/dependencies.
+- Confirmed final M11 head CI 39857071341 passed; docs-only deferral/handoff passed `git diff --check`. M11 source/runtime proof remains the earlier observed 2,364-check build and no-mod/generic launches.
+- Merged M11 with the explicit decision and prepared the M12 phase branch from updated main. M12 implementation/verification is in progress; live milestone and human checks are in STATUS.md.
