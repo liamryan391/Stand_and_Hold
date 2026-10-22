@@ -296,10 +296,10 @@ Priority: P3
 - [ ] **12.1 Assemble the existing loop.** Sample recovery, command post, lab research, supplies, defender, one attack, and save/reload should be playable with clear guidance.
 - [ ] **12.2 Run a new-tester session.**
   - [x] **12.2.1** Provide a guidebook or command-based tutorial with expected results and blocked-state explanations. Read-only help/guide use loaded definitions; [play sheet](showcase-loop.md) covers costs, mission order and cooldowns without grants.
-  - [ ] **12.2.2** Observe a tester trying the loop for about 15 minutes; record confusion, failures, and command dependence.
+  - [ ] **12.2.2** Observe a tester trying the loop for about 15 minutes; record confusion, failures, and command dependence. Maintainer rehearsal observed with command/order/cooldown friction; independent new-user and earned-loop evidence remain unverified, not waived.
   - [ ] **12.2.3** Fix issues within the implemented loop and retest before expanding scope.
 - [ ] **12.3 Prepare community materials.** Capture original gameplay screenshots, a short defence clip, page drafts, and an honest done/next/later roadmap.
-- [ ] **12.4 Prepare a test release.** Run build/client/server and performance checks; update changelog, known issues, supported versions, artifact details, and tester instructions. Record publishing separately.
+- [x] **12.4 Prepare a test release.** Run build/client/server and performance checks; update changelog, known issues, supported versions, artifact details, and tester instructions. [Candidate](alpha-test-candidate.md) prepared, not published/tagged: clean build, Windows CI, dedicated restart and source client observed. Paused-session profiler result is inconclusive for sustained load; packaged/multiplayer testing remains separate. This does not pass the usability exit gate.
 
 Exit gate:
 

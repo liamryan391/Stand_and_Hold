@@ -10,6 +10,7 @@ These notes describe the modern NeoForge foundation. The retained `0.1.0-alpha.1
 - The [selected NeoForge loader](docs/modern-port/toolchain.md) is a beta build. M0 accepted that choice subject to actual build and launch verification.
 - This Windows development launch logged OSHI/Perflib performance-counter warnings and system-report exceptions, then continued through mod initialization and graphics/audio resource loading. Recheck on the installed client/server; these messages alone are not a Stand and Hold crash. No Windows registry changes are made by the project.
 - Minimizing the beta development client can log `SurfaceException: Cannot acquire minimized window` in the platform renderer. The observed process continued accepting game commands afterward; window restore/fullscreen/driver combinations still need separate QA. This is not evidence of a new mod entity/render crash.
+- An integrated `/debug` sample with singleplayer pause/menu time is not a clean sustained-load TPS benchmark. Impact: no multiplayer/performance readiness claim follows from the maintainer rehearsal. Retest a controlled unpaused checkpoint/lab, bounded defenders and one attack, then larger multi-outpost loads separately; retain the summary/log and hardware/settings. Broader performance claims remain blocked on that evidence, not on a guessed cause for paused-session TPS.
 
 ## Observed Compatibility Blocker
 

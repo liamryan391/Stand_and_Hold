@@ -41,6 +41,17 @@ Use a fresh disposable showcase world with no external mods; keep the original, 
 
 Do not claim missing custom weapons, vehicles, a full army roster, final textures, verified SRP support or a successful external-mod removal test. Keep menus/commands visible when they explain how the demo was prepared; do not conceal an admin grant while implying Survival acquisition.
 
+## Retained Rehearsal Frames
+
+These are original, unedited Liam F2 captures from the isolated 2026-10-23 maintainer rehearsal, retained as draft material, not a published announcement. Creative inventory/HUD is visible; these frames do not prove an earned-resource run or independent usability.
+
+| Frame | What it actually shows | Original local filename |
+| --- | --- | --- |
+| [Checkpoint and units](media/showcase/checkpoint-units.png) | Generated command shelter/crate, human silhouettes and a recovery completion message; not proof of how samples were acquired | `2026-10-23_00.10.42.png` |
+| [Completed Lab](media/showcase/research-completed.png) | Initial Sample Analysis at 12/12, full bar, costs, local/global storage and completed state | `2026-10-23_00.12.53.png` |
+
+A real defence clip and a clean combat frame require separate captured evidence; do not synthesize video from these stills or caption a warning-only frame as combat.
+
 ## Publication Checklist
 
 - Verify each feature sentence against the [technical test candidate](alpha-test-candidate.md), current code and actual captures.

@@ -31,7 +31,7 @@ M11's external gameplay/modded-world removal gate was explicitly deferred by Lia
 3. For development smoke tests, use `runShowcaseClient` and `runShowcaseServer`; they use `run/showcase-client` and `run/showcase-server`, not normal or M11 compatibility directories. The dedicated console must reach Done, accept status/help/guide/save/stop and exit cleanly. Only Liam accepts an EULA if requested.
 4. Development source-run success is not packaged-launcher proof. Test the normal jar in a separate exact-loader client/server installation before broad distribution; do not put a second same-ID jar into a source-run mods directory.
 5. Follow the play sheet for about 15 loaded minutes. Record familiarity, startup/menu/world/reload, real sample acquisition, supply order, explicit lab Start/Pause, one defence, unit counts, repeated warnings and command dependence.
-6. Retain `latest.log`, crash reports, profiler output and original screenshots/clip. The integrated-server profiler describes that local session, not real multiplayer or long-session scaling. Record failures and tests not run without promoting them to passes.
+6. Retain `latest.log`, crash reports, profiler output and original screenshots/clip. On the pinned target, `/debug stop` emits its elapsed/tick/TPS summary to chat/log; it does not itself create a profile-results file. Preserve that summary. Singleplayer pause time can affect its wall-time average, so run a separate unpaused controlled sample before performance claims. This describes a local integrated server, not real multiplayer or long-session scaling. Record failures and tests not run without promoting them to passes.
 
 ## Release-Note Draft
 
