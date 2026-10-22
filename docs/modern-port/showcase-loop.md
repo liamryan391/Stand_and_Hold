@@ -25,7 +25,7 @@ Start `/debug start` once the world is ready if available; finish with `/debug s
 
 ## Play Sheet
 
-1. Run `/standandhold help`, `/standandhold guide` and `/standandhold status`. Expect 0 points/Stage 0 initially, apart from a loaded Command Post's slow generation. The guide is read-only; it does not start missions, refresh rewards or grant anything.
+1. Run `/standandhold help`, `/standandhold guide` and `/standandhold status`. Expect 0 points/Stage 0 initially, apart from a loaded Command Post's slow generation. The guide is read-only; it does not start missions, refresh rewards or grant anything. With chat open, its coloured Start line can fill the command; review it and press Enter yourself. No command executes just from reading/clicking the guide.
 2. Start `/standandhold mission start recover_parasite_samples`. Kill spawned **zombies** normally, not with `/kill`. Keep test zombies away from defenders until this step is finished so they do not take the killing blow. Each player-credited death gives 5 points; sample chance is 35%, not guaranteed. Carry 3 samples simultaneously. Expect the mission's once-only +25 points/+10 GLOBAL supplies. Re-picking the same item is not cumulative progress.
 3. Run the guide again. Start `/standandhold mission start establish_field_command`. The already registered checkpoint can satisfy it immediately: +25 points/+10 global supplies. Check `/standandhold commandpost nearest` and open the Command Post menu.
 4. Before spending/importing supplies, start `/standandhold mission start stockpile_supplies`. The 20 GLOBAL supply balance satisfies it and gives +25 points. LOCAL storage does not count. Start `/standandhold mission start complete_first_research` before working in the Lab.
@@ -45,7 +45,7 @@ Main Base discovery, five-wave defence completion, Stage 5 activation and all hi
 | --- | --- |
 | No points/drops | Default mapping is zombie-only, not all hostile mobs. Kill attribution must be a player; drops are random and respect mob drops. Inspect threat config/operator compat status. |
 | Recovery stuck | Mission must be started and 3 samples carried at once. Samples already banked locally do not count as carried. |
-| Stockpile stuck | Check GLOBAL supplies before importing into buildings. A batch export needs at least 10 local supplies; the checkpoint crate's initial 2 cannot be exported alone. |
+| Stockpile stuck | Check GLOBAL supplies before importing into buildings. If research costs were spent too early, a loaded Command Post generates local supplies slowly; export full batches back to global, then start/refresh stockpiling. Do not grant/reset rewards to conceal the extra wait. A default export needs at least 10 local supplies; the checkpoint crate's initial 2 cannot be exported alone. |
 | Research blocked | Correct target, Stage/prerequisites, LOCAL costs and explicit Start. Global balance alone does not fund a lab. Initial analysis uses 10 local supplies and no samples. |
 | Research seems frozen | Stay in loaded range; close pause menus. Next research/Clear target is not a pause/resume control. Read Work/Left/bar and server status. |
 | No new Rifleman | Post/area quota may already be filled with Survivors. Existing units do not upgrade tier; do not delete saved quotas to force spawns. |

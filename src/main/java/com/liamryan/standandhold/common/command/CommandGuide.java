@@ -11,9 +11,12 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.HoverEvent;
 
 /** Explicit read-only guidance; no ticking, mission refresh, grants or world scans. */
 public final class CommandGuide {
@@ -29,12 +32,21 @@ public final class CommandGuide {
             var source = context.getSource();
             try {
                 for (String line : lines(HumanWorldData.get(source.getServer()), FoundationResources.get(source.getServer()),
-                        HumanProgressionConfig.thresholds(), operator(source))) { source.sendSuccess(() -> Component.literal(line), false); }
+                        HumanProgressionConfig.thresholds(), operator(source))) { source.sendSuccess(() -> component(line), false); }
                 return 1;
             } catch (IllegalArgumentException | IllegalStateException exception) { throw ERROR.create(exception.getMessage()); }
         }));
     }
     private static boolean operator(CommandSourceStack source) { return Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(source); }
+    public static Component component(String line) {
+        var text = Component.literal(line);
+        if (line.startsWith("Start: /standandhold mission start ")) {
+            text.withStyle(style -> style.withColor(ChatFormatting.AQUA).withUnderlined(true)
+                    .withClickEvent(new ClickEvent.SuggestCommand(line.substring("Start: ".length())))
+                    .withHoverEvent(new HoverEvent.ShowText(Component.literal("Fill chat only; review the command and press Enter to start."))));
+        }
+        return text;
+    }
     public static List<String> help(boolean operator) {
         var lines = new ArrayList<>(List.of("Stand and Hold technical alpha: shared world progression; no external mod required.",
                 "/standandhold guide - next eligible mission and its objective",
@@ -47,8 +59,8 @@ public final class CommandGuide {
     public static List<String> lines(HumanWorldData data, FoundationCatalog catalog, long[] thresholds, boolean operator) {
         data.requireSupportedVersion();
         var lines = new ArrayList<String>();
-        lines.add("World: " + data.points() + " human points | Stage " + ProgressionRules.stageFor(data.points(), thresholds).level()
-                + " | " + data.supplies() + " global supplies");
+        lines.add("Points " + data.points() + " | Stage " + ProgressionRules.stageFor(data.points(), thresholds).level()
+                + " | Global supplies " + data.supplies());
         var next = catalog.missions().values().stream().filter(mission -> !complete(data, mission.id()))
                 .filter(mission -> mission.prerequisites().stream().allMatch(id -> complete(data, id))).findFirst();
         if (next.isEmpty()) {
@@ -58,28 +70,27 @@ public final class CommandGuide {
         }
         Mission mission = next.get();
         var state = data.mission(mission.id());
-        lines.add("Objective: " + mission.title() + " | " + state.map(value -> value.progress() + "/" + mission.target()).orElse("not started"));
+        lines.add(mission.title() + " | " + state.map(value -> value.progress() + "/" + mission.target()).orElse("not started"));
         if (state.isEmpty()) { lines.add(operator ? "Start: /standandhold mission start " + mission.id() : "Ask an operator to start shared mission " + mission.id() + "."); }
         lines.add(hint(mission, catalog, thresholds));
-        lines.add("Reward once: +" + mission.reward().points() + " human points, +" + mission.reward().supplies() + " supplies.");
-        lines.add("Check conditions/reward: /standandhold mission status | /standandhold research status");
-        lines.add("This guide never starts, completes or refreshes missions. /standandhold help lists access and QA commands.");
+        lines.add("Reward once: +" + mission.reward().points() + " points, +" + mission.reward().supplies() + " supplies.");
+        lines.add("Read-only. Refresh: /standandhold mission status | /standandhold help");
         return List.copyOf(lines);
     }
     private static boolean complete(HumanWorldData data, String id) { return data.mission(id).filter(MissionState::completed).isPresent(); }
     private static String hint(Mission mission, FoundationCatalog catalog, long[] thresholds) {
         return switch (mission.objective()) {
-            case SAMPLE_RECOVERY -> "Carry " + mission.target() + " Tissue Samples at once. Player-kill configured threats (default: zombies); drops are random, not cumulative pickups.";
-            case COMMAND_POST -> "Find/place a Field Command Post. In alpha QA an operator can generate a checkpoint; no full Survival acquisition loop is promised.";
-            case SUPPLY_TOTAL -> "Keep " + mission.target() + " GLOBAL supplies; local building storage does not count. Finish stockpiling before importing lab costs.";
+            case SAMPLE_RECOVERY -> "Carry " + mission.target() + " Tissue Samples at once. Player-kill threats (default: zombies); random drops, not cumulative pickups.";
+            case COMMAND_POST -> "Find/place a Field Command Post. Operator checkpoint generation is QA setup, not Survival acquisition.";
+            case SUPPLY_TOTAL -> "Keep " + mission.target() + " GLOBAL supplies before lab imports. Already spent? Export naturally generated post supplies.";
             case RESEARCH_COMPLETION -> {
                 var entry = catalog.research(mission.subject());
-                yield "Lab target: " + entry.title() + " | requires Stage " + entry.requiredStage() + ", " + entry.supplyCost()
-                        + " LOCAL supplies, " + entry.sampleCost() + " samples and prerequisites. Select, fund, Start; stay in loaded range.";
+                yield "Lab: " + entry.title() + " | Stage " + entry.requiredStage() + ", " + entry.supplyCost()
+                        + " LOCAL supplies, " + entry.sampleCost() + " samples + prerequisites. Select, fund, Start; stay nearby.";
             }
-            case HUMAN_STAGE -> "Reach Stage " + mission.target() + " (" + thresholds[mission.target()] + " points). Configured kills and loaded command posts add points; existing defenders do not change tier.";
-            case OUTPOST_DEFENCE -> "Defeat " + mission.target() + " reserved RAID attackers with player/human credit. Ordinary nearby kills do not count; event cooldowns/caps still apply. One wave need not finish the mission.";
-            case MAIN_BASE_DISCOVERY -> "Find/use a Main Base command post. Discovery is not activation: default activation needs Stage 5. Back up before structure/removal tests.";
+            case HUMAN_STAGE -> "Reach Stage " + mission.target() + " (" + thresholds[mission.target()] + " points) via kills/loaded posts. Existing defenders keep their tier.";
+            case OUTPOST_DEFENCE -> "Defeat " + mission.target() + " reserved RAID attackers with player/human credit, across waves. Ordinary kills do not count; cooldowns/caps apply.";
+            case MAIN_BASE_DISCOVERY -> "Find/use a Main Base command post; discovery is not activation (default Stage 5). Back up before removals.";
         };
     }
 }

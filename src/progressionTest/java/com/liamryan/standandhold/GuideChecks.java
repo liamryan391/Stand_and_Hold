@@ -15,6 +15,7 @@ import com.liamryan.standandhold.common.world.HumanWorldData;
 import java.util.List;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.chat.ClickEvent;
 
 final class GuideChecks {
     private static int assertions;
@@ -40,6 +41,9 @@ final class GuideChecks {
         check(readOnly(new HumanWorldData(), catalog, thresholds, false).contains("Ask an operator"), "non-operator gets accurate start restriction");
         check(!String.join("\n", CommandGuide.help(false)).contains("QA/operator:"), "restricted command help separated by access");
         check(String.join("\n", CommandGuide.help(true)).contains("mission start <id>"), "operator QA entry points documented");
+        var suggested = CommandGuide.component("Start: /standandhold mission start standandhold:recover_parasite_samples").getStyle().getClickEvent();
+        check(suggested instanceof ClickEvent.SuggestCommand click && click.command().equals("/standandhold mission start standandhold:recover_parasite_samples"), "guide only suggests a command, never executes it");
+        check(CommandGuide.component("Ask an operator to start shared mission test:mission.").getStyle().getClickEvent() == null, "non-operator guide cannot suggest a restricted mission start");
         var research = new ResearchEntry("test:analysis", "Custom Analysis", 2, List.of(), 17, 4, new FoundationReward(0, 0), List.of());
         var mission = new Mission("test:research", "Custom Research Goal", Mission.Objective.RESEARCH_COMPLETION, 1, research.id(), List.of(), new FoundationReward(0, 0));
         String custom = readOnly(new HumanWorldData(), new FoundationCatalog(List.of(research), List.of(mission)), thresholds, true);
@@ -90,7 +94,7 @@ final class GuideChecks {
         data.setDirty(false);
         var before = HumanWorldData.CODEC.encodeStart(NbtOps.INSTANCE, data).getOrThrow();
         var lines = CommandGuide.lines(data, catalog, thresholds, operator);
-        check(lines.size() <= 7, "explicit guide output bounded");
+        check(lines.size() <= 6, "explicit guide output compact and bounded");
         check(!data.isDirty() && before.equals(HumanWorldData.CODEC.encodeStart(NbtOps.INSTANCE, data).getOrThrow()), "guide cannot spend, dirty, refresh, start or complete saved state");
         return String.join("\n", lines);
     }

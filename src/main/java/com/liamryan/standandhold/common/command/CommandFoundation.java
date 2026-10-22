@@ -47,6 +47,10 @@ final class CommandFoundation {
                 .then(Commands.literal("status").executes(context -> missionList(context.getSource(), false, true)))
                 .then(Commands.literal("active").executes(context -> missionList(context.getSource(), true, false)))
                 .then(Commands.literal("start").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                        .executes(context -> {
+                            context.getSource().sendFailure(Component.literal("Missing mission ID. Use /standandhold guide, then its Start command."));
+                            return 0;
+                        })
                         .then(Commands.argument("id", StringArgumentType.word()).executes(context -> missionChange(context.getSource(), StringArgumentType.getString(context, "id"), 0, true))))
                 .then(Commands.literal("complete").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                         .then(Commands.argument("id", StringArgumentType.word()).executes(context -> missionChange(context.getSource(), StringArgumentType.getString(context, "id"), Long.MAX_VALUE, false))))
