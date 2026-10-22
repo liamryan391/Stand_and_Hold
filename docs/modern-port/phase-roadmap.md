@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M10 (unstarted)**; see [STATUS.md](STATUS.md).
+Current position: **Phase M10 (implementation)**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -259,7 +259,7 @@ Exit gate:
 
 Priority: P2/P3
 
-- [ ] **10.1 Define bounded regional threat state.** Persist scores, losses, kill/attack counters, decay timestamps, and record limits.
+- [x] **10.1 Define bounded regional threat state.** Persist scores, losses, kill/attack counters, decay timestamps, and record limits.
 - [ ] **10.2 Add event hooks and decay.** Update from real server events; throttle decay and use loaded-region/tile-local work without global per-tick scans.
 - [ ] **10.3 Add outpost attacks and reinforcements.**
   - [ ] **10.3.1** Enforce stage-based selection, cooldowns, per-post/area caps, and failed-spawn backoff.

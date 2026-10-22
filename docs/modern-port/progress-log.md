@@ -217,3 +217,8 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Final post-client `clean build --no-daemon --stacktrace` passed (5s, 2,050 assertions); jar metadata/ten recipes/test exclusion inspected. Windows CI 39691907933 passed final branch exports/build/jar upload (1m11s).
 - Three dedicated launches reached Done/accepted status/save/stop/exited; restart retained 180 points/Stage 1/two research entries. Empty selectors were not combat/flight proof. Settings restored; worlds retained. Two-client/physical-flight-reload/external-mod checks unverified; live milestone is in STATUS.md.
 - Preserved unedited F2 references, merged verified M9 with a docs-only handoff and prepared the M10 branch. Detailed equipment art/left-main-arm coverage remain later work; no blocking decision. Live milestone is in STATUS.md.
+
+## 2026-10-22 - M10 Threat Response And Events
+- Added separate versioned, bounded regional threat/event SavedData and balancing config; progression schema/pins/version/dependencies/legacy refs unchanged.
+- Foundation `clean build --no-daemon --stacktrace` passed (9s, 2,112 assertions, 62 new response checks); runtime/CI still pending.
+- Event hooks, tile-local raids/reinforcements/patrols and commands are in progress; no blocking decision. Live milestone is in STATUS.md.
