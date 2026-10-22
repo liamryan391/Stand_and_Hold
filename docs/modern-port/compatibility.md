@@ -90,6 +90,8 @@ Retained local evidence:
 
 Recovery after an early bootstrap failure does **not** prove removal from a world that successfully ran Contagion. No external infection gameplay pass is claimed, and the M11 external-mod exit gate remains unmet.
 
+Read-only replacement check on the same date: Modrinth search filtered to `project_type:mod`, `versions:26.3`, `categories:neoforge` returned only Contagion for `infection`, and no hits for `parasite` or `virus`. The [Spore version records](https://api.modrinth.com/v2/project/fungal-infectionspore/version) and [Creeper Parasites version records](https://api.modrinth.com/v2/project/creeper-parasites/version) had no exact 26.3/NeoForge match. The author's [Contagion 26.3 file list](https://www.curseforge.com/minecraft/mc-mods/contagion/files/all?page=1&pageSize=20&showAlphaFiles=hide&version=26.3) still lists NeoForge 2.1.1 and a separate Fabric 2.1.2; the Fabric file is not a NeoForge substitute. This is a limited catalog check, not proof that no suitable mod exists anywhere. No replacement runtime mod was installed or approved.
+
 ## Reproducible QA Commands
 
 Use the pinned Java selector and isolated Gradle user home before each wrapper invocation, as described in [Building](building.md):

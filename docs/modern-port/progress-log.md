@@ -234,7 +234,7 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 
 ## 2026-10-22 - M11 Presets And Runtime Verification
 - Liam approved exact Contagion-only isolated QA. Added bounded opt-in presets, verified vanilla tag, mod/version guard, operator diagnostics, isolated run tasks and 27 regression assertions; defaults/pins/version/runtime requirements unchanged.
-- Final code `clean build --no-daemon --stacktrace` passed (6s, 2,364 assertions); jar metadata and absence of bundled external/test content inspected. Implementation CI pending publication.
+- Final code `clean build --no-daemon --stacktrace` passed (6s, 2,364 assertions); jar metadata/external/test exclusion inspected. Windows CI 39856404656 passed implementation/build/normal-jar upload (1m41s).
 - No-mod dedicated baseline reached Done/status/progression/research/save/stop/clean exit (30s). Approved jar failed both client/server bootstrap: missing `ModConfig.Type.SERVER`; verified pinned FML enum. Client exited 1 after Liam closed error window; server exited 1 in 8s.
 - Moved only installed QA jar copies outside mods, retaining artifacts/crash reports/logs/baseline backup. Recovery server reached Done, retained 27 points/research, safely skipped invalid/missing rules and saved/stopped/exited (15s). Liam passed baseline/generic client gameplay/reload; F2 frames reviewed and client exited normally (5m9s).
-- External infection/removal exit gate unmet; no merge/M12 branch or unapproved substitution/pin change. Exact failure, reproduction-only preset and remaining milestone/decision are recorded in STATUS.md and compatibility.md.
+- External infection/removal exit gate unmet; limited catalog recheck found no verified replacement. Requested explicit defer-gate-or-remain-blocked decision; no merge/M12 branch, unapproved runtime substitution or pin change. Live milestone/decision in STATUS.md; exact evidence in compatibility.md.
