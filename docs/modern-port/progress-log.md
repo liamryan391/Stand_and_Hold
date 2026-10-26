@@ -246,3 +246,9 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Five dedicated launches reached Done/save/stop/clean exit, retaining partial mission/once-only receipts. Final 28s run verified namespaced research/mission start/progress/complete, short aliases and safe unknown IDs after a real click-parser bug was found/fixed.
 - Liam passed maintainer gameplay/reload and final compact-guide/click retest; client exited normally (final 2m18s). First session profiler 995.08s/16,499 ticks/16.58 TPS includes pauses, not clean load proof. Three frames/13s real combat excerpt prepared; larger local-base/stage-cap proposal recorded only.
 - M12 work branch pushed; independent new-user/earned-only gate remains unpassed, so no merge/publication/tag or M13 start. Live milestone, hashes and remaining human gate are in STATUS.md.
+
+## 2026-10-26 - M12 Independent Tester Handoff
+- Liam confirmed no unfamiliar tester is available and requested handoff preparation only. Added coordinator rules, allowed assistance and a fill-in earned-loop/understanding scorecard to the existing play sheet.
+- `git status`/`git fetch origin` confirmed the clean synced phase branch; protected `origin/1.12` still matches the expected commit. Final prior-head Windows CI 39874542031 passed; local 305,318-byte jar SHA-256 matches the recorded verified candidate.
+- Docs-only `git diff --check` passed. No fresh build, client/server launch, gameplay/config/pin change, external-mod installation or new tester pass claimed.
+- Independent usability/earned-loop evidence remains missing; no M12 merge or M13 start. Remaining milestone and handoff are in STATUS.md.

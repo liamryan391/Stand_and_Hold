@@ -1,6 +1,6 @@
 # Status
 
-Updated: 2026-10-23 - Branch: `codex/m12-showcase`
+Updated: 2026-10-26 - Branch: `codex/m12-showcase`
 
 ## Where we are
 
@@ -14,6 +14,7 @@ Updated: 2026-10-23 - Branch: `codex/m12-showcase`
 - First client ran/exited normally (22m32s); Liam reports a maintainer functional pass, save/reload and real zombie sample drops. Logs/F2 show recovery and command-post missions, completed Lab, natural raid/reinforcement and admin raid/repeat cooldown refusals. Subsequent reopen/save/exit checks also completed cleanly. Creative-assisted footage, including a 64-sample stack and later unfinished stockpiling, is not strict earned-only mission-chain or independent-new-user proof.
 - Reviewed the provided 253.637s Radeon recording; retained three qualified gameplay frames and prepared a 13s local contiguous human/zombie combat excerpt under `.local/m12-qa/media/`. Exact source/excerpt paths, hashes and captions are in community-draft.md; no video upload. Stage-scaled defender budgets and locally expanding bases recorded as future proposals in structures.md, with no balance/code change.
 - `/debug` summary: 995.08 seconds, 16,499 ticks, 16.58 TPS across a session with pause entries. No mod exception or repeated per-tick error observed; known OSHI startup warnings remain. This is not clean sustained-load proof; an unpaused controlled sample is still needed. Local logs retained under `.local/m12-qa/evidence/`.
+- 2026-10-26: Liam confirmed no unfamiliar tester is available and requested handoff preparation only. Added coordinator boundaries and a fill-in gate scorecard to the existing play sheet; no game launch, code/config change or merge. Repository was clean/synced at resumption; final documentation-head CI 39874542031 passed, and local candidate size/hash still match the verified artifact. No new local build was run.
 
 ## Local Candidate
 
@@ -28,7 +29,7 @@ Keep existing gameplay and toolchain pins. Do not imply the deferred external-mo
 
 ## Needs Liam
 
-- No immediate repeated maintainer check remains: client is closed and the final click fix passed. Arrange an unfamiliar tester for about 15 minutes using the play sheet, real dropped samples, ordered supply/research missions and no progression/resource grants. This exit gate was not waived by the M11 decision.
+- No unfamiliar tester is available as of 2026-10-26; the requested handoff is ready in [the play sheet](showcase-loop.md#independent-tester-handoff), including a fill-in scorecard. Arrange that test with real dropped samples, ordered supply/research missions and no progression/resource grants. No repeated maintainer rehearsal is needed. This exit gate was not waived by the M11 decision; keep M12 unmerged until evidence is reviewed.
 - Original F2 frames and reviewed real combat footage are retained with qualified captions; publishing still requires separate authorization. Larger stage-scaled defender caps/local base expansion are proposals only.
 - Only Liam may accept a server EULA if requested. No new runtime dependency or pin change is approved.
 

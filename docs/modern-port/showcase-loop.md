@@ -2,6 +2,13 @@
 
 A roughly 15-minute **Creative/operator-assisted technical alpha rehearsal**, not a complete Survival campaign. Use a fresh modern world and no external mods. The legacy 1.12 alpha is a different build; the checked modern Contagion artifact is unsupported. See [Compatibility](compatibility.md).
 
+## Independent Tester Handoff
+
+- Coordinator: verify the exact [candidate target](alpha-test-candidate.md), shipped config and no external mods, then prepare only the infrastructure below in a fresh disposable world. Preserve all earlier worlds/configs; do not reuse the maintainer rehearsal save.
+- Give the unfamiliar tester this play sheet and the in-game help/guide. Setup time is separate from the roughly 15-minute attempt. Record pauses and any verbal hints; do not silently perform missions or grant resources for them.
+- Allowed assistance is the documented fixture, vanilla weapon/zombie eggs, mission **starts**, inspection and one event trigger. Samples, progression, research completion and supplies must be earned. Do not add human spawn eggs or bypass real cooldowns/caps.
+- At about 15 minutes, record the checkpoint reached and ask the tester to explain what they would do next. Incomplete/blocked results are useful; they are not passes and must not be hidden by debug grants. Finish save/reload and return the scorecard below, with original logs/screenshots if available.
+
 ## Prepare The Disposable World
 
 Launch `runShowcaseClient` using the pinned Java selector/user home from [Building](building.md). It uses `run/showcase-client`, separate from normal development and compatibility worlds. Create a Creative Superflat world with commands enabled; name it clearly, for example `M12 Showcase Rehearsal`. Keep default Stand and Hold balancing/config for this test.
@@ -55,6 +62,24 @@ Main Base discovery, five-wave defence completion, Stage 5 activation and all hi
 ## Record The Rehearsal
 
 Record tester familiarity, real duration, command dependence, confusing messages, unintended grants and exact failures. A familiar-maintainer pass is **not** independent new-user evidence. Capture clean F2 views of the site/units, completed Lab and real defence; record a short real clip before triggering the raid and provide its path. Preserve original files and avoid private chat/desktop content.
+
+### Fill-In Gate Scorecard
+
+Tester/name or alias: [record]. Prior familiarity: [record]. Date: [record]. OS/Java/Minecraft/NeoForge: [record]. Jar filename/hash and mod list/config deviations: [record]. World name: [record]. Setup excluded: [record]. Attempt start/end, pauses and active duration: [record].
+
+Replace each `Not run` with `Pass`, `Fail` or `Blocked` only from observed results. Record values/details, not just an overall pass. The coordinator may take notes, but must record every extra hint/command and any Creative resource use.
+
+| Check | Result | Values or evidence |
+| --- | --- | --- |
+| Fresh baseline; help/guide understandable; blue Start fills chat and needs Enter | Not run | Starting points/stage/global supplies; hints needed |
+| Normal player zombie kills award points and drop samples; carry 3 real drops for recovery | Not run | Kill count, carried count, reward/status frame; no Creative samples |
+| Establish Field Command, then Stockpile Supplies **before** lab import | Not run | Both missions completed; 20 global supplies before import |
+| Start Complete First Research mission; import 10 local supplies; select/Start/Pause/resume analysis | Not run | Local/global balances, 12/12, one completion/reward |
+| Earn Stage 1 at 150+ points and complete Early Army Response without grants | Not run | Points/stage, mission status; note legitimate passive generation |
+| Automatic defenders and an actual outpost attack observed | Not run | Defender count (post cap 3), event type/wave; a cooldown refusal alone is not an attack |
+| Save/reopen keeps points, missions, research and storage without reset/duplicate rewards | Not run | Before/after values, latest.log and screenshots |
+
+Tester explanation: what would you do next, where do lab supplies come from, and how do you start research? [record]. Confusing steps, extra hints/commands, failures and skipped checks: [record]. Observer's gate assessment and whether the unfamiliar tester understood the loop within about 15 minutes: [record]. A completed maintainer scorecard still does not become independent evidence.
 
 Maintainer rehearsal results and any independent-user gap are recorded in [STATUS.md](STATUS.md); durable limitations belong in [Known Issues](../../KNOWN_ISSUES.md). Do not call the slice public-ready solely because a familiar developer completed the checklist.
 
