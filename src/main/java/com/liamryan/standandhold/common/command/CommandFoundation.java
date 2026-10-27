@@ -9,8 +9,8 @@ import com.liamryan.standandhold.common.supply.SupplyManager;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.HumanProgressionConfig;
 import com.mojang.brigadier.arguments.LongArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import java.util.ArrayList;
@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.network.chat.Component;
 
 final class CommandFoundation {
@@ -40,20 +41,32 @@ final class CommandFoundation {
                 .then(Commands.literal("list").executes(context -> researchList(context.getSource(), true)))
                 .then(Commands.literal("status").executes(context -> researchList(context.getSource(), false)))
                 .then(Commands.literal("complete").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-                        .then(Commands.argument("id", StringArgumentType.word()).executes(context -> researchComplete(context.getSource(), StringArgumentType.getString(context, "id"))))));
+                        .then(Commands.argument("id", IdentifierArgument.id()).executes(context -> researchComplete(context.getSource(), definitionId(context))))));
         root.then(Commands.literal("mission")
                 .executes(context -> missionList(context.getSource(), false, true))
                 .then(Commands.literal("list").executes(context -> missionList(context.getSource(), false, false)))
                 .then(Commands.literal("status").executes(context -> missionList(context.getSource(), false, true)))
                 .then(Commands.literal("active").executes(context -> missionList(context.getSource(), true, false)))
                 .then(Commands.literal("start").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-                        .then(Commands.argument("id", StringArgumentType.word()).executes(context -> missionChange(context.getSource(), StringArgumentType.getString(context, "id"), 0, true))))
+                        .executes(context -> {
+                            context.getSource().sendFailure(Component.literal("Missing mission ID. Use /standandhold guide, then its Start command."));
+                            return 0;
+                        })
+                        .then(Commands.argument("id", IdentifierArgument.id()).executes(context -> missionChange(context.getSource(), definitionId(context), 0, true))))
                 .then(Commands.literal("complete").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-                        .then(Commands.argument("id", StringArgumentType.word()).executes(context -> missionChange(context.getSource(), StringArgumentType.getString(context, "id"), Long.MAX_VALUE, false))))
+                        .then(Commands.argument("id", IdentifierArgument.id()).executes(context -> missionChange(context.getSource(), definitionId(context), Long.MAX_VALUE, false))))
                 .then(Commands.literal("progress").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-                        .then(Commands.argument("id", StringArgumentType.word())
+                        .then(Commands.argument("id", IdentifierArgument.id())
                                 .then(Commands.argument("amount", LongArgumentType.longArg(1)).executes(context -> missionChange(context.getSource(),
-                                        StringArgumentType.getString(context, "id"), LongArgumentType.getLong(context, "amount"), false))))));
+                                        definitionId(context), LongArgumentType.getLong(context, "amount"), false))))));
+    }
+
+    /** Preserve our short-ID namespace; vanilla's parsed Identifier otherwise defaults to minecraft. */
+    static String definitionId(CommandContext<?> context) {
+        for (var node : context.getNodes()) {
+            if (node.getNode().getName().equals("id")) { return node.getRange().get(context.getInput()); }
+        }
+        throw new IllegalArgumentException("Missing definition ID.");
     }
 
     private static int supplyStatus(CommandSourceStack source) throws CommandSyntaxException {

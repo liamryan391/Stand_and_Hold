@@ -240,6 +240,30 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - External infection/removal exit gate unmet; limited catalog recheck found no verified replacement. Requested explicit defer-gate-or-remain-blocked decision; no merge/M12 branch, unapproved runtime substitution or pin change. Live milestone/decision in STATUS.md; exact evidence in compatibility.md.
 
 ## 2026-10-22 - M11 Deferral And M12 Showcase
-- Liam explicitly deferred the successful external-infection gameplay/removal gate, approving the green generic foundation merge. Recorded the amended gate without claiming Contagion support or changing pins/dependencies.
-- Confirmed final M11 head CI 39857071341 passed; docs-only deferral/handoff passed `git diff --check`. M11 source/runtime proof remains the earlier observed 2,364-check build and no-mod/generic launches.
-- Merged M11 with the explicit decision and prepared the M12 phase branch from updated main. M12 implementation/verification is in progress; live milestone and human checks are in STATUS.md.
+- Liam explicitly deferred M11's external-infection gameplay/removal gate; final head CI 39857071341 passed, amended docs passed `git diff --check`, generic foundation merged. No Contagion support/pin change claimed.
+- Resumed after credit interruption on 2026-10-23. M12 adds read-only help/guide, isolated runs, 65 guide/loop + 13 parser assertions, candidate/community/play-sheet docs and original captures; no balance/pin/version/dependency change.
+- Latest `clean build --no-daemon --stacktrace` passed (5s, 2,442 assertions); normal jar 305,318 bytes, metadata/external/test exclusion inspected. Final parser-code Windows CI 39874147169 and prior implementation/capture CI passed, including jar uploads.
+- Five dedicated launches reached Done/save/stop/clean exit, retaining partial mission/once-only receipts. Final 28s run verified namespaced research/mission start/progress/complete, short aliases and safe unknown IDs after a real click-parser bug was found/fixed.
+- Liam passed maintainer gameplay/reload and final compact-guide/click retest; client exited normally (final 2m18s). First session profiler 995.08s/16,499 ticks/16.58 TPS includes pauses, not clean load proof. Three frames/13s real combat excerpt prepared; larger local-base/stage-cap proposal recorded only.
+- M12 work branch pushed; independent new-user/earned-only gate remains unpassed, so no merge/publication/tag or M13 start. Live milestone, hashes and remaining human gate are in STATUS.md.
+
+## 2026-10-26 - M12 Independent Tester Handoff
+- Liam confirmed no unfamiliar tester is available and requested handoff preparation only. Added coordinator rules, allowed assistance and a fill-in earned-loop/understanding scorecard to the existing play sheet.
+- `git status`/`git fetch origin` confirmed the clean synced phase branch; protected `origin/1.12` still matches the expected commit. Final prior-head Windows CI 39874542031 passed; local 305,318-byte jar SHA-256 matches the recorded verified candidate.
+- Docs-only `git diff --check` passed. No fresh build, client/server launch, gameplay/config/pin change, external-mod installation or new tester pass claimed.
+- Independent usability/earned-loop evidence remains missing; no M12 merge or M13 start. Remaining milestone and handoff are in STATUS.md.
+
+## 2026-10-27 - Alpha Testing Policy
+- Liam chose to remain the alpha tester and defer independent unfamiliar-tester feedback to beta after a stable alpha. Revised M12's tester gate/play sheet and reconciled candidate/known-issue wording; no test was promoted to a pass.
+- Retained real-drop/ordered-mission, earned progression, defence and save/reload checks, with a self-report scorecard; the roughly 15-minute target records duration rather than setting an alpha deadline.
+- `git status`/`git fetch origin` confirmed a clean synced start; preserved `origin/1.12` matches the expected commit. Docs-only `git diff --check` passed; no new build, client/server run or CI result claimed.
+- No code, balance, pin, version, dependency or public release change. M12 remains unmerged pending earned-loop evidence; no M13 start. Remaining milestone is in STATUS.md.
+
+## 2026-10-27 - M12 Alpha Gate Verification
+- Clean synced phase branch/fetch and protected legacy ref checked; prior-head Windows Build CI 40573254612 passed. No balance, dependency, pin or version change.
+- Latest pinned `clean build --no-daemon --stacktrace` passed (8s, 2,442 assertions); 305,591-byte diagnostic-fix jar metadata/hash and absence of external/test/nested content inspected. Final-code Windows CI 40579806350 passed.
+- Two `runShowcaseServer` runs reached Done, accepted diagnostics/save/stop and exited cleanly (24s/32s). Restart retained progression/supplies/research/partial mission; invalid commands failed safely. Logs preserved in `.local/m12-qa/evidence/server-alpha-gate*-2026-10-27.log`.
+- Liam reports earned checks passed; log confirms the first five mission receipts before later admin point/supply grants (confirmed by Liam). Client saved/exited normally (19m36s); final screenshot shows two reinforcements/zero raids and no reload occurred, so requested a focused raid/reload follow-up. No new profiler sample; no sustained-load/packaged/multiplayer pass.
+- Follow-up clients exited normally (8m26s/5m24s), raids safely refused amid ambient slimes/unsupported terrain, not client raid passes. Split refusal messages only; documented fixture cleanup/mission reconciliation and existing instant sample-free research syntax, no new bypass or completed profiler sample.
+- Four disposable dedicated fixture runs reached Done/save/stop/clean exit: quota/terrain refusals, actual tagged spawning/NPC combat, human kill credit, reservation release and restart/cooldown persistence verified. QA chunk tickets removed; sprint/manual-NPC tests are not earned/automatic-cap/performance proof. Initial CLI override failed before bootstrap, corrected safely.
+- Liam accepted combined earned-core/server evidence with broad-terrain/client raid limits retained. Final branch-head CI 40581743359 passed (1m35s); integrated M12 into main and prepared the M13 branch from it. No public release or independent/packaged/multiplayer pass. Live milestone in STATUS.md.

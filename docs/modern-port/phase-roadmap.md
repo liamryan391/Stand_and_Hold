@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M12 (implementation)**; see [STATUS.md](STATUS.md).
+Current position: **Phase M13 (integration/design review ready)**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -293,17 +293,18 @@ Exit gate:
 
 Priority: P3
 
-- [ ] **12.1 Assemble the existing loop.** Sample recovery, command post, lab research, supplies, defender, one attack, and save/reload should be playable with clear guidance.
-- [ ] **12.2 Run a new-tester session.**
-  - [ ] **12.2.1** Provide a guidebook or command-based tutorial with expected results and blocked-state explanations.
-  - [ ] **12.2.2** Observe a tester trying the loop for about 15 minutes; record confusion, failures, and command dependence.
-  - [ ] **12.2.3** Fix issues within the implemented loop and retest before expanding scope.
-- [ ] **12.3 Prepare community materials.** Capture original gameplay screenshots, a short defence clip, page drafts, and an honest done/next/later roadmap.
-- [ ] **12.4 Prepare a test release.** Run build/client/server and performance checks; update changelog, known issues, supported versions, artifact details, and tester instructions. Record publishing separately.
+- [x] **12.1 Assemble the existing loop.** Sample recovery, command post, lab research, supplies, defender, one attack, and save/reload connected by the play sheet/guide. Default earned-cost sequence regression passes; Liam reports a maintainer functional pass. Creative-assisted rehearsal is not the earned-only evidence required by 12.2.
+- [x] **12.2 Run Liam-led alpha verification.** Independent new-tester feedback is deferred to beta after a stable alpha, per Liam's 2026-10-27 decision; familiarity is recorded honestly, not treated as independent proof.
+  - [x] **12.2.1** Provide a guidebook or command-based tutorial with expected results and blocked-state explanations. Read-only help/guide use loaded definitions; [play sheet](showcase-loop.md) covers costs, mission order and cooldowns without grants.
+  - [x] **12.2.2** Liam passed the earned sample/mission/research/Stage 1 core (19m36s client including pauses/exploration); later grants are qualified separately. Client raid attempts safely refused at crowded/unsupported sites. Liam explicitly accepted combined proof on 2026-10-27: earned core plus controlled dedicated tagged-raid combat, kill credit, reservation release and restart/cooldown persistence. This is not a complete unassisted client run, broad-terrain pass or independent usability proof.
+  - [x] **12.2.3** Fix issues within the implemented loop and retest before expanding scope. Compact guide/missing-ID feedback and namespaced parsing passed prior checks. Raid refusal now distinguishes quota/terrain and explains unpaused backoff; live dedicated tests cover both refusals, successful spawning and persistence. Documented mission-start reconciliation and existing instant-research syntax. No balance change or new gameplay system.
+- [x] **12.3 Prepare community materials.** Original F2/video-derived frames, a local contiguous 13s staged vanilla-hostile combat excerpt, page drafts and honest available/later scope prepared. Source/capture qualifications recorded in [community draft](community-draft.md); no external publishing or reserved-wave/independent-test claim.
+- [x] **12.4 Prepare a test release.** Run build/client/server and performance checks; update changelog, known issues, supported versions, artifact details, and tester instructions. [Candidate](alpha-test-candidate.md) prepared, not published/tagged: clean build, Windows CI, dedicated restart and source client observed. Paused-session profiler result is inconclusive for sustained load; packaged/multiplayer testing remains separate. Qualified alpha evidence is accepted, not an independent/public-ready claim.
 
 Exit gate:
 
-- New tester can understand the loop in 15 minutes.
+- Liam completes the documented earned-resource loop with observed results and any blocking usability findings resolved; build/client/server evidence is retained and CI is green before merge. Creative infrastructure is allowed, progression/resource grants are not.
+- Independent first-time usability testing is deferred to beta after a stable alpha; an alpha maintainer pass must not be advertised as independent feedback. Packaged/multiplayer proof and any public beta release remain separate checks/approval, not implied by this gate change.
 
 ## Phase M13 - Vehicles, Planes, And Larger Warfare
 

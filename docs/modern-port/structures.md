@@ -64,7 +64,7 @@ Registry inspection is bounded to 4,096 records per registry and 20 output rows.
 
 Modern global schema 5 adds `main_bases` and `discovered_main_base` to the existing progression, research/mission receipts, posts and defender reservations. Modern schemas 0..4 migrate non-destructively; unknown data survives. Missing/malformed current-schema fields fail closed rather than forgetting history. This is not a legacy-world importer. A world and its chunks must be backed up together.
 
-Right-clicking a registered Main Base command post as a non-spectator records a shared discovery receipt, even while dormant. Simply generating/listing a base does not count as player discovery. An active `establish_main_base` mission observes that receipt; starting it later also observes the earlier visit. Prerequisites still apply; `defend_outpost` remains a later event hook and can be completed with admin mission commands for isolated QA. Completion rewards are once-only (default +50 points/+25 supplies).
+Right-clicking a registered Main Base command post as a non-spectator records a shared discovery receipt, even while dormant. Simply generating/listing a base does not count as player discovery. An active `establish_main_base` mission observes that receipt; starting it later also observes the earlier visit. Prerequisites still apply; `defend_outpost` counts credited reserved-raider kills through the event system. Admin mission commands are only shortcuts for isolated QA, not earned-loop proof. Completion rewards are once-only (default +50 points/+25 supplies).
 
 Normal removal unregisters the post and base. Admin edits that suppress removal effects can leave stale records until inspection. Cleanup and removal do **not** reset discovery, completed missions or surviving defender reservations. Other blocks in a ruined structure are not tracked/demolished automatically. Replacing its removed command post with an ordinary item does not restore the Main Base marker/registration.
 
@@ -82,3 +82,11 @@ Normal removal unregisters the post and base. Admin edits that suppress removal 
 These are one-chunk open-air foundations, not finished bases, road networks, terrain blending or `/locate structure`-indexed template structures. Strict safety means many forested, watery, uneven, modified or crowded sites are skipped. Generation in custom dimensions/biomes needs explicit configuration/datapack support. Other mods' later terrain/features can still modify a site; cleanup validates only the command tile, not the entire building. Large exploration/performance and external-mod combinations need separate tests.
 
 Later original layouts may include outposts, research facilities, barracks, supply depots, Main Base expansion and Special Parasite Division facilities. They are not added by these foundations.
+
+### Base Evolution Proposal
+
+Liam's M12 feedback proposes growing individual checkpoints/outposts alongside the army. Keep the **global human stage** (technology/unit availability) distinct from each site's **local building/base level** (paid upgrades, infrastructure and eventual footprint). Current Command Posts already save a level, but upgrading does not enlarge a generated structure.
+
+- Illustrative future targets: Stage 0 small checkpoints with 3-5 defenders, Stage 1 larger sites with 5-8, then later tiers. These are design examples, not new defaults, measured performance budgets or approved balance changes.
+- Physical growth needs bounded loaded-only footprint preflight, protected player blocks/storage/tiles, partial-failure safety and persistent site ownership. A global stage increase must not silently overwrite nearby builds or reset defender reservations/cooldowns.
+- Per-site upgrades, shared nearby quotas and larger unit budgets need a separate design/load test before implementation. No automatic expansion or increased spawn cap is introduced by the showcase work.

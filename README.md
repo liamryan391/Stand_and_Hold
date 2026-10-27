@@ -17,6 +17,10 @@ See [STATUS.md](docs/modern-port/STATUS.md) for live port state and the active m
 
 The historical [v0.1.0-alpha.1 tag](https://github.com/liamryan391/Stand_and_Hold/tree/v0.1.0-alpha.1) belongs to the Forge 1.12.2 line. The existing version value remains `0.1.0-alpha.1` during preparation; no modern release or retag is announced here.
 
+## Guided Alpha Test
+
+Use the [first playable test loop](docs/modern-port/showcase-loop.md) in a fresh disposable world. `/standandhold help` lists access/commands; `/standandhold guide` reads the loaded mission definitions and saved state without starting or rewarding anything. The [technical test candidate](docs/modern-port/alpha-test-candidate.md) and [community draft](docs/modern-port/community-draft.md) distinguish demonstrated features from deferred tests and future designs. The showcase is operator-assisted, not a complete Survival release.
+
 ## Project Identity
 
 | Field | Value |
@@ -51,7 +55,7 @@ M1 delivers the build foundation, metadata, entry point, logger/config shell, an
 
 The [human progression foundation](docs/modern-port/progression.md) adds seven configurable stages, versioned world-global saves, and `/standandhold status`, `/standandhold addpoints <amount>`, and `/standandhold setstage <0..6>`. Mutations require operator level 2; setting a stage resets points to its configured minimum. Use fresh modern worlds, not legacy saves.
 
-The [research/supply/mission foundation](docs/modern-port/foundation-data.md) provides three JSON research definitions, global supply balances, seven small missions, persistent once-only rewards, and server-authoritative inspection/admin commands. For a minimal test: `/standandhold supplies add 10`, then `/standandhold research complete parasite_samples`; expect 10 human points and zero supplies, with no extra reward on repetition. Defence hooks and a mission GUI remain deferred.
+The [research/supply/mission foundation](docs/modern-port/foundation-data.md) provides three JSON research definitions, global supply balances, seven small missions, persistent once-only rewards, and server-authoritative inspection/admin commands. For a minimal command-only smoke test: `/standandhold supplies add 10`, then `/standandhold research complete parasite_samples`; expect 10 human points and zero supplies, with no extra reward on repetition. Those grants bypass the guided gameplay test. Reserved-raid defence hooks exist; a mission GUI remains deferred.
 
 The [core buildings guide](docs/modern-port/buildings.md) covers Field Command Posts, Research Labs, and Supply Crates: creative access, original utility textures, local/global supply transfers, loaded-only point/supply generation, timed lab work, upgrades, safe registration cleanup, menus, configuration, and the manual test recipe.
 
@@ -65,7 +69,7 @@ The [human NPC foundation](docs/modern-port/human-npcs.md) adds Survivor Defende
 
 The [art and identity guide](docs/modern-port/art-pipeline.md) documents original cap/pack and helmet/vest models, editable Blockbench sources, deterministic source-to-runtime exports, distinct utility-block faces and compact menu readability. These are alpha visuals using vanilla animation, with no external art or animation library bundled.
 
-The partial modern loop can recover samples, establish a command post/lab, fund research/progression and obtain defenders. Outpost attacks, richer combat, larger bases, vehicles/aircraft and Fabric evaluation follow later phase gates; they are not features of an available modern release.
+The partial modern loop can recover samples, establish a command post/lab, fund research/progression, obtain defenders and experience capped outpost attacks. Richer combat, larger bases, vehicles/aircraft and Fabric evaluation remain separate designs/phase gates; no public modern release is announced by this foundation.
 
 Compatibility with external threat mods remains optional. Registry/tag mappings and integrations must be verified for the exact modern target when implemented; legacy SRP compatibility does not imply modern SRP support.
 
