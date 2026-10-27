@@ -29,7 +29,7 @@ jobs:
       - name: Show Gradle and Java versions
         shell: pwsh
         run: |
-          & .\scripts\use-modern-java.ps1
+          & .\scripts\use-modern-java.ps1 -JavaHome $env:JAVA_HOME
           java --version
           .\gradlew.bat --version
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -43,20 +43,20 @@ jobs:
       - name: Build with ModDevGradle
         shell: pwsh
         run: |
-          & .\scripts\use-modern-java.ps1
+          & .\scripts\use-modern-java.ps1 -JavaHome $env:JAVA_HOME
           .\gradlew.bat clean build --no-daemon --stacktrace
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Run in-world GameTests
         shell: pwsh
         run: |
-          & .\scripts\use-modern-java.ps1
+          & .\scripts\use-modern-java.ps1 -JavaHome $env:JAVA_HOME
           .\gradlew.bat runGameTestServer --no-daemon --stacktrace
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Verify saved state across dedicated JVM restart
         shell: pwsh
-        run: powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\test-restart.ps1
+        run: powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\test-restart.ps1 -JavaHome $env:JAVA_HOME
 
       - name: Upload automated QA reports
         if: always()

@@ -1,7 +1,11 @@
+param([string]$JavaHome)
+
 $ErrorActionPreference = 'Stop'
 Push-Location (Split-Path $PSScriptRoot -Parent)
 try {
-    & .\scripts\use-modern-java.ps1
+    $selection = @{}
+    if ($PSBoundParameters.ContainsKey('JavaHome')) { $selection.JavaHome = $JavaHome }
+    & .\scripts\use-modern-java.ps1 @selection
     $env:GRADLE_USER_HOME = Join-Path (Get-Location).Path '.gradle-home\modern'
     $world = 'qa-' + [guid]::NewGuid().ToString()
     foreach ($phase in @('write', 'read')) {
