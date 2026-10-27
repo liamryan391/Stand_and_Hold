@@ -67,14 +67,45 @@ Everything else on the roadmap is pre-approved: make the change, verify it, comm
 - Code or build change → `.\gradlew.bat clean build --no-daemon --stacktrace` must pass. Inspect the jar's `neoforge.mods.toml`.
 - Server proof → `runServer` reaches "Done", accepts `stop`, exits cleanly.
 - Client proof → `runClient` loads to the main menu with the mod in the Mods list (check `latest.log`).
-  Liam does the visual in-game check; report exactly what he should look at.
 - Docs-only change → `git diff --check`. No link counting, task-ID counting or handoff counting.
 - Never report a build or launch as passed without observing it. Say plainly what was not run.
+
+### Test it yourself first — Liam is the last check, not the first
+
+Use the cheapest level that can prove the behaviour, and do it yourself before asking Liam:
+
+1. **Logic** → `progressionTest` checks (run by `build`).
+2. **Commands, saves, restarts** → drive `runServer` through its console: type the commands, read the
+   log, `stop`, restart, confirm state persisted.
+3. **In-world behaviour** (blocks, block entities, NPC targeting/combat, drops, raids/spawns,
+   structures, vehicles, chunk/restart edge cases) → write a **GameTest** and run
+   `.\gradlew.bat runGameTestServer`. A non-zero exit means failed required tests. Every new
+   in-world feature gets at least one GameTest; CI runs them too.
+4. **Screens, textures, text fit, models** → the `qaClient` run: it auto-loads a disposable test
+   world, runs the scripted QA steps, saves screenshots to `run/qa-client/screenshots/` and quits.
+   Open the PNGs yourself and judge them; quote the file names in the report.
+
+GameTests and QA hooks live outside the normal jar and add no dependency (Minecraft/NeoForge
+built-ins only). Never weaken a failing test to make it pass; fix the code or report it.
+
+**Only hand Liam what automation can't judge:** feel/fun/balance, a full earned playthrough,
+animation in motion, real multiplayer, packaged-launcher installs. Never ask Liam to type a command
+sequence and read back numbers: that is level 2 or 3, so do it yourself.
+
+**Liam's check comes last, and it never blocks you:**
+- Finish everything first: final clean build, GameTests, CI and push. Then open one client for him
+  and leave it running. Never ask him to quit the game so you can build.
+- Make it short: at most about 5 numbered checks, each saying which automated level already
+  covered the mechanics. End with: "Play for about 5 minutes. Does anything feel off or annoying?"
+  His design feedback is the most valuable part of a manual check.
+- If he reports a bug, first reproduce it in a GameTest or server fixture, then fix it. Only
+  ask him to retest what automation still can't see.
 
 ## Documentation rules (keep overhead low)
 
 - `STATUS.md` holds the current position and next milestone. **No other file repeats it.**
-  Reference docs never get "Current position / Next step" lines.
+  Reference docs never get "Current position / Next step" lines. **Keep it under ~25 short lines**:
+  replace old bullets rather than adding to them. History goes in `progress-log.md`.
 - Roadmap: tick boxes. Add a sub-task only *before* doing work that genuinely needs splitting —
   never retroactively, never deeper than `x.y.z`.
 - `progress-log.md`: append one entry per session, **max 8 lines**: what changed, what was
