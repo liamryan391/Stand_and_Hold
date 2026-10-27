@@ -95,10 +95,19 @@ public final class ThreatResponse {
         data.putResponse(home.key(), response.timers(ResponseRecord.after(now, ResponseConfig.RAID_COOLDOWN.get()), response.nextReinforcement()));
         int stage = ProgressionRules.stageFor(HumanWorldData.get(level.getServer()).points(), HumanProgressionConfig.thresholds()).level();
         int wanted = ResponseRecord.waveSize(stage, ResponseConfig.RAID_CAP.get()), spawned = 0;
+        String blocked = "could not create a zombie";
         for (int i = 0; i < wanted; i++) {
-            if (hostiles(level, home.pos()) >= ResponseConfig.RAID_AREA_CAP.get()) { break; }
+            if (hostiles(level, home.pos()) >= ResponseConfig.RAID_AREA_CAP.get()) {
+                blocked = "nearby hostile quota reached (cap " + ResponseConfig.RAID_AREA_CAP.get()
+                        + " within 32 blocks), or the bounded mob inspection limit was reached; clear ambient monsters";
+                break;
+            }
             Zombie zombie = EntityTypes.ZOMBIE.create(level, EntitySpawnReason.REINFORCEMENT);
-            if (zombie == null || !spawnPosition(level, zombie, home.pos())) { break; }
+            if (zombie == null) { break; }
+            if (!spawnPosition(level, zombie, home.pos())) {
+                blocked = "no safe loaded spawn position found 8-12 blocks from the post; check open dry ground";
+                break;
+            }
             zombie.addTag(RAID_TAG); zombie.setCanPickUpLoot(false);
             zombie.getPersistentData().putString(RAID_POST, home.key());
             zombie.getPersistentData().putLong(RAID_EXPIRY, ResponseRecord.after(now, ResponseConfig.RAID_LIFETIME.get()));
@@ -110,7 +119,7 @@ public final class ThreatResponse {
         }
         if (spawned == 0) {
             data.putResponse(home.key(), data.response(home.key()).timers(ResponseRecord.after(now, ResponseConfig.BACKOFF.get()), response.nextReinforcement()));
-            return "No raid: hostile area quota full or terrain unsafe/unloaded. Backoff saved.";
+            return "No raid: " + blocked + ". Retry after " + ResponseConfig.BACKOFF.get() + " unpaused game ticks; backoff saved.";
         }
         data.putResponse(home.key(), data.response(home.key()).timers(ResponseRecord.after(now, ResponseConfig.RAID_COOLDOWN.get()), response.nextReinforcement()).counted(true));
         observe(level, home.pos(), ResponseConfig.ATTACK_SCORE.get(), false, false, false, true);
