@@ -267,3 +267,10 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Follow-up clients exited normally (8m26s/5m24s), raids safely refused amid ambient slimes/unsupported terrain, not client raid passes. Split refusal messages only; documented fixture cleanup/mission reconciliation and existing instant sample-free research syntax, no new bypass or completed profiler sample.
 - Four disposable dedicated fixture runs reached Done/save/stop/clean exit: quota/terrain refusals, actual tagged spawning/NPC combat, human kill credit, reservation release and restart/cooldown persistence verified. QA chunk tickets removed; sprint/manual-NPC tests are not earned/automatic-cap/performance proof. Initial CLI override failed before bootstrap, corrected safely.
 - Liam accepted combined earned-core/server evidence with broad-terrain/client raid limits retained. Final branch-head CI 40581743359 passed (1m35s); integrated M12 into main and prepared the M13 branch from it. No public release or independent/packaged/multiplayer pass. Live milestone in STATUS.md.
+
+## 2026-10-27 - Automated Ladder And M13
+- Adopted attached AGENTS.md in its requested standalone commit; compact STATUS and prospective QA prerequisite added before implementation. Protected legacy refs/local worlds retained; pins/version/dependencies unchanged.
+- Isolated native GameTests: 15 required cases passed, including real AI/deaths/drops/raid refusal reasons, lab message/reward once and base notices. Failed harness assertions retained and corrected, not weakened.
+- `clean build runQaClient --no-daemon --stacktrace` passed (32s, 2,442 assertions); metadata/QA exclusion verified. Self-created/saved world, nine PNGs (90e73aa0 prefix) opened/reviewed; automated client exited normally.
+- `test-restart.ps1` passed two dedicated JVMs (Done/save/clean stop), checking global/building/mission/NPC/response persistence; CI jobs added, publication result pending. No real multiplayer/packaged test claimed.
+- M13 integration/design review is drafted; remaining milestone is in STATUS.md.

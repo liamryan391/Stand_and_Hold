@@ -1,0 +1,197 @@
+package com.liamryan.standandhold.qa;
+
+import com.liamryan.standandhold.client.BuildingScreen;
+import com.liamryan.standandhold.common.building.*;
+import com.liamryan.standandhold.common.foundation.FoundationResources;
+import com.liamryan.standandhold.common.npc.NpcRegistry;
+import com.liamryan.standandhold.common.research.ResearchManager;
+import com.liamryan.standandhold.common.world.HumanWorldData;
+import com.liamryan.standandhold.config.HumanProgressionConfig;
+import java.nio.file.*;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.Screenshot;
+import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.LevelSettings;
+import net.minecraft.world.level.WorldDataConfiguration;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.level.levelgen.WorldOptions;
+import net.minecraft.world.level.levelgen.presets.WorldPresets;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+
+/** Actual client/server menu transport and rendering. Never included in the release jar. */
+@Mod(value = QaMod.ID, dist = Dist.CLIENT)
+public final class QaClient {
+    private static final BlockPos POST = new BlockPos(8, 64, 8), LAB = new BlockPos(8, 64, 12), CRATE = new BlockPos(12, 64, 12);
+    private record View(String name, BuildingKind kind, String state, int scale) { }
+    private final List<View> views = List.of(
+            new View("command-post", BuildingKind.COMMAND_POST, "", 2),
+            new View("supply-crate", BuildingKind.CRATE, "", 2),
+            new View("lab-ready", BuildingKind.LAB, "ready", 2),
+            new View("lab-running", BuildingKind.LAB, "running", 2),
+            new View("lab-paused-large", BuildingKind.LAB, "paused", 3),
+            new View("lab-blocked-large", BuildingKind.LAB, "blocked", 3),
+            new View("lab-completed-large", BuildingKind.LAB, "completed", 3));
+    private final String id = System.getProperty("standandhold.qa.id", UUID.randomUUID().toString());
+    private final long deadline = System.nanoTime() + 300_000_000_000L;
+    private CompletableFuture<Void> serverAction;
+    private int phase, view, settle, previousPhase = -1, phaseTicks;
+    private boolean capturing, finished;
+    private final List<String> captures = new ArrayList<>();
+    public QaClient() {
+        if (Boolean.getBoolean("standandhold.qa.client")) { NeoForge.EVENT_BUS.addListener(this::tick); }
+    }
+    private void tick(ClientTickEvent.Post event) {
+        if (finished) { return; }
+        var mc = Minecraft.getInstance();
+        try {
+            if (System.nanoTime() > deadline) { throw new IllegalStateException("QA client timed out in phase " + phase); }
+            mc.options.pauseOnLostFocus = false;
+            mc.options.onboardAccessibility = false;
+            if (previousPhase != phase) { previousPhase = phase; phaseTicks = 0; }
+            if (++phaseTicks > 200 && phase == 4) { throw new IllegalStateException("Expected real menu did not open: " + views.get(view).name()); }
+            if (serverAction != null) {
+                if (!serverAction.isDone()) { return; }
+                serverAction.join(); serverAction = null; settle = 0;
+            }
+            if (capturing) { return; }
+            switch (phase) {
+                case 0 -> {
+                    if (!(mc.gui.screen() instanceof TitleScreen)) {
+                        if (mc.gui.screen() instanceof net.minecraft.client.gui.screens.AccessibilityOnboardingScreen) { mc.gui.setScreen(new TitleScreen()); }
+                        return;
+                    }
+                    phase = 1;
+                    mc.createWorldOpenFlows().createFreshLevel("qa-" + id,
+                            new LevelSettings("Automated QA " + id, GameType.CREATIVE, LevelSettings.DifficultySettings.DEFAULT, true, WorldDataConfiguration.DEFAULT),
+                            new WorldOptions(170310L, false, false),
+                            registries -> registries.lookupOrThrow(Registries.WORLD_PRESET).getOrThrow(WorldPresets.FLAT).value().createWorldDimensions(),
+                            new TitleScreen());
+                }
+                case 1 -> {
+                    if (mc.level == null || mc.player == null || mc.getSingleplayerServer() == null) { return; }
+                    phase = 2;
+                    onServer(mc, () -> fixture(mc.getSingleplayerServer().overworld(), player(mc)));
+                }
+                case 2 -> {
+                    if (++settle < 30) { return; }
+                    mc.options.guiScale().set(2); mc.resizeGui();
+                    mc.gui.setScreen(null);
+                    capture(mc, "scene", 3);
+                }
+                case 3 -> {
+                    if (view >= views.size()) { phase = 6; settle = 0; return; }
+                    var next = views.get(view);
+                    mc.options.guiScale().set(next.scale()); mc.resizeGui();
+                    phase = 4;
+                    onServer(mc, () -> open(mc, next));
+                }
+                case 4 -> {
+                    if (!(mc.gui.screen() instanceof BuildingScreen) || !(mc.player.containerMenu instanceof BuildingMenu menu) || menu.kind() != views.get(view).kind()) { return; }
+                    if (++settle < 20) { return; }
+                    var next = views.get(view);
+                    if (next.kind() == BuildingKind.LAB) {
+                        long expected = next.state().equals("blocked") ? 2 : next.state().equals("completed") ? 1 : 0;
+                        if (next.state().equals("blocked")) {
+                            if (menu.number(BuildingMenu.STATUS) == 0 || menu.number(BuildingMenu.STATUS) == 1) { throw new IllegalStateException("Blocked research not synced"); }
+                        } else if (menu.number(BuildingMenu.STATUS) != expected) { throw new IllegalStateException("Research state did not sync: " + next.state()); }
+                    }
+                    capture(mc, next.name(), 5);
+                }
+                case 5 -> {
+                    mc.player.closeContainer(); view++; phase = 3; settle = 0;
+                }
+                case 6 -> {
+                    mc.options.guiScale().set(3); mc.resizeGui();
+                    mc.player.connection.sendCommand("standandhold guide");
+                    mc.gui.setScreen(new ChatScreen("", false)); phase = 7; settle = 0;
+                }
+                case 7 -> { if (++settle >= 30) { capture(mc, "guide-large", 8); } }
+                case 8 -> {
+                    mc.gui.setScreen(null);
+                    mc.disconnectWithSavingScreen();
+                    result(mc, true, "Real menus/screens captured; world saved and client stopped");
+                }
+                default -> throw new IllegalStateException("Unknown QA phase");
+            }
+        } catch (Throwable failure) {
+            com.mojang.logging.LogUtils.getLogger().error("QA client failed", failure);
+            if (mc.level != null) { mc.disconnectWithSavingScreen(); }
+            result(mc, false, failure.toString());
+        }
+    }
+    private static ServerPlayer player(Minecraft mc) { return Objects.requireNonNull(mc.getSingleplayerServer().getPlayerList().getPlayer(mc.player.getUUID())); }
+    private void onServer(Minecraft mc, Runnable work) { serverAction = CompletableFuture.runAsync(work, mc.getSingleplayerServer()); }
+    private static void fixture(ServerLevel level, ServerPlayer player) {
+        level.getGameRules().set(GameRules.SPAWN_MOBS, false, level.getServer());
+        level.getGameRules().set(GameRules.ADVANCE_TIME, false, level.getServer());
+        for (BlockPos pos : BlockPos.betweenClosed(0, 62, 0, 31, 67, 31)) {
+            level.setBlockAndUpdate(pos, (pos.getY() == 62 ? Blocks.DIRT : pos.getY() == 63 ? Blocks.GRASS_BLOCK : Blocks.AIR).defaultBlockState());
+        }
+        level.setBlockAndUpdate(POST, BuildingRegistry.COMMAND_POST.get().defaultBlockState());
+        level.setBlockAndUpdate(LAB, BuildingRegistry.LAB.get().defaultBlockState());
+        level.setBlockAndUpdate(CRATE, BuildingRegistry.CRATE.get().defaultBlockState());
+        tile(level, POST).change(BuildingState.EMPTY.supplies(20));
+        tile(level, CRATE).change(BuildingState.EMPTY.supplies(27).insertSamples(3));
+        HumanWorldData.get(level.getServer()).setSupplies(123);
+        player.connection.teleport(9.5, 64, 17.5, 180, 12);
+        for (var type : List.of(NpcRegistry.SURVIVOR.get(), NpcRegistry.ARMY.get())) {
+            var npc = type.create(level, EntitySpawnReason.COMMAND);
+            if (npc == null) { throw new IllegalStateException("NPC factory failed"); }
+            npc.snapTo(type == NpcRegistry.SURVIVOR.get() ? 7.5 : 10.5, 64, 10.5, 0, 0); npc.setNoAi(true); level.addFreshEntity(npc);
+        }
+    }
+    private static BuildingBlockEntity tile(ServerLevel level, BlockPos pos) { return (BuildingBlockEntity) level.getBlockEntity(pos); }
+    private static void open(Minecraft mc, View view) {
+        var level = mc.getSingleplayerServer().overworld(); var player = player(mc);
+        player.closeContainer();
+        var pos = switch (view.kind()) { case COMMAND_POST -> POST; case LAB -> LAB; case CRATE -> CRATE; };
+        var building = tile(level, pos);
+        if (view.kind() == BuildingKind.LAB) {
+            var state = new BuildingState(1, 10, 0, "standandhold:parasite_samples", 0, false);
+            switch (view.state()) {
+                case "running" -> state = state.work(6).running(true);
+                case "paused" -> state = state.work(6);
+                case "blocked" -> state = state.target("standandhold:special_division_training");
+                case "completed" -> {
+                    var data = HumanWorldData.get(level.getServer()); data.setSupplies(123);
+                    ResearchManager.complete(data, FoundationResources.get(level.getServer()), HumanProgressionConfig.thresholds(), "standandhold:parasite_samples");
+                    state = state.supplies(0).work(12);
+                }
+            }
+            building.change(state);
+        }
+        player.connection.teleport(pos.getX() + 1.5, pos.getY(), pos.getZ() + 2.5, 180, 12);
+        player.openMenu(building, building::writeMenuData);
+    }
+    private void capture(Minecraft mc, String name, int nextPhase) {
+        capturing = true;
+        String file = id + "-" + name + ".png";
+        Screenshot.grab(mc.gameDirectory, file, mc.gameRenderer.mainRenderTarget(), 1, message -> mc.execute(() -> {
+            Path path = mc.gameDirectory.toPath().resolve("screenshots").resolve(file);
+            if (!Files.isRegularFile(path)) { result(mc, false, "Screenshot failed: " + message.getString()); return; }
+            captures.add(file); capturing = false; phase = nextPhase; settle = 0;
+        }));
+    }
+    private void result(Minecraft mc, boolean success, String detail) {
+        finished = true;
+        try {
+            var values = new Properties(); values.setProperty("success", Boolean.toString(success)); values.setProperty("detail", detail);
+            values.setProperty("screenshots", String.join(",", captures));
+            try (var out = Files.newOutputStream(mc.gameDirectory.toPath().resolve(id + "-result.properties"), StandardOpenOption.CREATE_NEW)) { values.store(out, "Automated client QA"); }
+        } catch (Exception failure) { com.mojang.logging.LogUtils.getLogger().error("Cannot write QA client result", failure); }
+        mc.stop();
+    }
+}

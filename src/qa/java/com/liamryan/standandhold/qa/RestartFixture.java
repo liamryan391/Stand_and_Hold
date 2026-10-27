@@ -1,0 +1,116 @@
+package com.liamryan.standandhold.qa;
+
+import com.liamryan.standandhold.common.building.*;
+import com.liamryan.standandhold.common.foundation.FoundationResources;
+import com.liamryan.standandhold.common.mission.MissionManager;
+import com.liamryan.standandhold.common.npc.*;
+import com.liamryan.standandhold.common.progression.*;
+import com.liamryan.standandhold.common.research.ResearchManager;
+import com.liamryan.standandhold.common.threat.*;
+import com.liamryan.standandhold.common.world.HumanWorldData;
+import com.liamryan.standandhold.config.HumanProgressionConfig;
+import java.nio.file.*;
+import java.util.Properties;
+import java.util.UUID;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.gamerules.GameRules;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+
+/** Only loaded by the QA mod in two separate, self-stopping dedicated JVMs. */
+final class RestartFixture {
+    private static final BlockPos POST = new BlockPos(8, 64, 8), BASE = new BlockPos(16, 64, 8),
+            LAB = new BlockPos(8, 64, 12), CRATE = new BlockPos(12, 64, 12);
+    private static final String WORLD = System.getProperty("standandhold.qa.world"), PHASE = System.getProperty("standandhold.qa.phase");
+    private static final Properties receipt = new Properties();
+    private static int ticks;
+    private static boolean finished;
+    private static HumanNpc npc;
+    static void tick(ServerTickEvent.Post event) {
+        if (finished) { return; }
+        var server = event.getServer(); var level = server.overworld();
+        try {
+            ticks++;
+            if (ticks == 1) {
+                level.getGameRules().set(GameRules.SPAWN_MOBS, false, server);
+                level.getGameRules().set(GameRules.ADVANCE_TIME, false, server);
+                server.setDifficulty(Difficulty.NORMAL, true);
+                for (int x = 0; x < 4; x++) { for (int z = 0; z < 4; z++) { level.setChunkForced(x, z, true); } }
+                if (PHASE.equals("write")) { seed(server, level); }
+                else { try (var in = Files.newInputStream(path("receipt"))) { receipt.load(in); } }
+            }
+            if (PHASE.equals("write") && ticks == 80) {
+                check(npc.hasIssuedBlade(), "Stage 1 blade was actually issued before restart");
+                npc.setNoAi(true);
+                HumanPointManager.setStage(server, HumanStage.SURVIVORS);
+                HumanPointManager.addPoints(server, 42);
+                receipt.setProperty("npc", npc.getUUID().toString());
+                receipt.setProperty("response", Long.toString(ThreatResponse.state(level, tile(level, POST)).nextRaid()));
+                try (var out = Files.newOutputStream(path("receipt"), StandardOpenOption.CREATE_NEW)) { receipt.store(out, "Expected values from the first JVM"); }
+                finish(server, true, "Seeded persistent state; clean shutdown requested");
+            } else if (PHASE.equals("read") && ticks == 100) {
+                verify(server, level);
+                finish(server, true, "Second JVM verified progression/research/mission/storage/registries/notice receipts/NPC blade/event cooldown");
+            }
+            if (ticks > 200) { throw new IllegalStateException("Restart fixture exceeded its bounded tick budget"); }
+        } catch (Exception failure) { finish(server, false, failure.toString()); }
+    }
+    private static void seed(MinecraftServer server, ServerLevel level) {
+        for (BlockPos pos : BlockPos.betweenClosed(0, 62, 0, 63, 68, 63)) {
+            level.setBlockAndUpdate(pos, (pos.getY() == 62 ? Blocks.DIRT : pos.getY() == 63 ? Blocks.GRASS_BLOCK : Blocks.AIR).defaultBlockState());
+        }
+        level.clockManager().setTotalTicks(level.dimensionType().defaultClock().orElseThrow(), 18000);
+        level.setBlockAndUpdate(POST, BuildingRegistry.COMMAND_POST.get().defaultBlockState());
+        level.setBlockAndUpdate(BASE, BuildingRegistry.COMMAND_POST.get().defaultBlockState());
+        level.setBlockAndUpdate(LAB, BuildingRegistry.LAB.get().defaultBlockState());
+        level.setBlockAndUpdate(CRATE, BuildingRegistry.CRATE.get().defaultBlockState());
+        var data = HumanWorldData.get(server); var base = tile(level, BASE);
+        base.initializeMainBase(); data.registerMainBase(new BuildingPosition(level.dimension().identifier(), BASE));
+        base.claimMainBaseNotice(false); base.claimMainBaseNotice(true);
+        tile(level, LAB).change(new BuildingState(1, 55, 4, "standandhold:field_communications", 5, false));
+        tile(level, CRATE).change(new BuildingState(1, 27, 3, "", 0));
+        data.setSupplies(100);
+        ResearchManager.complete(data, FoundationResources.get(server), HumanProgressionConfig.thresholds(), "standandhold:parasite_samples");
+        MissionManager.start(data, FoundationResources.get(server), HumanProgressionConfig.thresholds(), "standandhold:recover_parasite_samples");
+        MissionManager.advance(data, FoundationResources.get(server), HumanProgressionConfig.thresholds(), "standandhold:recover_parasite_samples", 2);
+        HumanPointManager.setStage(server, HumanStage.LOCAL_ARMY_RESPONSE);
+        npc = NpcRegistry.SURVIVOR.get().create(level, EntitySpawnReason.COMMAND);
+        check(npc != null, "NPC factory"); npc.snapTo(10.5, 64, 10.5, 0, 0); level.addFreshEntity(npc);
+        String raid = ThreatResponse.raid(level, tile(level, POST));
+        check(raid.startsWith("Outpost raid"), "Actual persisted raid: " + raid);
+        // Keep the reserved real raider stable while the second JVM loads its entity chunk.
+        var response = ThreatResponse.state(level, tile(level, POST));
+        for (UUID id : response.raiders()) {
+            var entity = level.getEntity(id); if (entity instanceof net.minecraft.world.entity.Mob mob) { mob.setNoAi(true); }
+        }
+    }
+    private static void verify(MinecraftServer server, ServerLevel level) {
+        var data = HumanWorldData.get(server); var base = tile(level, BASE); var lab = tile(level, LAB);
+        check(data.points() == 42 && data.stage() == HumanStage.SURVIVORS && data.supplies() == 90, "Global progression/supply balances");
+        check(data.isResearchComplete("standandhold:parasite_samples"), "Research receipt");
+        check(data.mission("standandhold:recover_parasite_samples").orElseThrow().progress() == 2, "Partial mission");
+        check(data.isMainBase(new BuildingPosition(level.dimension().identifier(), BASE)) && data.commandPostKeys().size() == 2, "Site registration");
+        check(base.isMainBase() && !base.claimMainBaseNotice(false) && !base.claimMainBaseNotice(true), "Both one-time notices");
+        check(lab.state().equals(new BuildingState(1, 55, 4, "standandhold:field_communications", 5, false)), "Paused lab target/work/storage");
+        check(tile(level, CRATE).state().supplies() == 27 && tile(level, CRATE).state().samples() == 3, "Crate storage");
+        check(level.getEntity(UUID.fromString(receipt.getProperty("npc"))) instanceof HumanNpc saved && saved.hasIssuedBlade(), "Same NPC retains issued blade at Stage 0");
+        var response = ThreatResponse.state(level, tile(level, POST));
+        check(response.raids() == 1 && response.raiders().size() == 1 && response.nextRaid() == Long.parseLong(receipt.getProperty("response")), "Raid counters/reservation/cooldown, no restart reset");
+    }
+    private static BuildingBlockEntity tile(ServerLevel level, BlockPos pos) { return (BuildingBlockEntity) level.getBlockEntity(pos); }
+    private static void check(boolean valid, String message) { if (!valid) { throw new IllegalStateException(message); } }
+    private static Path path(String suffix) { return Path.of(WORLD + "-" + suffix + ".properties"); }
+    private static void finish(MinecraftServer server, boolean success, String detail) {
+        finished = true;
+        try {
+            var result = new Properties(); result.setProperty("success", Boolean.toString(success)); result.setProperty("detail", detail);
+            try (var out = Files.newOutputStream(path(PHASE), StandardOpenOption.CREATE_NEW)) { result.store(out, "QA result"); }
+            com.mojang.logging.LogUtils.getLogger().info("QA_RESTART {} {}: {}", PHASE, success ? "PASS" : "FAIL", detail);
+        } catch (Exception failure) { com.mojang.logging.LogUtils.getLogger().error("QA result could not be written", failure); }
+        server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), "stop");
+    }
+}

@@ -1,0 +1,42 @@
+# Automated Testing
+
+The QA mod uses only APIs and libraries already shipped by the pinned Minecraft/NeoForge platform. `src/qa/` is a separate source set and mod; normal client/server runs load only Stand and Hold. `build` compiles QA and checks the production jar contains neither QA classes/templates nor its mod metadata.
+
+## Run The Ladder
+
+In PowerShell at the repository root:
+
+```powershell
+& .\scripts\use-modern-java.ps1
+$env:GRADLE_USER_HOME = Join-Path (Get-Location).Path '.gradle-home\modern'
+.\gradlew.bat clean build --no-daemon --stacktrace
+.\gradlew.bat runGameTestServer --no-daemon --stacktrace
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\test-restart.ps1
+.\gradlew.bat runQaClient --no-daemon --stacktrace
+```
+
+Do not run multiple QA instances against the same run directory concurrently. No normal player world or configuration is reused. All disposable worlds/results are retained; cleanup is a separate maintainer decision, not part of these commands. None of the scripts accepts an EULA.
+
+## In-World Server Tests
+
+`runGameTestServer` is the built-in headless test server, not a simulated logic check. Required test failures propagate as nonzero process/Gradle exits. Each invocation gets a fresh UUID universe because vanilla's test launcher resets its universe directory. Never replace this with an existing world path.
+
+The original 64-block grass/dirt arena template is generated with the platform NBT writer. Distinct test environments serialize shared SavedData mutations; cleanup touches only each test arena and its synthetic players. Open sky is necessary for real structure heightmaps; an artificial test ceiling would test the harness instead of superflat terrain.
+
+Coverage includes checkpoint/Main Base generation and occupied-container preservation; real raid entities, reservations, quota/terrain messages; real defender AI damaging zombies/skeletons/creepers and protecting players/animals; blade issue/retention; timed lab cost/reward/message once; base notice receipts; real player-attributed deaths, drops and pickup mission rewards. Headless synthetic players capture messages but deliberately do not negotiate graphical menus; `qaClient` covers real menu transport separately.
+
+Reports: `run/game-tests/reports/<uuid>.xml`, plus `run/game-tests/logs/latest.log`. CI runs these and the restart fixture after the normal build, retaining reports even on failure. GameTests work on the pinned beta; the scripted-fixture fallback is not needed for their in-world cases.
+
+## Actual Process Restart
+
+`test-restart.ps1` starts two dedicated JVMs using the same newly named QA world, each reaching server readiness and stopping itself. The first writes actual SavedData, blocks and a live issued-blade NPC. The second verifies progression/supplies, research receipt, partial mission, paused lab target/work/storage, crate inventory, site registration, Main Base notice bits, the same NPC/blade at Stage 0, and actual raid reservation/cooldown/counters. A result is mandatory; crashes or missing/failed result files fail the Gradle task.
+
+Only this isolated fixture force-loads its small arena to test real entity chunk persistence. Production code and cleanup never gain chunk-loading privileges. The fixture binds loopback port 25578, not a public server. Results: `run/qa-server/qa-<uuid>-{write,read,receipt}.properties` and preserved world `qa-<uuid>/`.
+
+## Screenshots
+
+`runQaClient` self-creates a fresh Creative flat world, sets up original buildings/NPCs, opens real server menus, checks synced menu state, captures the scene, Command Post, Crate, Lab states at normal/large scales and `/standandhold guide`, then saves and quits. Screenshot IO completes before shutdown. A timeout or incomplete result fails the task.
+
+Open **every** PNG named in `run/qa-client/<uuid>-result.properties`, under `screenshots/`. Judge text fit, textures, visible state and progress bar yourself; a successful exit is not visual approval. Synthetic grants are fixtures, never proof of an earned-resource playthrough. These are deterministic views, not motion/fun or real multiplayer proof. Test a packaged launcher separately; it must not list `standandhold_qa`.
+
+Observed first baseline (2026-10-27): 15 required GameTests passed, two dedicated JVMs verified persisted state, normal jar metadata/isolation passed, and all nine `90e73aa0-1e1d-48af-a0a2-f29c25dd8875-*.png` views were opened and reviewed. Labels/buttons fit, ready/running/paused/blocked/completed states and the completed bar were clear; the large-scale guide retained its first/last lines. A vanilla tutorial toast appears in several captures without covering the tested values. Initial harness-only failures (artificial roof, exposed test floor, unnegotiated headless menu and unsynced player teleport) were corrected without relaxing gameplay assertions; the original failed reports/worlds remain.

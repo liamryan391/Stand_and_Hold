@@ -2,6 +2,7 @@
 
 The modern scaffold uses the exact pins in [toolchain.md](toolchain.md).
 For live verification results use [STATUS.md](STATUS.md); this guide describes commands, not passed tests.
+For GameTests, restart fixtures and self-quitting screenshots, see [Automated Testing](automated-testing.md).
 The preserved [1.12 build guide](https://github.com/liamryan391/Stand_and_Hold/blob/1.12/docs/building.md)
 and Java 8 helper apply only on that branch. Never run the legacy wrapper with Java 25.
 

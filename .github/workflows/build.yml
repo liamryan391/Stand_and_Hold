@@ -29,6 +29,7 @@ jobs:
       - name: Show Gradle and Java versions
         shell: pwsh
         run: |
+          & .\scripts\use-modern-java.ps1
           java --version
           .\gradlew.bat --version
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -41,7 +42,34 @@ jobs:
 
       - name: Build with ModDevGradle
         shell: pwsh
-        run: .\gradlew.bat clean build --no-daemon --stacktrace
+        run: |
+          & .\scripts\use-modern-java.ps1
+          .\gradlew.bat clean build --no-daemon --stacktrace
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Run in-world GameTests
+        shell: pwsh
+        run: |
+          & .\scripts\use-modern-java.ps1
+          .\gradlew.bat runGameTestServer --no-daemon --stacktrace
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Verify saved state across dedicated JVM restart
+        shell: pwsh
+        run: powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\test-restart.ps1
+
+      - name: Upload automated QA reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stand-and-hold-server-qa
+          path: |
+            run/game-tests/reports/*.xml
+            run/game-tests/logs/latest.log
+            run/qa-server/*-write.properties
+            run/qa-server/*-read.properties
+            run/qa-server/logs/latest.log
+          if-no-files-found: warn
 
       - name: Upload normal mod jar
         if: success()

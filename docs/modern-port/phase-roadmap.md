@@ -310,6 +310,10 @@ Exit gate:
 
 Priority: P4
 
+- [ ] **13.0 Automated QA prerequisite.** Minecraft/NeoForge built-ins only; no QA code/resources in the normal jar.
+  - [x] **13.0.1** Add isolated GameTest registration/run and regressions for structures, raids, NPC targeting/loadouts, lab receipts/messages and Main Base notices; use documented server fixtures only if the pinned GameTest runtime blocks this.
+  - [x] **13.0.2** Add a real-process saved-state restart fixture and a self-running screenshot/review `qaClient`.
+  - [x] **13.0.3** Run the ladder locally, add server tests to CI, inspect jar isolation and record observed results before new gameplay. Local baseline: 15 required GameTests, two JVMs, nine reviewed screenshots; CI result remains separate.
 - [ ] **13.1 Evaluate the need and integration options after the core slice is stable.** Check compatible vehicle mods and decide which gameplay role Stand and Hold must own.
 - [ ] **13.2 Write a separate technical design and performance budget.**
   - [ ] **13.2.1** Define call-ins, deployables, transport markers, supply costs, and spawn caps as the first scope candidate.
