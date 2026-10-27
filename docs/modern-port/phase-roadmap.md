@@ -310,15 +310,15 @@ Exit gate:
 
 Priority: P4
 
-- [ ] **13.0 Automated QA prerequisite.** Minecraft/NeoForge built-ins only; no QA code/resources in the normal jar.
+- [x] **13.0 Automated QA prerequisite.** Minecraft/NeoForge built-ins only; no QA code/resources in the normal jar.
   - [x] **13.0.1** Add isolated GameTest registration/run and regressions for structures, raids, NPC targeting/loadouts, lab receipts/messages and Main Base notices; use documented server fixtures only if the pinned GameTest runtime blocks this.
   - [x] **13.0.2** Add a real-process saved-state restart fixture and a self-running screenshot/review `qaClient`.
   - [x] **13.0.3** Run the ladder locally, add server tests to CI, inspect jar isolation and record observed results before new gameplay. Local baseline: 15 required GameTests, two JVMs, nine reviewed screenshots; CI result remains separate.
-- [ ] **13.1 Evaluate the need and integration options after the core slice is stable.** Check compatible vehicle mods and decide which gameplay role Stand and Hold must own.
-- [ ] **13.2 Write a separate technical design and performance budget.**
-  - [ ] **13.2.1** Define call-ins, deployables, transport markers, supply costs, and spawn caps as the first scope candidate.
-  - [ ] **13.2.2** Define ownership, networking, collision, persistence, unloading, and recovery behavior for any proposed physical vehicle.
-  - [ ] **13.2.3** Plan aircraft support/set pieces before considering free flight; resolve animation and dedicated-server requirements.
+- [x] **13.1 Evaluate the need and integration options after the core slice is stable.** Check compatible vehicle mods and decide which gameplay role Stand and Hold must own. Author release listings do not establish a matching pinned-target NeoForge vehicle artifact; no dependency selected.
+- [x] **13.2 Write a separate technical design and performance budget.** [Warfare Support Design](warfare-support-design.md); one supply-funded reinforcement call-in selected before implementation, not physical vehicles.
+  - [x] **13.2.1** Define call-ins, deployables, transport markers, supply costs, and spawn caps as the first scope candidate.
+  - [x] **13.2.2** Define ownership, networking, collision, persistence, unloading, and recovery behavior for any proposed physical vehicle.
+  - [x] **13.2.3** Plan aircraft support/set pieces before considering free flight; resolve animation and dedicated-server requirements.
 - [ ] **13.3 Implement one selected prototype only after the design gate.** Keep vehicle/aircraft expansion as separately scoped follow-up work.
 - [ ] **13.4 Verify the prototype under multiplayer load.** Build; test chunk boundaries, restart, passengers if applicable, and entity/tick budgets before expansion.
 
