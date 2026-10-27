@@ -56,9 +56,24 @@ Main Base discovery, five-wave defence completion, Stage 5 activation and all hi
 | Stockpile stuck | Check GLOBAL supplies before importing into buildings. If research costs were spent too early, a loaded Command Post generates local supplies slowly; export full batches back to global, then start/refresh stockpiling. Do not grant/reset rewards to conceal the extra wait. A default export needs at least 10 local supplies; the checkpoint crate's initial 2 cannot be exported alone. |
 | Research blocked | Correct target, Stage/prerequisites, LOCAL costs and explicit Start. Global balance alone does not fund a lab. Initial analysis uses 10 local supplies and no samples. |
 | Research seems frozen | Stay in loaded range; close pause menus. Next research/Clear target is not a pause/resume control. Read Work/Left/bar and server status. |
+| Research finished but the next mission is blocked | Research does not automatically start its mission. Start `complete_first_research` normally; existing completed research is recognised without another cost/reward. Then start `early_army_response`. No mission completion/progress grant is needed. |
 | No new Rifleman | Post/area quota may already be filled with Survivors. Existing units do not upgrade tier; do not delete saved quotas to force spawns. |
-| Raid refused | Normal difficulty, loaded operational post, clear safe spawn ground, area/quota/cooldown/reservations. Read the refusal; do not disable safeguards or reset threat to bypass an event cooldown. |
+| Raid refused | Read the specific quota or terrain refusal. The default area cap counts 8 hostile mobs in the post's 32-block box, including ambient slimes; a bounded inspection limit also refuses dense sites. Turning natural spawning off does not remove mobs already present. Clear ambient monsters normally, keep natural spawning off, and wait the reported failed-spawn backoff (default 400 unpaused ticks/20 seconds). Use Normal difficulty and open dry loaded ground 8-12 blocks from the post. Do not raise caps/reset threat to bypass safeguards. |
 | Mission list differs | Datapack/config changes alter the catalog. The in-game guide reads loaded definitions; this sheet describes shipped defaults. |
+
+In a **disposable QA world only**, with **zero reserved raiders**, briefly using `/difficulty peaceful` removes existing ambient monsters; restore `/difficulty normal`, keep natural spawning off and let the failed-spawn backoff expire before the raid command. Do not do this during an active/reserved raid or in a valuable world. It is test-fixture cleanup, not an earned defence, quota reset or cooldown bypass. Never turn natural spawning on just to enable a mod raid: the raid controller does not require it.
+
+## Optional Admin Research Shortcut
+
+Outside the earned-resource test, the existing operator command completes eligible sample-free research immediately, without waiting for lab work:
+
+```text
+/standandhold research list
+/standandhold research complete parasite_samples
+/standandhold research complete standandhold:field_communications
+```
+
+This requires operator permission and still checks stage, prerequisites and **GLOBAL** supply costs. Repeating a completed ID never repeats its cost or reward. It completes shared world research, not a building upgrade, and does not spend supplies stored in a lab. Entries with physical sample costs (such as Special Division Training) deliberately refuse this command: use a funded Research Lab so samples are consumed safely. There is no new force/bypass command. Command-based completion is useful for separate admin exploration, not proof that the timed lab/earned loop passed.
 
 ## Record The Rehearsal
 
@@ -85,3 +100,11 @@ Tester explanation: what would you do next, where do lab supplies come from, and
 Observed rehearsal results are recorded in [STATUS.md](STATUS.md); durable limitations belong in [Known Issues](../../KNOWN_ISSUES.md). Independent usability is deferred to beta, not passed by this alpha checklist. Do not call the slice public-ready solely because a familiar developer completed the checklist; publication requires separate approval and release checks.
 
 For capture planning, the default raid cooldown is 6,000 ticks: five minutes of advancing world time at 20 TPS. Singleplayer pause stops that clock; unloading a post prevents new events but does not freeze its saved cooldown timestamp. A natural raid can consume the cooldown before an admin trigger. Start recording before the first trigger and check event status; repeated cooldown refusals are expected safety evidence, not a need to complete five waves. A guarded QA cooldown tool was suggested in rehearsal feedback; no bypass is implemented by this guide.
+
+## Qualified Alpha Verification - 2026-10-27
+
+Liam reported the earned core passed in a fresh Superflat world: real sample recovery, command-post/stockpile missions, funded lab analysis and earned Stage 1. Logs show the first five mission receipts before later admin grants; the point balance was already 189 before the +600,000 grant. Starting the first-research mission after completing the lab safely recognised existing research. The 19m36s client duration includes setup, pauses and later admin exploration, not a timed independent-usability result or entirely grant-free final save.
+
+The two focused client raid attempts safely refused at crowded/unsupported sites (8m26s/5m24s), not passed attacks. Separate controlled dedicated tests reproduced both refusal reasons and successful tagged raids under unchanged caps with vanilla natural spawning disabled. Real NPC/raider damage, a human-credited kill, reservation release and saved cooldown/counters were observed across restart. Those fixtures used manual QA NPCs, temporary vanilla chunk tickets and tick sprinting: they are functional server evidence, not earned progression, automatic-cap, performance or client-visual proof.
+
+Liam explicitly accepted this combined evidence for the M12 alpha merge, keeping broad-terrain/client raid QA as a known limitation. No complete new profiler result, packaged installation, real multiplayer or independent tester pass is claimed. Later independent feedback belongs to beta; this acceptance is not permission to publish a release.
