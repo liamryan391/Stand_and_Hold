@@ -1,6 +1,6 @@
 # Status
 
-Updated: 2026-10-26 - Branch: `codex/m12-showcase`
+Updated: 2026-10-27 - Branch: `codex/m12-showcase`
 
 ## Where we are
 
@@ -8,13 +8,14 @@ Updated: 2026-10-26 - Branch: `codex/m12-showcase`
 - M11 adds opt-in presets, verified vanilla tags, safe mod/version probing and operator diagnostics. Manual priority/zombie-only defaults remain unchanged. No external class imports, added runtime dependency, per-tick probe or pin/version change.
 - Exact Contagion 2.1.1 fails client/server bootstrap on the pinned loader (`NoSuchFieldError: ModConfig.Type.SERVER`). It is retained only as a disabled isolated reproduction fixture. See [compatibility results/deferral](compatibility.md) and [Known Issues](../../KNOWN_ISSUES.md). No other runtime mod is approved.
 - M11 clean build passed 2,364 assertions; jar metadata/test/external-content exclusion inspected. Windows implementation CI 39856404656 and final branch-head CI 39857071341 passed. No-mod/generic client and dedicated baseline/recovery checks passed; client saved/exited normally and screenshots were reviewed.
-- M12 implementation, maintainer rehearsal, original community-material preparation and technical candidate verification are done. The independent new-tester/earned-only exit gate remains open: M12 is not merged, M13 is not started, and no public release/tag is authorized.
+- M12 implementation, maintainer rehearsal, original community-material preparation and technical candidate verification are done. Liam's earned-only loop verification remains open: M12 is not merged, M13 is not started, and no public release/tag is authorized. Independent new-tester feedback is deferred to beta under Liam's 2026-10-27 decision, not claimed as passed.
 - Read-only `/standandhold help` and `guide`, default-loop transaction regression and isolated showcase runs are implemented. Latest `clean build --no-daemon --stacktrace` passed (5s, 2,442 assertions); metadata/external/test exclusion inspected. Windows final-code CI 39874147169 passed, including normal-jar upload; prior implementation/capture CI also passed.
 - Rehearsal exposed long guide wrapping, missing-ID feedback and the old word parser rejecting namespaced IDs. Fixed all three without costs/permission/save changes. Vanilla identifier parsing retains the exact token for short-ID defaults; 13 parser regressions pass. Dedicated namespaced start/progress/complete/research, short-alias repeats, unknown namespace/save/stop passed (28s). Liam's final click retest passed; log shows the exact suggested command starts Stockpile Supplies 0/20, with normal save/exit (2m18s). Guide screenshot fits its first/last lines.
 - First client ran/exited normally (22m32s); Liam reports a maintainer functional pass, save/reload and real zombie sample drops. Logs/F2 show recovery and command-post missions, completed Lab, natural raid/reinforcement and admin raid/repeat cooldown refusals. Subsequent reopen/save/exit checks also completed cleanly. Creative-assisted footage, including a 64-sample stack and later unfinished stockpiling, is not strict earned-only mission-chain or independent-new-user proof.
 - Reviewed the provided 253.637s Radeon recording; retained three qualified gameplay frames and prepared a 13s local contiguous human/zombie combat excerpt under `.local/m12-qa/media/`. Exact source/excerpt paths, hashes and captions are in community-draft.md; no video upload. Stage-scaled defender budgets and locally expanding bases recorded as future proposals in structures.md, with no balance/code change.
 - `/debug` summary: 995.08 seconds, 16,499 ticks, 16.58 TPS across a session with pause entries. No mod exception or repeated per-tick error observed; known OSHI startup warnings remain. This is not clean sustained-load proof; an unpaused controlled sample is still needed. Local logs retained under `.local/m12-qa/evidence/`.
 - 2026-10-26: Liam confirmed no unfamiliar tester is available and requested handoff preparation only. Added coordinator boundaries and a fill-in gate scorecard to the existing play sheet; no game launch, code/config change or merge. Repository was clean/synced at resumption; final documentation-head CI 39874542031 passed, and local candidate size/hash still match the verified artifact. No new local build was run.
+- 2026-10-27: Liam will be the alpha tester while the mod develops; independent testers/feedback are planned for beta after a stable alpha. Revised M12's tester requirement accordingly, retaining real-drop/ordered-mission, save/reload and technical checks. This is a testing-policy decision, not an earned-loop pass, dependency approval or public release. No gameplay, balance, toolchain or version change.
 
 ## Local Candidate
 
@@ -23,13 +24,13 @@ Updated: 2026-10-26 - Branch: `codex/m12-showcase`
 
 ## Next milestone
 
-`Continue: M12 steps 12.1-12.4 (finish independent new-tester and earned-loop verification, resolve any usability findings, and merge only after the exit gate passes) on codex/m12-showcase.`
+`Continue: M12 steps 12.1-12.4 (finish Liam's earned-loop verification, resolve any usability findings, and merge only after the revised alpha exit gate passes) on codex/m12-showcase.`
 
 Keep existing gameplay and toolchain pins. Do not imply the deferred external-mod test passed or bundle the failed fixture.
 
 ## Needs Liam
 
-- No unfamiliar tester is available as of 2026-10-26; the requested handoff is ready in [the play sheet](showcase-loop.md#independent-tester-handoff), including a fill-in scorecard. Arrange that test with real dropped samples, ordered supply/research missions and no progression/resource grants. No repeated maintainer rehearsal is needed. This exit gate was not waived by the M11 decision; keep M12 unmerged until evidence is reviewed.
+- Liam can complete the remaining earned-loop checks using [the play sheet and scorecard](showcase-loop.md#alpha-tester-handoff): real dropped samples, ordered supply/research missions, earned Stage 1, one actual attack and save/reload, without progression/resource grants. No unfamiliar tester is needed for alpha and the passed guide/parser retest need not be repeated separately. Keep M12 unmerged until the remaining evidence is reviewed and CI is green; independent first-time usability belongs to beta.
 - Original F2 frames and reviewed real combat footage are retained with qualified captions; publishing still requires separate authorization. Larger stage-scaled defender caps/local base expansion are proposals only.
 - Only Liam may accept a server EULA if requested. No new runtime dependency or pin change is approved.
 

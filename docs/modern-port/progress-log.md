@@ -252,3 +252,9 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - `git status`/`git fetch origin` confirmed the clean synced phase branch; protected `origin/1.12` still matches the expected commit. Final prior-head Windows CI 39874542031 passed; local 305,318-byte jar SHA-256 matches the recorded verified candidate.
 - Docs-only `git diff --check` passed. No fresh build, client/server launch, gameplay/config/pin change, external-mod installation or new tester pass claimed.
 - Independent usability/earned-loop evidence remains missing; no M12 merge or M13 start. Remaining milestone and handoff are in STATUS.md.
+
+## 2026-10-27 - Alpha Testing Policy
+- Liam chose to remain the alpha tester and defer independent unfamiliar-tester feedback to beta after a stable alpha. Revised M12's tester gate/play sheet and reconciled candidate/known-issue wording; no test was promoted to a pass.
+- Retained real-drop/ordered-mission, earned progression, defence and save/reload checks, with a self-report scorecard; the roughly 15-minute target records duration rather than setting an alpha deadline.
+- `git status`/`git fetch origin` confirmed a clean synced start; preserved `origin/1.12` matches the expected commit. Docs-only `git diff --check` passed; no new build, client/server run or CI result claimed.
+- No code, balance, pin, version, dependency or public release change. M12 remains unmerged pending earned-loop evidence; no M13 start. Remaining milestone is in STATUS.md.

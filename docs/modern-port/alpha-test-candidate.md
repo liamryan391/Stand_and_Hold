@@ -22,7 +22,7 @@ Local artifact size/hash and observed build/launch evidence are recorded in STAT
 
 The [first playable loop](showcase-loop.md) connects existing progression, samples, shared missions, global/local supplies, Command Post/Lab/Crate menus, research, deployment and one bounded attack. Read-only help/guide improve orientation without granting costs or rewards. No new balance, advanced weapons, entities, large structures or runtime libraries are introduced for the showcase.
 
-M11's external gameplay/modded-world removal gate was explicitly deferred by Liam. That decision does not make Contagion compatible or waive independent usability/multiplayer/packaged testing. See [Compatibility](compatibility.md), [Changelog](../../CHANGELOG.md) and [Known Issues](../../KNOWN_ISSUES.md).
+M11's external gameplay/modded-world removal gate was explicitly deferred by Liam; Contagion is not compatible. Separately, Liam's 2026-10-27 testing-policy decision assigns alpha QA to him and defers independent unfamiliar-tester feedback to beta after a stable alpha. Neither decision passes an unrun test: earned-loop alpha checks, packaged installation and multiplayer proof remain distinct. See [Compatibility](compatibility.md), [the alpha test procedure](showcase-loop.md), [Changelog](../../CHANGELOG.md) and [Known Issues](../../KNOWN_ISSUES.md).
 
 ## Test Procedure
 

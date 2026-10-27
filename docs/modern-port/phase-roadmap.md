@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M12 (independent usability gate pending)**; see [STATUS.md](STATUS.md).
+Current position: **Phase M12 (maintainer earned-loop gate pending)**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -293,17 +293,18 @@ Exit gate:
 
 Priority: P3
 
-- [x] **12.1 Assemble the existing loop.** Sample recovery, command post, lab research, supplies, defender, one attack, and save/reload connected by the play sheet/guide. Default earned-cost sequence regression passes; Liam reports a maintainer functional pass. Creative-assisted rehearsal is not the independent earned-only evidence required by 12.2.
-- [ ] **12.2 Run a new-tester session.**
+- [x] **12.1 Assemble the existing loop.** Sample recovery, command post, lab research, supplies, defender, one attack, and save/reload connected by the play sheet/guide. Default earned-cost sequence regression passes; Liam reports a maintainer functional pass. Creative-assisted rehearsal is not the earned-only evidence required by 12.2.
+- [ ] **12.2 Run Liam-led alpha verification.** Independent new-tester feedback is deferred to beta after a stable alpha, per Liam's 2026-10-27 decision; familiarity is recorded honestly, not treated as independent proof.
   - [x] **12.2.1** Provide a guidebook or command-based tutorial with expected results and blocked-state explanations. Read-only help/guide use loaded definitions; [play sheet](showcase-loop.md) covers costs, mission order and cooldowns without grants.
-  - [ ] **12.2.2** Observe a tester trying the loop for about 15 minutes; record confusion, failures, and command dependence. Maintainer rehearsal observed with command/order/cooldown friction; independent new-user and earned-loop evidence remain unverified, not waived.
+  - [ ] **12.2.2** Have Liam verify the earned-resource loop using the play-sheet scorecard; record real duration (about 15 minutes is a target, not an independent-usability claim), confusion, failures and command dependence. Previous functional rehearsal remains valid; real dropped samples, ordered missions/costs, earned progression, one attack and save/reload still need a complete earned-loop record.
   - [x] **12.2.3** Fix issues within the implemented loop and retest before expanding scope. Compact guide/missing-ID feedback and namespaced command parsing fixed; regression/dedicated checks and Liam's final click retest passed. No balance change or new gameplay system.
 - [x] **12.3 Prepare community materials.** Original F2/video-derived frames, a local contiguous 13s staged vanilla-hostile combat excerpt, page drafts and honest available/later scope prepared. Source/capture qualifications recorded in [community draft](community-draft.md); no external publishing or reserved-wave/independent-test claim.
 - [x] **12.4 Prepare a test release.** Run build/client/server and performance checks; update changelog, known issues, supported versions, artifact details, and tester instructions. [Candidate](alpha-test-candidate.md) prepared, not published/tagged: clean build, Windows CI, dedicated restart and source client observed. Paused-session profiler result is inconclusive for sustained load; packaged/multiplayer testing remains separate. This does not pass the usability exit gate.
 
 Exit gate:
 
-- New tester can understand the loop in 15 minutes.
+- Liam completes the documented earned-resource loop with observed results and any blocking usability findings resolved; build/client/server evidence is retained and CI is green before merge. Creative infrastructure is allowed, progression/resource grants are not.
+- Independent first-time usability testing is deferred to beta after a stable alpha; an alpha maintainer pass must not be advertised as independent feedback. Packaged/multiplayer proof and any public beta release remain separate checks/approval, not implied by this gate change.
 
 ## Phase M13 - Vehicles, Planes, And Larger Warfare
 

@@ -2,12 +2,13 @@
 
 A roughly 15-minute **Creative/operator-assisted technical alpha rehearsal**, not a complete Survival campaign. Use a fresh modern world and no external mods. The legacy 1.12 alpha is a different build; the checked modern Contagion artifact is unsupported. See [Compatibility](compatibility.md).
 
-## Independent Tester Handoff
+## Alpha Tester Handoff
 
-- Coordinator: verify the exact [candidate target](alpha-test-candidate.md), shipped config and no external mods, then prepare only the infrastructure below in a fresh disposable world. Preserve all earlier worlds/configs; do not reuse the maintainer rehearsal save.
-- Give the unfamiliar tester this play sheet and the in-game help/guide. Setup time is separate from the roughly 15-minute attempt. Record pauses and any verbal hints; do not silently perform missions or grant resources for them.
+- Testing policy (Liam, 2026-10-27): Liam is the alpha tester while the mod develops. Independent unfamiliar testers and their feedback are deferred to beta after a stable alpha. Record alpha results as maintainer evidence, not independent usability proof; no new tester is required to complete the M12 alpha gate.
+- Liam (or a coordinator): verify the exact [candidate target](alpha-test-candidate.md), shipped config and no external mods, then prepare only the infrastructure below in a fresh disposable world. Preserve all earlier worlds/configs; do not reuse the maintainer rehearsal save for an earned-only run.
+- Use this play sheet and the in-game help/guide. Setup time is separate from the roughly 15-minute attempt; record actual duration if longer. Record pauses and any extra hints or commands; do not silently perform missions or grant resources. A separate observer is optional for maintainer QA.
 - Allowed assistance is the documented fixture, vanilla weapon/zombie eggs, mission **starts**, inspection and one event trigger. Samples, progression, research completion and supplies must be earned. Do not add human spawn eggs or bypass real cooldowns/caps.
-- At about 15 minutes, record the checkpoint reached and ask the tester to explain what they would do next. Incomplete/blocked results are useful; they are not passes and must not be hidden by debug grants. Finish save/reload and return the scorecard below, with original logs/screenshots if available.
+- At about 15 minutes, record the checkpoint reached and what you would do next. Incomplete/blocked results are useful; they are not passes and must not be hidden by debug grants. Continue the missing checks as needed, finish save/reload and return the scorecard below, with original logs/screenshots if available. The time target is an observation, not an alpha deadline or proof of first-time usability.
 
 ## Prepare The Disposable World
 
@@ -61,13 +62,13 @@ Main Base discovery, five-wave defence completion, Stage 5 activation and all hi
 
 ## Record The Rehearsal
 
-Record tester familiarity, real duration, command dependence, confusing messages, unintended grants and exact failures. A familiar-maintainer pass is **not** independent new-user evidence. Capture clean F2 views of the site/units, completed Lab and real defence; record a short real clip before triggering the raid and provide its path. Preserve original files and avoid private chat/desktop content.
+Record tester familiarity, real duration, command dependence, confusing messages, unintended grants and exact failures. A familiar-maintainer pass can satisfy the revised alpha gate but is **not** independent new-user evidence. Capture clean F2 views of the site/units, completed Lab and real defence; record a short real clip before triggering the raid and provide its path. Preserve original files and avoid private chat/desktop content.
 
 ### Fill-In Gate Scorecard
 
 Tester/name or alias: [record]. Prior familiarity: [record]. Date: [record]. OS/Java/Minecraft/NeoForge: [record]. Jar filename/hash and mod list/config deviations: [record]. World name: [record]. Setup excluded: [record]. Attempt start/end, pauses and active duration: [record].
 
-Replace each `Not run` with `Pass`, `Fail` or `Blocked` only from observed results. Record values/details, not just an overall pass. The coordinator may take notes, but must record every extra hint/command and any Creative resource use.
+Replace each `Not run` with `Pass`, `Fail` or `Blocked` only from observed results. Record values/details, not just an overall pass. Liam may self-report the alpha run; a coordinator, if present, must record every extra hint/command and any Creative resource use.
 
 | Check | Result | Values or evidence |
 | --- | --- | --- |
@@ -79,8 +80,8 @@ Replace each `Not run` with `Pass`, `Fail` or `Blocked` only from observed resul
 | Automatic defenders and an actual outpost attack observed | Not run | Defender count (post cap 3), event type/wave; a cooldown refusal alone is not an attack |
 | Save/reopen keeps points, missions, research and storage without reset/duplicate rewards | Not run | Before/after values, latest.log and screenshots |
 
-Tester explanation: what would you do next, where do lab supplies come from, and how do you start research? [record]. Confusing steps, extra hints/commands, failures and skipped checks: [record]. Observer's gate assessment and whether the unfamiliar tester understood the loop within about 15 minutes: [record]. A completed maintainer scorecard still does not become independent evidence.
+Tester explanation: what would you do next, where do lab supplies come from, and how do you start research? [record]. Confusing steps, extra hints/commands, failures and skipped checks: [record]. Alpha gate assessment, actual duration and unresolved blockers: [record]. A completed maintainer scorecard still does not become independent evidence; use a separate unfamiliar-tester attempt for beta usability feedback.
 
-Maintainer rehearsal results and any independent-user gap are recorded in [STATUS.md](STATUS.md); durable limitations belong in [Known Issues](../../KNOWN_ISSUES.md). Do not call the slice public-ready solely because a familiar developer completed the checklist.
+Observed rehearsal results are recorded in [STATUS.md](STATUS.md); durable limitations belong in [Known Issues](../../KNOWN_ISSUES.md). Independent usability is deferred to beta, not passed by this alpha checklist. Do not call the slice public-ready solely because a familiar developer completed the checklist; publication requires separate approval and release checks.
 
 For capture planning, the default raid cooldown is 6,000 ticks: five minutes of advancing world time at 20 TPS. Singleplayer pause stops that clock; unloading a post prevents new events but does not freeze its saved cooldown timestamp. A natural raid can consume the cooldown before an admin trigger. Start recording before the first trigger and check event status; repeated cooldown refusals are expected safety evidence, not a need to complete five waves. A guarded QA cooldown tool was suggested in rehearsal feedback; no bypass is implemented by this guide.
