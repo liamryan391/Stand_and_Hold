@@ -22,5 +22,7 @@ public final class QaTemplates {
         tag.put("palette", palette);
         tag.put("blocks", new ListTag()); tag.put("entities", new ListTag());
         NbtIo.writeCompressed(tag, output);
+        Files.write(Path.of(args[0]).resolve("standandhold-qa-tests.txt"),
+                WorldTests.cases().keySet().stream().map(name -> QaMod.ID + ":" + name).sorted().toList());
     }
 }

@@ -68,21 +68,25 @@ public final class ThreatResponse {
                 || !post.operational(HumanWorldData.get(level.getServer()))) { throw new IllegalArgumentException("Post is missing, unloaded or dormant."); }
     }
     public static String reinforce(ServerLevel level, BuildingBlockEntity post) {
+        return deployReinforcement(level, post).message();
+    }
+    public record Deployment(boolean success, String message) { }
+    public static Deployment deployReinforcement(ServerLevel level, BuildingBlockEntity post) {
         requirePost(level, post);
         var data = ThreatWorldData.get(level.getServer()); var response = state(level, post); long now = level.getGameTime();
-        if (now < response.nextReinforcement()) { return "Reinforcement cooldown: " + (response.nextReinforcement() - now) + " ticks."; }
+        if (now < response.nextReinforcement()) { return new Deployment(false, "Reinforcement cooldown: " + (response.nextReinforcement() - now) + " ticks."); }
         var home = new BuildingPosition(level.dimension().identifier(), post.getBlockPos());
         data.putResponse(home.key(), response.timers(response.nextRaid(), ResponseRecord.after(now, ResponseConfig.REINFORCEMENT_COOLDOWN.get())));
         var npc = DefenderDeployment.attempt(level, post);
         if (npc == null) {
             data.putResponse(home.key(), data.response(home.key()).timers(response.nextRaid(), ResponseRecord.after(now, ResponseConfig.BACKOFF.get())));
-            return "No reinforcement: deployment disabled, stage locked, post/area quota full or terrain unsafe. Backoff saved.";
+            return new Deployment(false, "No reinforcement: deployment disabled, stage locked, post/area quota full or terrain unsafe. Backoff saved.");
         }
         var target = patrolRegion(level, post.getBlockPos());
         npc.assignPatrol(patrolPoint(post.getBlockPos(), target, NpcConfig.HOME_RADIUS.get()), ResponseRecord.after(now, ResponseConfig.PATROL_DURATION.get()));
         data.putResponse(home.key(), data.response(home.key()).timers(response.nextRaid(), ResponseRecord.after(now, ResponseConfig.REINFORCEMENT_COOLDOWN.get())).counted(false));
         warn(level, post, "message.standandhold.reinforcement", target.key());
-        return "Reinforcement deployed at " + home.key() + "; bounded patrol toward " + target.key() + ". Shared defender quotas apply.";
+        return new Deployment(true, "Reinforcement deployed at " + home.key() + "; bounded patrol toward " + target.key() + ". Shared defender quotas apply.");
     }
     public static String raid(ServerLevel level, BuildingBlockEntity post) {
         requirePost(level, post);

@@ -6,6 +6,7 @@ import com.liamryan.standandhold.common.mission.MissionManager;
 import com.liamryan.standandhold.common.npc.*;
 import com.liamryan.standandhold.common.progression.*;
 import com.liamryan.standandhold.common.research.ResearchManager;
+import com.liamryan.standandhold.common.support.SupportCallIn;
 import com.liamryan.standandhold.common.threat.*;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.HumanProgressionConfig;
@@ -43,6 +44,7 @@ final class RestartFixture {
                 if (PHASE.equals("write")) { seed(server, level); }
                 else { try (var in = Files.newInputStream(path("receipt"))) { receipt.load(in); } }
             }
+            if (PHASE.equals("write") && ticks == 5) { support(level); }
             if (PHASE.equals("write") && ticks == 80) {
                 check(npc.hasIssuedBlade(), "Stage 1 blade was actually issued before restart");
                 npc.setNoAi(true);
@@ -50,6 +52,7 @@ final class RestartFixture {
                 HumanPointManager.addPoints(server, 42);
                 receipt.setProperty("npc", npc.getUUID().toString());
                 receipt.setProperty("response", Long.toString(ThreatResponse.state(level, tile(level, POST)).nextRaid()));
+                receipt.setProperty("supportCooldown", Long.toString(ThreatResponse.state(level, tile(level, POST)).nextReinforcement()));
                 try (var out = Files.newOutputStream(path("receipt"), StandardOpenOption.CREATE_NEW)) { receipt.store(out, "Expected values from the first JVM"); }
                 finish(server, true, "Seeded persistent state; clean shutdown requested");
             } else if (PHASE.equals("read") && ticks == 100) {
@@ -73,8 +76,10 @@ final class RestartFixture {
         base.claimMainBaseNotice(false); base.claimMainBaseNotice(true);
         tile(level, LAB).change(new BuildingState(1, 55, 4, "standandhold:field_communications", 5, false));
         tile(level, CRATE).change(new BuildingState(1, 27, 3, "", 0));
-        data.setSupplies(100);
+        data.setSupplies(150);
         ResearchManager.complete(data, FoundationResources.get(server), HumanProgressionConfig.thresholds(), "standandhold:parasite_samples");
+        HumanPointManager.setStage(server, HumanStage.LOCAL_ARMY_RESPONSE);
+        ResearchManager.complete(data, FoundationResources.get(server), HumanProgressionConfig.thresholds(), "standandhold:field_communications");
         MissionManager.start(data, FoundationResources.get(server), HumanProgressionConfig.thresholds(), "standandhold:recover_parasite_samples");
         MissionManager.advance(data, FoundationResources.get(server), HumanProgressionConfig.thresholds(), "standandhold:recover_parasite_samples", 2);
         HumanPointManager.setStage(server, HumanStage.LOCAL_ARMY_RESPONSE);
@@ -88,9 +93,17 @@ final class RestartFixture {
             var entity = level.getEntity(id); if (entity instanceof net.minecraft.world.entity.Mob mob) { mob.setNoAi(true); }
         }
     }
+    private static void support(ServerLevel level) {
+        var caller = QaPlayer.join(level); caller.snapTo(8.5, 64, 12.5, 180, 16);
+        check(SupportCallIn.request(caller, tile(level, POST)).success(), "Paid reinforcement before restart");
+        QaPlayer.closeAll();
+        var deployed = level.getEntitiesOfClass(HumanNpc.class, new net.minecraft.world.phys.AABB(POST).inflate(12), human -> human.commandPost().isPresent());
+        check(deployed.size() == 1, "One actual paid defender");
+        deployed.getFirst().setNoAi(true); receipt.setProperty("supportNpc", deployed.getFirst().getUUID().toString());
+    }
     private static void verify(MinecraftServer server, ServerLevel level) {
         var data = HumanWorldData.get(server); var base = tile(level, BASE); var lab = tile(level, LAB);
-        check(data.points() == 42 && data.stage() == HumanStage.SURVIVORS && data.supplies() == 90, "Global progression/supply balances");
+        check(data.points() == 42 && data.stage() == HumanStage.SURVIVORS && data.supplies() == 110, "Global progression/supply balances including once-only support debit");
         check(data.isResearchComplete("standandhold:parasite_samples"), "Research receipt");
         check(data.mission("standandhold:recover_parasite_samples").orElseThrow().progress() == 2, "Partial mission");
         check(data.isMainBase(new BuildingPosition(level.dimension().identifier(), BASE)) && data.commandPostKeys().size() == 2, "Site registration");
@@ -100,6 +113,9 @@ final class RestartFixture {
         check(level.getEntity(UUID.fromString(receipt.getProperty("npc"))) instanceof HumanNpc saved && saved.hasIssuedBlade(), "Same NPC retains issued blade at Stage 0");
         var response = ThreatResponse.state(level, tile(level, POST));
         check(response.raids() == 1 && response.raiders().size() == 1 && response.nextRaid() == Long.parseLong(receipt.getProperty("response")), "Raid counters/reservation/cooldown, no restart reset");
+        String home = new BuildingPosition(level.dimension().identifier(), POST).key();
+        check(response.reinforcements() == 1 && response.nextReinforcement() == Long.parseLong(receipt.getProperty("supportCooldown")) && data.defenderCount(home) == 1, "Support cooldown/counter/roster survives restart");
+        check(level.getEntity(UUID.fromString(receipt.getProperty("supportNpc"))) instanceof HumanNpc unit && unit.commandPost().map(p -> p.key().equals(home)).orElse(false), "Same paid defender/home survived, no duplicate on restart");
     }
     private static BuildingBlockEntity tile(ServerLevel level, BlockPos pos) { return (BuildingBlockEntity) level.getBlockEntity(pos); }
     private static void check(boolean valid, String message) { if (!valid) { throw new IllegalStateException(message); } }

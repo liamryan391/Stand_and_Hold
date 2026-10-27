@@ -270,7 +270,9 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 
 ## 2026-10-27 - Automated Ladder And M13
 - Adopted attached AGENTS.md in its requested standalone commit; compact STATUS and prospective QA prerequisite added before implementation. Protected legacy refs/local worlds retained; pins/version/dependencies unchanged.
-- Isolated native GameTests: 15 required cases passed, including real AI/deaths/drops/raid refusal reasons, lab message/reward once and base notices. Failed harness assertions retained and corrected, not weakened.
-- `clean build runQaClient --no-daemon --stacktrace` passed (32s, 2,442 assertions); metadata/QA exclusion verified. Self-created/saved world, nine PNGs (90e73aa0 prefix) opened/reviewed; automated client exited normally.
-- `test-restart.ps1` passed two dedicated JVMs (Done/save/clean stop), checking global/building/mission/NPC/response persistence; CI jobs added, publication result pending. No real multiplayer/packaged test claimed.
-- M13 integration/design review is drafted; remaining milestone is in STATUS.md.
+- Final `clean build runGameTestServer --no-daemon --stacktrace` passed (17s, 2,442 logic assertions/22 required GameTests); normal jar metadata/QA exclusion checked (313,933 bytes, SHA256 F8AC57CAC5D47333664740C5C04372A4345CDB7A062F69E61D8E2805F9A80DF3). Failed assertions retained/corrected, not weakened.
+- `test-restart.ps1` passed two dedicated JVMs (Done/vanilla stop/save/clean exit), including progression/research/partial mission/storage/registries/notices, blade retention and paid-support UUID/home/roster/cooldown/debit. Worlds/results retained.
+- `runQaClient --no-daemon --stacktrace` passed (32s); fresh saved world, all ten 33c9bba4-prefix PNGs opened/reviewed, real support command charged/deployed once, automatic clean quit. No command readbacks asked of Liam.
+- Initial CI Java selector lacked a machine-local file; fixed CI to pass setup-java's JAVA_HOME explicitly. QA-foundation Windows build/GameTests/restart CI 40593146604 passed; final prototype publication/CI pending.
+- M13 original design/performance gate selects one configurable supply-funded reinforcement action, no vehicle/library/pin/version change. Real head/view mismatch found/fixed by tests; four-player/four-post/80-request synthetic budget passed, not real network/sustained-load proof.
+- Real multiplayer, packaged install, animation/fun and future physical vehicles remain qualified limits; live milestone in STATUS.md.

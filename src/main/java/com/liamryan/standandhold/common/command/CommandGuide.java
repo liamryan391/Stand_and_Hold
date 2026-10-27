@@ -51,6 +51,7 @@ public final class CommandGuide {
         var lines = new ArrayList<>(List.of("Stand and Hold technical alpha: shared world progression; no external mod required.",
                 "/standandhold guide - next eligible mission and its objective",
                 "/standandhold status | supplies status | research list | mission active",
+                "/standandhold support status | support reinforce - supply-funded help at the post you face",
                 "Research Lab: select a target, fund local storage, then Start; selecting alone never starts work."));
         if (operator) { lines.add("QA/operator: mission start <id> | commandpost nearest | event status | compat status"); }
         else { lines.add("Mission starts and debug/event commands require an operator; gameplay progress does not."); }

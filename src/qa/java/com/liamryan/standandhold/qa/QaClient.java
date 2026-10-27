@@ -5,6 +5,9 @@ import com.liamryan.standandhold.common.building.*;
 import com.liamryan.standandhold.common.foundation.FoundationResources;
 import com.liamryan.standandhold.common.npc.NpcRegistry;
 import com.liamryan.standandhold.common.research.ResearchManager;
+import com.liamryan.standandhold.common.progression.HumanPointManager;
+import com.liamryan.standandhold.common.progression.HumanStage;
+import com.liamryan.standandhold.common.threat.ThreatResponse;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.HumanProgressionConfig;
 import java.nio.file.*;
@@ -118,7 +121,34 @@ public final class QaClient {
                     mc.player.connection.sendCommand("standandhold guide");
                     mc.gui.setScreen(new ChatScreen("", false)); phase = 7; settle = 0;
                 }
-                case 7 -> { if (++settle >= 30) { capture(mc, "guide-large", 8); } }
+                case 7 -> { if (++settle >= 30) { capture(mc, "guide-large", 9); } }
+                case 9 -> {
+                    phase = 10;
+                    onServer(mc, () -> {
+                        var server = mc.getSingleplayerServer(); var data = HumanWorldData.get(server);
+                        HumanPointManager.setStage(server, HumanStage.LOCAL_ARMY_RESPONSE);
+                        ResearchManager.complete(data, FoundationResources.get(server), HumanProgressionConfig.thresholds(), "standandhold:field_communications");
+                        data.setSupplies(30);
+                        player(mc).connection.teleport(8.5, 64, 11.5, 180, 21);
+                    });
+                }
+                case 10 -> {
+                    if (++settle < 20) { return; }
+                    mc.gui.hud.getChat().clearMessages(true);
+                    mc.player.connection.sendCommand("standandhold support reinforce");
+                    phase = 11; settle = 0;
+                }
+                case 11 -> {
+                    if (++settle < 20) { return; }
+                    phase = 12;
+                    onServer(mc, () -> {
+                        var level = mc.getSingleplayerServer().overworld(); var post = tile(level, POST);
+                        var data = HumanWorldData.get(level.getServer());
+                        if (data.supplies() != 20 || data.defenderCount(new BuildingPosition(level.dimension().identifier(), POST).key()) != 1
+                                || ThreatResponse.state(level, post).reinforcements() != 1) { throw new IllegalStateException("Real client support command did not deploy/charge once"); }
+                    });
+                }
+                case 12 -> capture(mc, "support-call-in", 8);
                 case 8 -> {
                     mc.gui.setScreen(null);
                     mc.disconnectWithSavingScreen();

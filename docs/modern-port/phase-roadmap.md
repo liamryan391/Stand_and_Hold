@@ -319,8 +319,8 @@ Priority: P4
   - [x] **13.2.1** Define call-ins, deployables, transport markers, supply costs, and spawn caps as the first scope candidate.
   - [x] **13.2.2** Define ownership, networking, collision, persistence, unloading, and recovery behavior for any proposed physical vehicle.
   - [x] **13.2.3** Plan aircraft support/set pieces before considering free flight; resolve animation and dedicated-server requirements.
-- [ ] **13.3 Implement one selected prototype only after the design gate.** Keep vehicle/aircraft expansion as separately scoped follow-up work.
-- [ ] **13.4 Verify the prototype under multiplayer load.** Build; test chunk boundaries, restart, passengers if applicable, and entity/tick budgets before expansion.
+- [x] **13.3 Implement one selected prototype only after the design gate.** Supply-funded player reinforcement command reuses existing units, saved cooldowns and caps; no physical vehicle/aircraft.
+- [x] **13.4 Verify the prototype under multiplayer load.** Scoped technical proof: four synthetic server players/four posts/80 serialized requests, shared-bank contention, exact units/debits/caps and unchanged loaded chunks; actual two-JVM support persistence and real client command/screens passed. No passengers apply. Real multi-client latency/sustained-load proof remains unverified and required before vehicle expansion; this is not a production multiplayer benchmark.
 
 Exit gate:
 
