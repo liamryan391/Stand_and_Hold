@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M17 read-only preview exit gate passed**; see [STATUS.md](STATUS.md).
+Current position: **Phase M18 guarded apron application exit gate passed**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -411,9 +411,25 @@ Scope: one explicitly confirmed, default-disabled application of the M17 radius-
   - [x] **18.1.2** 231 dependency-free assertions cover malformed/future data, exact layout bounds, every partial prefix and token lifecycle. Pinned `id`/`properties` block-state NBT verified from platform source after native tests rejected the old field spelling.
 - [x] **18.2 Implement explicit server-authoritative confirmation policy.** Separate operator prepare/expand/status/recover; application off by default, 200-tick single-use player/dimension/site/level/stage/policy/state-bound tokens, cache <=64, disconnect/stop cleanup. Native actual command dispatch verifies permissions, safe click-to-fill, late entities and stale/replayed/foreign consent without chunk loading/global ticks.
 - [x] **18.3 Admit the single-chunk applicator only after fault/recovery fixtures pass.** Native fault gate passed before command wiring. Exact 137-cell intent, expected-state checks, original-footprint digest, receipt-mutation epoch and fixed metadata budgets; first/middle/last failures and callback/container/protected-state changes stop for review without rollback/reseed. Final 55 required tests retain the original preview/AI/structure/research regressions. No power-loss claim or automatic repair.
-- [ ] **18.4 Verify the complete milestone before merge.** Required GameTests for once-only application, first/middle/last-write failure and two-player contention; two real JVMs for prepared/mixed/applied receipts and unchanged storage/UUIDs/cooldowns; qaClient consent/refusal readability, final clean build, jar isolation and green CI. If recovery proof fails, keep writes unavailable and document the blocker.
+- [x] **18.4 Verify the complete milestone before merge.** Final clean build passed 15,409 assertions/all 55 required tests; exact XML cases/no failures/skips checked. Two real JVMs retained all four operation states and prior storage/UUID/cooldown receipts; old tokens refused and explicit all-after sealing passed. All 25 final client captures opened/reviewed. Normal jar metadata/QA isolation checked; Windows implementation CI 40772187791 passed the full ladder/artifacts. Defaults remain off; no power-loss guarantee.
 
 Exit gate:
 
 - A supported site's explicit application either completes once with protected state intact or stops with a persisted bounded diagnostic; unsupported/ambiguous cases do not mutate.
 - Fresh confirmation is required after restart or any relevant change; defaults remain off, with no automatic repair, extra progression/population effect or durable-transaction claim.
+
+## Phase M19 - Heavy And Elite Human Unit Tiers
+
+Priority: P2
+
+Scope: two additional readable alpha roles using the existing human entity/vanilla-AI, equipment, stage/research and shared deployment foundations. No new weapon mechanics, animation library, population increase, structures, automatic transformation of existing units or toolchain change. Super Elite/Special Division unit expansion remains separately scoped.
+
+- [ ] **19.1 Define the role/unlock/retention contract before implementation.** Distinguish Heavy and Elite roles, configurable stats and stage/research requirements; keep global stage separate from post level, existing issued-kit retention and all post/area/roster limits.
+- [ ] **19.2 Register the two units, test eggs and original visual variants.** Reuse the supported human model/art export pipeline with distinguishable silhouettes/uniforms, translated names and complete textures; no copied assets or runtime library. Eggs remain deliberate admin test tools, not progression bypasses for automated deployment.
+- [ ] **19.3 Apply stage/research selection through shared deployment paths.** Automatic, event and paid reinforcements choose an eligible role without bypassing cooldowns/caps or changing existing NPC identities/tiers. Use existing equipment/target rules; no new gun/ammo/complex-AI system.
+- [ ] **19.4 Verify the complete milestone and document usage.** Logic and native GameTests for role stats/AI/unlocks/retention and all deployment paths, real restart for identities/equipment/rosters, reviewed qaClient tier views, final clean build/jar isolation and green CI. Human feedback only for silhouette/combat feel; multiplayer/packaged claims stay separate.
+
+Exit gate:
+
+- New units are distinguishable, configurable and stage/research-gated for automated deployment; old NPCs, saves and common limits remain intact.
+- No extra population budget, dependency/pin change, weapon system or support claim is smuggled into the tier milestone.

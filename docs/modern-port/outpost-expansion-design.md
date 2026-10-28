@@ -1,6 +1,6 @@
 # Outpost Expansion Design
 
-M16 design decision: **PROCEED with new-site provenance and read-only planning/preview; DEFER expansion writes until their failure/recovery tests pass in a separately scoped milestone.** This document is a contract, not an implemented expansion system. The only M16 structure change is the separately requested empty lab in new checkpoints. No pins, dependencies, unit tiers, shared population caps or upgrade prices change.
+M16 design decision: **PROCEED with new-site provenance and read-only planning/preview; DEFER expansion writes until their failure/recovery tests pass in a separately scoped milestone.** This document records that contract, not a durability guarantee. The only M16 structure change was the separately requested empty lab in new checkpoints. No pins, dependencies, unit tiers, shared population caps or upgrade prices change.
 
 M17 implements only the admitted provenance/planner/read-only preview portion. M18 adds the single default-disabled confirmed apron path after native fault tests; see [operator usage and receipt format](structures.md#confirmed-apron-application). This is not power-loss or arbitrary third-party callback proof.
 

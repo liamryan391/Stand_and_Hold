@@ -1,8 +1,8 @@
 # Status
-Updated: 2026-10-28 - Handoff branch: `codex/m18-outpost-application`
+Updated: 2026-10-28 - Handoff branch: `codex/m19-unit-tiers`
 
 ## Position
-- M1-M13, M15-M17 have verified exit gates; M18 implementation/fault gate passed, final client/CI/publication underway.
+- M1-M13, M15-M18 have verified exit gates; M19 Heavy/Elite unit expansion is scoped, not implemented.
 - Liam confirmed NeoForge-first; Fabric-specific M14 14.4-14.5 remain deferred, not approved or run.
 - M18 adds one default-disabled confirmed apron; no automatic growth, old-site adoption or capacity/reward changes.
 - Pins remain Minecraft 26.3 / NeoForge 26.3.0.57-beta / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
@@ -10,7 +10,7 @@ Updated: 2026-10-28 - Handoff branch: `codex/m18-outpost-application`
 ## Verified
 - M18 final clean build: 15,409 assertions/all 55 GameTests passed; normal jar metadata/QA isolation checked.
 - Two JVMs retained prepared/mixed/applied/all-after states, rejected old tokens and verified explicit metadata-only recovery.
-- Final M18 qaClient screenshot review and commit CI are pending; no pass claimed yet.
+- M18 qaClient passed; all 25 captures reviewed. Windows implementation CI 40772187791 passed the full ladder/artifacts.
 - Native tests include first/middle/last faults, callback/container/protected-state conflicts, late entities and permissions.
 
 ## Risks And Decisions
@@ -21,4 +21,4 @@ Updated: 2026-10-28 - Handoff branch: `codex/m18-outpost-application`
 - Preserve legacy `1.12`, alpha tag, ignored worlds/configs and `.local/`; no legacy save conversion.
 
 ## Next Milestone
-`Continue: M18 steps 18.1-18.4 (bounded operation receipts, confirmation policy, guarded apron application and failure/restart verification) on codex/m18-outpost-application.`
+`Continue: M19 steps 19.1-19.4 (Heavy/Elite unit roles, registration and original visuals, gated shared deployments and automated verification) on codex/m19-unit-tiers.`
