@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M14 (multi-loader evaluation)**; see [STATUS.md](STATUS.md).
+Current position: **Phase M14 (evaluation recorded; Fabric implementation deferred)**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -330,13 +330,15 @@ Exit gate:
 
 Priority: P4
 
-- [ ] **14.1 Confirm the NeoForge release baseline is stable and maintained.** Assess Fabric audience, matching dependencies, and support cost.
-- [ ] **14.2 Audit platform-specific code and shared data.** Record registries, networking, config, persistence, rendering, and test differences.
-- [ ] **14.3 Choose a port strategy.** Evaluate a common/platform module split against separate ports; document the cost before restructuring.
-- [ ] **14.4 Prototype Fabric in isolation.** Verify the scaffold, persistence, and one existing interaction before attempting parity.
-- [ ] **14.5 Add parity tests, CI, and support documentation only after the prototype succeeds.** Keep the NeoForge release working throughout.
+- [x] **14.1 Confirm the NeoForge release baseline is stable and maintained.** Assessed technical alpha evidence versus remaining release/multiplayer gaps, available Fabric tooling and maintenance cost; project is not ready to expand support. Newer non-beta NeoForge artifacts exist but are not adopted.
+- [x] **14.2 Audit platform-specific code and shared data.** [Multi-Loader Evaluation](multi-loader-evaluation.md) records actual registries/events, injected methods, config, menus, persistence, rendering, worldgen and QA boundaries.
+- [x] **14.3 Choose a port strategy.** **DEFER** implementation; retain the single NeoForge project. Conditional future isolated spike before gradual shared-rule/platform extraction; no library or build restructuring approved.
+- [ ] **14.4 Prototype Fabric in isolation.** Deferred, not run: requires acceptance of the stable-alpha gate and explicit exact toolchain/runtime-dependency approval. Verify scaffold, persistence and one existing interaction before parity.
+- [ ] **14.5 Add parity tests, CI, and support documentation only after the prototype succeeds.** Deferred with 14.4; no Fabric support claim or parity result.
 
 Exit gate:
 
 - NeoForge build is stable enough that multi-loader work will not slow core gameplay.
 - The evaluation has a recorded proceed/defer decision; a Fabric release additionally requires working parity checks.
+
+Evaluation verdict (2026-10-28): **DEFER**. The decision/audit is complete; the proceed gate for 14.4-14.5 is not passed. No pins/dependencies changed and no Fabric prototype was attempted.

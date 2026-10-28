@@ -280,4 +280,5 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 ## 2026-10-28 - Resume M13 Publication And M14 Evaluation
 - Clean synced M13 worktree/fetch checked; protected legacy ref unchanged. Final-code Windows CI 40595049934 passed build, all GameTests, two-process restart and artifact upload.
 - M13 merged without rewriting history; attached AGENTS commit and isolated automated ladder retained. Normal mod version/pins/dependencies unchanged; prior local build/screenshot evidence remains the verification record, not a new run claim.
-- M14 evaluation follows the small-remainder batching rule; source audit and proceed/defer decision pending. Real multiplayer/packaged/fun checks remain unverified; live milestone is in STATUS.md.
+- M14 source audit/strategy completed under the small-remainder batching rule; official release/tooling sources reviewed. DEFER Fabric: current technical alpha is not release/multiplayer proof, no changed pins/runtime libraries approved. 14.4-14.5 explicitly unrun.
+- Docs-only `git diff --check` passed; no repeated build/launch or Fabric proof claimed for evaluation. Main/evaluation CI publication pending; prior M13 mechanics/screens remain observed evidence. Live milestone is in STATUS.md.
