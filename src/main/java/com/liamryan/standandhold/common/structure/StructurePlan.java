@@ -89,8 +89,8 @@ public record StructurePlan(BlockPos commandPost, List<Cell> cells) {
                 cells.put(origin.offset(x, 0, z), Material.LIGHT);
             }
         }
+        cells.put(origin.offset(-radius + 2, 0, -radius + 2), Material.LAB);
         if (kind == StructureKind.MAIN_BASE) {
-            cells.put(origin.offset(-radius + 2, 0, -radius + 2), Material.LAB);
             cells.put(origin.offset(0, -1, -1), Material.COMMAND_MARKER);
             cells.put(origin.offset(-radius + 2, -1, -radius + 2), Material.RESEARCH_MARKER);
             cells.put(origin.offset(-radius + 2, -1, radius - 2), Material.BARRACKS_MARKER);

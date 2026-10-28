@@ -10,6 +10,8 @@ import com.liamryan.standandhold.common.research.ResearchManager;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.progression.HumanStage;
 import com.liamryan.standandhold.common.threat.ThreatResponse;
+import com.liamryan.standandhold.common.structure.StructureKind;
+import com.liamryan.standandhold.common.structure.StructurePlacement;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.HumanProgressionConfig;
 import java.nio.file.*;
@@ -60,6 +62,7 @@ public final class QaClient {
     private boolean capturing, finished;
     private final List<String> captures = new ArrayList<>();
     private static final List<UUID> fixtureReservations = new ArrayList<>();
+    private BlockPos checkpointLab;
     public QaClient() {
         if (Boolean.getBoolean("standandhold.qa.client")) { NeoForge.EVENT_BUS.addListener(this::tick); }
     }
@@ -129,10 +132,18 @@ public final class QaClient {
                     capture(mc, next.name(), 5);
                 }
                 case 5 -> {
-                    if (views.get(view).kind() == BuildingKind.COMMAND_POST) {
-                        onServer(mc, () -> resetPost(mc.getSingleplayerServer().overworld()));
-                    }
-                    mc.player.closeContainer(); view++; phase = 3; settle = 0;
+                    boolean reset = views.get(view).kind() == BuildingKind.COMMAND_POST;
+                    onServer(mc, () -> {
+                        player(mc).closeContainer();
+                        if (reset) { resetPost(mc.getSingleplayerServer().overworld()); }
+                    });
+                    phase = 17; settle = 0;
+                }
+                case 17 -> {
+                    if (++settle > 200) { throw new IllegalStateException("Server menu-close acknowledgement did not arrive"); }
+                    // Server-initiated close has no delayed C2S echo to close the next menu.
+                    if (mc.player.containerMenu != mc.player.inventoryMenu || mc.gui.screen() instanceof BuildingScreen) { return; }
+                    view++; phase = 3; settle = 0;
                 }
                 case 6 -> {
                     mc.options.guiScale().set(3); mc.resizeGui();
@@ -166,7 +177,50 @@ public final class QaClient {
                                 || ThreatResponse.state(level, post).reinforcements() != 1) { throw new IllegalStateException("Real client support command did not deploy/charge once"); }
                     });
                 }
-                case 12 -> capture(mc, "support-call-in", 8);
+                case 12 -> capture(mc, "support-call-in", 13);
+                case 13 -> {
+                    mc.gui.setScreen(null); mc.options.guiScale().set(2); mc.resizeGui(); phase = 14;
+                    onServer(mc, () -> {
+                        var level = mc.getSingleplayerServer().overworld();
+                        var placed = StructurePlacement.place(level, StructureKind.CHECKPOINT, 1, 1);
+                        if (!placed.success()) { throw new IllegalStateException("QA checkpoint placement: " + placed.message()); }
+                        int radius = com.liamryan.standandhold.config.StructureConfig.CHECKPOINT_RADIUS.get();
+                        checkpointLab = placed.commandPost().offset(-radius + 2, 0, -radius + 3);
+                        if (tile(level, checkpointLab).kind() != BuildingKind.LAB || !tile(level, checkpointLab).state().equals(BuildingState.EMPTY)) {
+                            throw new IllegalStateException("Checkpoint lab is missing or not empty/idle");
+                        }
+                        var camera = player(mc);
+                        camera.getAbilities().flying = true; camera.onUpdateAbilities();
+                        camera.connection.teleport(24.5, 69, 34.5, 180, 30);
+                    });
+                }
+                case 14 -> {
+                    if (++settle > 300) { throw new IllegalStateException("Generated checkpoint did not become visible for screenshot"); }
+                    if (settle < 60 || mc.level == null || !mc.level.getBlockState(checkpointLab).is(BuildingRegistry.LAB.get())
+                            || !mc.levelRenderer.isSectionCompiledAndVisible(checkpointLab, 0)) { return; }
+                    if (mc.player.position().distanceToSqr(24.5, 69, 34.5) > 1) { throw new IllegalStateException("QA checkpoint camera left its flight position"); }
+                    mc.gui.hud.getChat().clearMessages(true);
+                    capture(mc, "checkpoint-with-lab", 15);
+                }
+                case 15 -> {
+                    phase = 16;
+                    onServer(mc, () -> {
+                        var level = mc.getSingleplayerServer().overworld(); var lab = tile(level, checkpointLab);
+                        var pos = checkpointLab;
+                        player(mc).connection.teleport(pos.getX() + 0.5, pos.getY(), pos.getZ() + 2.5, 180, 12);
+                        player(mc).openMenu(lab, lab::writeMenuData);
+                    });
+                }
+                case 16 -> {
+                    if (++settle > 200) { throw new IllegalStateException("Generated lab menu did not open"); }
+                    if (!(mc.gui.screen() instanceof BuildingScreen) || !(mc.player.containerMenu instanceof BuildingMenu menu)
+                            || menu.kind() != BuildingKind.LAB || settle < 20) { return; }
+                    if (menu.number(BuildingMenu.LOCAL) != 0 || menu.number(BuildingMenu.SAMPLES) != 0
+                            || menu.number(BuildingMenu.WORK) != 0 || menu.number(BuildingMenu.STATUS) != 6) {
+                        throw new IllegalStateException("Generated lab empty state did not sync");
+                    }
+                    capture(mc, "checkpoint-lab-menu", 8);
+                }
                 case 8 -> {
                     mc.gui.setScreen(null);
                     mc.disconnectWithSavingScreen();

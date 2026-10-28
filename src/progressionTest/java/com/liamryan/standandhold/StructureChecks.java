@@ -57,7 +57,13 @@ final class StructureChecks {
                 check(new HashSet<>(plan.cells().stream().map(StructurePlan.Cell::pos).toList()).size() == plan.cells().size(), "no duplicate cell writes");
                 check(plan.cells().stream().filter(c -> c.material() == StructurePlan.Material.COMMAND_POST).count() == 1, "exactly one command post");
                 check(plan.cells().stream().filter(c -> c.material() == StructurePlan.Material.CRATE).count() == 1, "exactly one crate");
-                check(plan.cells().stream().filter(c -> c.material() == StructurePlan.Material.LAB).count() == (kind == StructureKind.MAIN_BASE ? 1 : 0), "lab only in main foundation");
+                check(plan.cells().stream().filter(c -> c.material() == StructurePlan.Material.LAB).count() == 1, "exactly one lab in every checkpoint and main foundation");
+                var lab = plan.cells().stream().filter(c -> c.material() == StructurePlan.Material.LAB).findFirst().orElseThrow().pos();
+                check(!lab.equals(plan.commandPost()), "lab does not overwrite command post");
+                check(plan.cells().stream().anyMatch(c -> c.pos().equals(lab.below()) && (c.material() == StructurePlan.Material.FLOOR
+                        || c.material() == StructurePlan.Material.RESEARCH_MARKER)), "lab has a solid planned floor");
+                check(plan.cells().stream().anyMatch(c -> c.pos().equals(lab.above()) && c.material() == StructurePlan.Material.AIR), "lab has clear headroom");
+                check(plan.cells().stream().anyMatch(c -> c.pos().equals(lab.south()) && c.material() == StructurePlan.Material.AIR), "lab has an accessible south interaction space at every radius");
                 for (int dx = -1; dx <= 1; dx++) {
                     BlockPos entrance = new BlockPos(-8 + dx, 65, 40 + radius);
                     check(plan.cells().stream().anyMatch(c -> c.pos().equals(entrance) && c.material() == StructurePlan.Material.AIR), "clear three-wide south entrance");

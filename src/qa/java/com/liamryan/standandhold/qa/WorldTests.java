@@ -31,6 +31,10 @@ final class WorldTests {
     static Map<String, Consumer<GameTestHelper>> cases() {
         var tests = new LinkedHashMap<String, Consumer<GameTestHelper>>();
         tests.put("checkpoint_flat", h -> structure(h, StructureKind.CHECKPOINT, false));
+        tests.put("checkpoint_lab_minimum", h -> checkpointLab(h, 3));
+        tests.put("checkpoint_lab_maximum", h -> checkpointLab(h, 5));
+        tests.put("occupied_checkpoint_lab", WorldTests::occupiedLab);
+        tests.put("checkpoint_lab_research", WorldTests::checkpointResearch);
         tests.put("mainbase_flat", h -> structure(h, StructureKind.MAIN_BASE, false));
         tests.put("occupied_checkpoint", h -> structure(h, StructureKind.CHECKPOINT, true));
         tests.put("occupied_mainbase", h -> structure(h, StructureKind.MAIN_BASE, true));
@@ -76,8 +80,69 @@ final class WorldTests {
             var post = (BuildingBlockEntity) h.getLevel().getBlockEntity(result.commandPost());
             h.assertTrue(post != null && post.isMainBase() == (kind == StructureKind.MAIN_BASE), "Correct command tile/base flag");
             h.assertTrue(kind != StructureKind.MAIN_BASE || data(h).isMainBase(position), "Main Base registered");
+            int radius = kind == StructureKind.CHECKPOINT ? com.liamryan.standandhold.config.StructureConfig.CHECKPOINT_RADIUS.get()
+                    : com.liamryan.standandhold.config.StructureConfig.MAIN_BASE_RADIUS.get();
+            var lab = (BuildingBlockEntity) h.getLevel().getBlockEntity(result.commandPost().offset(-radius + 2, 0, -radius + 3));
+            h.assertTrue(lab != null && lab.kind() == BuildingKind.LAB && lab.state().equals(BuildingState.EMPTY), "Each new site has one empty, idle real lab tile");
         }
         h.runAfterDelay(5, h::succeed);
+    }
+    private static void checkpointLab(GameTestHelper h, int radius) {
+        QaWorld.begin(h);
+        var config = com.liamryan.standandhold.config.StructureConfig.CHECKPOINT_RADIUS;
+        int saved = config.get();
+        try {
+            config.set(radius);
+            BlockPos anchor = h.absolutePos(HOME);
+            var result = StructurePlacement.place(h.getLevel(), StructureKind.CHECKPOINT, anchor.getX() >> 4, anchor.getZ() >> 4);
+            h.assertTrue(result.success(), "Checkpoint radius " + radius + " placed: " + result.message());
+            BlockPos pos = result.commandPost().offset(-radius + 2, 0, -radius + 3);
+            h.assertTrue(h.getLevel().getBlockEntity(pos) instanceof BuildingBlockEntity lab && lab.kind() == BuildingKind.LAB
+                    && lab.state().equals(BuildingState.EMPTY), "Empty generated lab exists at radius " + radius);
+            h.assertTrue(h.getLevel().getBlockState(pos.south()).isAir() && h.getLevel().getBlockState(pos.above()).isAir(), "Lab access/headroom remain clear");
+            h.assertTrue(data(h).commandPostKeys().size() == 1, "Lab adds no extra post/base registry entry");
+        } finally { config.set(saved); }
+        h.runAfterDelay(5, h::succeed);
+    }
+    private static void occupiedLab(GameTestHelper h) {
+        QaWorld.begin(h);
+        BlockPos anchor = h.absolutePos(HOME);
+        int cx = anchor.getX() >> 4, cz = anchor.getZ() >> 4;
+        int radius = com.liamryan.standandhold.config.StructureConfig.CHECKPOINT_RADIUS.get();
+        BlockPos pos = new BlockPos((cx << 4) + 10 - radius, anchor.getY(), (cz << 4) + 10 - radius);
+        h.getLevel().setBlockAndUpdate(pos, Blocks.CHEST.defaultBlockState());
+        ((ChestBlockEntity) h.getLevel().getBlockEntity(pos)).setItem(0, Items.DIAMOND.getDefaultInstance());
+        var result = StructurePlacement.place(h.getLevel(), StructureKind.CHECKPOINT, cx, cz);
+        h.assertFalse(result.success(), "Chest at proposed lab refuses entire checkpoint");
+        h.assertTrue(h.getLevel().getBlockEntity(pos) instanceof ChestBlockEntity chest && chest.getItem(0).is(Items.DIAMOND), "Chest contents retained");
+        h.assertTrue(data(h).commandPostKeys().isEmpty(), "No partial registration on lab obstruction");
+        h.runAfterDelay(5, h::succeed);
+    }
+    private static void checkpointResearch(GameTestHelper h) {
+        QaWorld.begin(h);
+        BlockPos anchor = h.absolutePos(HOME);
+        var result = StructurePlacement.place(h.getLevel(), StructureKind.CHECKPOINT, anchor.getX() >> 4, anchor.getZ() >> 4);
+        h.assertTrue(result.success(), "Checkpoint available for lab interaction: " + result.message());
+        int radius = com.liamryan.standandhold.config.StructureConfig.CHECKPOINT_RADIUS.get();
+        var lab = (BuildingBlockEntity) h.getLevel().getBlockEntity(result.commandPost().offset(-radius + 2, 0, -radius + 3));
+        var observer = QaPlayer.join(h.getLevel()); var pos = lab.getBlockPos();
+        observer.snapTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 2.5, 180, 16);
+        h.runAfterDelay(3, () -> {
+            h.assertTrue(lab.state().equals(BuildingState.EMPTY), "Generated lab does not auto-start or grant resources");
+            data(h).setSupplies(10);
+            var menu = new BuildingMenu(1, observer.getInventory(), lab, FoundationResources.get(h.getLevel().getServer()));
+            observer.containerMenu = menu;
+            h.assertTrue(menu.clickMenuButton(observer, BuildingMenu.IMPORT), "Generated lab accepts actual server import action");
+            lab.change(lab.state().target("standandhold:parasite_samples"));
+            h.assertTrue(menu.clickMenuButton(observer, BuildingMenu.TOGGLE_RESEARCH), "Generated lab accepts explicit Start");
+            int ticks = com.liamryan.standandhold.config.BuildingConfig.LAB_INTERVAL.get()
+                    * (com.liamryan.standandhold.config.BuildingConfig.LAB_WORK.get() + 3);
+            for (int i = 0; i < ticks; i++) { BuildingBlockEntity.tick(h.getLevel(), pos, lab.getBlockState(), lab); }
+            h.assertTrue(data(h).isResearchComplete("standandhold:parasite_samples") && data(h).points() == 10
+                    && data(h).supplies() == 0 && lab.state().supplies() == 0, "Generated lab spends imported supplies and rewards exactly once");
+            h.assertTrue(!lab.state().researching() && observer.messages("message.standandhold.research_complete") == 1, "Generated lab completes/stops with exactly one notice");
+            h.succeed();
+        });
     }
     private static void raidClear(GameTestHelper h) {
         QaWorld.begin(h);
