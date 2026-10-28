@@ -4,7 +4,7 @@ Updated: 2026-10-28 - Branch: `codex/m15-outpost-progression`
 ## Position
 - M1-M13 are merged; automated QA and one bounded paid-reinforcement prototype are verified.
 - Liam confirmed NeoForge-first; Fabric-specific M14 14.4-14.5 remain deferred, not approved or run.
-- M15 outpost-level defender capacity/status is planned, not implemented; physical expansion is excluded.
+- M15 in progress: capacity contract selected; implementation and verification underway. Physical expansion excluded.
 - Pins remain Minecraft 26.3 / NeoForge 26.3.0.57-beta / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
 
 ## Verified

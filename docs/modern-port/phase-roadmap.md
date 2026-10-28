@@ -351,9 +351,9 @@ Priority: P2
 
 Scope: make existing Command Post upgrades useful for local defence, following Liam's earlier outpost-growth feedback. World human stage continues to unlock unit tiers; each post's saved building level controls its own capacity. This milestone adds no physical structure expansion, units, weapons, vehicles, libraries or toolchain changes.
 
-- [ ] **15.1 Define the capacity and compatibility contract before implementation.**
-  - [ ] **15.1.1** Separate world stage, post level, assigned reservations and loaded nearby population. Keep the Level-1 default of 3, shared area default of 8, existing stage/research gates and the 16-entry roster hard limit.
-  - [ ] **15.1.2** Choose/configure a bounded five-level capacity profile and explicit precedence/rollout for existing `maxDefendersPerPost` settings. Never silently ignore a server's configured limit or deployment-disable value; validate malformed profiles and document fallback behavior. Higher levels must remain within the shared area ceiling; no global cap increase merely to obtain a pass.
+- [x] **15.1 Define the capacity and compatibility contract before implementation.**
+  - [x] **15.1.1** Separate world stage, post level, assigned reservations and loaded nearby population. Keep the Level-1 default of 3, shared area default of 8, existing stage/research gates and the 16-entry roster hard limit.
+  - [x] **15.1.2** Chosen profile 3/5/6/7/8, clamped by the unchanged absolute meaning of `maxDefendersPerPost`, shared area cap and roster hard limit. Fresh ceiling defaults to 16; existing explicit 3/0 ceilings remain authoritative. Invalid profiles reset via NeoForge validation; [capacity contract](buildings.md#defender-capacity-contract) records rollout before implementation.
 - [ ] **15.2 Apply one capacity policy across all deployment paths.**
   - [ ] **15.2.1** Add the small validated config/rules change using existing patterns; retain saved levels/UUID reservations and avoid an unnecessary save-schema change.
   - [ ] **15.2.2** Reuse the policy for automatic deployment, natural/admin reinforcements and paid call-ins. Preserve cooldowns, refunds, stage/dormancy gates and bounded spawn attempts. Existing/unloaded or newly over-cap defenders are retained, never deleted to make room.

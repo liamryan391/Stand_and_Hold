@@ -30,7 +30,15 @@ Each loaded Command Post is registered by dimension and position (up to 4,096). 
 
 ## Upgrades
 
-Human points are a minimum gate, **not spent**. The other costs are spent from that Command Post only. These level names do not multiply defender quotas, add stat bonuses or generate a main base. [Human NPC deployment](human-npcs.md) is a separate tile-local interval: defaults allow one unlocked defender per 1,200 loaded ticks, with 3 saved reservations per post and an area cap of 8.
+Human points are a minimum gate, **not spent**. The other costs are spent from that Command Post only. Levels do not add stat bonuses, enlarge the structure or generate a Main Base. Human stage selects unlocked unit tiers, independently of the individual post level.
+
+### Defender Capacity Contract
+
+`standandhold-npcs.toml` uses `defendersByPostLevel = [3, 5, 6, 7, 8]` for levels 1-5. Effective capacity is the minimum of the level entry, `maxDefendersPerPost`, `maxDefendersInArea` and the 16-UUID roster hard limit. The shared loaded-area population check still includes eggs and other posts; an empty slot is not a guarantee of safe spawn terrain or an unlocked tier.
+
+`maxDefendersPerPost` remains an **absolute server ceiling**, including 0 to disable deployment. New configs default this ceiling to 16 so the level profile can apply. Existing configs retain their explicit value (previously 3): upgrades cannot bypass it. To opt an existing server into growth, deliberately raise this ceiling to 8 (or up to 16); do not delete the config/world. `deploymentEnabled = false` also disables all deployment paths. A zero profile entry disables that level; the profile must contain exactly five non-decreasing whole numbers from 0-16. NeoForge resets an invalid profile to `[3, 5, 6, 7, 8]`, still bounded by the server ceiling and area cap.
+
+Saved reservations count assigned units even when unloaded; the area limit counts loaded living humans only. Lowering limits/stage or removing a post does not delete units or free unconfirmed reservations. Upgrades only permit future spawns, at the existing interval/cooldown and stage/research gates. No save schema migration or new scan/tick handler is needed.
 
 | Upgrade | Human points | Local supplies | Local samples | Completed research |
 | --- | --- | --- | --- | --- |
