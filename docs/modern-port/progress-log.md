@@ -282,3 +282,9 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - M13 merged without rewriting history; attached AGENTS commit and isolated automated ladder retained. Normal mod version/pins/dependencies unchanged; prior local build/screenshot evidence remains the verification record, not a new run claim.
 - M14 source audit/strategy completed under the small-remainder batching rule; official release/tooling sources reviewed. DEFER Fabric: current technical alpha is not release/multiplayer proof, no changed pins/runtime libraries approved. 14.4-14.5 explicitly unrun.
 - Docs-only `git diff --check` passed; M13 main CI 40703073861 and M14 evaluation CI 40703882149 passed the full ladder/artifact jobs. Evaluation merged/published without code/toolchain changes; 14.4-14.5 stay gated. No new local build/Fabric proof claimed; prior M13 mechanics/screens remain observed evidence. Live milestone is in STATUS.md.
+
+## 2026-10-28 - Play Feedback And Last-Resort Questions
+- Liam reports general M13 play/feel passed and the workflow improved; call-in usage requested, not treated as a new manual mechanics pass. Real multiplayer, packaged installs and Fabric remain unverified.
+- Clarified AGENTS.md: only ask a final unresolved test question after automation/investigation; provide exact actions/commands/prerequisites, never substitute routine readbacks for tests.
+- Added source-checked support status/reinforce usage, global-bank/range/unlock requirements and normal refusal/cap behavior; no gameplay, pin, version or dependency changes.
+- `git diff --check` passed; docs-only, no local build/launch rerun. Fabric-specific 14.4-14.5 still require an explicit path/toolchain/dependency decision; live milestone is in STATUS.md.

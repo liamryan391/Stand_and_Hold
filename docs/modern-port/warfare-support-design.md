@@ -24,6 +24,18 @@ This is an availability review, not runtime interoperability proof or an exhaust
 - Ownership is the world's existing shared human faction/supply bank, not a new personal/private-base system. Spectators, console, distance and wrong-block attempts refuse safely. Multiplayer operators should recognize that any eligible nearby player can spend shared supplies; permissions/teams are a separately scoped extension.
 - No physical delivery animation is implied: this is a reinforcement request, not an invisible aircraft or simulated transport convoy. Existing deployment warning/chat is the feedback.
 
+## Using A Call-In
+
+These are usage instructions, not another required numeric QA sequence:
+
+1. Run `/standandhold support status` to see your server's configured requirements.
+2. With defaults, reach human Stage 1, complete **Field Communications**, and have at least **10 global supplies**. Supplies stored locally in a building must be exported first if the global bank is short.
+3. Close the building menu, stand within **6 blocks**, and look directly at the **Field Command Post** block with a clear line of sight. A dormant Main Base post cannot provide support.
+4. Run `/standandhold support reinforce` in chat. A successful request deploys one eligible defender near the post, uses the existing bounded patrol behavior, and reports the supply payment.
+5. Cooldowns, full post/area quotas and unsuitable ground can refuse the request. Known refusals spend nothing. The call-in does not expand the default 3-per-post / 8-nearby defender limits, and it is not an aircraft delivery animation. Both commands are available to ordinary players; progression/resource grants remain operator-only.
+
+No need to reset cooldowns or remove healthy defenders to make a test pass. If the post is already full, a refusal is correct; judge the call-in during normal play when a deployment slot is available. Costs, quotas and restart behavior already have automated coverage.
+
 ## Hard Performance Budget
 
 | Work | Upper bound / owner |

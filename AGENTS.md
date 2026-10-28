@@ -100,6 +100,10 @@ sequence and read back numbers: that is level 2 or 3, so do it yourself.
   His design feedback is the most valuable part of a manual check.
 - If he reports a bug, first reproduce it in a GameTest or server fixture, then fix it. Only
   ask him to retest what automation still can't see.
+- If a final test question remains unresolved after automation and reasonable investigation,
+  ask Liam one focused question as the last step. Say what was checked and what remains unknown;
+  include the exact commands/actions, target, range and prerequisites needed to answer it.
+  This is a last resort, not a replacement for automatable checks or routine command readbacks.
 
 ## Documentation rules (keep overhead low)
 

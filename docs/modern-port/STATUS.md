@@ -3,7 +3,7 @@ Updated: 2026-10-28 - Branch: `main`
 
 ## Position
 - M1-M13 are merged; automated QA and one bounded paid-reinforcement prototype are verified.
-- M14 audit/strategy recorded: DEFER Fabric; 14.4-14.5 remain unrun pending stability/pin/dependency approval.
+- M14 14.4-14.5 are Fabric-specific and remain deferred; NeoForge-first does not authorize a Fabric port.
 - Attached AGENTS.md is adopted; human checks are for feel/animation, not command readbacks.
 - Pins remain Minecraft 26.3 / NeoForge 26.3.0.57-beta / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
 
@@ -11,7 +11,7 @@ Updated: 2026-10-28 - Branch: `main`
 - Clean build: 2,442 assertions, isolated normal jar; 22 GameTests and paid-support two-JVM restart passed.
 - Self-quitting qaClient passed; ten screenshots reviewed (33c9bba4 prefix), including real call-in feedback.
 - M13 main CI 40703073861 and M14 evaluation CI 40703882149 passed build, GameTests, restart and jar upload.
-- M12 limitations/history: [Known Issues](../../KNOWN_ISSUES.md), [play sheet](showcase-loop.md), [log](progress-log.md).
+- Liam reports M13 general play/feel passed; call-in usage clarified, not a new manual mechanics pass.
 
 ## Risks And Decisions
 - No new runtime dependency/pin change approved; only Liam accepts an EULA if prompted.
@@ -21,4 +21,4 @@ Updated: 2026-10-28 - Branch: `main`
 - Preserve legacy `1.12`, alpha tag, ignored worlds/configs and `.local/`; no legacy save conversion.
 
 ## Next Milestone
-Blocked on Liam's decision for `M14 steps 14.4-14.5` (approved isolated Fabric toolchain/dependencies and parity), or scope another NeoForge milestone instead.
+Decision needed: keep NeoForge-first and scope its next milestone, or prepare explicit Fabric toolchain/dependency approval for `M14 steps 14.4-14.5`.
