@@ -15,24 +15,42 @@ import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
 
-/** Called only by a loaded post's interval; all queries are bounded and never request chunks. */
+/** Shared by loaded-post intervals, events and paid call-ins. Never requests chunks. */
 public final class DefenderDeployment {
     private DefenderDeployment() { }
+    public record Status(int assigned, int capacity, int reason) { }
+    // Stable menu codes: 0 slots, 1 disabled, 2 dormant, 3 stage locked, 4 full, 5 unavailable.
+    public static Status status(ServerLevel level, BuildingBlockEntity post) {
+        post.requireWritable();
+        var data = HumanWorldData.get(level.getServer());
+        data.requireSupportedVersion();
+        int cap = NpcConfig.capacity(post.state().level());
+        var home = new BuildingPosition(level.dimension().identifier(), post.getBlockPos());
+        int assigned = data.defenderCount(home.key());
+        int stage = ProgressionRules.stageFor(data.points(), HumanProgressionConfig.thresholds()).level();
+        int reason = !NpcConfig.DEPLOY.get() || cap == 0 ? 1 : !post.operational(data) ? 2
+                : HumanTier.unlocked(stage, NpcConfig.SURVIVOR.stage.get(), NpcConfig.ARMY.stage.get()) == null ? 3
+                : assigned >= cap ? 4 : 0;
+        return new Status(assigned, cap, reason);
+    }
     public static HumanNpc attempt(ServerLevel level, BuildingBlockEntity post) {
-        if (!NpcConfig.DEPLOY.get() || NpcConfig.POST_CAP.get() == 0) { return null; }
+        if (!level.getServer().isSameThread() || post.getLevel() != level || post.isRemoved()
+                || !level.hasChunkAt(post.getBlockPos()) || level.getBlockEntity(post.getBlockPos()) != post
+                || post.kind() != com.liamryan.standandhold.common.building.BuildingKind.COMMAND_POST) { return null; }
+        var status = status(level, post);
+        if (status.reason() != 0) { return null; }
         var data = HumanWorldData.get(level.getServer());
         int stage = ProgressionRules.stageFor(data.points(), HumanProgressionConfig.thresholds()).level();
         var tier = HumanTier.unlocked(stage, NpcConfig.SURVIVOR.stage.get(), NpcConfig.ARMY.stage.get());
         if (tier == null) { return null; }
         var home = new BuildingPosition(level.dimension().identifier(), post.getBlockPos());
-        int reserved = data.defenderCount(home.key());
-        if (reserved >= NpcConfig.POST_CAP.get()) { return null; }
+        int reserved = status.assigned(), capacity = status.capacity();
         int[] nearby = {0};
         level.getEntities().get(EntityTypeTest.forClass(HumanNpc.class), new AABB(home.pos()).inflate(NpcConfig.AREA_RADIUS.get()), npc -> {
             if (npc.isAlive()) { nearby[0]++; }
             return nearby[0] >= NpcConfig.AREA_CAP.get() ? Continuation.ABORT : Continuation.CONTINUE;
         });
-        if (!HumanTier.hasRoom(reserved, NpcConfig.POST_CAP.get(), nearby[0], NpcConfig.AREA_CAP.get())) { return null; }
+        if (!HumanTier.hasRoom(reserved, capacity, nearby[0], NpcConfig.AREA_CAP.get())) { return null; }
         var type = tier == HumanTier.ARMY_RIFLEMAN ? NpcRegistry.ARMY.get() : NpcRegistry.SURVIVOR.get();
         var npc = type.create(level, EntitySpawnReason.REINFORCEMENT);
         if (npc == null) { return null; }
@@ -53,7 +71,7 @@ public final class DefenderDeployment {
                 npc.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), EntitySpawnReason.REINFORCEMENT, null);
                 if (npc.isSpawnCancelled() || npc.isRemoved()) { return null; }
                 npc.assignPost(home);
-                if (!data.reserveDefender(home.key(), npc.getUUID(), NpcConfig.POST_CAP.get())) { return null; }
+                if (!data.reserveDefender(home.key(), npc.getUUID(), capacity)) { return null; }
                 boolean added = false;
                 try { added = level.addFreshEntity(npc); }
                 finally { if (!added) { data.releaseDefender(home.key(), npc.getUUID()); } }

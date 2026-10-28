@@ -4,14 +4,14 @@ Updated: 2026-10-28 - Branch: `codex/m15-outpost-progression`
 ## Position
 - M1-M13 are merged; automated QA and one bounded paid-reinforcement prototype are verified.
 - Liam confirmed NeoForge-first; Fabric-specific M14 14.4-14.5 remain deferred, not approved or run.
-- M15 in progress: capacity contract selected; implementation and verification underway. Physical expansion excluded.
+- M15 implemented and locally verified; branch CI/merge pending. Physical structure expansion remains excluded.
 - Pins remain Minecraft 26.3 / NeoForge 26.3.0.57-beta / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
 
 ## Verified
-- Clean build: 2,442 assertions, isolated normal jar; 22 GameTests and paid-support two-JVM restart passed.
-- Self-quitting qaClient passed; ten screenshots reviewed (33c9bba4 prefix), including real call-in feedback.
-- M13 main CI 40703073861 and M14 evaluation CI 40703882149 passed build, GameTests, restart and jar upload.
-- Liam reports M13 general play/feel passed; call-in usage clarified, not a new manual mechanics pass.
+- M15 clean build passed: 7,910 assertions, isolated normal jar; all 29 required GameTests passed.
+- Two dedicated JVMs retained upgraded level/storage, five exact defender UUIDs, cooldowns and prior systems.
+- Self-quitting qaClient passed; all 14 screenshots reviewed (46dbb4e2 prefix), normal/large capacity states readable.
+- Existing explicit post ceilings (including 3 and 0) remain authoritative; fresh profile 3/5/6/7/8, area cap 8.
 
 ## Risks And Decisions
 - No new runtime dependency/pin change approved; only Liam accepts an EULA if prompted.

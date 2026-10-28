@@ -5,6 +5,7 @@ import com.liamryan.standandhold.common.foundation.FoundationResources;
 import com.liamryan.standandhold.common.progression.ProgressionRules;
 import com.liamryan.standandhold.common.sample.SampleEvents;
 import com.liamryan.standandhold.common.sample.SampleInventory;
+import com.liamryan.standandhold.common.npc.DefenderDeployment;
 import net.minecraft.server.level.ServerPlayer;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.BuildingConfig;
@@ -25,9 +26,10 @@ public final class BuildingMenu extends AbstractContainerMenu {
     public static final int POINTS = 0, GLOBAL = 1, LOCAL = 2, STAGE = 3, LEVEL = 4, SAMPLES = 5, WORK = 6,
             TARGET = 7, STATUS = 8, CAPACITY = 9, REQUIRED_WORK = 10, GENERATION_INTERVAL = 11, GENERATION_POINTS = 12,
             GENERATION_SUPPLIES = 13, UPGRADE_POINTS = 14, UPGRADE_SUPPLIES = 15, UPGRADE_SAMPLES = 16,
-            UPGRADE_STATUS = 17, BATCH = 18, UPGRADE_RESEARCH = 19, LAB_INTERVAL = 20, HELD_SAMPLES = 21, SAMPLE_ROOM = 22, RUNNING = 23;
+            UPGRADE_STATUS = 17, BATCH = 18, UPGRADE_RESEARCH = 19, LAB_INTERVAL = 20, HELD_SAMPLES = 21, SAMPLE_ROOM = 22, RUNNING = 23,
+            DEFENDERS = 24, DEFENDER_CAP = 25, DEPLOYMENT_STATUS = 26;
     public static final int IMPORT = 0, EXPORT = 1, UPGRADE = 2, PAUSE = 3, NEXT_RESEARCH = 4, DEPOSIT_SAMPLES = 5, TAKE_SAMPLES = 6, TOGGLE_RESEARCH = 7;
-    private final long[] numbers = new long[24];
+    private final long[] numbers = new long[27];
     private final BlockPos pos;
     private final BuildingKind kind;
     private final List<Option> options;
@@ -120,7 +122,13 @@ public final class BuildingMenu extends AbstractContainerMenu {
             numbers[UPGRADE_STATUS] = !cost.research().isEmpty() && !catalog.research().containsKey(cost.research()) ? 3
                     : statusCode(BuildingTransactions.upgradeBlocked(state, data, cost));
             numbers[UPGRADE_RESEARCH] = cost.research().isEmpty() ? -1 : optionIndex(cost.research()) < 0 ? -2 : optionIndex(cost.research());
-        } catch (IllegalArgumentException | IllegalStateException exception) { numbers[STATUS] = 7; numbers[UPGRADE_STATUS] = 7; }
+            if (kind == BuildingKind.COMMAND_POST) {
+                var deployment = DefenderDeployment.status(server, building);
+                numbers[DEFENDERS] = deployment.assigned(); numbers[DEFENDER_CAP] = deployment.capacity(); numbers[DEPLOYMENT_STATUS] = deployment.reason();
+            }
+        } catch (IllegalArgumentException | IllegalStateException exception) {
+            numbers[STATUS] = 7; numbers[UPGRADE_STATUS] = 7; numbers[DEPLOYMENT_STATUS] = 5;
+        }
     }
     @Override public void broadcastChanges() { updateNumbers(); super.broadcastChanges(); }
     @Override public boolean stillValid(Player player) {

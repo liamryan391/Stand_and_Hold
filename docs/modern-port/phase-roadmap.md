@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M15 (NeoForge outpost milestone planned, not implemented)**; see [STATUS.md](STATUS.md).
+Current position: **Phase M15 (implemented; final CI/merge gate pending)**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -354,10 +354,10 @@ Scope: make existing Command Post upgrades useful for local defence, following L
 - [x] **15.1 Define the capacity and compatibility contract before implementation.**
   - [x] **15.1.1** Separate world stage, post level, assigned reservations and loaded nearby population. Keep the Level-1 default of 3, shared area default of 8, existing stage/research gates and the 16-entry roster hard limit.
   - [x] **15.1.2** Chosen profile 3/5/6/7/8, clamped by the unchanged absolute meaning of `maxDefendersPerPost`, shared area cap and roster hard limit. Fresh ceiling defaults to 16; existing explicit 3/0 ceilings remain authoritative. Invalid profiles reset via NeoForge validation; [capacity contract](buildings.md#defender-capacity-contract) records rollout before implementation.
-- [ ] **15.2 Apply one capacity policy across all deployment paths.**
-  - [ ] **15.2.1** Add the small validated config/rules change using existing patterns; retain saved levels/UUID reservations and avoid an unnecessary save-schema change.
-  - [ ] **15.2.2** Reuse the policy for automatic deployment, natural/admin reinforcements and paid call-ins. Preserve cooldowns, refunds, stage/dormancy gates and bounded spawn attempts. Existing/unloaded or newly over-cap defenders are retained, never deleted to make room.
-- [ ] **15.3 Show actionable Command Post defence status.** Sync/render the effective post capacity and assigned/reserved count in the existing server-authoritative menu, with clear full/disabled/dormant feedback. Distinguish loaded nearby counts from saved reservations if shown; do not load chunks or add a global tick scan. Keep upgrade costs and research unchanged.
+- [x] **15.2 Apply one capacity policy across all deployment paths.**
+  - [x] **15.2.1** Added validated profile/minimum policy; saved levels/UUID reservations and schemas unchanged.
+  - [x] **15.2.2** Automatic deployment, natural/admin reinforcements and paid call-ins share the policy. Existing cooldowns, refunds, stage/dormancy gates and bounded attempts retained; excess/unloaded reservations are not discarded.
+- [x] **15.3 Show actionable Command Post defence status.** Server-synced assigned/reserved count and effective cap; full/disabled/dormant/stage-locked/unavailable feedback. No nearby population scan in menus; upgrade costs/research unchanged. Compact layout retains the original 300x230 dimensions.
 - [ ] **15.4 Verify the whole milestone with the automated ladder.** Add logic and GameTests for upgraded capacity, shared nearby/adjacent-post caps, all deployment paths, disabled/malformed config, lower-cap/stage changes, stale sites, paid-refusal conservation and reload/UUID retention. Preserve the existing Level-1 regressions. Extend the two-JVM fixture and qaClient for upgraded-post persistence/status; review normal/large-scale screenshots. Clean build, normal-jar inspection and green CI precede merge.
 
 Exit gate:

@@ -93,11 +93,13 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
         if (menu.kind() == BuildingKind.COMMAND_POST) {
             int level = (int) Math.clamp(menu.number(LEVEL), 1, 5);
             line(g, 88, "gui.standandhold.level", level, Component.translatable("gui.standandhold.level." + level));
-            line(g, 102, "gui.standandhold.generation", menu.number(GENERATION_POINTS), menu.number(GENERATION_SUPPLIES), menu.number(GENERATION_INTERVAL) / 20);
+            line(g, 100, "gui.standandhold.generation", menu.number(GENERATION_POINTS), menu.number(GENERATION_SUPPLIES), menu.number(GENERATION_INTERVAL) / 20);
+            line(g, 112, "gui.standandhold.defenders", menu.number(DEFENDERS), menu.number(DEFENDER_CAP));
+            line(g, 124, "gui.standandhold.deployment", Component.translatable("gui.standandhold.deployment." + menu.number(DEPLOYMENT_STATUS)));
             if (level < 5) {
-                line(g, 122, "gui.standandhold.upgrade_cost", menu.number(UPGRADE_SUPPLIES), menu.number(UPGRADE_SAMPLES));
-                line(g, 136, "gui.standandhold.upgrade_points", menu.number(UPGRADE_POINTS));
-                wrap(g, Component.translatable("gui.standandhold.required_research", menu.upgradeResearch()).getString(), 150);
+                line(g, 138, "gui.standandhold.upgrade_cost", menu.number(UPGRADE_SUPPLIES), menu.number(UPGRADE_SAMPLES));
+                line(g, 150, "gui.standandhold.upgrade_points", menu.number(UPGRADE_POINTS));
+                line(g, 162, "gui.standandhold.required_research", menu.upgradeResearch());
             }
             wrap(g, status(menu.number(UPGRADE_STATUS)), 178, 184);
         } else if (menu.kind() == BuildingKind.LAB) {

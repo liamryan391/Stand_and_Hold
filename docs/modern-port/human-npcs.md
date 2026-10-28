@@ -38,13 +38,14 @@ NPC kills do **not** earn points/samples with the default `requirePlayerKill=tru
 
 ## Command-Post Deployment
 
-A loaded, writable Field Command Post may deploy one unlocked unit every **1,200 loaded ticks** (about 60 seconds at 20 TPS). Stage 0 selects a Survivor; stage 1+ selects a Rifleman by default. There is no deployment supply cost in this foundation. Upgrading a post does not multiply its quota or improve unit stats.
+A loaded, writable Field Command Post may deploy one unlocked unit every **1,200 loaded ticks** (about 60 seconds at 20 TPS). Stage 0 selects a Survivor; stage 1+ selects a Rifleman by default. There is no automatic-deployment supply cost. Upgrading a post changes its capacity target, not unit stats, stage gates, spawn timing or physical footprint.
 
-- Default per-post quota: **3 saved reservations**, including unloaded defenders.
+- Level targets: **3/5/6/7/8 saved reservations** at levels 1-5, including unloaded defenders. Effective capacity is clamped by the server ceiling, area ceiling and 16-entry roster hard limit; see the [capacity/config rollout contract](buildings.md#defender-capacity-contract). Existing configs that explicitly say `maxDefendersPerPost = 3` still cap every level at three; fresh configs use ceiling 16. Raise an existing ceiling deliberately to opt into growth, rather than resetting/deleting configs.
 - Default area cap: **8 living loaded humans within a 48-block box**, including nearby posts and manually spawned test units. The local query stops when it reaches the cap.
 - At most 8 horizontal candidates within 6 blocks, with 5 vertical offsets each, never in the post's own column. Spawn checks require already-loaded neighboring chunks, safe walkable ground, two air blocks, no fluid at the support, collision clearance and the world border. A lone floating post is not a spawn platform. Unsuitable terrain simply skips that interval; there is no retry every tick.
 - Deployed units have a saved dimension/position home and a 16-block vanilla home/pursuit radius. They can move back toward home; they never teleport or force-load it. No offline catch-up occurs. The attempt timer restarts after unload; returning to a post is not an immediate spawn.
 - Caps and deployment enable/interval/radii are configurable. Setting the per-post cap to 0 disables deployment. Lowering a cap never deletes existing humans. Test eggs can exceed quotas manually, but still count against automatic area deployment.
+- Automatic spawns, natural/admin reinforcements and paid support all use the same effective capacity. The menu shows saved assigned/reserved count (not nearby loaded humans) and slots/full/disabled/dormant/stage-locked status. Slots still require the area/terrain/cooldown checks when spawning; opening a menu never scans entities.
 
 The area cap is not a global population budget. Widely separated posts can each recruit a small group. Do not use mass admin egg/spawner automation as performance evidence.
 

@@ -46,6 +46,7 @@ final class WorldTests {
         tests.put("mainbase_notices_once", WorldTests::notices);
         tests.put("kill_rewards_sample_pickup", WorldTests::samples);
         tests.putAll(SupportTests.cases());
+        tests.putAll(OutpostTests.cases());
         return tests;
     }
     private static HumanWorldData data(GameTestHelper h) { return HumanWorldData.get(h.getLevel().getServer()); }

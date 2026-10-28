@@ -2,7 +2,9 @@ package com.liamryan.standandhold;
 
 import com.liamryan.standandhold.common.building.BuildingPosition;
 import com.liamryan.standandhold.common.npc.HumanTier;
+import com.liamryan.standandhold.common.npc.DefenderCapacity;
 import com.liamryan.standandhold.common.world.HumanWorldData;
+import java.util.List;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -11,6 +13,28 @@ import javax.imageio.ImageIO;
 final class NpcChecks {
     private static int assertions;
     static void run() throws Exception {
+        check(DefenderCapacity.validProfile(DefenderCapacity.DEFAULT_LEVELS), "default capacity profile");
+        check(DefenderCapacity.validProfile(List.of(0L, 0L, 8L, 16L, 16L)), "integer TOML profile and disabled early levels");
+        for (Object invalid : List.of("bad", List.of(3, 5), List.of(3, 2, 6, 7, 8), List.of(-1, 5, 6, 7, 8),
+                List.of(3, 5, 6, 7, 17), List.of(3, 5, 6, 7, Long.MAX_VALUE), List.of(3, 5, 6, 7, 8.0),
+                java.util.Arrays.asList(3, 5, 6, 7, null))) {
+            check(!DefenderCapacity.validProfile(invalid), "malformed profile rejected");
+            check(DefenderCapacity.effective(5, invalid, 3, 8) == 3, "fallback never bypasses existing ceiling");
+        }
+        check(!DefenderCapacity.validProfile(null), "missing profile invalid");
+        for (int level = 1; level <= 5; level++) {
+            for (int ceiling = 0; ceiling <= 16; ceiling++) {
+                for (int area = 1; area <= 64; area++) {
+                    int effective = DefenderCapacity.effective(level, DefenderCapacity.DEFAULT_LEVELS, ceiling, area);
+                    check(effective == Math.min(DefenderCapacity.DEFAULT_LEVELS.get(level - 1), Math.min(ceiling, area)), "all capacity boundaries");
+                }
+            }
+            check(DefenderCapacity.effective(level, List.of(0, 0, 0, 0, 0), 16, 8) == 0, "zero profile disables");
+        }
+        expect(() -> DefenderCapacity.effective(0, null, 16, 8));
+        expect(() -> DefenderCapacity.effective(6, null, 16, 8));
+        expect(() -> DefenderCapacity.effective(1, null, 17, 8));
+        expect(() -> DefenderCapacity.effective(1, null, 16, 0));
         check(HumanTier.unlocked(0, 0, 1) == HumanTier.SURVIVOR_DEFENDER, "stage zero survivor");
         check(HumanTier.unlocked(1, 0, 1) == HumanTier.ARMY_RIFLEMAN, "stage one army");
         check(HumanTier.unlocked(6, 0, 1) == HumanTier.ARMY_RIFLEMAN, "higher stages reuse implemented tier");

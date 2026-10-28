@@ -10,6 +10,7 @@ import com.liamryan.standandhold.common.support.SupportCallIn;
 import com.liamryan.standandhold.common.threat.*;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.HumanProgressionConfig;
+import com.liamryan.standandhold.config.NpcConfig;
 import java.nio.file.*;
 import java.util.Properties;
 import java.util.UUID;
@@ -37,6 +38,7 @@ final class RestartFixture {
         try {
             ticks++;
             if (ticks == 1) {
+                NpcConfig.POST_CAP.set(16); NpcConfig.POST_LEVELS.set(DefenderCapacity.DEFAULT_LEVELS);
                 level.getGameRules().set(GameRules.SPAWN_MOBS, false, server);
                 level.getGameRules().set(GameRules.ADVANCE_TIME, false, server);
                 server.setDifficulty(Difficulty.NORMAL, true);
@@ -76,6 +78,7 @@ final class RestartFixture {
         base.claimMainBaseNotice(false); base.claimMainBaseNotice(true);
         tile(level, LAB).change(new BuildingState(1, 55, 4, "standandhold:field_communications", 5, false));
         tile(level, CRATE).change(new BuildingState(1, 27, 3, "", 0));
+        tile(level, POST).change(new BuildingState(2, 17, 2, "", 0));
         data.setSupplies(150);
         ResearchManager.complete(data, FoundationResources.get(server), HumanProgressionConfig.thresholds(), "standandhold:parasite_samples");
         HumanPointManager.setStage(server, HumanStage.LOCAL_ARMY_RESPONSE);
@@ -100,6 +103,13 @@ final class RestartFixture {
         var deployed = level.getEntitiesOfClass(HumanNpc.class, new net.minecraft.world.phys.AABB(POST).inflate(12), human -> human.commandPost().isPresent());
         check(deployed.size() == 1, "One actual paid defender");
         deployed.getFirst().setNoAi(true); receipt.setProperty("supportNpc", deployed.getFirst().getUUID().toString());
+        String home = new BuildingPosition(level.dimension().identifier(), POST).key();
+        for (int i = 0; i < 4; i++) {
+            var extra = DefenderDeployment.attempt(level, tile(level, POST));
+            check(extra != null, "Upgraded post extra defender " + i);
+            extra.setNoAi(true); receipt.setProperty("extraNpc" + i, extra.getUUID().toString());
+        }
+        check(data(level).defenderCount(home) == 5 && DefenderDeployment.attempt(level, tile(level, POST)) == null, "Level 2 fills exactly five slots");
     }
     private static void verify(MinecraftServer server, ServerLevel level) {
         var data = HumanWorldData.get(server); var base = tile(level, BASE); var lab = tile(level, LAB);
@@ -114,9 +124,20 @@ final class RestartFixture {
         var response = ThreatResponse.state(level, tile(level, POST));
         check(response.raids() == 1 && response.raiders().size() == 1 && response.nextRaid() == Long.parseLong(receipt.getProperty("response")), "Raid counters/reservation/cooldown, no restart reset");
         String home = new BuildingPosition(level.dimension().identifier(), POST).key();
-        check(response.reinforcements() == 1 && response.nextReinforcement() == Long.parseLong(receipt.getProperty("supportCooldown")) && data.defenderCount(home) == 1, "Support cooldown/counter/roster survives restart");
+        check(response.reinforcements() == 1 && response.nextReinforcement() == Long.parseLong(receipt.getProperty("supportCooldown")) && data.defenderCount(home) == 5, "Support cooldown/counter/upgraded roster survives restart");
         check(level.getEntity(UUID.fromString(receipt.getProperty("supportNpc"))) instanceof HumanNpc unit && unit.commandPost().map(p -> p.key().equals(home)).orElse(false), "Same paid defender/home survived, no duplicate on restart");
+        var post = tile(level, POST);
+        check(post.state().equals(new BuildingState(2, 17, 2, "", 0)), "Upgraded level and local storage survive unchanged");
+        check(DefenderDeployment.status(level, post).equals(new DefenderDeployment.Status(5, 5, 4)), "Saved full capacity status at lower world stage");
+        for (int i = 0; i < 4; i++) {
+            check(level.getEntity(UUID.fromString(receipt.getProperty("extraNpc" + i))) instanceof HumanNpc saved
+                    && saved.commandPost().map(p -> p.key().equals(home)).orElse(false), "Same upgraded defender UUID/home " + i);
+        }
+        NpcConfig.POST_CAP.set(2);
+        check(DefenderDeployment.attempt(level, post) == null && data.defenderCount(home) == 5, "Lowering ceiling after real restart preserves excess reservations");
+        NpcConfig.POST_CAP.set(16);
     }
+    private static HumanWorldData data(ServerLevel level) { return HumanWorldData.get(level.getServer()); }
     private static BuildingBlockEntity tile(ServerLevel level, BlockPos pos) { return (BuildingBlockEntity) level.getBlockEntity(pos); }
     private static void check(boolean valid, String message) { if (!valid) { throw new IllegalStateException(message); } }
     private static Path path(String suffix) { return Path.of(WORLD + "-" + suffix + ".properties"); }

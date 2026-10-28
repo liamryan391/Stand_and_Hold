@@ -4,6 +4,8 @@ import com.liamryan.standandhold.client.BuildingScreen;
 import com.liamryan.standandhold.common.building.*;
 import com.liamryan.standandhold.common.foundation.FoundationResources;
 import com.liamryan.standandhold.common.npc.NpcRegistry;
+import com.liamryan.standandhold.common.npc.DefenderCapacity;
+import com.liamryan.standandhold.config.NpcConfig;
 import com.liamryan.standandhold.common.research.ResearchManager;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.progression.HumanStage;
@@ -41,6 +43,10 @@ public final class QaClient {
     private record View(String name, BuildingKind kind, String state, int scale) { }
     private final List<View> views = List.of(
             new View("command-post", BuildingKind.COMMAND_POST, "", 2),
+            new View("command-post-upgraded-large", BuildingKind.COMMAND_POST, "upgraded", 3),
+            new View("command-post-full-large", BuildingKind.COMMAND_POST, "full", 3),
+            new View("command-post-disabled", BuildingKind.COMMAND_POST, "disabled", 2),
+            new View("command-post-dormant-large", BuildingKind.COMMAND_POST, "dormant", 3),
             new View("supply-crate", BuildingKind.CRATE, "", 2),
             new View("lab-ready", BuildingKind.LAB, "ready", 2),
             new View("lab-running", BuildingKind.LAB, "running", 2),
@@ -53,6 +59,7 @@ public final class QaClient {
     private int phase, view, settle, previousPhase = -1, phaseTicks;
     private boolean capturing, finished;
     private final List<String> captures = new ArrayList<>();
+    private static final List<UUID> fixtureReservations = new ArrayList<>();
     public QaClient() {
         if (Boolean.getBoolean("standandhold.qa.client")) { NeoForge.EVENT_BUS.addListener(this::tick); }
     }
@@ -105,6 +112,14 @@ public final class QaClient {
                     if (!(mc.gui.screen() instanceof BuildingScreen) || !(mc.player.containerMenu instanceof BuildingMenu menu) || menu.kind() != views.get(view).kind()) { return; }
                     if (++settle < 20) { return; }
                     var next = views.get(view);
+                    if (next.kind() == BuildingKind.COMMAND_POST) {
+                        int cap = switch (next.state()) { case "upgraded", "full" -> 5; case "disabled" -> 0; default -> 3; };
+                        int reason = switch (next.state()) { case "full" -> 4; case "disabled" -> 1; case "dormant" -> 2; default -> 0; };
+                        if (menu.number(BuildingMenu.DEFENDER_CAP) != cap || menu.number(BuildingMenu.DEPLOYMENT_STATUS) != reason
+                                || menu.number(BuildingMenu.DEFENDERS) != (next.state().equals("full") ? 5 : 0)) {
+                            throw new IllegalStateException("Post capacity/status did not sync: " + next.state());
+                        }
+                    }
                     if (next.kind() == BuildingKind.LAB) {
                         long expected = next.state().equals("blocked") ? 2 : next.state().equals("completed") ? 1 : 0;
                         if (next.state().equals("blocked")) {
@@ -114,6 +129,9 @@ public final class QaClient {
                     capture(mc, next.name(), 5);
                 }
                 case 5 -> {
+                    if (views.get(view).kind() == BuildingKind.COMMAND_POST) {
+                        onServer(mc, () -> resetPost(mc.getSingleplayerServer().overworld()));
+                    }
                     mc.player.closeContainer(); view++; phase = 3; settle = 0;
                 }
                 case 6 -> {
@@ -165,6 +183,7 @@ public final class QaClient {
     private static ServerPlayer player(Minecraft mc) { return Objects.requireNonNull(mc.getSingleplayerServer().getPlayerList().getPlayer(mc.player.getUUID())); }
     private void onServer(Minecraft mc, Runnable work) { serverAction = CompletableFuture.runAsync(work, mc.getSingleplayerServer()); }
     private static void fixture(ServerLevel level, ServerPlayer player) {
+        NpcConfig.POST_CAP.set(16); NpcConfig.POST_LEVELS.set(DefenderCapacity.DEFAULT_LEVELS);
         level.getGameRules().set(GameRules.SPAWN_MOBS, false, level.getServer());
         level.getGameRules().set(GameRules.ADVANCE_TIME, false, level.getServer());
         for (BlockPos pos : BlockPos.betweenClosed(0, 62, 0, 31, 67, 31)) {
@@ -189,6 +208,20 @@ public final class QaClient {
         player.closeContainer();
         var pos = switch (view.kind()) { case COMMAND_POST -> POST; case LAB -> LAB; case CRATE -> CRATE; };
         var building = tile(level, pos);
+        if (view.kind() == BuildingKind.COMMAND_POST) {
+            var data = HumanWorldData.get(level.getServer());
+            var home = new BuildingPosition(level.dimension().identifier(), POST);
+            resetPost(level);
+            building = tile(level, POST); data.registerCommandPost(home);
+            building.change(new BuildingState(view.state().equals("upgraded") || view.state().equals("full") ? 2 : 1, 20, 0, "", 0));
+            NpcConfig.POST_CAP.set(view.state().equals("disabled") ? 0 : 16);
+            if (view.state().equals("full")) {
+                for (int i = 0; i < 5; i++) {
+                    var id = UUID.randomUUID(); data.reserveDefender(home.key(), id, 5); fixtureReservations.add(id);
+                }
+            }
+            if (view.state().equals("dormant")) { building.initializeMainBase(); data.registerMainBase(home); }
+        }
         if (view.kind() == BuildingKind.LAB) {
             var state = new BuildingState(1, 10, 0, "standandhold:parasite_samples", 0, false);
             switch (view.state()) {
@@ -205,6 +238,16 @@ public final class QaClient {
         }
         player.connection.teleport(pos.getX() + 1.5, pos.getY(), pos.getZ() + 2.5, 180, 12);
         player.openMenu(building, building::writeMenuData);
+    }
+    private static void resetPost(ServerLevel level) {
+        var data = HumanWorldData.get(level.getServer());
+        String key = new BuildingPosition(level.dimension().identifier(), POST).key();
+        for (var id : fixtureReservations) { data.releaseDefender(key, id); }
+        fixtureReservations.clear();
+        level.setBlockAndUpdate(POST, Blocks.AIR.defaultBlockState());
+        level.setBlockAndUpdate(POST, BuildingRegistry.COMMAND_POST.get().defaultBlockState());
+        tile(level, POST).change(BuildingState.EMPTY.supplies(20));
+        NpcConfig.POST_CAP.set(16);
     }
     private void capture(Minecraft mc, String name, int nextPhase) {
         capturing = true;
