@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M17 preview implemented; final client/build/CI verification in progress**; see [STATUS.md](STATUS.md).
+Current position: **Phase M17 read-only preview exit gate passed**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -393,9 +393,25 @@ Scope: implement the admitted read-only foundation from the M16 design. No expan
 - [x] **17.1 Persist bounded new-site provenance.** Additive site-v1 receipt after validated checkpoint placement; old/manual posts stay unproven, unsupported/raw future data retained. Building/world schemas and worker/server registration boundary unchanged; NBT and real restart checks passed.
 - [x] **17.2 Implement the pure bounded expansion planner.** Exact 88-floor/45-wall/4-light delta; 169 columns/616 explicit terrain reads, no original-footprint cells or writes. Loaded/border/terrain/container/entity guards and 128-entity saturation are native-tested.
 - [x] **17.3 Expose an operator-only read-only preview.** `/standandhold outpost preview` reuses the loaded six-block look ray; native tests cover real operator/non-op dispatch and unchanged blocks/NBT/dirty flags/global state/loaded chunks. No confirm/mutation command, tokens, spending or markers.
-- [ ] **17.4 Verify provenance and zero-mutation behavior.** Logic/GameTests for new vs old/manual/Main Base/unsupported sites, exact delta/budgets, occupied/unloaded/border/entity rejection and unchanged blocks/NBT/storage/balances/rosters; real restart for site receipt and generated lab/crate state; qaClient preview readability, clean build, normal-jar isolation and green CI before merge.
+- [x] **17.4 Verify provenance and zero-mutation behavior.** Final clean build passed 15,178 assertions and all 40 required GameTests, including unchanged blocks/NBT/dirty flags/balances/rosters/loaded chunks and operator permissions. Two real JVMs retained site identity/storage and identical preview; all 19 qaClient captures opened/reviewed. Normal jar metadata/QA isolation checked; Windows implementation CI 40757351989 passed build, GameTests, restart and artifact upload. No physical expansion/recovery proof claimed.
 
 Exit gate:
 
 - Supported new checkpoints retain provenance and expose a useful bounded preview with no world mutation or resource effect.
 - Expansion writes/confirmation remain disabled/unimplemented until a separate fault/recovery milestone.
+
+## Phase M18 - Confirmed Apron Application And Recovery
+
+Priority: P2
+
+Scope: one explicitly confirmed, default-disabled application of the M17 radius-4 checkpoint apron, under the [expansion contract](outpost-expansion-design.md). No automatic resizing, old-site adoption, Main Base growth, extra cost/reward, capacity increase, library or pin change. Failure/restart proof is a prerequisite to admitting writes, not evidence supplied by M17.
+
+- [ ] **18.1 Define and test bounded operation receipts/recovery classification before writes.** Preserve the original buildings and unknown data; distinguish prepared/all-before, all-after, mixed/conflicting and unsupported states. No automatic replay, rollback or claimed fsync/power-loss atomicity; retain diagnostics and fail closed when uncertain.
+- [ ] **18.2 Implement explicit server-authoritative confirmation policy.** Disabled-by-default application; single-use player/site/level/revision/config/delta-bound tokens, 200-tick expiry and at most 64 server entries. Revalidate all M17 guards at confirmation, reject stale/replayed/cross-player tokens, and add no global ticker or chunk loading.
+- [ ] **18.3 Admit the single-chunk applicator only after fault/recovery fixtures pass.** At most 137 planned writes with a 256-cell hard bound; compare expected state before each write, protect the entire original footprint, stop on callback/conflict/refused-write failures, never rebuild or reseed buildings, and retain operation status for operator review. Applied sites never repair/refill on repeat.
+- [ ] **18.4 Verify the complete milestone before merge.** Required GameTests for once-only application, first/middle/last-write failure and two-player contention; two real JVMs for prepared/mixed/applied receipts and unchanged storage/UUIDs/cooldowns; qaClient consent/refusal readability, final clean build, jar isolation and green CI. If recovery proof fails, keep writes unavailable and document the blocker.
+
+Exit gate:
+
+- A supported site's explicit application either completes once with protected state intact or stops with a persisted bounded diagnostic; unsupported/ambiguous cases do not mutate.
+- Fresh confirmation is required after restart or any relevant change; defaults remain off, with no automatic repair, extra progression/population effect or durable-transaction claim.
