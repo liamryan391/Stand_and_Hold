@@ -287,4 +287,5 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Liam reports general M13 play/feel passed and the workflow improved; call-in usage requested, not treated as a new manual mechanics pass. Real multiplayer, packaged installs and Fabric remain unverified.
 - Clarified AGENTS.md: only ask a final unresolved test question after automation/investigation; provide exact actions/commands/prerequisites, never substitute routine readbacks for tests.
 - Added source-checked support status/reinforce usage, global-bank/range/unlock requirements and normal refusal/cap behavior; no gameplay, pin, version or dependency changes.
-- `git diff --check` passed; docs-only, no local build/launch rerun. Fabric-specific 14.4-14.5 still require an explicit path/toolchain/dependency decision; live milestone is in STATUS.md.
+- Liam confirmed NeoForge-first: Fabric 14.4-14.5 remain deferred. Planned M15 15.1-15.4 for level-based outpost capacity/status, common deployment limits and automated verification; no physical expansion or gameplay implementation in this planning pass.
+- `git diff --check` passed; docs-only, no local build/launch rerun or new runtime dependency. Live milestone is in STATUS.md.

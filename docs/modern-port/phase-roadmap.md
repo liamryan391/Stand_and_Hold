@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M14 (evaluation recorded; Fabric implementation deferred)**; see [STATUS.md](STATUS.md).
+Current position: **Phase M15 (NeoForge outpost milestone planned, not implemented)**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -342,3 +342,26 @@ Exit gate:
 - The evaluation has a recorded proceed/defer decision; a Fabric release additionally requires working parity checks.
 
 Evaluation verdict (2026-10-28): **DEFER**. The decision/audit is complete; the proceed gate for 14.4-14.5 is not passed. No pins/dependencies changed and no Fabric prototype was attempted.
+
+Liam confirmed NeoForge-first on 2026-10-28. Fabric implementation/parity remain deferred; this is not approval for a new loader, plugin, Gradle version or runtime library.
+
+## Phase M15 - Outpost Progression And Defender Capacity
+
+Priority: P2
+
+Scope: make existing Command Post upgrades useful for local defence, following Liam's earlier outpost-growth feedback. World human stage continues to unlock unit tiers; each post's saved building level controls its own capacity. This milestone adds no physical structure expansion, units, weapons, vehicles, libraries or toolchain changes.
+
+- [ ] **15.1 Define the capacity and compatibility contract before implementation.**
+  - [ ] **15.1.1** Separate world stage, post level, assigned reservations and loaded nearby population. Keep the Level-1 default of 3, shared area default of 8, existing stage/research gates and the 16-entry roster hard limit.
+  - [ ] **15.1.2** Choose/configure a bounded five-level capacity profile and explicit precedence/rollout for existing `maxDefendersPerPost` settings. Never silently ignore a server's configured limit or deployment-disable value; validate malformed profiles and document fallback behavior. Higher levels must remain within the shared area ceiling; no global cap increase merely to obtain a pass.
+- [ ] **15.2 Apply one capacity policy across all deployment paths.**
+  - [ ] **15.2.1** Add the small validated config/rules change using existing patterns; retain saved levels/UUID reservations and avoid an unnecessary save-schema change.
+  - [ ] **15.2.2** Reuse the policy for automatic deployment, natural/admin reinforcements and paid call-ins. Preserve cooldowns, refunds, stage/dormancy gates and bounded spawn attempts. Existing/unloaded or newly over-cap defenders are retained, never deleted to make room.
+- [ ] **15.3 Show actionable Command Post defence status.** Sync/render the effective post capacity and assigned/reserved count in the existing server-authoritative menu, with clear full/disabled/dormant feedback. Distinguish loaded nearby counts from saved reservations if shown; do not load chunks or add a global tick scan. Keep upgrade costs and research unchanged.
+- [ ] **15.4 Verify the whole milestone with the automated ladder.** Add logic and GameTests for upgraded capacity, shared nearby/adjacent-post caps, all deployment paths, disabled/malformed config, lower-cap/stage changes, stale sites, paid-refusal conservation and reload/UUID retention. Preserve the existing Level-1 regressions. Extend the two-JVM fixture and qaClient for upgraded-post persistence/status; review normal/large-scale screenshots. Clean build, normal-jar inspection and green CI precede merge.
+
+Exit gate:
+
+- A higher-level post can use its configured extra slots without bypassing area/stage/cooldown limits or losing existing units/storage on reload.
+- Command Post status explains the effective capacity; existing mechanics remain regression-tested and QA stays outside the normal jar.
+- Physical footprint growth/terrain-safe expansion and broader real multiplayer/packaged testing remain separate work, not claimed by this milestone.
