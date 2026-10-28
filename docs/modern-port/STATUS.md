@@ -3,7 +3,7 @@ Updated: 2026-10-28 - Handoff branch: `codex/m19-outpost-controls`
 
 ## Position
 - M1-M13, M15-M18 exit gates passed; M19 growth controls, M20 Heavy/Elite and M21 useful Level-2 layout are planned, not implemented.
-- Liam's M18 feedback prioritises simple menu-based/manual-or-automatic growth; retain tested protection behind the interface.
+- Liam wants both: simple player menus/manual-or-automatic growth AND retained, expandable admin/testing commands; shared server-side rules.
 - M18 still ships one default-disabled token-confirmed apron; this docs pass changes no gameplay/defaults/dependencies.
 - NeoForge-first; Fabric M14 14.4-14.5 deferred. Pins: MC 26.3 / NeoForge 26.3.0.57-beta / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
 

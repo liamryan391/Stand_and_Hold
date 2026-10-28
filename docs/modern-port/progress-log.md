@@ -329,3 +329,8 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Reviewed author mod/file pages and selected public README/licence splits; saved a sourced reference matrix, listed-only 26.3 candidates, original-content rules and enjoyment/showcase hypotheses. No external jar installed/executed, dependency/pin/default/gameplay change or copied content.
 - Prospectively scoped M19 menu-based Manual/Automatic controls over the existing apron, retained unstarted Heavy/Elite as M20, and scoped one useful Level-2 layout as M21. Larger bases, functional defences, animations and vehicles remain bounded backlog, not a second competing live roadmap.
 - `git diff --check` passed; docs-only, no local build, game/server launch or new compatibility pass claimed. Publication and CI result are reported after observing them; live milestone is in STATUS.md.
+
+## 2026-10-28 - Player And Developer Controls Clarification
+- Liam explicitly wants existing commands retained and useful testing/admin commands expanded alongside simple player menus, not replaced by them.
+- Clarified the growth contract and M19 scope: shared authoritative gameplay rules, distinct admin shortcuts, help/completion/permissions and tests of both entry points. No commands removed or gameplay implemented.
+- `git diff --check` passed; docs-only, no build, launch, dependency, pin or balance change. M19 implementation remains unchecked; live milestone is in STATUS.md.
