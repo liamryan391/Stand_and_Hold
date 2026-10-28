@@ -24,6 +24,7 @@ public final class ProgressionChecks {
         NpcChecks.run();
         StructureChecks.run();
         ExpansionChecks.run();
+        OperationChecks.run();
         ArtChecks.run();
         EquipmentChecks.run();
         ResponseChecks.run();

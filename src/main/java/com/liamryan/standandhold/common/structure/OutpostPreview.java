@@ -14,7 +14,8 @@ import net.minecraft.world.phys.AABB;
 /** Server-authoritative observation only; no SavedData access, registration, repair, or dirty calls. */
 public final class OutpostPreview {
     private OutpostPreview() { }
-    public static ExpansionPlan inspect(ServerPlayer player, BuildingBlockEntity post) {
+    public record Inspection(ExpansionPlan plan, java.util.List<ExpansionOperation.Change> changes) { }
+    public static SiteProvenance requirePost(ServerPlayer player, BuildingBlockEntity post) {
         var level = player.level();
         if (!level.getServer().isSameThread() || player.isSpectator() || post.isRemoved() || post.getLevel() != level
                 || !level.hasChunkAt(post.getBlockPos()) || level.getBlockEntity(post.getBlockPos()) != post
@@ -29,7 +30,7 @@ public final class OutpostPreview {
         if (!site.anchor().equals(post.getBlockPos()) || !site.dimension().equals(level.dimension().identifier().toString())) {
             throw new IllegalArgumentException("Site anchor/dimension mismatch; no repair or adoption attempted.");
         }
-        ExpansionPlan.requireEligible(site, post.state().level(), level.getMinY(), level.getMaxY());
+        if (site.radius() != 4 || site.appliedRevision() > 1) { throw new IllegalArgumentException("Unsupported site radius/applied revision."); }
         // Original building tiles stay outside the delta and are only checked, never reconstructed.
         for (var kind : new BuildingKind[]{BuildingKind.LAB, BuildingKind.CRATE}) {
             BlockPos pos = kind == BuildingKind.LAB ? site.anchor().offset(-site.radius() + 2, 0, -site.radius() + 3)
@@ -40,11 +41,21 @@ public final class OutpostPreview {
             }
             tile.requireWritable();
         }
+        return site;
+    }
+    public static ExpansionPlan inspect(ServerPlayer player, BuildingBlockEntity post) { return inspectDetails(player, post).plan(); }
+    public static Inspection inspectDetails(ServerPlayer player, BuildingBlockEntity post) {
+        var level = player.level(); var site = requirePost(player, post);
+        ExpansionPlan.requireEligible(site, post.state().level(), level.getMinY(), level.getMaxY());
+        var pending = post.siteOperation().orElse(null);
+        if (pending != null && pending.phase() != ExpansionOperation.Phase.PREPARED) { throw new IllegalArgumentException("Existing expansion operation needs operator review; use /standandhold outpost status."); }
+        var states = new java.util.HashMap<BlockPos, net.minecraft.world.level.block.state.BlockState>();
         var plan = ExpansionPlan.inspect(site, post.state().level(), level.getMinY(), level.getMaxY(), new ExpansionPlan.Terrain() {
             public boolean loaded(BlockPos pos) { return level.hasChunkAt(pos); }
             public boolean insideBorder(BlockPos pos) { return level.getWorldBorder().isWithinBounds(pos); }
             public ExpansionPlan.Sample read(BlockPos pos) {
                 var state = level.getBlockState(pos);
+                states.put(pos, state);
                 if (state.hasBlockEntity()) { return ExpansionPlan.Sample.TILE; }
                 if (!state.getFluidState().isEmpty()) { return ExpansionPlan.Sample.WET; }
                 if (state.isAir() || state.is(BlockTags.REPLACEABLE)) { return ExpansionPlan.Sample.CLEAR; }
@@ -67,6 +78,7 @@ public final class OutpostPreview {
         });
         if (saturated[0]) { throw new IllegalArgumentException("Preview entity inspection limit reached (128); nothing changed."); }
         if (blocked[0]) { throw new IllegalArgumentException("Entity obstructs proposed apron; nothing changed."); }
-        return plan;
+        var changes = plan.cells().stream().map(cell -> new ExpansionOperation.Change(cell.pos(), net.minecraft.nbt.NbtUtils.writeBlockState(states.get(cell.pos())), cell.material())).toList();
+        return new Inspection(plan, changes);
     }
 }

@@ -64,6 +64,8 @@ public final class StandAndHold {
         NeoForge.EVENT_BUS.addListener(SampleEvents::onPickup);
         NeoForge.EVENT_BUS.addListener(FoundationResources::register);
         NeoForge.EVENT_BUS.addListener(CommandStandAndHold::onRegister);
+        NeoForge.EVENT_BUS.addListener(com.liamryan.standandhold.common.structure.OutpostExpansion::logout);
+        NeoForge.EVENT_BUS.addListener(com.liamryan.standandhold.common.structure.OutpostExpansion::stopped);
         modEventBus.addListener(this::commonSetup);
     }
 

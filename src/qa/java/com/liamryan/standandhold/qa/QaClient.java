@@ -13,6 +13,8 @@ import com.liamryan.standandhold.common.threat.ThreatResponse;
 import com.liamryan.standandhold.common.structure.StructureKind;
 import com.liamryan.standandhold.common.structure.StructurePlacement;
 import com.liamryan.standandhold.common.structure.OutpostPreview;
+import com.liamryan.standandhold.common.structure.OutpostExpansion;
+import com.liamryan.standandhold.common.structure.ExpansionOperation;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.HumanProgressionConfig;
 import java.nio.file.*;
@@ -66,6 +68,8 @@ public final class QaClient {
     private static final List<UUID> fixtureReservations = new ArrayList<>();
     private BlockPos checkpointLab;
     private boolean previewReply, previewBlockedReply;
+    private boolean expansionDisabledReply, expansionAppliedReply, expansionStatusReply;
+    private String consentCommand, expansionProtected;
     private net.minecraft.nbt.CompoundTag previewPostBefore, previewGlobalBefore;
     public QaClient() {
         if (Boolean.getBoolean("standandhold.qa.client")) { NeoForge.EVENT_BUS.addListener(this::tick); NeoForge.EVENT_BUS.addListener(this::chat); }
@@ -74,6 +78,11 @@ public final class QaClient {
         String text = event.getMessage().getString();
         if (text.contains("Checkpoint v1 / L2 / READ ONLY")) { previewReply = true; }
         if (text.contains("Protected block entity/container")) { previewBlockedReply = true; }
+        if (text.contains("Expansion is disabled by default")) { expansionDisabledReply = true; }
+        if (text.contains("Apron applied once")) { expansionAppliedReply = true; }
+        if (text.contains("APPLIED / ALL_AFTER")) { expansionStatusReply = true; }
+        if (event.getMessage().getStyle().getClickEvent() instanceof net.minecraft.network.chat.ClickEvent.SuggestCommand suggest
+                && suggest.command().startsWith("/standandhold outpost expand ")) { consentCommand = suggest.command(); }
     }
     private void tick(ClientTickEvent.Post event) {
         if (finished) { return; }
@@ -276,7 +285,81 @@ public final class QaClient {
                     phase = 27;
                     onServer(mc, () -> checkPreviewUnchanged(mc));
                 }
-                case 27 -> { if (++settle >= 10) { capture(mc, "outpost-preview-blocked-large", 8); } }
+                case 27 -> { if (++settle >= 10) { capture(mc, "outpost-preview-blocked-large", 28); } }
+                case 28 -> {
+                    phase = 29;
+                    onServer(mc, () -> {
+                        var level = mc.getSingleplayerServer().overworld(); var post = tile(level, checkpointLab.offset(2, 0, 1));
+                        var pos = post.site().center().offset(-6, 1, -6);
+                        ((net.minecraft.world.level.block.entity.ChestBlockEntity) level.getBlockEntity(pos)).clearContent();
+                        level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+                        // Keep the extended visual fixture deterministic; mechanics/loaded intervals are native-tested.
+                        com.liamryan.standandhold.config.BuildingConfig.POINTS.set(0); com.liamryan.standandhold.config.BuildingConfig.SUPPLIES.set(0);
+                        NpcConfig.DEPLOY.set(false); com.liamryan.standandhold.config.ResponseConfig.RAIDS.set(false); com.liamryan.standandhold.config.ResponseConfig.REINFORCEMENTS.set(false);
+                        com.liamryan.standandhold.config.StructureConfig.EXPANSION.set(false);
+                    });
+                }
+                case 29 -> { mc.gui.hud.getChat().clearMessages(true); mc.player.connection.sendCommand("standandhold outpost prepare"); phase = 30; settle = 0; }
+                case 30 -> {
+                    if (++settle > 200) { throw new IllegalStateException("Disabled expansion reply missing"); }
+                    if (expansionDisabledReply && settle >= 15) { capture(mc, "outpost-expansion-disabled-large", 31); }
+                }
+                case 31 -> {
+                    phase = 32;
+                    onServer(mc, () -> {
+                        com.liamryan.standandhold.config.StructureConfig.EXPANSION.set(true);
+                        var level = mc.getSingleplayerServer().overworld(); var post = tile(level, checkpointLab.offset(2, 0, 1));
+                        expansionProtected = OutpostExpansion.protectedDigest(level, post, post.site());
+                        previewGlobalBefore = (net.minecraft.nbt.CompoundTag) HumanWorldData.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, HumanWorldData.get(level.getServer())).getOrThrow();
+                    });
+                }
+                case 32 -> {
+                    mc.options.guiScale().set(2); mc.resizeGui(); mc.gui.hud.getChat().clearMessages(true);
+                    mc.player.connection.sendCommand("standandhold outpost prepare"); phase = 33; settle = 0;
+                }
+                case 33 -> {
+                    if (++settle > 100) { throw new IllegalStateException("Actual safe consent suggestion missing"); }
+                    if (consentCommand != null && settle >= 10) { capture(mc, "outpost-expansion-consent", 34); }
+                }
+                case 34 -> { mc.options.guiScale().set(3); mc.resizeGui(); phase = 35; settle = 0; }
+                case 35 -> { if (++settle >= 8) { capture(mc, "outpost-expansion-consent-large", 36); } }
+                case 36 -> {
+                    mc.gui.hud.getChat().clearMessages(true); mc.player.connection.sendCommand(consentCommand.substring(1)); phase = 37; settle = 0;
+                }
+                case 37 -> {
+                    if (++settle > 200) { throw new IllegalStateException("Actual expansion confirmation failed"); }
+                    if (!expansionAppliedReply || settle < 15) { return; }
+                    phase = 38;
+                    onServer(mc, () -> {
+                        var level = mc.getSingleplayerServer().overworld(); var post = tile(level, checkpointLab.offset(2, 0, 1));
+                        var operation = post.siteOperation().orElseThrow();
+                        if (post.site().appliedRevision() != 1 || operation.phase() != ExpansionOperation.Phase.APPLIED
+                                || operation.observe(pos -> net.minecraft.nbt.NbtUtils.writeBlockState(level.getBlockState(pos))).state() != ExpansionOperation.Observed.ALL_AFTER
+                                || !expansionProtected.equals(OutpostExpansion.protectedDigest(level, post, post.site()))
+                                || !previewGlobalBefore.equals(HumanWorldData.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, HumanWorldData.get(level.getServer())).getOrThrow())) {
+                            throw new IllegalStateException("Real confirmation changed protected state/resources or failed exact application");
+                        }
+                    });
+                }
+                case 38 -> capture(mc, "outpost-expansion-applied-large", 39);
+                case 39 -> { mc.gui.hud.getChat().clearMessages(true); mc.player.connection.sendCommand("standandhold outpost status"); phase = 40; settle = 0; }
+                case 40 -> {
+                    if (++settle > 200) { throw new IllegalStateException("Operation status reply missing"); }
+                    if (expansionStatusReply && settle >= 15) { capture(mc, "outpost-expansion-status-large", 41); }
+                }
+                case 41 -> {
+                    mc.gui.setScreen(null); mc.gui.hud.getChat().clearMessages(true); phase = 42;
+                    onServer(mc, () -> {
+                        var post = tile(mc.getSingleplayerServer().overworld(), checkpointLab.offset(2, 0, 1)); var center = post.site().center();
+                        var player = player(mc); player.getAbilities().flying = true; player.onUpdateAbilities();
+                        player.connection.teleport(center.getX() + 0.5, center.getY() + 10, center.getZ() + 12.5, 180, 40);
+                        com.liamryan.standandhold.config.StructureConfig.EXPANSION.set(false);
+                    });
+                }
+                case 42 -> {
+                    if (++settle < 25 || !mc.levelRenderer.isSectionCompiledAndVisible(checkpointLab, 0)) { return; }
+                    capture(mc, "outpost-expanded-apron", 8);
+                }
                 case 8 -> {
                     mc.gui.setScreen(null);
                     mc.disconnectWithSavingScreen();

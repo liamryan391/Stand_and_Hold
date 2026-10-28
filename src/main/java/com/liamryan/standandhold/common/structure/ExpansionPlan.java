@@ -20,7 +20,6 @@ public record ExpansionPlan(SiteProvenance site, List<Cell> cells, int reads, in
         requireEligible(site, level, minY, maxY);
         BlockPos center = site.center();
         var reader = new Reader(terrain, center, minY, maxY);
-        var cells = new ArrayList<Cell>();
         int columns = 0;
         for (int z = -RADIUS; z <= RADIUS; z++) { for (int x = -RADIUS; x <= RADIUS; x++) {
             columns++;
@@ -29,13 +28,21 @@ public record ExpansionPlan(SiteProvenance site, List<Cell> cells, int reads, in
             require(reader.at(floor), Sample.GROUND, floor);
             require(reader.at(floor.below()), Sample.GROUND, floor.below());
             for (int y = 1; y <= 5; y++) { require(reader.at(floor.above(y)), Sample.CLEAR, floor.above(y)); }
-            cells.add(new Cell(floor, Material.FLOOR));
-            boolean edge = Math.abs(x) == RADIUS || Math.abs(z) == RADIUS;
-            if (edge && !(z == RADIUS && Math.abs(x) <= 1)) { cells.add(new Cell(floor.above(), Material.WALL)); }
-            if (Math.abs(x) == RADIUS && Math.abs(z) == RADIUS) { cells.add(new Cell(floor.above(2), Material.LIGHT)); }
-            if (cells.size() > MAX_CELLS) { throw new IllegalArgumentException("Expansion cell budget exceeded."); }
         } }
-        return new ExpansionPlan(site, cells, reader.reads, columns);
+        return new ExpansionPlan(site, layout(site), reader.reads, columns);
+    }
+    /** Exact authored geometry, also used to reject altered/reordered persisted operation deltas. */
+    public static List<Cell> layout(SiteProvenance site) {
+        if (site.radius() != 4) { throw new IllegalArgumentException("Unsupported apron radius."); }
+        var cells = new ArrayList<Cell>();
+        for (int z = -RADIUS; z <= RADIUS; z++) { for (int x = -RADIUS; x <= RADIUS; x++) {
+            if (Math.abs(x) <= 4 && Math.abs(z) <= 4) { continue; }
+            var floor = site.center().offset(x, 0, z);
+            cells.add(new Cell(floor, Material.FLOOR));
+            if ((Math.abs(x) == RADIUS || Math.abs(z) == RADIUS) && !(z == RADIUS && Math.abs(x) <= 1)) { cells.add(new Cell(floor.above(), Material.WALL)); }
+            if (Math.abs(x) == RADIUS && Math.abs(z) == RADIUS) { cells.add(new Cell(floor.above(2), Material.LIGHT)); }
+        } }
+        return List.copyOf(cells);
     }
     static void requireEligible(SiteProvenance site, int level, int minY, int maxY) {
         if (site.radius() != 4 || site.appliedRevision() != 0) { throw new IllegalArgumentException("Unsupported site radius/applied revision; only unexpanded radius-4 checkpoints qualify."); }

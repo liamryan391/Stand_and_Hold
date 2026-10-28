@@ -41,6 +41,12 @@ final class QaPlayer extends ServerPlayer {
         return received.stream().filter(c -> c.getContents() instanceof TranslatableContents text && text.getKey().equals(key)).count();
     }
     boolean received(String text) { return received.stream().anyMatch(c -> c.getString().contains(text)); }
+    String suggestedCommand(String prefix) {
+        for (var message : received.reversed()) {
+            if (message.getStyle().getClickEvent() instanceof net.minecraft.network.chat.ClickEvent.SuggestCommand suggestion && suggestion.command().startsWith(prefix)) { return suggestion.command(); }
+        }
+        throw new IllegalStateException("Expected safe click-to-fill command: " + prefix);
+    }
     static void closeAll() {
         for (var player : List.copyOf(PLAYERS)) {
             player.level().getServer().getPlayerList().remove(player);

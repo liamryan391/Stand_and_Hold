@@ -2,7 +2,9 @@
 
 M16 design decision: **PROCEED with new-site provenance and read-only planning/preview; DEFER expansion writes until their failure/recovery tests pass in a separately scoped milestone.** This document is a contract, not an implemented expansion system. The only M16 structure change is the separately requested empty lab in new checkpoints. No pins, dependencies, unit tiers, shared population caps or upgrade prices change.
 
-M17 implements only the admitted provenance/planner/read-only preview portion; see [operator usage and receipt format](structures.md#outpost-preview). All application/confirmation/recovery requirements below remain design contracts, not implemented mutation or power-loss proof.
+M17 implements only the admitted provenance/planner/read-only preview portion. M18 adds the single default-disabled confirmed apron path after native fault tests; see [operator usage and receipt format](structures.md#confirmed-apron-application). This is not power-loss or arbitrary third-party callback proof.
+
+M18 implementation policy: keep `outpost preview` read-only. A separate `outpost prepare` action, available only when `expansionEnabled` is explicitly enabled, issues a transient 200-tick consent token for `outpost expand <token>`. An additive bounded `site.operation` receipt records the exact 137 before/after cells, operation/site IDs and protected original-footprint digest before writes. `outpost status` only observes; explicit `outpost recover` may seal a fully matching all-after receipt, never place/repair blocks. Prepared/all-before state needs fresh preparation; mixed/conflicting/unsupported state stops for operator review. Receipt changes preserve unknown fields. No on-load scan/replay, auto-rollback, extra cost/reward or durable-transaction guarantee is admitted. The application command is wired only after fault fixtures pass.
 
 ## Distinct State And Eligibility
 
@@ -46,16 +48,19 @@ Proposed application is disabled by default until the write/recovery exit gate. 
 
 ## Preview And Confirmation Contract
 
-Proposed operator commands (not implemented by M16):
+Operator commands (preview introduced in M17; separate opt-in actions in M18):
 
 ```text
 /standandhold outpost preview
+/standandhold outpost prepare
 /standandhold outpost expand <confirmation-token>
+/standandhold outpost status
+/standandhold outpost recover
 ```
 
-The first implementation candidate exposes **only preview**, not the second command. It reports supported/ineligible/blocked state, site UUID/layout revision, old/new bounds, 88 ground replacements, total write count, unchanged buildings/capacity and the first refusal reason. It does not place markers/ghost blocks, grant resources, change tile NBT, dirty SavedData or start work.
+The M17 preview remains read-only. It reports supported/ineligible/blocked state, site UUID/layout revision, old/new bounds, 88 ground replacements, total write count, unchanged buildings/capacity and the first refusal reason. It does not place markers/ghost blocks, grant resources, change tile NBT, dirty SavedData or start work. M18 preparation is separate and keeps consent transient until confirmation.
 
-A later confirm implementation requires a server-issued single-use token bound to player UUID, site UUID/anchor, current local level, applied revision, config/policy fingerprint and a digest of expected-before/after delta states. Expiry: 200 unpaused game ticks. Bound the transient cache to 64 entries server-wide; expire lazily on action/disconnect, with no global tick handler. Restart invalidates tokens; one player's token cannot authorize another post/player.
+Confirmation requires a server-issued single-use token bound to player UUID, dimension/site UUID/anchor, current local level/stage, applied revision, config/policy fingerprint and exact expected-before/after delta plus protected-footprint digest. Expiry: 200 unpaused game ticks. The transient cache is bounded to 64 entries server-wide; expiry/revocation happens on action/disconnect, with no global tick handler. Restart invalidates tokens; one player's token cannot authorize another post/player.
 
 On confirm, repeat the complete loaded/identity/dimension/terrain/entity/level/config validation. A cached preview is not permission to use stale terrain. Consume the token before side effects; serialize requests on the server thread and allow only one application per site revision. Wrong, expired, replayed or changed-state requests produce no writes or debit. Existing Main Base stage notices and menu actions do not invoke this path.
 
@@ -81,7 +86,7 @@ On ordinary mid-write failure, report operation ID/first changed/conflicting cel
 
 ## Verification Plan And Admission
 
-These are required **future tests**, not passed M16 expansion evidence:
+This contract is checked by the automated ladder; observed M18 results belong in [Automated Testing](automated-testing.md). It must not be attributed to the earlier M16 lab-only pass:
 
 | Ladder | Required proof |
 | --- | --- |
@@ -94,4 +99,4 @@ These are required **future tests**, not passed M16 expansion evidence:
 
 The new checkpoint lab is separately verified using existing logic/GameTests/restart/qaClient. Those results cannot be presented as expansion/provenance/rollback proof.
 
-**Admission verdict:** ready to implement a narrowly scoped **provenance + read-only preview** milestone with existing built-ins. No unresolved pin/library decision is needed. Actual expansion/confirm is deferred until protected-state and failure/restart fixtures demonstrate the above semantics. No full base generator, claims system, campaign, vehicles or animation library is included.
+**Admission verdict:** M17 provenance/read-only preview was followed by the M18 single opt-in application only after required native fault tests passed. Final release/merge still requires its complete build/restart/client/CI ladder. No full base generator, automatic growth, claims system, campaign, vehicles, animation library or durable transaction guarantee is included.

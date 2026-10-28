@@ -13,6 +13,7 @@ import com.liamryan.standandhold.config.StructureConfig;
 import com.liamryan.standandhold.common.progression.ProgressionRules;
 import com.liamryan.standandhold.common.npc.DefenderDeployment;
 import com.liamryan.standandhold.common.structure.SiteProvenance;
+import com.liamryan.standandhold.common.structure.ExpansionOperation;
 import com.liamryan.standandhold.config.NpcConfig;
 import com.liamryan.standandhold.config.ResponseConfig;
 import com.liamryan.standandhold.common.threat.ThreatResponse;
@@ -50,6 +51,7 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
     private boolean mainBase;
     private int mainBaseNotices;
     private Dynamic<?> retainedSite;
+    private long siteEpoch;
 
     public BuildingBlockEntity(BlockPos pos, BlockState block) { super(BuildingRegistry.ENTITY.get(), pos, block); }
     public BuildingKind kind() { return ((BuildingBlock) getBlockState().getBlock()).kind(); }
@@ -66,7 +68,32 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         if (kind() != BuildingKind.COMMAND_POST || isMainBase() || retainedSite != null || !worldPosition.equals(site.anchor())) {
             throw new IllegalStateException("Site provenance can only initialize a new checkpoint post once.");
         }
-        retainedSite = new Dynamic<>(NbtOps.INSTANCE, site.save()); setChanged();
+        retainedSite = new Dynamic<>(NbtOps.INSTANCE, site.save()); siteEpoch++; setChanged();
+    }
+    public long siteEpoch() { return siteEpoch; }
+    public java.util.Optional<ExpansionOperation> siteOperation() {
+        var site = site();
+        var tag = (CompoundTag) retainedSite.convert(NbtOps.INSTANCE).getValue();
+        return tag.get("operation") == null ? java.util.Optional.empty() : java.util.Optional.of(ExpansionOperation.read(tag.get("operation"), site));
+    }
+    public void storeSiteOperation(ExpansionOperation operation) {
+        requireWritable(); var site = site(); operation.validateSite(site);
+        var old = siteOperation().orElse(null);
+        if (kind() != BuildingKind.COMMAND_POST || isMainBase() || !worldPosition.equals(site.anchor())
+                || site.appliedRevision() != 0 && !(site.appliedRevision() == 1 && old != null && old.id().equals(operation.id()) && operation.phase() == ExpansionOperation.Phase.APPLIED)
+                || old != null && (!old.id().equals(operation.id()) && old.phase() != ExpansionOperation.Phase.PREPARED
+                || old.id().equals(operation.id()) && (!old.changes().equals(operation.changes()) || !old.protectedDigest().equals(operation.protectedDigest())))) {
+            throw new IllegalStateException("Cannot replace a sealed/ambiguous expansion receipt or alter its intent.");
+        }
+        var tag = ((CompoundTag) retainedSite.convert(NbtOps.INSTANCE).getValue()).copy();
+        var saved = tag.getCompoundOrEmpty("operation").copy(); var current = operation.save();
+        for (String key : current.keySet()) {
+            if (key.equals("cells") && old != null && old.id().equals(operation.id())) { continue; }
+            saved.put(key, current.get(key));
+        }
+        tag.put("operation", saved);
+        if (operation.phase() == ExpansionOperation.Phase.APPLIED) { tag.putInt("applied_revision", 1); }
+        retainedSite = new Dynamic<>(NbtOps.INSTANCE, tag); siteEpoch++; setChanged();
     }
     public boolean isMainBase() { return mainBase && kind() == BuildingKind.COMMAND_POST; }
     public void initializeMainBase() { requireWritable(); if (!mainBase) { mainBase = true; setChanged(); } }
@@ -117,6 +144,7 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         mainBase = input.getBooleanOr("main_base", false);
         mainBaseNotices = Math.clamp(input.getIntOr("main_base_notices", 0), 0, 3);
         retainedSite = input.read("site", Codec.PASSTHROUGH).orElse(null);
+        siteEpoch++;
         retainedState = input.read("building", Codec.PASSTHROUGH).orElse(null);
         malformed = retainedState != null && !(retainedState.convert(NbtOps.INSTANCE).getValue() instanceof CompoundTag);
         state = malformed || retainedState == null ? BuildingState.EMPTY : BuildingState.CODEC.parse(retainedState).getOrThrow();

@@ -86,7 +86,7 @@ final class PreviewTests {
                 catch (CommandSyntaxException expected) { }
                 h.assertTrue(dispatcher.execute("standandhold outpost preview", source.withPermission(server.createCommandSourceStack().permissions())) == 1, "Real operator Brigadier path");
                 h.assertTrue(f.player().received("READ ONLY") && f.player().received("88 ground") && f.player().received("claim-mod"), "Useful output/warning reached caller");
-                h.assertTrue(dispatcher.getRoot().getChild("standandhold").getChild("outpost").getChild("expand") == null, "No expansion/confirm command");
+                h.assertTrue(dispatcher.getRoot().getChild("standandhold").getChild("outpost").getChild("preview").getCommand() != null, "Read-only preview remains a distinct action, never confirmation");
             } catch (CommandSyntaxException failure) { throw new IllegalStateException(failure); }
             unchanged(h, f.post(), before); h.succeed();
         });

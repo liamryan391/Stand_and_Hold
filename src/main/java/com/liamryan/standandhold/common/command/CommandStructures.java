@@ -8,6 +8,7 @@ import com.liamryan.standandhold.common.progression.ProgressionRules;
 import com.liamryan.standandhold.common.structure.StructureKind;
 import com.liamryan.standandhold.common.structure.StructurePlacement;
 import com.liamryan.standandhold.common.structure.OutpostPreview;
+import com.liamryan.standandhold.common.structure.OutpostExpansion;
 import com.liamryan.standandhold.common.support.SupportCallIn;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.HumanProgressionConfig;
@@ -18,15 +19,23 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import java.util.Comparator;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.UuidArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.ChatFormatting;
 
 final class CommandStructures {
     private static final DynamicCommandExceptionType ERROR = new DynamicCommandExceptionType(value -> Component.literal(String.valueOf(value)));
     private CommandStructures() { }
     static void addChildren(LiteralArgumentBuilder<CommandSourceStack> root) {
         root.then(Commands.literal("outpost").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-                .then(Commands.literal("preview").executes(context -> preview(context.getSource()))));
+                .then(Commands.literal("preview").executes(context -> preview(context.getSource())))
+                .then(Commands.literal("prepare").executes(context -> expansion(context.getSource(), "prepare", null)))
+                .then(Commands.literal("expand").then(Commands.argument("token", UuidArgument.uuid()).executes(context -> expansion(context.getSource(), "expand", UuidArgument.getUuid(context, "token")))))
+                .then(Commands.literal("status").executes(context -> expansion(context.getSource(), "status", null)))
+                .then(Commands.literal("recover").executes(context -> expansion(context.getSource(), "recover", null))));
         root.then(Commands.literal("structure").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .then(Commands.literal("checkpoint").executes(context -> place(context.getSource(), StructureKind.CHECKPOINT)))
                 .then(Commands.literal("mainbase").executes(context -> place(context.getSource(), StructureKind.MAIN_BASE))));
@@ -34,6 +43,29 @@ final class CommandStructures {
                 .then(Commands.literal("list").executes(context -> inspect(context.getSource(), false)))
                 .then(Commands.literal("nearest").executes(context -> inspect(context.getSource(), true)))
                 .then(Commands.literal("status").executes(context -> inspect(context.getSource(), true))));
+    }
+    private static int expansion(CommandSourceStack source, String action, java.util.UUID token) throws CommandSyntaxException {
+        try {
+            var player = source.getPlayerOrException(); var post = SupportCallIn.lookedAt(player);
+            if (action.equals("prepare")) {
+                var issued = OutpostExpansion.prepare(player, post);
+                for (String line : new String[]{"Prepared: 137 cells / 88 ground; no writes yet.",
+                        "Only this site/player; buildings/caps unchanged.",
+                        "Player terrain may match. No claim-mod approval.",
+                        "Back up first. Token expires in 10 unpaused seconds."}) { source.sendSuccess(() -> Component.literal(line), false); }
+                String command = "/standandhold outpost expand " + issued;
+                source.sendSuccess(() -> Component.literal("Confirm: " + command).withStyle(style -> style.withColor(ChatFormatting.AQUA)
+                        .withClickEvent(new ClickEvent.SuggestCommand(command))
+                        .withHoverEvent(new HoverEvent.ShowText(Component.literal("Fill chat only. Review ground-replacement consent, then press Enter to apply.")))), false);
+                return 1;
+            }
+            String message;
+            if (action.equals("expand")) {
+                var result = OutpostExpansion.confirm(player, post, token);
+                if (!result.success()) { throw new IllegalStateException(result.message()); } message = result.message();
+            } else { message = action.equals("recover") ? OutpostExpansion.recover(player, post) : OutpostExpansion.status(player, post); }
+            source.sendSuccess(() -> Component.literal(message), false); return 1;
+        } catch (IllegalArgumentException | IllegalStateException exception) { throw ERROR.create(exception.getMessage()); }
     }
     private static int preview(CommandSourceStack source) throws CommandSyntaxException {
         try {

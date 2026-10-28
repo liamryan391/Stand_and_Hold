@@ -2,22 +2,22 @@
 Updated: 2026-10-28 - Handoff branch: `codex/m18-outpost-application`
 
 ## Position
-- M1-M13, M15-M17 have verified exit gates; M18 confirmed application/recovery is scoped, not implemented.
+- M1-M13, M15-M17 have verified exit gates; M18 implementation/fault gate passed, final client/CI/publication underway.
 - Liam confirmed NeoForge-first; Fabric-specific M14 14.4-14.5 remain deferred, not approved or run.
-- Design verdict: provenance/read-only preview first; actual expansion/confirm deferred. No existing site resized/retrofitted.
+- M18 adds one default-disabled confirmed apron; no automatic growth, old-site adoption or capacity/reward changes.
 - Pins remain Minecraft 26.3 / NeoForge 26.3.0.57-beta / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
 
 ## Verified
-- M17 final clean build: 15,178 assertions and all 40 required GameTests passed; normal jar metadata/QA isolation checked.
-- Two real JVMs retained site UUID/level/storage and identical preview delta, plus all prior persistence checks.
-- M17 qaClient passed; all 19 captures reviewed. Windows implementation CI 40757351989 passed the full ladder/artifacts.
-- Only proposed cells are returned; physical expansion/confirm, old-site adoption and global-cap changes are excluded.
+- M18 final clean build: 15,409 assertions/all 55 GameTests passed; normal jar metadata/QA isolation checked.
+- Two JVMs retained prepared/mixed/applied/all-after states, rejected old tokens and verified explicit metadata-only recovery.
+- Final M18 qaClient screenshot review and commit CI are pending; no pass claimed yet.
+- Native tests include first/middle/last faults, callback/container/protected-state conflicts, late entities and permissions.
 
 ## Risks And Decisions
 - No new runtime dependency/pin change approved; only Liam accepts an EULA if prompted.
 - Contagion 2.1.1 fails pinned-loader bootstrap; external infection gameplay remains deferred, not passed.
 - Worker-proxy tests are not concurrent natural-worldgen proof; broad-terrain/load, packaged and multiplayer QA remain separate.
-- [Expansion design](outpost-expansion-design.md) admits M17 preview only; missing old-site provenance must not be guessed.
+- [Expansion contract](outpost-expansion-design.md): no fsync/atomic-power-loss promise; mixed/unknown state stops for review.
 - Preserve legacy `1.12`, alpha tag, ignored worlds/configs and `.local/`; no legacy save conversion.
 
 ## Next Milestone

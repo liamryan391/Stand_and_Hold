@@ -127,13 +127,14 @@ final class RestartFixture {
         }
         check(data(level).defenderCount(home) == 5 && DefenderDeployment.attempt(level, tile(level, POST)) == null, "Level 2 fills exactly five slots");
         receipt.setProperty("preview", preview(level));
+        RestartExpansionFixture.seed(level, receipt);
     }
     private static void verify(MinecraftServer server, ServerLevel level) {
         var data = HumanWorldData.get(server); var base = tile(level, BASE); var lab = tile(level, LAB);
         check(data.points() == 42 && data.stage() == HumanStage.SURVIVORS && data.supplies() == 110, "Global progression/supply balances including once-only support debit");
         check(data.isResearchComplete("standandhold:parasite_samples"), "Research receipt");
         check(data.mission("standandhold:recover_parasite_samples").orElseThrow().progress() == 2, "Partial mission");
-        check(data.isMainBase(new BuildingPosition(level.dimension().identifier(), BASE)) && data.commandPostKeys().size() == 3, "All three original/generated site registrations");
+        check(data.isMainBase(new BuildingPosition(level.dimension().identifier(), BASE)) && data.commandPostKeys().size() == 7, "All seven original/generated/operation site registrations");
         var checkpoint = BlockPos.of(Long.parseLong(receipt.getProperty("checkpoint")));
         check(data.commandPostKeys().contains(new BuildingPosition(level.dimension().identifier(), checkpoint).key()), "Generated checkpoint registration survived");
         check(tile(level, checkpoint).site().id().toString().equals(receipt.getProperty("siteUuid"))
@@ -161,6 +162,7 @@ final class RestartFixture {
         NpcConfig.POST_CAP.set(2);
         check(DefenderDeployment.attempt(level, post) == null && data.defenderCount(home) == 5, "Lowering ceiling after real restart preserves excess reservations");
         NpcConfig.POST_CAP.set(16);
+        RestartExpansionFixture.verify(level, receipt);
     }
     private static HumanWorldData data(ServerLevel level) { return HumanWorldData.get(level.getServer()); }
     private static String preview(ServerLevel level) {

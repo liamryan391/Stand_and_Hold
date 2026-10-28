@@ -41,6 +41,7 @@ New natural/debug checkpoints of all supported sizes include one empty, idle lab
 | `maximumHeightDifference` | Full-footprint slope limit, 0..3 blocks; safety checks cannot be disabled |
 | `mainBaseActivationStage` | Command generation/deployment stage, 0..6; default 5 |
 | `checkpointCrateSupplies`, `mainBaseCrateSupplies` | One-time local starting supplies, also clamped to building capacity |
+| `expansionEnabled` | **False by default.** Explicit operator preparation/application of proven level-2+ radius-4 checkpoints only. No automatic growth, extra cost/reward or population increase; whole-world backup required |
 
 Generation settings are not saved attempt receipts. Changing them only affects subsequent chunk generation; it never intentionally repeats generation in an existing chunk. For deterministic natural QA, use a **new disposable** flat world with biome decoration explicitly enabled (`features: true` in its generator settings), spacing/chance 1 and only the desired site enabled. Default Superflat disables natural biome features; its debug commands still work. Disable automatic NPC deployment in dense QA to avoid an artificial concentration of posts. Restore defaults afterwards; do not use dense QA settings in a normal world.
 
@@ -66,13 +67,37 @@ Registry inspection is bounded to 4,096 records per registry and 20 output rows.
 
 `/standandhold outpost preview` is **operator level 2, read-only, player-only**. Close the menu and look directly at a loaded Field Command Post within six blocks. A newly generated default-radius checkpoint must have its generation receipt, local level >=2 and original lab/crate tiles. Upgrading still uses the existing point/research/local-resource gates; world stage alone never enlarges a site. Generation at other supported radii still works, but the first expansion preview only supports radius 4.
 
-Eligible output reports site UUID, old/new x/z bounds and floor, 137 proposed cells (88 ground replacements, 45 walls, four lights), unchanged buildings/capacity and a terrain-ownership warning. It describes a 9x9-to-13x13 outer apron; **no blocks, resources, tokens, markers, registrations or dirty flags change**. There is no `outpost expand`, confirm, force or remote-coordinate command. Preview is not an external claim-mod approval: identical player-placed grass/dirt cannot be distinguished from terrain.
+Eligible output reports site UUID, old/new x/z bounds and floor, 137 proposed cells (88 ground replacements, 45 walls, four lights), unchanged buildings/capacity and a terrain-ownership warning. It describes a 9x9-to-13x13 outer apron; **no blocks, resources, tokens, markers, registrations or dirty flags change**. Separate preparation/application is opt-in; preview itself never authorizes construction. There is no force or remote-coordinate option. Preview is not an external claim-mod approval: identical player-placed grass/dirt cannot be distinguished from terrain.
 
 Old/M16-or-earlier sites and manually placed/replacement posts are never adopted. Main Bases, unsupported/future/malformed site data, missing original buildings, level-1 posts, changed anchors/dimensions, unsuitable/wet/occupied/unloaded/out-of-border terrain and entity obstruction refuse safely. One bounded loaded-entity inspection stops at 128 candidates and refuses if saturated. The pure plan reads 616 cells across the bounded envelope; the service adds three fixed tile identity checks, not a global scan. No chunk is requested.
 
 Successful **new checkpoint generation only** attaches a separate `site` compound (`site_version: 1`, UUID, dimension, checkpoint kind, `checkpoint_lab_v1` layout/revision, command anchor/floor, radius, south orientation, debug/worldgen origin, applied revision 0). All new checkpoint sizes get a receipt, but only the default size is preview-eligible. Center is derived from the command anchor: one block south and one block below. Building schema remains 1; HumanWorldData remains 5. Reading a receipt never normalizes it; unknown fields and malformed/future raw data survive normal building saves, while site actions fail closed. Storage/research remain usable independently. Older mod binaries may discard this new field on downgrade: use whole-world backups, never guessed provenance.
 
-Future application and failure/recovery requirements remain in the [expansion design](outpost-expansion-design.md); M17 implements no resizing or power-loss journal.
+The [expansion design](outpost-expansion-design.md) records the contract and qualified failure semantics. M17 added no resizing; the opt-in M18 application is described below, not a power-loss journal.
+
+## Confirmed Apron Application
+
+Back up the **whole disposable modern world** before opting in. In its server-side `config/standandhold-structures.toml`, set `expansionEnabled = true` and restart the instance (do not reset unrelated config). Leave it false on servers that do not accept bounded ground replacement or have unverified claim/protection mods. Old/manual posts and Main Bases never become eligible. Upgrade a new supported checkpoint's post normally to local level 2; setting world stage alone does not upgrade it.
+
+Close menus, look directly at that post within six blocks as an operator, then:
+
+```text
+/standandhold outpost preview
+/standandhold outpost prepare
+/standandhold outpost expand <token-from-prepare>
+/standandhold outpost status
+/standandhold outpost recover
+```
+
+`prepare` reports ground-replacement consent and issues a single-use token, but saves no world receipt or blocks. Its coloured Confirm line **only fills chat**; review it, then press Enter to apply. It expires after 200 unpaused game ticks (10 seconds at 20 TPS), is bound to that player/dimension/site/level/stage/config and exact before-state/protected-building digest, and is invalid after disconnect/restart or another preparation by that player. The transient server cache holds at most 64 entries. Once confirmation looks up an owned token it is consumed, even if revalidation fails; prepare again, never use a force flag. Normal building/lab progress or player edits during those ten seconds can invalidate consent safely.
+
+`expand` rechecks the complete loaded-only terrain/entity preflight, saves a bounded intent on the original post, then attempts exactly 88 floors, 45 walls and four torches, synchronously. The original 9x9 footprint, lab/crate/post NBT, storage, resources, defender reservations/cooldowns and capacity stay intact. **No extra debit, reward, loot or units.** Inner walls remain; this is an outer apron, not a full base rebuild. Once applied, breaking its blocks never causes repair/refill or allows another application.
+
+Safety bounds: one chunk, 169 terrain columns, at most 1,999 explicit block-state reads on the successful confirmation path, 137 unique writes (hard ceiling 256), one loaded-entity query capped at 128 candidates, and fixed tile-identity checks. Preparation also hashes the original 9x9 x 6 block envelope. Extra block entities inside that envelope refuse before hashing their contents; each of the three original buildings has a 256-KiB serialized-NBT safety limit. Oversized/unsupported data is retained, not erased. No chunk tickets, global ticker or whole-world scan is added. The fixture overrides used for screenshot determinism never change normal config defaults.
+
+`status` is a read-only observation of the saved operation UUID, phase, all-before/all-after/mixed/conflict state and protected-state digest. The recorded index is diagnostic, **not** a durable write counter. Protection mismatch can also mean legitimate later storage/building changes. `recover` is explicit operator **metadata sealing only**: an unsealed receipt must have every expected-after cell and the matching protected footprint. It works even with application disabled; it never places, repairs, rolls back, spends or grants anything. It cannot repair a sealed site. Prepared/all-before state needs fresh preparation/consent; REVIEW, mixed, conflicting, removed/replaced-anchor or unsupported state refuses application for operator inspection/whole-world restore. No automatic on-load replay or repair occurs.
+
+The additive `site.operation` format (`operation_version = 1`) stores site/operation UUIDs, exact ordered 137-cell expected-before/after delta, protected digest, prepared/review/applied phase and bounded diagnostic. Known updates preserve unknown site/operation/cell fields; malformed/future raw receipts disable site actions without breaking ordinary storage. A successful seal sets only `site.applied_revision = 1` plus receipt status. Building/global schemas remain 1/5. `setChanged()` is **not fsync**: same-chunk receipts reduce scope but do not guarantee atomic snapshots, process-kill/power-loss recovery or arbitrary third-party callback safety. Never downgrade a world in place; restore a matching whole-world backup.
 
 ## Saves And Discovery
 
@@ -84,12 +109,13 @@ Normal removal unregisters the post and base. Admin edits that suppress removal 
 
 ## Manual QA
 
-1. In a fresh disposable world, inspect a newly placed checkpoint's lab/entrance/lighting/shelter for feel and accessibility. Automated GameTests cover required tiles, empty lab, explicit research, obstruction refusal and all checkpoint radii; the two-JVM fixture covers generated lab storage/work and crate non-refill. No manual numeric readback is needed.
-2. Move at least 64 blocks to clear terrain in another chunk; generate a Main Base. Inspect its distinct footprint, zones and lab/crate menus. Confirm 5 supplies, dormant chat and zero post generation at Stage 0. Stage 5 should enable generation/capped deployment after loaded intervals; it does not unlock an unimplemented new NPC tier.
-3. Re-run placement in occupied terrain. Try water, a steep slope, a protected chest, an unloaded coordinate via console, disallowed dimension and world border. Expect refusal without damage or new registry entries.
-4. Open the base post, start/complete prerequisite missions with the admin flow in [Foundation Data](foundation-data.md), then start `establish_main_base`. Verify discovery completion/reward once; repeat, restart, remove the base and check no reset/regrant.
-5. Export some crate storage, save/quit and reopen: no refill; marker, storage, registration and completed mission survive. Check both list/nearest commands, then remove the post normally. For stale-record testing in a disposable copy, admin-clear the tile without removal updates and inspect again; unloaded records must remain.
-6. Natural QA uses new chunks and disposable dense settings as above. Confirm actual natural posts/base flags appear after loading, not merely that the datapack parses; then restart and check no duplication. Restore sparse defaults and retain the QA world separately.
+Mechanics belong to the [automated ladder](automated-testing.md): native structures/refusals/commands/AI, real restart persistence and client screenshots. No manual command/number readback is required.
+
+1. In a disposable world, judge checkpoint/Main Base entrance, lab access, lighting and defender movement for feel. These are original alpha foundations, not finished bases.
+2. For opt-in expansion, use the procedure above and judge the narrow outer apron/entrance and the clarity of consent. Required tests already cover exact writes, protected state, faults, expiry, permissions and restarts.
+3. Natural generation across varied terrain, real multiplayer and packaged installs remain separate coverage; a deterministic worker-proxy test is not concurrent natural-worldgen proof. Retain test worlds and restore sparse defaults after dense QA.
+
+Play for about 5 minutes. Does anything feel off or annoying?
 
 ## Limits And Planned Layouts
 
@@ -105,4 +131,4 @@ Liam's M12 feedback proposes growing individual checkpoints/outposts alongside t
 - Physical growth needs bounded loaded-only footprint preflight, protected player blocks/storage/tiles, partial-failure safety and persistent site ownership. A global stage increase must not silently overwrite nearby builds or reset defender reservations/cooldowns.
 - Existing per-site building levels now control bounded defender capacity (see [capacity contract](buildings.md#defender-capacity-contract)); shared nearby quotas still apply. This does not enlarge generated layouts. Physical expansion and larger shared population budgets need a separate design/load test; the showcase work itself introduced neither.
 
-The [outpost expansion design](outpost-expansion-design.md) defines a small outer-apron candidate, explicit eligibility/terrain budgets and conservative recovery. Its admission is provenance/read-only preview first; no expansion command, automatic resizing or crash-recovery system is implemented by M16.
+The [outpost expansion design](outpost-expansion-design.md) defines the bounded outer apron, explicit eligibility/terrain budgets and conservative recovery. M16 admitted preview first; M18 adds one default-disabled confirmed application, not automatic resizing, Main Base growth or a durable crash-recovery system.
