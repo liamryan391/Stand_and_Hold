@@ -40,6 +40,7 @@ final class RestartFixture {
             ticks++;
             if (ticks == 1) {
                 NpcConfig.POST_CAP.set(16); NpcConfig.POST_LEVELS.set(DefenderCapacity.DEFAULT_LEVELS);
+                com.liamryan.standandhold.config.StructureConfig.CHECKPOINT_RADIUS.set(4);
                 level.getGameRules().set(GameRules.SPAWN_MOBS, false, server);
                 level.getGameRules().set(GameRules.ADVANCE_TIME, false, server);
                 server.setDifficulty(Difficulty.NORMAL, true);
@@ -82,6 +83,9 @@ final class RestartFixture {
         tile(level, POST).change(new BuildingState(2, 17, 2, "", 0));
         var checkpoint = StructurePlacement.place(level, StructureKind.CHECKPOINT, 2, 2);
         check(checkpoint.success(), "Actual checkpoint before restart: " + checkpoint.message());
+        var checkpointPost = tile(level, checkpoint.commandPost());
+        checkpointPost.change(new BuildingState(2, 11, 1, "", 0));
+        receipt.setProperty("siteUuid", checkpointPost.site().id().toString());
         int radius = com.liamryan.standandhold.config.StructureConfig.CHECKPOINT_RADIUS.get();
         BlockPos checkpointLab = checkpoint.commandPost().offset(-radius + 2, 0, -radius + 3);
         BlockPos checkpointCrate = checkpoint.commandPost().offset(radius - 1, 0, -radius + 2);
@@ -122,6 +126,7 @@ final class RestartFixture {
             extra.setNoAi(true); receipt.setProperty("extraNpc" + i, extra.getUUID().toString());
         }
         check(data(level).defenderCount(home) == 5 && DefenderDeployment.attempt(level, tile(level, POST)) == null, "Level 2 fills exactly five slots");
+        receipt.setProperty("preview", preview(level));
     }
     private static void verify(MinecraftServer server, ServerLevel level) {
         var data = HumanWorldData.get(server); var base = tile(level, BASE); var lab = tile(level, LAB);
@@ -131,6 +136,9 @@ final class RestartFixture {
         check(data.isMainBase(new BuildingPosition(level.dimension().identifier(), BASE)) && data.commandPostKeys().size() == 3, "All three original/generated site registrations");
         var checkpoint = BlockPos.of(Long.parseLong(receipt.getProperty("checkpoint")));
         check(data.commandPostKeys().contains(new BuildingPosition(level.dimension().identifier(), checkpoint).key()), "Generated checkpoint registration survived");
+        check(tile(level, checkpoint).site().id().toString().equals(receipt.getProperty("siteUuid"))
+                && tile(level, checkpoint).state().equals(new BuildingState(2, 11, 1, "", 0)), "Same provenance UUID/layout/level/storage after restart");
+        check(preview(level).equals(receipt.getProperty("preview")), "Restarted read-only preview returns the identical ordered delta");
         var checkpointLab = tile(level, BlockPos.of(Long.parseLong(receipt.getProperty("checkpointLab"))));
         check(checkpointLab.kind() == BuildingKind.LAB && checkpointLab.state().equals(new BuildingState(1, 31, 2, "standandhold:field_communications", 3, false)), "Generated lab's paused work/target/storage persist unchanged");
         check(tile(level, BlockPos.of(Long.parseLong(receipt.getProperty("checkpointCrate")))).state().supplies() == 1, "Checkpoint crate does not refill on restart");
@@ -155,6 +163,21 @@ final class RestartFixture {
         NpcConfig.POST_CAP.set(16);
     }
     private static HumanWorldData data(ServerLevel level) { return HumanWorldData.get(level.getServer()); }
+    private static String preview(ServerLevel level) {
+        var post = tile(level, BlockPos.of(Long.parseLong(receipt.getProperty("checkpoint"))));
+        var player = QaPlayer.join(level); var pos = post.getBlockPos();
+        player.snapTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 4.5, 180, 16);
+        var before = post.saveWithFullMetadata(level.registryAccess());
+        var global = HumanWorldData.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, data(level)).getOrThrow();
+        boolean dirty = data(level).isDirty();
+        try {
+            var plan = OutpostPreview.inspect(player, post);
+            check(plan.cells().size() == 137 && plan.reads() == 616, "Exact preview before/after real restart");
+            check(post.saveWithFullMetadata(level.registryAccess()).equals(before) && data(level).isDirty() == dirty
+                    && HumanWorldData.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, data(level)).getOrThrow().equals(global), "Restart preview changes no post/global data or dirty flag");
+            return plan.cells().stream().map(cell -> cell.pos().asLong() + ":" + cell.material().name()).collect(java.util.stream.Collectors.joining(";"));
+        } finally { QaPlayer.closeAll(); }
+    }
     private static BuildingBlockEntity tile(ServerLevel level, BlockPos pos) { return (BuildingBlockEntity) level.getBlockEntity(pos); }
     private static void check(boolean valid, String message) { if (!valid) { throw new IllegalStateException(message); } }
     private static Path path(String suffix) { return Path.of(WORLD + "-" + suffix + ".properties"); }

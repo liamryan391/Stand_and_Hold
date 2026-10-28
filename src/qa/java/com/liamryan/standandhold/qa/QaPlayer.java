@@ -40,6 +40,7 @@ final class QaPlayer extends ServerPlayer {
     long messages(String key) {
         return received.stream().filter(c -> c.getContents() instanceof TranslatableContents text && text.getKey().equals(key)).count();
     }
+    boolean received(String text) { return received.stream().anyMatch(c -> c.getString().contains(text)); }
     static void closeAll() {
         for (var player : List.copyOf(PLAYERS)) {
             player.level().getServer().getPlayerList().remove(player);

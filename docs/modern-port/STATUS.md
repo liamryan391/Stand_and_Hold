@@ -2,16 +2,16 @@
 Updated: 2026-10-28 - Handoff branch: `codex/m17-outpost-preview`
 
 ## Position
-- M1-M13 and M15 are merged; M16 adds the requested empty lab to new checkpoints and completes expansion design.
+- M1-M13, M15-M16 are merged. M17 provenance/planner/preview implemented; final verification/publication underway.
 - Liam confirmed NeoForge-first; Fabric-specific M14 14.4-14.5 remain deferred, not approved or run.
 - Design verdict: provenance/read-only preview first; actual expansion/confirm deferred. No existing site resized/retrofitted.
 - Pins remain Minecraft 26.3 / NeoForge 26.3.0.57-beta / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
 
 ## Verified
-- M16 clean build passed: 7,930 assertions, normal-jar metadata/QA isolation checked; all 33 required GameTests passed.
-- Two dedicated JVMs retained generated lab storage/paused work, no crate refill and all prior persistent systems.
-- Self-quitting qaClient passed; all 16 screenshots reviewed (8f1f18ee prefix), including checkpoint/lab menu.
-- Proposed expansion is one-chunk outer apron; budgets/recovery/ownership and future test gates are documented, not implemented.
+- M17 final clean build: 15,178 assertions and all 40 required GameTests passed; normal jar metadata/QA isolation checked.
+- Two real JVMs retained site UUID/level/storage and identical preview delta, plus all prior persistence checks.
+- M17 qaClient passed; all 19 captures reviewed at normal/large scales. Commit CI/publication remain pending.
+- Only proposed cells are returned; physical expansion/confirm, old-site adoption and global-cap changes are excluded.
 
 ## Risks And Decisions
 - No new runtime dependency/pin change approved; only Liam accepts an EULA if prompted.

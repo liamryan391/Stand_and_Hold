@@ -23,6 +23,7 @@ public final class ProgressionChecks {
         SampleChecks.run();
         NpcChecks.run();
         StructureChecks.run();
+        ExpansionChecks.run();
         ArtChecks.run();
         EquipmentChecks.run();
         ResponseChecks.run();

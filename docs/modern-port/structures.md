@@ -62,6 +62,18 @@ Placement uses the **current chunk**, centred at local x/z 8, with y found from 
 
 Registry inspection is bounded to 4,096 records per registry and 20 output rows. Nearest/status selects this dimension only. `[stage eligible]` means the stage condition is met, not that an unloaded site is currently ticking or its NPC quota has room. Inspection cleans malformed position keys and missing/wrong **loaded, current-dimension** tiles; it never loads, inspects or removes an unloaded/other-dimension site. Labs/crates do not need a global position registry.
 
+## Outpost Preview
+
+`/standandhold outpost preview` is **operator level 2, read-only, player-only**. Close the menu and look directly at a loaded Field Command Post within six blocks. A newly generated default-radius checkpoint must have its generation receipt, local level >=2 and original lab/crate tiles. Upgrading still uses the existing point/research/local-resource gates; world stage alone never enlarges a site. Generation at other supported radii still works, but the first expansion preview only supports radius 4.
+
+Eligible output reports site UUID, old/new x/z bounds and floor, 137 proposed cells (88 ground replacements, 45 walls, four lights), unchanged buildings/capacity and a terrain-ownership warning. It describes a 9x9-to-13x13 outer apron; **no blocks, resources, tokens, markers, registrations or dirty flags change**. There is no `outpost expand`, confirm, force or remote-coordinate command. Preview is not an external claim-mod approval: identical player-placed grass/dirt cannot be distinguished from terrain.
+
+Old/M16-or-earlier sites and manually placed/replacement posts are never adopted. Main Bases, unsupported/future/malformed site data, missing original buildings, level-1 posts, changed anchors/dimensions, unsuitable/wet/occupied/unloaded/out-of-border terrain and entity obstruction refuse safely. One bounded loaded-entity inspection stops at 128 candidates and refuses if saturated. The pure plan reads 616 cells across the bounded envelope; the service adds three fixed tile identity checks, not a global scan. No chunk is requested.
+
+Successful **new checkpoint generation only** attaches a separate `site` compound (`site_version: 1`, UUID, dimension, checkpoint kind, `checkpoint_lab_v1` layout/revision, command anchor/floor, radius, south orientation, debug/worldgen origin, applied revision 0). All new checkpoint sizes get a receipt, but only the default size is preview-eligible. Center is derived from the command anchor: one block south and one block below. Building schema remains 1; HumanWorldData remains 5. Reading a receipt never normalizes it; unknown fields and malformed/future raw data survive normal building saves, while site actions fail closed. Storage/research remain usable independently. Older mod binaries may discard this new field on downgrade: use whole-world backups, never guessed provenance.
+
+Future application and failure/recovery requirements remain in the [expansion design](outpost-expansion-design.md); M17 implements no resizing or power-loss journal.
+
 ## Saves And Discovery
 
 Modern global schema 5 adds `main_bases` and `discovered_main_base` to the existing progression, research/mission receipts, posts and defender reservations. Modern schemas 0..4 migrate non-destructively; unknown data survives. Missing/malformed current-schema fields fail closed rather than forgetting history. This is not a legacy-world importer. A world and its chunks must be backed up together.

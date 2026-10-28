@@ -51,6 +51,7 @@ final class WorldTests {
         tests.put("kill_rewards_sample_pickup", WorldTests::samples);
         tests.putAll(SupportTests.cases());
         tests.putAll(OutpostTests.cases());
+        tests.putAll(PreviewTests.cases());
         return tests;
     }
     private static HumanWorldData data(GameTestHelper h) { return HumanWorldData.get(h.getLevel().getServer()); }
@@ -80,6 +81,11 @@ final class WorldTests {
             var post = (BuildingBlockEntity) h.getLevel().getBlockEntity(result.commandPost());
             h.assertTrue(post != null && post.isMainBase() == (kind == StructureKind.MAIN_BASE), "Correct command tile/base flag");
             h.assertTrue(kind != StructureKind.MAIN_BASE || data(h).isMainBase(position), "Main Base registered");
+            if (kind == StructureKind.CHECKPOINT) {
+                h.assertTrue(post.site().anchor().equals(result.commandPost()) && post.site().origin().equals("debug"), "New checkpoint receives generation provenance");
+            } else {
+                try { post.site(); h.fail("Main Base must not receive checkpoint provenance"); } catch (IllegalArgumentException expected) { }
+            }
             int radius = kind == StructureKind.CHECKPOINT ? com.liamryan.standandhold.config.StructureConfig.CHECKPOINT_RADIUS.get()
                     : com.liamryan.standandhold.config.StructureConfig.MAIN_BASE_RADIUS.get();
             var lab = (BuildingBlockEntity) h.getLevel().getBlockEntity(result.commandPost().offset(-radius + 2, 0, -radius + 3));

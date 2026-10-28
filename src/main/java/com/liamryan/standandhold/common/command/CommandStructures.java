@@ -7,6 +7,8 @@ import com.liamryan.standandhold.common.mission.MissionManager;
 import com.liamryan.standandhold.common.progression.ProgressionRules;
 import com.liamryan.standandhold.common.structure.StructureKind;
 import com.liamryan.standandhold.common.structure.StructurePlacement;
+import com.liamryan.standandhold.common.structure.OutpostPreview;
+import com.liamryan.standandhold.common.support.SupportCallIn;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.HumanProgressionConfig;
 import com.liamryan.standandhold.config.StructureConfig;
@@ -23,6 +25,8 @@ final class CommandStructures {
     private static final DynamicCommandExceptionType ERROR = new DynamicCommandExceptionType(value -> Component.literal(String.valueOf(value)));
     private CommandStructures() { }
     static void addChildren(LiteralArgumentBuilder<CommandSourceStack> root) {
+        root.then(Commands.literal("outpost").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                .then(Commands.literal("preview").executes(context -> preview(context.getSource()))));
         root.then(Commands.literal("structure").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .then(Commands.literal("checkpoint").executes(context -> place(context.getSource(), StructureKind.CHECKPOINT)))
                 .then(Commands.literal("mainbase").executes(context -> place(context.getSource(), StructureKind.MAIN_BASE))));
@@ -30,6 +34,27 @@ final class CommandStructures {
                 .then(Commands.literal("list").executes(context -> inspect(context.getSource(), false)))
                 .then(Commands.literal("nearest").executes(context -> inspect(context.getSource(), true)))
                 .then(Commands.literal("status").executes(context -> inspect(context.getSource(), true))));
+    }
+    private static int preview(CommandSourceStack source) throws CommandSyntaxException {
+        try {
+            var player = source.getPlayerOrException();
+            var post = SupportCallIn.lookedAt(player);
+            var plan = OutpostPreview.inspect(player, post);
+            var center = plan.site().center();
+            String oldBounds = bounds(center, 4), newBounds = bounds(center, 6);
+            for (String line : new String[]{"Checkpoint v1 / L" + post.state().level() + " / READ ONLY",
+                    "Site: " + plan.site().id(), "Old " + oldBounds, "New " + newBounds,
+                    "137 planned: 88 floor, 45 wall, 4 lights; buildings/caps unchanged.",
+                    "Would replace 88 ground cells; player-placed terrain may match.",
+                    "No writes/cost/rewards/token; no claim-mod approval."}) {
+                source.sendSuccess(() -> Component.literal(line), false);
+            }
+            return 1;
+        } catch (IllegalArgumentException | IllegalStateException exception) { throw ERROR.create(exception.getMessage()); }
+    }
+    private static String bounds(BlockPos center, int radius) {
+        return "x:" + (center.getX() - radius) + ".." + (center.getX() + radius)
+                + " z:" + (center.getZ() - radius) + ".." + (center.getZ() + radius) + " floor:" + center.getY();
     }
     private static int place(CommandSourceStack source, StructureKind kind) throws CommandSyntaxException {
         try {

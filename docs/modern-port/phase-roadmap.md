@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M16 design/checkpoint lab complete; expansion writes remain deferred**; see [STATUS.md](STATUS.md).
+Current position: **Phase M17 preview implemented; final client/build/CI verification in progress**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -390,9 +390,9 @@ Priority: P2
 
 Scope: implement the admitted read-only foundation from the M16 design. No expansion/confirm command, token cache, block writes from preview, adoption/retrofit of existing sites, new costs/rewards, capacity increase or dependencies.
 
-- [ ] **17.1 Persist bounded new-site provenance.** Record supported new checkpoint layout UUID/revision/radius/anchor only after successful generation; missing/unknown/malformed receipts remain ineligible and preserve data. Keep ordinary storage/world progression and worker/server registration boundaries intact.
-- [ ] **17.2 Implement the pure bounded expansion planner.** Produce the exact outer-apron delta without touching the protected original 9x9 footprint; enforce supported level/layout, <=169 columns/2048 reads/256 unique cells and specific loaded/terrain/fluid/border/container/entity refusals. Do not place blocks.
-- [ ] **17.3 Expose an operator-only read-only preview.** Use the looked-at loaded post within six blocks; show eligibility/refusal, bounds/counts and explicit ground-replacement warning. No dirtying state, spending, tokens, markers, remote coordinates or force option.
+- [x] **17.1 Persist bounded new-site provenance.** Additive site-v1 receipt after validated checkpoint placement; old/manual posts stay unproven, unsupported/raw future data retained. Building/world schemas and worker/server registration boundary unchanged; NBT and real restart checks passed.
+- [x] **17.2 Implement the pure bounded expansion planner.** Exact 88-floor/45-wall/4-light delta; 169 columns/616 explicit terrain reads, no original-footprint cells or writes. Loaded/border/terrain/container/entity guards and 128-entity saturation are native-tested.
+- [x] **17.3 Expose an operator-only read-only preview.** `/standandhold outpost preview` reuses the loaded six-block look ray; native tests cover real operator/non-op dispatch and unchanged blocks/NBT/dirty flags/global state/loaded chunks. No confirm/mutation command, tokens, spending or markers.
 - [ ] **17.4 Verify provenance and zero-mutation behavior.** Logic/GameTests for new vs old/manual/Main Base/unsupported sites, exact delta/budgets, occupied/unloaded/border/entity rejection and unchanged blocks/NBT/storage/balances/rosters; real restart for site receipt and generated lab/crate state; qaClient preview readability, clean build, normal-jar isolation and green CI before merge.
 
 Exit gate:

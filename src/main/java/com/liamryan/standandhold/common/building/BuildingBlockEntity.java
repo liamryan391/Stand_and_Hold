@@ -12,6 +12,7 @@ import com.liamryan.standandhold.config.HumanProgressionConfig;
 import com.liamryan.standandhold.config.StructureConfig;
 import com.liamryan.standandhold.common.progression.ProgressionRules;
 import com.liamryan.standandhold.common.npc.DefenderDeployment;
+import com.liamryan.standandhold.common.structure.SiteProvenance;
 import com.liamryan.standandhold.config.NpcConfig;
 import com.liamryan.standandhold.config.ResponseConfig;
 import com.liamryan.standandhold.common.threat.ThreatResponse;
@@ -48,10 +49,25 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
     private boolean reportedFailure;
     private boolean mainBase;
     private int mainBaseNotices;
+    private Dynamic<?> retainedSite;
 
     public BuildingBlockEntity(BlockPos pos, BlockState block) { super(BuildingRegistry.ENTITY.get(), pos, block); }
     public BuildingKind kind() { return ((BuildingBlock) getBlockState().getBlock()).kind(); }
     public BuildingState state() { return state; }
+    public SiteProvenance site() {
+        if (retainedSite == null) { throw new IllegalArgumentException("No site provenance; old/manual posts are not adopted."); }
+        if (!(retainedSite.convert(NbtOps.INSTANCE).getValue() instanceof CompoundTag tag)) {
+            throw new IllegalArgumentException("Malformed site provenance; retained without repair.");
+        }
+        return SiteProvenance.read(tag);
+    }
+    public void initializeSite(SiteProvenance site) {
+        requireWritable();
+        if (kind() != BuildingKind.COMMAND_POST || isMainBase() || retainedSite != null || !worldPosition.equals(site.anchor())) {
+            throw new IllegalStateException("Site provenance can only initialize a new checkpoint post once.");
+        }
+        retainedSite = new Dynamic<>(NbtOps.INSTANCE, site.save()); setChanged();
+    }
     public boolean isMainBase() { return mainBase && kind() == BuildingKind.COMMAND_POST; }
     public void initializeMainBase() { requireWritable(); if (!mainBase) { mainBase = true; setChanged(); } }
     public boolean claimMainBaseNotice(boolean active) {
@@ -85,6 +101,7 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         output.putInt("building_version", schema);
         output.putBoolean("main_base", mainBase);
         output.putInt("main_base_notices", mainBaseNotices);
+        if (retainedSite != null) { output.store("site", Codec.PASSTHROUGH, retainedSite); }
         if ((schema != 1 || malformed) && retainedState != null) {
             output.store("building", Codec.PASSTHROUGH, retainedState);
         } else {
@@ -99,6 +116,7 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         schema = input.getIntOr("building_version", 1);
         mainBase = input.getBooleanOr("main_base", false);
         mainBaseNotices = Math.clamp(input.getIntOr("main_base_notices", 0), 0, 3);
+        retainedSite = input.read("site", Codec.PASSTHROUGH).orElse(null);
         retainedState = input.read("building", Codec.PASSTHROUGH).orElse(null);
         malformed = retainedState != null && !(retainedState.convert(NbtOps.INSTANCE).getValue() instanceof CompoundTag);
         state = malformed || retainedState == null ? BuildingState.EMPTY : BuildingState.CODEC.parse(retainedState).getOrThrow();

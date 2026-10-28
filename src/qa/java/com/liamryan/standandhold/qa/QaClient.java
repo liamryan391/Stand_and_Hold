@@ -12,6 +12,7 @@ import com.liamryan.standandhold.common.progression.HumanStage;
 import com.liamryan.standandhold.common.threat.ThreatResponse;
 import com.liamryan.standandhold.common.structure.StructureKind;
 import com.liamryan.standandhold.common.structure.StructurePlacement;
+import com.liamryan.standandhold.common.structure.OutpostPreview;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.HumanProgressionConfig;
 import java.nio.file.*;
@@ -37,6 +38,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
 
 /** Actual client/server menu transport and rendering. Never included in the release jar. */
 @Mod(value = QaMod.ID, dist = Dist.CLIENT)
@@ -63,8 +65,15 @@ public final class QaClient {
     private final List<String> captures = new ArrayList<>();
     private static final List<UUID> fixtureReservations = new ArrayList<>();
     private BlockPos checkpointLab;
+    private boolean previewReply, previewBlockedReply;
+    private net.minecraft.nbt.CompoundTag previewPostBefore, previewGlobalBefore;
     public QaClient() {
-        if (Boolean.getBoolean("standandhold.qa.client")) { NeoForge.EVENT_BUS.addListener(this::tick); }
+        if (Boolean.getBoolean("standandhold.qa.client")) { NeoForge.EVENT_BUS.addListener(this::tick); NeoForge.EVENT_BUS.addListener(this::chat); }
+    }
+    private void chat(ClientChatReceivedEvent event) {
+        String text = event.getMessage().getString();
+        if (text.contains("Checkpoint v1 / L2 / READ ONLY")) { previewReply = true; }
+        if (text.contains("Protected block entity/container")) { previewBlockedReply = true; }
     }
     private void tick(ClientTickEvent.Post event) {
         if (finished) { return; }
@@ -219,8 +228,55 @@ public final class QaClient {
                             || menu.number(BuildingMenu.WORK) != 0 || menu.number(BuildingMenu.STATUS) != 6) {
                         throw new IllegalStateException("Generated lab empty state did not sync");
                     }
-                    capture(mc, "checkpoint-lab-menu", 8);
+                    capture(mc, "checkpoint-lab-menu", 18);
                 }
+                case 18 -> {
+                    phase = 19;
+                    onServer(mc, () -> {
+                        var level = mc.getSingleplayerServer().overworld(); player(mc).closeContainer();
+                        var post = tile(level, checkpointLab.offset(2, 0, 1));
+                        post.change(new BuildingState(2, post.state().supplies(), post.state().samples(), "", 0));
+                        var pos = post.getBlockPos();
+                        player(mc).connection.teleport(pos.getX() + 0.5, pos.getY(), pos.getZ() + 4.5, 180, 16);
+                        previewPostBefore = post.saveWithFullMetadata(level.registryAccess());
+                        previewGlobalBefore = (net.minecraft.nbt.CompoundTag) HumanWorldData.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, HumanWorldData.get(level.getServer())).getOrThrow();
+                    });
+                }
+                case 19 -> {
+                    if (++settle < 20 || mc.player.containerMenu != mc.player.inventoryMenu || mc.gui.screen() instanceof BuildingScreen) { return; }
+                    mc.options.guiScale().set(2); mc.resizeGui(); mc.gui.hud.getChat().clearMessages(true);
+                    mc.player.connection.sendCommand("standandhold outpost preview");
+                    mc.gui.setScreen(new ChatScreen("", false)); phase = 20; settle = 0;
+                }
+                case 20 -> {
+                    if (++settle > 200) { throw new IllegalStateException("Real operator preview reply missing"); }
+                    if (!previewReply || settle < 20) { return; }
+                    phase = 21;
+                    onServer(mc, () -> checkPreviewUnchanged(mc));
+                }
+                case 21 -> capture(mc, "outpost-preview", 22);
+                case 22 -> { mc.options.guiScale().set(3); mc.resizeGui(); phase = 23; settle = 0; }
+                case 23 -> { if (++settle >= 10) { capture(mc, "outpost-preview-large", 24); } }
+                case 24 -> {
+                    phase = 25;
+                    onServer(mc, () -> {
+                        var level = mc.getSingleplayerServer().overworld(); var post = tile(level, checkpointLab.offset(2, 0, 1));
+                        var pos = post.site().center().offset(-6, 1, -6);
+                        level.setBlockAndUpdate(pos, Blocks.CHEST.defaultBlockState());
+                        ((net.minecraft.world.level.block.entity.ChestBlockEntity) level.getBlockEntity(pos)).setItem(0, net.minecraft.world.item.Items.DIAMOND.getDefaultInstance());
+                    });
+                }
+                case 25 -> {
+                    mc.gui.hud.getChat().clearMessages(true); mc.player.connection.sendCommand("standandhold outpost preview");
+                    phase = 26; settle = 0;
+                }
+                case 26 -> {
+                    if (++settle > 200) { throw new IllegalStateException("Blocked preview reply missing"); }
+                    if (!previewBlockedReply || settle < 20) { return; }
+                    phase = 27;
+                    onServer(mc, () -> checkPreviewUnchanged(mc));
+                }
+                case 27 -> { if (++settle >= 10) { capture(mc, "outpost-preview-blocked-large", 8); } }
                 case 8 -> {
                     mc.gui.setScreen(null);
                     mc.disconnectWithSavingScreen();
@@ -235,9 +291,17 @@ public final class QaClient {
         }
     }
     private static ServerPlayer player(Minecraft mc) { return Objects.requireNonNull(mc.getSingleplayerServer().getPlayerList().getPlayer(mc.player.getUUID())); }
+    private void checkPreviewUnchanged(Minecraft mc) {
+        var level = mc.getSingleplayerServer().overworld(); var post = tile(level, checkpointLab.offset(2, 0, 1));
+        if (!post.saveWithFullMetadata(level.registryAccess()).equals(previewPostBefore)
+                || !HumanWorldData.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, HumanWorldData.get(level.getServer())).getOrThrow().equals(previewGlobalBefore)) {
+            throw new IllegalStateException("Real preview command mutated post or global data");
+        }
+    }
     private void onServer(Minecraft mc, Runnable work) { serverAction = CompletableFuture.runAsync(work, mc.getSingleplayerServer()); }
     private static void fixture(ServerLevel level, ServerPlayer player) {
         NpcConfig.POST_CAP.set(16); NpcConfig.POST_LEVELS.set(DefenderCapacity.DEFAULT_LEVELS);
+        com.liamryan.standandhold.config.StructureConfig.CHECKPOINT_RADIUS.set(4);
         level.getGameRules().set(GameRules.SPAWN_MOBS, false, level.getServer());
         level.getGameRules().set(GameRules.ADVANCE_TIME, false, level.getServer());
         for (BlockPos pos : BlockPos.betweenClosed(0, 62, 0, 31, 67, 31)) {

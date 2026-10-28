@@ -87,6 +87,10 @@ public final class StructurePlacement {
                     crate.change(crate.state().supplies(Math.min(initial, BuildingConfig.CAPACITY.get())));
                 }
             }
+            if (kind == StructureKind.CHECKPOINT) {
+                post.initializeSite(new SiteProvenance(java.util.UUID.randomUUID(), position.dimension().toString(), plan.commandPost(), radius,
+                        world instanceof ServerLevel ? "debug" : "worldgen", 0));
+            }
             // Worker-thread worldgen never touches server SavedData. The tile's onLoad registers it later.
             LogUtils.getLogger().debug("Placed {} at {} ({} changed blocks).", kind, position.key(), before.size());
             return new Result(true, "Placed " + kind + " at " + position.key() + "; " + before.size() + " changed blocks.", plan.commandPost());

@@ -2,6 +2,8 @@
 
 M16 design decision: **PROCEED with new-site provenance and read-only planning/preview; DEFER expansion writes until their failure/recovery tests pass in a separately scoped milestone.** This document is a contract, not an implemented expansion system. The only M16 structure change is the separately requested empty lab in new checkpoints. No pins, dependencies, unit tiers, shared population caps or upgrade prices change.
 
+M17 implements only the admitted provenance/planner/read-only preview portion; see [operator usage and receipt format](structures.md#outpost-preview). All application/confirmation/recovery requirements below remain design contracts, not implemented mutation or power-loss proof.
+
 ## Distinct State And Eligibility
 
 | State | Meaning / authority |
