@@ -22,10 +22,9 @@ Run these one-time fixture commands on clear grass:
 /gamerule minecraft:advance_time false
 /time set night
 /standandhold structure checkpoint
-/give @s standandhold:research_lab
 ```
 
-The gamerules isolate the test from random vanilla spawning and daylight burning; they are saved only in this disposable world, not changed mod defaults. Eggs, manual summons and the mod's raid controller still work. The small checkpoint should register a Command Post and contain a Supply Crate with 2 LOCAL supplies. Place the Lab on free ground without replacing those blocks. This operator-provided infrastructure is intentional QA setup: Survival acquisition of every core building is not implemented.
+The gamerules isolate the test from random vanilla spawning and daylight burning; they are saved only in this disposable world, not changed mod defaults. Eggs, manual summons and the mod's raid controller still work. A new checkpoint registers a Command Post and contains an empty Research Lab plus a Supply Crate with 2 LOCAL supplies. Use its included Lab; older existing checkpoints are not retrofitted, so place a Lab manually there if needed. This operator-provided infrastructure is intentional QA setup: Survival acquisition of every core building is not implemented.
 
 Use only an ordinary Creative melee weapon and zombie eggs for the sample step. **Do not use Creative samples, `/give` samples, `addpoints`, `setstage`, `supplies add`, research completion or mission progress/completion commands** to bypass the loop. Enemy kills by defenders do not give the default player-only reward.
 

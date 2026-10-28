@@ -1,24 +1,24 @@
 # Status
-Updated: 2026-10-28 - Handoff branch: `codex/m16-outpost-expansion-plan`
+Updated: 2026-10-28 - Handoff branch: `codex/m17-outpost-preview`
 
 ## Position
-- M1-M13 are merged; automated QA and one bounded paid-reinforcement prototype are verified.
+- M1-M13 and M15 are merged; M16 adds the requested empty lab to new checkpoints and completes expansion design.
 - Liam confirmed NeoForge-first; Fabric-specific M14 14.4-14.5 remain deferred, not approved or run.
-- M15 capacity/status exit gate passed; M16 is design-only and not started. No physical base expansion implemented.
+- Design verdict: provenance/read-only preview first; actual expansion/confirm deferred. No existing site resized/retrofitted.
 - Pins remain Minecraft 26.3 / NeoForge 26.3.0.57-beta / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
 
 ## Verified
-- M15 clean build passed: 7,910 assertions, isolated normal jar; all 29 required GameTests passed.
-- Two dedicated JVMs retained upgraded level/storage, five exact defender UUIDs, cooldowns and prior systems.
-- Self-quitting qaClient passed; all 14 screenshots reviewed (46dbb4e2 prefix), normal/large capacity states readable.
-- Windows CI 40722055999 passed build, GameTests, restart and jar upload; existing explicit 3/0 ceilings retained.
+- M16 clean build passed: 7,930 assertions, normal-jar metadata/QA isolation checked; all 33 required GameTests passed.
+- Two dedicated JVMs retained generated lab storage/paused work, no crate refill and all prior persistent systems.
+- Self-quitting qaClient passed; all 16 screenshots reviewed (8f1f18ee prefix), including checkpoint/lab menu.
+- Proposed expansion is one-chunk outer apron; budgets/recovery/ownership and future test gates are documented, not implemented.
 
 ## Risks And Decisions
 - No new runtime dependency/pin change approved; only Liam accepts an EULA if prompted.
 - Contagion 2.1.1 fails pinned-loader bootstrap; external infection gameplay remains deferred, not passed.
 - Independent feedback is deferred to beta; broad-terrain, sustained-load, packaged and multiplayer QA remain separate.
-- [Loader evaluation](multi-loader-evaluation.md) remains DEFER; no new pin, loader or runtime library selected.
+- [Expansion design](outpost-expansion-design.md) admits M17 preview only; missing old-site provenance must not be guessed.
 - Preserve legacy `1.12`, alpha tag, ignored worlds/configs and `.local/`; no legacy save conversion.
 
 ## Next Milestone
-`Continue: M16 steps 16.1-16.4 (outpost expansion contract, bounded terrain/player-build protection, persistence/recovery design and verification plan) on codex/m16-outpost-expansion-plan.`
+`Continue: M17 steps 17.1-17.4 (new-site provenance, bounded expansion planner, read-only operator preview and automated verification) on codex/m17-outpost-preview.`

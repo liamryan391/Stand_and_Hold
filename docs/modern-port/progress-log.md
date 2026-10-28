@@ -298,3 +298,11 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - `runQaClient --no-daemon --stacktrace` passed (33s); all 14 final 46dbb4e2-prefix PNGs opened/reviewed, normal/large ready/upgraded/full/disabled/dormant states readable. Worlds/configs/results preserved.
 - Implementation Windows CI 40722055999 passed build, art checks, GameTests, restart and jar upload; documentation consistency checked with `git diff --check`. Real multiplayer, packaged installs, crowding/fun and physical growth remain unverified/separate.
 - M16 is prospectively scoped as design only (terrain/player-build/persistence safety before mutation); live handoff range is in STATUS.md.
+
+## 2026-10-28 - M16 Expansion Design And Requested Checkpoint Lab
+- Added one empty/idle lab inside every new checkpoint size; old sites are not retrofitted, crate seeding and Main Bases unchanged. Updated structures/showcase usage; no new gameplay subsystem, balance, pin/dependency/version/schema change.
+- Completed expansion contract/protection/budgets/recovery/test design: preserve original footprint/buildings; PROCEED only to new-site provenance and read-only preview, DEFER writes/confirm until failure/restart proof. No terrain ownership or power-loss guarantees invented.
+- Missing-lab regression failed first; final `clean build runGameTestServer --no-daemon --stacktrace` passed (21s, 7,930 assertions/33 required tests). Normal jar metadata/QA isolation checked; SHA256 DC78FE0B21090569B3C4C2A591AF8AA8B4EB32259114C3D2ECD8F6A157CADDF3.
+- `test-restart.ps1` passed two real JVMs (Done/stop/save/clean exit): generated lab's paused work/storage/target/samples and depleted crate persisted, plus all prior state/UUID/cooldown checks.
+- Final `runQaClient --no-daemon --stacktrace` passed (41s); all 16 8f1f18ee-prefix PNGs opened/reviewed. Rejected empty scenes; fixed QA flight/render readiness and actual close-packet race, retained required assertions and failed artifacts/worlds.
+- `git diff --check` passed; merge remains subject to green commit CI. Physical expansion/provenance/preview, multiplayer and packaged installs are not claimed tested; protected legacy/local files retained. Live handoff is in STATUS.md.

@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M15 complete; M16 expansion design is not started**; see [STATUS.md](STATUS.md).
+Current position: **Phase M16 design/checkpoint lab complete; expansion writes remain deferred**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -370,14 +370,32 @@ Exit gate:
 
 Priority: P2
 
-Scope: design only, following Liam's request for bases that can physically grow with local upgrades. No structure mutation, new units, population-cap increase, library or toolchain change is authorized by this design milestone. Select a small first implementation candidate, not a full faction base system.
+Scope: expansion design only, following Liam's request for bases that can physically grow with local upgrades. The separately requested addition of an empty Research Lab to newly placed checkpoints is authorized; no existing site retrofit or expansion mutation, new units, population-cap increase, library or toolchain change is included. Select a small first implementation candidate, not a full faction base system.
 
-- [ ] **16.1 Define the expansion contract.** Separate world stage, saved post level, layout identity and physical footprint. Decide how manually placed posts, existing generated checkpoints and Main Bases qualify; no implicit ownership of surrounding player blocks.
-- [ ] **16.2 Specify bounded placement and player-build protection.** Choose one small expansion candidate and hard scan/block budgets. Require already-loaded chunks, terrain/fluid/border checks, occupied-container/build refusal and an explicit preview/confirmation policy; no surprise global rebuilding or forced chunks.
-- [ ] **16.3 Design persistent application and recovery.** Define idempotency, saved layout/version receipts, upgrade-cost timing, failure/retry behavior, partial-write/power-loss limits, stale posts and unload/restart handling. Preserve existing local storage, defender UUIDs and shared deployment quotas; avoid promising rollback without a proof strategy.
-- [ ] **16.4 Prepare an implementation-ready verification plan.** Map success/refusal/occupied-terrain/adjacent-site/cost-conservation/restart cases to GameTests and fixtures, plus any readable status preview to qaClient. Record open decisions and an explicit proceed/defer verdict before a separately scoped implementation milestone.
+- [x] **16.1 Define the expansion contract.** [Outpost Expansion Design](outpost-expansion-design.md) separates stage/local level/layout/provenance/footprint and restricts future eligibility; no implicit terrain ownership or old-site adoption.
+  - [x] **16.1.1** Empty lab added to all new checkpoint sizes. Logic and 33 required GameTests cover supported sizes, real lab use and obstruction safety; real restart preserves generated lab storage/work and crate non-refill. Existing sites are not retrofitted.
+  - [x] **16.1.2** Explicit provenance/eligibility contract; old/manual/unsupported sites and Main Bases refuse the first proposed expansion path.
+- [x] **16.2 Specify bounded placement and player-build protection.** One-chunk 9x9-to-13x13 outer apron candidate, original footprint unchanged; <=169 columns/2048 reads/256 writes, loaded-only preflight, ground-replacement disclosure and explicit operator consent. No physical expansion implemented.
+- [x] **16.3 Design persistent application and recovery.** Separate site revision/operation receipt, no extra expansion debit/reward, fail-closed partial-state review; no claimed durable rollback or power-loss guarantee. Building storage/defender UUIDs/cooldowns stay untouched.
+- [x] **16.4 Prepare an implementation-ready verification plan.** Logic, GameTest, restart and qaClient contracts distinguish future expansion proof from current lab tests. Verdict: PROCEED to provenance/read-only preview; DEFER writes until fault/recovery proof. All 16 final lab/regression screenshots opened/reviewed.
 
 Exit gate:
 
 - A small documented design has explicit terrain/ownership/persistence budgets and testable failure semantics.
 - No live base is resized by this phase; runtime dependencies/pins remain subject to Liam's approval.
+
+## Phase M17 - Site Provenance And Read-Only Expansion Preview
+
+Priority: P2
+
+Scope: implement the admitted read-only foundation from the M16 design. No expansion/confirm command, token cache, block writes from preview, adoption/retrofit of existing sites, new costs/rewards, capacity increase or dependencies.
+
+- [ ] **17.1 Persist bounded new-site provenance.** Record supported new checkpoint layout UUID/revision/radius/anchor only after successful generation; missing/unknown/malformed receipts remain ineligible and preserve data. Keep ordinary storage/world progression and worker/server registration boundaries intact.
+- [ ] **17.2 Implement the pure bounded expansion planner.** Produce the exact outer-apron delta without touching the protected original 9x9 footprint; enforce supported level/layout, <=169 columns/2048 reads/256 unique cells and specific loaded/terrain/fluid/border/container/entity refusals. Do not place blocks.
+- [ ] **17.3 Expose an operator-only read-only preview.** Use the looked-at loaded post within six blocks; show eligibility/refusal, bounds/counts and explicit ground-replacement warning. No dirtying state, spending, tokens, markers, remote coordinates or force option.
+- [ ] **17.4 Verify provenance and zero-mutation behavior.** Logic/GameTests for new vs old/manual/Main Base/unsupported sites, exact delta/budgets, occupied/unloaded/border/entity rejection and unchanged blocks/NBT/storage/balances/rosters; real restart for site receipt and generated lab/crate state; qaClient preview readability, clean build, normal-jar isolation and green CI before merge.
+
+Exit gate:
+
+- Supported new checkpoints retain provenance and expose a useful bounded preview with no world mutation or resource effect.
+- Expansion writes/confirmation remain disabled/unimplemented until a separate fault/recovery milestone.

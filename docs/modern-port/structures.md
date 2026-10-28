@@ -6,7 +6,7 @@ These original Java layouts are small modern alpha foundations, not the legacy b
 
 | Site | Default footprint | Contents |
 | --- | --- | --- |
-| Small Army Checkpoint | 9 x 9 | Stone-brick platform, low cobblestone perimeter, three-wide south entrance, three torches, sheltered Field Command Post and one Supply Crate with 2 local supplies |
+| Small Army Checkpoint | 9 x 9 | Stone-brick platform, low cobblestone perimeter, three-wide south entrance, three torches, sheltered Field Command Post, empty Research Lab and one Supply Crate with 2 local supplies |
 | Main Base foundation | 13 x 13 | Two-high perimeter/entrance, sheltered command area, Research Lab, Supply Crate with 5 local supplies, green command/cyan research/grey barracks/yellow supply floor markers and a simple barracks bench |
 
 Both have one level-1 Command Post, not a vanilla command block. No samples, equipment, free completed research or pre-spawned army are included. The existing bounded post deployment is their only automatic defender source; it retains stage gates, UUID quotas and area caps. The barracks marker/bench is a layout marker, not a new profession or building system.
@@ -14,6 +14,8 @@ Both have one level-1 Command Post, not a vanilla command block. No samples, equ
 Main Base command posts are marked in tile NBT with `main_base`. Their passive generation and deployment require Stage 5 by default, rechecked at the existing building intervals. Dropping below that stage makes them dormant again; existing defenders are not deleted. Labs, crates, storage menus and upgrades remain usable. The first viewer to open a base in each state receives one dormant/active chat notice; per-base `main_base_notices` receipts persist through reload, so later openings/players/stage toggles do not repeat already-seen notices. A dormant menu shows zero effective generation; the status command remains available for repeat inspection. A normal player-placed Command Post is not a Main Base and keeps the ordinary early-stage behaviour.
 
 Initial crate supplies are seeded once during placement, never on chunk load or restart. They are local storage and must be exported before spending globally.
+
+New natural/debug checkpoints of all supported sizes include one empty, idle lab inside the perimeter, left of the command shelter. It grants no samples, supplies or completed research; import resources and explicitly Start research as usual. Existing checkpoints are **not** retrofitted on reload; place a lab manually there or generate a new site in clear terrain. Main Base lab contents/layout are unchanged.
 
 ## Placement And Safety
 
@@ -70,7 +72,7 @@ Normal removal unregisters the post and base. Admin edits that suppress removal 
 
 ## Manual QA
 
-1. Use fresh Creative/commands-enabled Superflat singleplayer. Generate a checkpoint on empty ground, inspect entrance/lighting/shelter, open its post/crate and confirm 2 local crate supplies and one registration.
+1. In a fresh disposable world, inspect a newly placed checkpoint's lab/entrance/lighting/shelter for feel and accessibility. Automated GameTests cover required tiles, empty lab, explicit research, obstruction refusal and all checkpoint radii; the two-JVM fixture covers generated lab storage/work and crate non-refill. No manual numeric readback is needed.
 2. Move at least 64 blocks to clear terrain in another chunk; generate a Main Base. Inspect its distinct footprint, zones and lab/crate menus. Confirm 5 supplies, dormant chat and zero post generation at Stage 0. Stage 5 should enable generation/capped deployment after loaded intervals; it does not unlock an unimplemented new NPC tier.
 3. Re-run placement in occupied terrain. Try water, a steep slope, a protected chest, an unloaded coordinate via console, disallowed dimension and world border. Expect refusal without damage or new registry entries.
 4. Open the base post, start/complete prerequisite missions with the admin flow in [Foundation Data](foundation-data.md), then start `establish_main_base`. Verify discovery completion/reward once; repeat, restart, remove the base and check no reset/regrant.
@@ -90,3 +92,5 @@ Liam's M12 feedback proposes growing individual checkpoints/outposts alongside t
 - Illustrative future targets: Stage 0 small checkpoints with 3-5 defenders, Stage 1 larger sites with 5-8, then later tiers. These are design examples, not new defaults, measured performance budgets or approved balance changes.
 - Physical growth needs bounded loaded-only footprint preflight, protected player blocks/storage/tiles, partial-failure safety and persistent site ownership. A global stage increase must not silently overwrite nearby builds or reset defender reservations/cooldowns.
 - Existing per-site building levels now control bounded defender capacity (see [capacity contract](buildings.md#defender-capacity-contract)); shared nearby quotas still apply. This does not enlarge generated layouts. Physical expansion and larger shared population budgets need a separate design/load test; the showcase work itself introduced neither.
+
+The [outpost expansion design](outpost-expansion-design.md) defines a small outer-apron candidate, explicit eligibility/terrain budgets and conservative recovery. Its admission is provenance/read-only preview first; no expansion command, automatic resizing or crash-recovery system is implemented by M16.
