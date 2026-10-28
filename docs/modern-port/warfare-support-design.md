@@ -32,7 +32,7 @@ These are usage instructions, not another required numeric QA sequence:
 2. With defaults, reach human Stage 1, complete **Field Communications**, and have at least **10 global supplies**. Supplies stored locally in a building must be exported first if the global bank is short.
 3. Close the building menu, stand within **6 blocks**, and look directly at the **Field Command Post** block with a clear line of sight. A dormant Main Base post cannot provide support.
 4. Run `/standandhold support reinforce` in chat. A successful request deploys one eligible defender near the post, uses the existing bounded patrol behavior, and reports the supply payment.
-5. Cooldowns, full post/area quotas and unsuitable ground can refuse the request. Known refusals spend nothing. The call-in does not expand the default 3-per-post / 8-nearby defender limits, and it is not an aircraft delivery animation. Both commands are available to ordinary players; progression/resource grants remain operator-only.
+5. Cooldowns, full post/area quotas and unsuitable ground can refuse the request. Known refusals spend nothing. The call-in shares the post's [effective level-based capacity](buildings.md#defender-capacity-contract) (level 1: 3) and default 8-nearby limit; it adds no separate budget or aircraft delivery animation. Both commands are available to ordinary players; progression/resource grants remain operator-only.
 
 No need to reset cooldowns or remove healthy defenders to make a test pass. If the post is already full, a refusal is correct; judge the call-in during normal play when a deployment slot is available. Costs, quotas and restart behavior already have automated coverage.
 
@@ -43,7 +43,7 @@ No need to reset cooldowns or remove healthy defenders to make a test pass. If t
 | Idle call-ins | Zero tick handler, zero new entities/packets |
 | One request | One 6-block ray cast, one tile check, existing defender quota query, at most 8 spawn candidates x 5 heights |
 | Region target | Existing nine local/adjacent saved-region lookups, no global threat sort |
-| Population | Existing configured per-post 3 / nearby 8 defaults, unloaded UUID reservations still count |
+| Population | Shared effective post capacity (level targets 3/5/6/7/8, clamped by server ceiling) / nearby 8 default; unloaded UUID reservations still count |
 | Persistence | Existing supplies, roster, response cooldown and NPC/home; no new save schema or offline catch-up |
 | Failure / unload | No chunk loads, no queued replay on reload, existing backoff on unsuccessful eligible terrain/quota attempts |
 | Multiplayer | Requests serialize on server thread; two-player contention, cap and debit/refund checks in QA; real multi-client latency/load remains separate |

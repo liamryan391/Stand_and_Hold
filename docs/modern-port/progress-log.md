@@ -289,3 +289,12 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Added source-checked support status/reinforce usage, global-bank/range/unlock requirements and normal refusal/cap behavior; no gameplay, pin, version or dependency changes.
 - Liam confirmed NeoForge-first: Fabric 14.4-14.5 remain deferred. Planned M15 15.1-15.4 for level-based outpost capacity/status, common deployment limits and automated verification; no physical expansion or gameplay implementation in this planning pass.
 - `git diff --check` passed; docs-only, no local build/launch rerun or new runtime dependency. Live milestone is in STATUS.md.
+
+## 2026-10-28 - M15 Outpost Defender Capacity
+- Defined backward-safe capacity contract before code: targets 3/5/6/7/8 clamped by explicit server ceiling, area cap and 16-UUID hard limit; old 3/0 settings survive. No physical expansion, pin/dependency/version/schema change.
+- Shared policy now covers automatic, natural/admin and paid deployment; compact server-synced menu shows reserved count/cap and blocked reasons without entity scans. Upgrade costs/storage and excess/unloaded units retained.
+- Final `clean build runGameTestServer --no-daemon --stacktrace` passed (18s, 7,910 assertions/29 required GameTests); normal jar metadata/QA exclusion inspected, SHA256 652BC085CAB52C9986E4C354A5F2540A23926730F75FD2097AE4124221B4AED9. Initial QA assertion-scope compilation error fixed, no test weakened.
+- `test-restart.ps1` passed two real dedicated JVMs (Done/stop/save/clean exit): level-2 storage, five identical defender UUIDs/homes, notices/research/missions/blade/cooldowns/payment retained; lower ceiling did not delete units.
+- `runQaClient --no-daemon --stacktrace` passed (33s); all 14 final 46dbb4e2-prefix PNGs opened/reviewed, normal/large ready/upgraded/full/disabled/dormant states readable. Worlds/configs/results preserved.
+- Implementation Windows CI 40722055999 passed build, art checks, GameTests, restart and jar upload; documentation consistency checked with `git diff --check`. Real multiplayer, packaged installs, crowding/fun and physical growth remain unverified/separate.
+- M16 is prospectively scoped as design only (terrain/player-build/persistence safety before mutation); live handoff range is in STATUS.md.

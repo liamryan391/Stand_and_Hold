@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M15 (implemented; final CI/merge gate pending)**; see [STATUS.md](STATUS.md).
+Current position: **Phase M15 complete; M16 expansion design is not started**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -358,10 +358,26 @@ Scope: make existing Command Post upgrades useful for local defence, following L
   - [x] **15.2.1** Added validated profile/minimum policy; saved levels/UUID reservations and schemas unchanged.
   - [x] **15.2.2** Automatic deployment, natural/admin reinforcements and paid call-ins share the policy. Existing cooldowns, refunds, stage/dormancy gates and bounded attempts retained; excess/unloaded reservations are not discarded.
 - [x] **15.3 Show actionable Command Post defence status.** Server-synced assigned/reserved count and effective cap; full/disabled/dormant/stage-locked/unavailable feedback. No nearby population scan in menus; upgrade costs/research unchanged. Compact layout retains the original 300x230 dimensions.
-- [ ] **15.4 Verify the whole milestone with the automated ladder.** Add logic and GameTests for upgraded capacity, shared nearby/adjacent-post caps, all deployment paths, disabled/malformed config, lower-cap/stage changes, stale sites, paid-refusal conservation and reload/UUID retention. Preserve the existing Level-1 regressions. Extend the two-JVM fixture and qaClient for upgraded-post persistence/status; review normal/large-scale screenshots. Clean build, normal-jar inspection and green CI precede merge.
+- [x] **15.4 Verify the whole milestone with the automated ladder.** Clean build: 7,910 assertions; all 29 required GameTests; upgraded five-UUID two-JVM restart; all 14 final qaClient captures opened/reviewed. Normal jar metadata/QA isolation checked. Windows CI 40722055999 passed build, GameTests, restart and artifact upload before merge; existing Level-1 regressions retained.
 
 Exit gate:
 
 - A higher-level post can use its configured extra slots without bypassing area/stage/cooldown limits or losing existing units/storage on reload.
 - Command Post status explains the effective capacity; existing mechanics remain regression-tested and QA stays outside the normal jar.
 - Physical footprint growth/terrain-safe expansion and broader real multiplayer/packaged testing remain separate work, not claimed by this milestone.
+
+## Phase M16 - Outpost Expansion Design
+
+Priority: P2
+
+Scope: design only, following Liam's request for bases that can physically grow with local upgrades. No structure mutation, new units, population-cap increase, library or toolchain change is authorized by this design milestone. Select a small first implementation candidate, not a full faction base system.
+
+- [ ] **16.1 Define the expansion contract.** Separate world stage, saved post level, layout identity and physical footprint. Decide how manually placed posts, existing generated checkpoints and Main Bases qualify; no implicit ownership of surrounding player blocks.
+- [ ] **16.2 Specify bounded placement and player-build protection.** Choose one small expansion candidate and hard scan/block budgets. Require already-loaded chunks, terrain/fluid/border checks, occupied-container/build refusal and an explicit preview/confirmation policy; no surprise global rebuilding or forced chunks.
+- [ ] **16.3 Design persistent application and recovery.** Define idempotency, saved layout/version receipts, upgrade-cost timing, failure/retry behavior, partial-write/power-loss limits, stale posts and unload/restart handling. Preserve existing local storage, defender UUIDs and shared deployment quotas; avoid promising rollback without a proof strategy.
+- [ ] **16.4 Prepare an implementation-ready verification plan.** Map success/refusal/occupied-terrain/adjacent-site/cost-conservation/restart cases to GameTests and fixtures, plus any readable status preview to qaClient. Record open decisions and an explicit proceed/defer verdict before a separately scoped implementation milestone.
+
+Exit gate:
+
+- A small documented design has explicit terrain/ownership/persistence budgets and testable failure semantics.
+- No live base is resized by this phase; runtime dependencies/pins remain subject to Liam's approval.

@@ -89,4 +89,4 @@ Liam's M12 feedback proposes growing individual checkpoints/outposts alongside t
 
 - Illustrative future targets: Stage 0 small checkpoints with 3-5 defenders, Stage 1 larger sites with 5-8, then later tiers. These are design examples, not new defaults, measured performance budgets or approved balance changes.
 - Physical growth needs bounded loaded-only footprint preflight, protected player blocks/storage/tiles, partial-failure safety and persistent site ownership. A global stage increase must not silently overwrite nearby builds or reset defender reservations/cooldowns.
-- Per-site upgrades, shared nearby quotas and larger unit budgets need a separate design/load test before implementation. No automatic expansion or increased spawn cap is introduced by the showcase work.
+- Existing per-site building levels now control bounded defender capacity (see [capacity contract](buildings.md#defender-capacity-contract)); shared nearby quotas still apply. This does not enlarge generated layouts. Physical expansion and larger shared population budgets need a separate design/load test; the showcase work itself introduced neither.

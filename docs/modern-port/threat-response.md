@@ -24,7 +24,7 @@ Loaded, writable, operational Command Posts check once per 200 loaded ticks by d
 | Raider lifetime | 2,400 game ticks, checked only while loaded, once per 20 entity ticks |
 | Natural reinforcement | Score >=20 in the local/adjacent 3x3 region grid; existing stage-appropriate defender |
 | Successful reinforcement cooldown | 2,400 saved ticks; failed eligible attempts save 400-tick backoff |
-| Defender caps | Existing deployment enable/stage checks, 3 saved reservations per post, 8 loaded humans in the configured area; no extra budget |
+| Defender caps | Existing enable/stage checks; effective post-level capacity (default targets 3/5/6/7/8, bounded by server ceiling); 8 loaded humans in the area; no extra event budget |
 | Patrol | 1,200 game ticks toward the highest nearby threat region, clamped inside home radius; combat has priority, path requests at most once per 40 ticks |
 
 Raid attackers are ordinary vanilla zombies with an event marker and local human-target goal. They use vanilla combat/navigation and normal daylight behavior. No spawn-finalization jockey/gear generation, custom parasite AI or forced threat-mod spawns are added. Peaceful refuses raids. This is not a counter to every external threat.
