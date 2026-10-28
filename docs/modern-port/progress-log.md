@@ -267,3 +267,17 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Follow-up clients exited normally (8m26s/5m24s), raids safely refused amid ambient slimes/unsupported terrain, not client raid passes. Split refusal messages only; documented fixture cleanup/mission reconciliation and existing instant sample-free research syntax, no new bypass or completed profiler sample.
 - Four disposable dedicated fixture runs reached Done/save/stop/clean exit: quota/terrain refusals, actual tagged spawning/NPC combat, human kill credit, reservation release and restart/cooldown persistence verified. QA chunk tickets removed; sprint/manual-NPC tests are not earned/automatic-cap/performance proof. Initial CLI override failed before bootstrap, corrected safely.
 - Liam accepted combined earned-core/server evidence with broad-terrain/client raid limits retained. Final branch-head CI 40581743359 passed (1m35s); integrated M12 into main and prepared the M13 branch from it. No public release or independent/packaged/multiplayer pass. Live milestone in STATUS.md.
+
+## 2026-10-27 - Automated Ladder And M13
+- Adopted attached AGENTS.md in its requested standalone commit; compact STATUS and prospective QA prerequisite added before implementation. Protected legacy refs/local worlds retained; pins/version/dependencies unchanged.
+- Final `clean build runGameTestServer --no-daemon --stacktrace` passed (17s, 2,442 logic assertions/22 required GameTests); normal jar metadata/QA exclusion checked (313,933 bytes, SHA256 F8AC57CAC5D47333664740C5C04372A4345CDB7A062F69E61D8E2805F9A80DF3). Failed assertions retained/corrected, not weakened.
+- `test-restart.ps1` passed two dedicated JVMs (Done/vanilla stop/save/clean exit), including progression/research/partial mission/storage/registries/notices, blade retention and paid-support UUID/home/roster/cooldown/debit. Worlds/results retained.
+- `runQaClient --no-daemon --stacktrace` passed (32s); fresh saved world, all ten 33c9bba4-prefix PNGs opened/reviewed, real support command charged/deployed once, automatic clean quit. No command readbacks asked of Liam.
+- Initial CI Java selector lacked a machine-local file; fixed CI to pass setup-java's JAVA_HOME explicitly. QA-foundation Windows build/GameTests/restart CI 40593146604 passed; final prototype publication/CI pending.
+- M13 original design/performance gate selects one configurable supply-funded reinforcement action, no vehicle/library/pin/version change. Real head/view mismatch found/fixed by tests; four-player/four-post/80-request synthetic budget passed, not real network/sustained-load proof.
+- Real multiplayer, packaged install, animation/fun and future physical vehicles remain qualified limits; live milestone in STATUS.md.
+
+## 2026-10-28 - Resume M13 Publication And M14 Evaluation
+- Clean synced M13 worktree/fetch checked; protected legacy ref unchanged. Final-code Windows CI 40595049934 passed build, all GameTests, two-process restart and artifact upload.
+- M13 merged without rewriting history; attached AGENTS commit and isolated automated ladder retained. Normal mod version/pins/dependencies unchanged; prior local build/screenshot evidence remains the verification record, not a new run claim.
+- M14 evaluation follows the small-remainder batching rule; source audit and proceed/defer decision pending. Real multiplayer/packaged/fun checks remain unverified; live milestone is in STATUS.md.

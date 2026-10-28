@@ -25,6 +25,10 @@ public final class ResponseConfig {
     public static final ModConfigSpec.IntValue RAID_AREA_CAP = B.comment("Max living loaded Enemy/mapped mobs in a 32-block box, including ordinary monsters and nearby raids. At most 128 mobs inspected; dense/unsafe/unloaded sites refuse the event.").defineInRange("maxHostilesInArea", 8, 1, 32);
     public static final ModConfigSpec.IntValue RAID_LIFETIME = B.comment("Tagged raiders expire after these game ticks when loaded. Unloaded UUIDs remain reserved; absence never proves death. No force loading.").defineInRange("raiderLifetimeTicks", 2400, 200, 72000);
     public static final ModConfigSpec.IntValue PATROL_DURATION = B.comment("Reinforcement patrol duration in game ticks; target is clamped inside the existing home radius, no distant/unloaded pursuit. Combat has priority.").defineInRange("patrolDurationTicks", 1200, 200, 72000);
+    public static final ModConfigSpec.BooleanValue SUPPORT = B.comment("Allow nearby non-spectator players to request one supply-funded reinforcement while looking at a loaded Command Post. Shares normal deployment quotas/cooldowns; no vehicle/aircraft or remote chunk loading.").define("supportCallIns", true);
+    public static final ModConfigSpec.IntValue SUPPORT_COST = B.comment("Global supplies spent once on a successful call-in. Known cooldown/quota/terrain refusals spend nothing. All players share the world bank.").defineInRange("supportSupplyCost", 10, 1, 1000000);
+    public static final ModConfigSpec.IntValue SUPPORT_STAGE = B.comment("Minimum human stage for player support requests; automatic and admin deployments retain their existing gates.").defineInRange("supportRequiredStage", 1, 0, 6);
+    public static final ModConfigSpec.ConfigValue<String> SUPPORT_RESEARCH = B.comment("Research ID required for player support, or empty for none. Missing/malformed IDs refuse safely; does not add a mod dependency.").define("supportRequiredResearch", "standandhold:field_communications");
     public static final ModConfigSpec SPEC = B.build();
     private ResponseConfig() { }
 }

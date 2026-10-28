@@ -17,6 +17,10 @@ sourceSets {
         compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
         runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
     }
+    qa {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
 }
 tasks.register('progressionTest', JavaExec) {
     group = 'verification'
@@ -37,7 +41,16 @@ tasks.named('wrapper', Wrapper).configure {
 
 neoForge {
     version = project.neo_version
+    addModdingDependenciesTo sourceSets.qa
+    mods {
+        "${mod_id}" { sourceSet(sourceSets.main) }
+        standandhold_qa { sourceSet(sourceSets.qa) }
+    }
     runs {
+        configureEach {
+            logLevel = org.slf4j.event.Level.INFO
+            loadedMods = [neoForge.mods.standandhold]
+        }
         client {
             client()
             gameDirectory = project.file('run/modern-client')
@@ -66,14 +79,152 @@ neoForge {
             gameDirectory = project.file('run/showcase-server')
             programArgument '--nogui'
         }
-        configureEach {
-            logLevel = org.slf4j.event.Level.INFO
+        gameTestServer {
+            type = 'gameTestServer'
+            gameDirectory = project.file('run/game-tests')
+            sourceSet = sourceSets.qa
+            loadedMods = [neoForge.mods.standandhold, neoForge.mods.standandhold_qa]
+            programArgument '--tests'
+            programArgument 'standandhold_qa:*'
+        }
+        qaClient {
+            client()
+            gameDirectory = project.file('run/qa-client')
+            sourceSet = sourceSets.qa
+            loadedMods = [neoForge.mods.standandhold, neoForge.mods.standandhold_qa]
+            systemProperty 'standandhold.qa.client', 'true'
+            programArgument '--width'
+            programArgument '1280'
+            programArgument '--height'
+            programArgument '720'
+        }
+        qaPersistenceServer {
+            server()
+            gameDirectory = project.file('run/qa-server')
+            sourceSet = sourceSets.qa
+            loadedMods = [neoForge.mods.standandhold, neoForge.mods.standandhold_qa]
+            programArgument '--nogui'
         }
     }
-    mods {
-        "${mod_id}" {
-            sourceSet(sourceSets.main)
+}
+
+tasks.register('generateQaTemplates', JavaExec) {
+    dependsOn tasks.named('compileQaJava')
+    classpath = sourceSets.qa.output.classesDirs + sourceSets.qa.compileClasspath
+    mainClass = 'com.liamryan.standandhold.qa.QaTemplates'
+    args layout.buildDirectory.dir('generated/qaResources').get().asFile.absolutePath
+    outputs.dir layout.buildDirectory.dir('generated/qaResources')
+}
+sourceSets.qa.resources.srcDir layout.buildDirectory.dir('generated/qaResources')
+tasks.named('processQaResources').configure { dependsOn tasks.named('generateQaTemplates') }
+tasks.named('check').configure { dependsOn tasks.named('qaClasses') }
+
+def gameTestRoot = file('run/game-tests').absoluteFile
+def qaTestManifest = layout.buildDirectory.file('generated/qaResources/standandhold-qa-tests.txt').get().asFile
+tasks.named('runGameTestServer', JavaExec).configure {
+    doFirst { task ->
+        def id = UUID.randomUUID().toString()
+        def universe = new File(gameTestRoot, 'universes/' + id).canonicalFile
+        if (!universe.toPath().startsWith(gameTestRoot.canonicalFile.toPath()) || universe.exists()) {
+            throw new GradleException('Refusing to reuse/delete a GameTest universe: ' + universe)
         }
+        def report = new File(gameTestRoot, 'reports/' + id + '.xml')
+        report.parentFile.mkdirs()
+        task.args '--universe', universe.absolutePath, '--report', report.absolutePath
+        task.systemProperty 'standandhold.qa.report', report.absolutePath
+    }
+    doLast { task ->
+        def report = new File(task.systemProperties['standandhold.qa.report'].toString())
+        if (!report.isFile()) { throw new GradleException('GameTest server stopped without its XML report.') }
+        def factory = javax.xml.parsers.DocumentBuilderFactory.newInstance()
+        factory.setFeature('http://apache.org/xml/features/disallow-doctype-decl', true)
+        factory.setAttribute(javax.xml.XMLConstants.ACCESS_EXTERNAL_DTD, '')
+        factory.setAttribute(javax.xml.XMLConstants.ACCESS_EXTERNAL_SCHEMA, '')
+        def document = factory.newDocumentBuilder().parse(report)
+        def cases = document.getElementsByTagName('testcase')
+        def actual = (0..<cases.length).collect { cases.item(it).getAttribute('name') }.toSet()
+        def expected = qaTestManifest.readLines('UTF-8').toSet()
+        if (expected.isEmpty() || actual != expected || cases.length != expected.size()
+                || document.getElementsByTagName('failure').length != 0 || document.getElementsByTagName('skipped').length != 0) {
+            throw new GradleException('Missing, duplicated, skipped or failed GameTests; inspect ' + report)
+        }
+    }
+}
+
+def qaRoot = file('run/qa-server').absoluteFile
+def qaPhase = providers.gradleProperty('qaPhase').orElse('write').get()
+def qaWorld = providers.gradleProperty('qaWorld').orElse('missing').get()
+tasks.named('runQaPersistenceServer', JavaExec).configure {
+    doFirst { task ->
+        if (!(qaPhase in ['write', 'read']) || !(qaWorld ==~ /qa-[a-f0-9-]{36}/)) {
+            throw new GradleException('Use scripts/test-restart.ps1 to provide an isolated QA world and phase.')
+        }
+        def world = new File(qaRoot, qaWorld).canonicalFile
+        if (!world.toPath().startsWith(qaRoot.canonicalFile.toPath()) || (qaPhase == 'write' && world.exists())) {
+            throw new GradleException('Refusing to overwrite an existing QA world: ' + world)
+        }
+        if (new File(qaRoot, "${qaWorld}-${qaPhase}.properties").exists() || (qaPhase == 'read' && !world.isDirectory())) {
+            throw new GradleException('Refusing a stale phase result or a read without its saved QA world.')
+        }
+        qaRoot.mkdirs()
+        def config = new Properties()
+        def configFile = new File(qaRoot, 'server.properties')
+        if (configFile.exists()) { configFile.withInputStream { config.load(it) } }
+        config.setProperty('server-ip', '127.0.0.1')
+        config.setProperty('server-port', '25578')
+        config.setProperty('level-type', 'minecraft:flat')
+        config.setProperty('generator-settings', groovy.json.JsonOutput.toJson([
+                layers: [[block: 'minecraft:bedrock', height: 1], [block: 'minecraft:dirt', height: 2], [block: 'minecraft:grass_block', height: 1]],
+                biome: 'minecraft:plains']))
+        config.setProperty('generate-structures', 'false')
+        config.setProperty('view-distance', '3')
+        config.setProperty('simulation-distance', '3')
+        configFile.withOutputStream { config.store(it, 'Isolated built-in QA fixture; not a public server') }
+        task.args '--world', qaWorld
+        task.systemProperty 'standandhold.qa.phase', qaPhase
+        task.systemProperty 'standandhold.qa.world', qaWorld
+    }
+    doLast {
+        def result = new File(qaRoot, "${qaWorld}-${qaPhase}.properties")
+        def values = new Properties()
+        if (!result.isFile()) { throw new GradleException('QA server stopped without a result: ' + result) }
+        result.withInputStream { values.load(it) }
+        if (values.getProperty('success') != 'true') { throw new GradleException('QA restart failure: ' + values.getProperty('detail')) }
+    }
+}
+
+tasks.register('verifyQaIsolation') {
+    dependsOn tasks.named('jar')
+    def jarFile = tasks.named('jar', Jar).flatMap { it.archiveFile }
+    inputs.file jarFile
+    doLast {
+        def zip = new java.util.zip.ZipFile(jarFile.get().asFile)
+        try {
+            if (zip.entries().toList().any { it.name.contains('/qa/') || it.name.contains('/standandhold_qa/') || it.name == 'standandhold-qa-tests.txt' }) {
+                throw new GradleException('QA classes or templates leaked into the production jar.')
+            }
+            def metadata = zip.getInputStream(zip.getEntry('META-INF/neoforge.mods.toml')).getText('UTF-8')
+            if (metadata.contains('standandhold_qa')) { throw new GradleException('QA mod metadata leaked into the production jar.') }
+        } finally {
+            zip.close()
+        }
+    }
+}
+tasks.named('check').configure { dependsOn tasks.named('verifyQaIsolation') }
+
+def qaClientRoot = file('run/qa-client').absoluteFile
+tasks.named('runQaClient', JavaExec).configure {
+    doFirst { task ->
+        task.systemProperty 'standandhold.qa.id', UUID.randomUUID().toString()
+    }
+    doLast { task ->
+        def id = task.systemProperties['standandhold.qa.id']
+        def result = new File(qaClientRoot, id + '-result.properties')
+        def values = new Properties()
+        if (!result.isFile()) { throw new GradleException('QA client exited without its result: ' + result) }
+        result.withInputStream { values.load(it) }
+        if (values.getProperty('success') != 'true') { throw new GradleException('QA client failed: ' + values.getProperty('detail')) }
+        logger.lifecycle('QA screenshots: ' + new File(qaClientRoot, 'screenshots/' + id + '-*.png'))
     }
 }
 

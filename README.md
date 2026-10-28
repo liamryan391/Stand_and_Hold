@@ -50,6 +50,7 @@ The modern scaffold uses these selected pins:
 ## Development And Planned Scope
 
 Follow the [Windows build and IDE guide](docs/modern-port/building.md) for Java 25 selection, wrapper commands, jar inspection, and separate client/server smoke tests. Java 8 build instructions apply only to the preserved `1.12` branch.
+The [automated testing ladder](docs/modern-port/automated-testing.md) adds native GameTests, two-process persistence fixtures and a self-quitting screenshot client; QA code stays out of the normal jar.
 
 M1 delivers the build foundation, metadata, entry point, logger/config shell, and verification. It adds no gameplay systems or extra runtime libraries. The [foundation policy](docs/modern-port/foundation-scope.md) and [numbered roadmap](docs/modern-port/phase-roadmap.md) define the boundaries.
 
@@ -74,6 +75,8 @@ The partial modern loop can recover samples, establish a command post/lab, fund 
 Compatibility with external threat mods remains optional. Registry/tag mappings and integrations must be verified for the exact modern target when implemented; legacy SRP compatibility does not imply modern SRP support.
 
 [Threat response and events](docs/modern-port/threat-response.md) track regional mapped kills/deaths, human losses and outpost attacks with lazy decay. Loaded operational posts can trigger bounded vanilla-zombie raids and stage-appropriate reinforcements using existing defender quotas. Saved cooldowns/raider reservations prevent reload spam; patrols stay near home. Operator `threat status/list/reset` and `event status/raid/reinforcement` commands support disposable tests; active defence missions count credited raid kills.
+
+[Warfare support](docs/modern-port/warfare-support-design.md) starts with one small prototype, not drivable vehicles: look directly at a loaded Command Post within 6 blocks and use `/standandhold support reinforce`. By default it requires Stage 1, Field Communications and 10 global supplies. It shares existing deployment caps/cooldowns, charges once on success and returns payment on known refusal. `support status` explains requirements; this is available to non-operator players too. Vehicle/aircraft physics and external libraries remain separately gated.
 
 ## Project Notes
 

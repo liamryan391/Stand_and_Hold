@@ -4,6 +4,12 @@
 
 Modern port work uses one phase branch at a time, merged into `main` after verification. No modern release, version bump, or retag is announced by this entry. The source/build version remains `0.1.0-alpha.1`; observed verification results are recorded in [STATUS.md](docs/modern-port/STATUS.md).
 
+### Automated QA And Bounded Support
+
+- Added isolated native GameTests/CI, two-process dedicated persistence checks and a disposable self-quitting screenshot client. QA code/templates stay outside the normal jar; incomplete/failed results fail verification.
+- Added one supply-funded player reinforcement call-in at a nearby loaded Command Post, with configurable stage/research/cost and shared quotas/cooldowns. No vehicles, aircraft, runtime dependency, pin or version change.
+- Added real command/payment/cap/terrain regressions and synthetic multi-player contention/burst checks; documented the vehicle integration/design budget and unverified real-network/sustained-load boundary.
+
 ### Guided Alpha Loop Preparation
 
 - Added public, read-only `/standandhold help` and `guide`, using loaded mission/research definitions without grants, automatic mission starts, state refresh or ticking.

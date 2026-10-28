@@ -1,0 +1,14 @@
+license="All Rights Reserved"
+
+[[mods]]
+modId="standandhold_qa"
+version="1"
+displayName="Stand and Hold Automated QA"
+description="Development-only built-in GameTests and disposable client/server fixtures. Never distributed."
+
+[[dependencies.standandhold_qa]]
+modId="standandhold"
+type="required"
+versionRange="[0.1.0-alpha.1]"
+ordering="AFTER"
+side="BOTH"
