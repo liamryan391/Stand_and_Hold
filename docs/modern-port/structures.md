@@ -82,12 +82,11 @@ Back up the **whole disposable modern world** before opting in. In its server-si
 Close menus, look directly at that post within six blocks as an operator, then:
 
 ```text
-/standandhold outpost preview
 /standandhold outpost prepare
 /standandhold outpost expand <token-from-prepare>
-/standandhold outpost status
-/standandhold outpost recover
 ```
+
+This is the **M18 operator prototype**, not the intended ordinary upgrade UI. `preview` is optional inspection, `status` is optional diagnostics and `recover` is only exceptional metadata sealing; they are not five compulsory upgrade steps. The [player-facing growth direction](outpost-expansion-design.md#player-facing-growth-direction) replaces typed confirmation with menu controls and an optional automatic mode in planned work, not in the current jar.
 
 `prepare` reports ground-replacement consent and issues a single-use token, but saves no world receipt or blocks. Its coloured Confirm line **only fills chat**; review it, then press Enter to apply. It expires after 200 unpaused game ticks (10 seconds at 20 TPS), is bound to that player/dimension/site/level/stage/config and exact before-state/protected-building digest, and is invalid after disconnect/restart or another preparation by that player. The transient server cache holds at most 64 entries. Once confirmation looks up an owned token it is consumed, even if revalidation fails; prepare again, never use a force flag. Normal building/lab progress or player edits during those ten seconds can invalidate consent safely.
 

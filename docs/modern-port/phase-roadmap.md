@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M18 guarded apron application exit gate passed**; see [STATUS.md](STATUS.md).
+Current position: **Phase M18 exit gate passed; Liam's growth-UX feedback incorporated into the unstarted follow-up scopes**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -418,18 +418,59 @@ Exit gate:
 - A supported site's explicit application either completes once with protected state intact or stops with a persisted bounded diagnostic; unsupported/ambiguous cases do not mutate.
 - Fresh confirmation is required after restart or any relevant change; defaults remain off, with no automatic repair, extra progression/population effect or durable-transaction claim.
 
-## Phase M19 - Heavy And Elite Human Unit Tiers
+## Phase M19 - Player-Friendly Outpost Growth Controls
+
+Priority: P1
+
+Scope: replace the M18 operator-only interaction as the normal way to use its one supported apron, without expanding the physical write set. Liam's 2026-10-28 feedback explicitly prioritises usable manual/automatic base growth. The previously unstarted Heavy/Elite scope moves prospectively to M20; no completed task ID or historical result is renumbered. [Interaction contract](outpost-expansion-design.md#player-facing-growth-direction) and [reference review](gameplay-direction-and-references.md) distinguish this plan from implemented behavior.
+
+- [ ] **19.1 Define the player interaction and saved policy before code.** Separate local level, physical layout and world stage; define Manual default/Automatic opt-in, server disable, existing menu access and concise ready/blocked/expanded/review states. Preserve old receipts and unknown data; no faction/claim system, old-site adoption or changed upgrade costs.
+- [ ] **19.2 Add a simple server-authoritative Command Post growth action.** Manual Expand through the valid local menu, requirements/affected-area visibility and immediate fresh preflight, without copying a UUID or requiring preview/status/recover. Keep advanced operator diagnostics; reject stale/foreign/double actions with no resource or block replay.
+- [ ] **19.3 Add bounded automatic application for opted-in eligible sites.** Apply only the existing 137-cell apron after an already-earned local level 2, once. Persist the mode, honour disable/protection/caps, check on a bounded loaded-tile cadence and pause on obstruction/interrupted state. No automatic spending/level increases, rebuilding, loot refill, global scans, towers or larger layout in this milestone.
+- [ ] **19.4 Verify and document both interaction modes.** Logic/native GameTests for access, policy, manual/automatic application, duplicate actions, normal post-application storage changes and interrupted/disabled state; two-JVM and unload/reload persistence; reviewed normal/large qaClient menus; final clean build/jar isolation and green CI. Human feedback only for clarity and feel.
+
+Exit gate:
+
+- An eligible site can expand manually through its menu, or once automatically after explicit opt-in and a normal paid level upgrade, without typed tokens or routine recovery commands.
+- Existing protection/write budgets, operation receipts, resources, capacities, legacy/local files and pin/dependency rules remain intact. A simpler interface is not permission to overwrite builds or pretend atomic crash recovery exists.
+
+## Phase M20 - Heavy And Elite Human Unit Tiers
 
 Priority: P2
 
 Scope: two additional readable alpha roles using the existing human entity/vanilla-AI, equipment, stage/research and shared deployment foundations. No new weapon mechanics, animation library, population increase, structures, automatic transformation of existing units or toolchain change. Super Elite/Special Division unit expansion remains separately scoped.
 
-- [ ] **19.1 Define the role/unlock/retention contract before implementation.** Distinguish Heavy and Elite roles, configurable stats and stage/research requirements; keep global stage separate from post level, existing issued-kit retention and all post/area/roster limits.
-- [ ] **19.2 Register the two units, test eggs and original visual variants.** Reuse the supported human model/art export pipeline with distinguishable silhouettes/uniforms, translated names and complete textures; no copied assets or runtime library. Eggs remain deliberate admin test tools, not progression bypasses for automated deployment.
-- [ ] **19.3 Apply stage/research selection through shared deployment paths.** Automatic, event and paid reinforcements choose an eligible role without bypassing cooldowns/caps or changing existing NPC identities/tiers. Use existing equipment/target rules; no new gun/ammo/complex-AI system.
-- [ ] **19.4 Verify the complete milestone and document usage.** Logic and native GameTests for role stats/AI/unlocks/retention and all deployment paths, real restart for identities/equipment/rosters, reviewed qaClient tier views, final clean build/jar isolation and green CI. Human feedback only for silhouette/combat feel; multiplayer/packaged claims stay separate.
+- [ ] **20.1 Define the role/unlock/retention contract before implementation.** Distinguish Heavy and Elite roles, configurable stats and stage/research requirements; keep global stage separate from post level, existing issued-kit retention and all post/area/roster limits.
+- [ ] **20.2 Register the two units, test eggs and original visual variants.** Reuse the supported human model/art export pipeline with distinguishable silhouettes/uniforms, translated names and complete textures; no copied assets or runtime library. Eggs remain deliberate admin test tools, not progression bypasses for automated deployment.
+- [ ] **20.3 Apply stage/research selection through shared deployment paths.** Automatic, event and paid reinforcements choose an eligible role without bypassing cooldowns/caps or changing existing NPC identities/tiers. Use existing equipment/target rules; no new gun/ammo/complex-AI system.
+- [ ] **20.4 Verify the complete milestone and document usage.** Logic and native GameTests for role stats/AI/unlocks/retention and all deployment paths, real restart for identities/equipment/rosters, reviewed qaClient tier views, final clean build/jar isolation and green CI. Human feedback only for silhouette/combat feel; multiplayer/packaged claims stay separate.
 
 Exit gate:
 
 - New units are distinguishable, configurable and stage/research-gated for automated deployment; old NPCs, saves and common limits remain intact.
 - No extra population budget, dependency/pin change, weapon system or support claim is smuggled into the tier milestone.
+
+## Phase M21 - Useful Level-2 Outpost Layout
+
+Priority: P2
+
+Scope: improve usable space rather than repeat the cramped M18 outer ring. One original Level-2 layout/delta first; Level-3 second floors, functional sensors/wire, new storage mechanics, larger shared armies and Main Base expansion stay outside this milestone. M19 interaction controls are reused, not replaced with another command procedure.
+
+- [ ] **21.1 Author the layout and upgrade contract.** Define a usable yard, protected command/lab/storage access, clear entrance and one modest watch position; distinguish new sites, already-apron-expanded sites and customised sites. Show exact local-level/footprint requirements and identify preserved buildings and any old-wall removals before mutation.
+- [ ] **21.2 Implement bounded planning and protected application.** Extend provenance/layout revisions and expected-state deltas only as required; refuse unsupported/occupied/unknown changes and preserve inventories, labs, identities, receipts and reservations. No silent adoption, full-site regeneration or loot reseed.
+- [ ] **21.3 Integrate manual/automatic growth and readable status.** The same menu policy selects the supported layout at the earned local level. Make failure/space requirements actionable; capacity remains the existing shared policy, not a side effect of decorative towers.
+- [ ] **21.4 Verify usefulness and safety.** GameTests for new/apron/customised cases, terrain/entrance/NPC access, protected removal and fault/repeat behavior; two-JVM persistence; reviewed overhead/interior/menu captures; clean build/jar isolation and green CI. Liam judges space/navigation and visual payoff after automation.
+
+Exit gate:
+
+- One Level-2 upgrade provides visibly useful space with working building/defender access and no loss, duplication or unsafe replay of existing state.
+- Larger multi-level growth and functional defensive systems remain explicitly separate, not implied by the Level-2 layout.
+
+## Later Content Backlog
+
+Not a second live roadmap or approval to implement everything at once; refine into bounded milestone steps before starting work. The [direction/reference review](gameplay-direction-and-references.md) records the larger level/identity vision.
+
+- **P2:** Level-3 usable upper floor and dedicated zones; original additional layouts and properly budgeted storage upgrades.
+- **P3:** Functional watch positions, guarded approaches, reachable patrols and clear defensive feedback; original soldier/weapon/armour animation polish, after a small pipeline evaluation and explicit approval if a runtime library is required.
+- **P3:** Isolated optional horde/urban-world coexistence QA using verified candidate artifacts, only after installation/dependency approval; no external-mod support claim from listings alone.
+- **P4:** Ground vehicles before aircraft, following the existing warfare/performance contract; broader combined-arms content and additional loaders after stable NeoForge gameplay. No copied art/code or automatic pin changes.
