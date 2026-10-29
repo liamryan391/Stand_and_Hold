@@ -21,12 +21,36 @@ import net.minecraft.nbt.NbtOps;
 final class BuildingChecks {
     private static int assertions;
     static void run() throws Exception {
-        transfer(); researchAndUpgrades(); savesAndPositions(); menuValues(); mainBaseNotices();
+        transfer(); researchAndUpgrades(); savesAndPositions(); menuValues(); mainBaseNotices(); growthPolicy();
         check(MenuValues.statusCode("Requires standandhold:parasite_samples") == 3, "sample-named prerequisite is not a physical sample shortage");
         check(MenuValues.statusCode("Requires standandhold:stage_training") == 3, "stage-named prerequisite is not a stage shortage");
         check(MenuValues.statusCode("Requires 5 local samples") == 5, "physical sample shortage keeps its code");
         check(MenuValues.statusCode("Requires 20 local supplies") == 4, "physical supply shortage keeps its code");
         System.out.println("Building checks passed: " + assertions + " assertions.");
+    }
+    private static void growthPolicy() {
+        for (var mode : com.liamryan.standandhold.common.structure.OutpostGrowth.Mode.values()) {
+            for (int pause : new int[]{0, 5, 6, 7, 8}) {
+                var settings = new com.liamryan.standandhold.common.structure.OutpostGrowth.Settings(mode, pause);
+                check(com.liamryan.standandhold.common.structure.OutpostGrowth.Settings.read(settings.save()).equals(settings), "Growth mode/pause round trip");
+            }
+        }
+        var raw = com.liamryan.standandhold.common.structure.OutpostGrowth.Settings.DEFAULT.save();
+        for (String key : new String[]{"version", "mode", "pause"}) {
+            var missing = raw.copy(); missing.remove(key);
+            expect(() -> com.liamryan.standandhold.common.structure.OutpostGrowth.Settings.read(missing));
+            var wrongType = raw.copy(); wrongType.putString(key, "0");
+            expect(() -> com.liamryan.standandhold.common.structure.OutpostGrowth.Settings.read(wrongType));
+        }
+        for (int value : new int[]{-1, 2, Integer.MAX_VALUE}) {
+            var future = raw.copy(); future.putInt("version", value);
+            expect(() -> com.liamryan.standandhold.common.structure.OutpostGrowth.Settings.read(future));
+            var invalidMode = raw.copy(); invalidMode.putInt("mode", value);
+            expect(() -> com.liamryan.standandhold.common.structure.OutpostGrowth.Settings.read(invalidMode));
+        }
+        for (int pause : new int[]{-1, 1, 2, 3, 4, 9}) {
+            expect(() -> new com.liamryan.standandhold.common.structure.OutpostGrowth.Settings(com.liamryan.standandhold.common.structure.OutpostGrowth.Mode.AUTOMATIC, pause));
+        }
     }
     private static void transfer() {
         BuildingState start = BuildingState.EMPTY;

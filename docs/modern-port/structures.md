@@ -41,7 +41,7 @@ New natural/debug checkpoints of all supported sizes include one empty, idle lab
 | `maximumHeightDifference` | Full-footprint slope limit, 0..3 blocks; safety checks cannot be disabled |
 | `mainBaseActivationStage` | Command generation/deployment stage, 0..6; default 5 |
 | `checkpointCrateSupplies`, `mainBaseCrateSupplies` | One-time local starting supplies, also clamped to building capacity |
-| `expansionEnabled` | **False by default.** Explicit operator preparation/application of proven level-2+ radius-4 checkpoints only. No automatic growth, extra cost/reward or population increase; whole-world backup required |
+| `expansionEnabled` | **False by default.** Master switch for menu/operator expansion and per-site Automatic opt-in on proven level-2+ radius-4 checkpoints. No automatic level purchase, extra cost/reward or population increase; whole-world backup required |
 
 Generation settings are not saved attempt receipts. Changing them only affects subsequent chunk generation; it never intentionally repeats generation in an existing chunk. For deterministic natural QA, use a **new disposable** flat world with biome decoration explicitly enabled (`features: true` in its generator settings), spacing/chance 1 and only the desired site enabled. Default Superflat disables natural biome features; its debug commands still work. Disable automatic NPC deployment in dense QA to avoid an artificial concentration of posts. Restore defaults afterwards; do not use dense QA settings in a normal world.
 
@@ -75,7 +75,29 @@ Successful **new checkpoint generation only** attaches a separate `site` compoun
 
 The [expansion design](outpost-expansion-design.md) records the contract and qualified failure semantics. M17 added no resizing; the opt-in M18 application is described below, not a power-loss journal.
 
-## Confirmed Apron Application
+## Player Growth Controls
+
+Operators first enable `expansionEnabled` for the instance, preserving its other config. At a supported generated checkpoint, open the Command Post. **Status** keeps the existing paid Upgrade action and requirements; **Growth** shows the saved mode, eligibility/pause and exact 9x9-to-13x13 apron. Normal players can use these local menus without operator permission. Growth actions additionally require the same live post within six blocks; normal storage remains available within its existing eight-block menu range.
+
+- **Manual** is the default, including older modern saves. After earning local level 2 through the ordinary upgrade, press **Expand**. The server checks current terrain/entities immediately, then applies the same 137-cell apron once; no UUID or command sequence is needed.
+- **Automatic** is a saved per-site opt-in, selectable before level 2. It applies that one apron when the post is already eligible, at the existing loaded-post event-check cadence (default 200 ticks). It does not buy levels, spend supplies or add population. Switching to Manual stops future automatic attempts, not existing buildings.
+- An obstruction saves a pause. Clearing the obstruction alone does not silently restart construction; retry Expand explicitly or reselect Automatic with the admin mode tool. Interrupted/unknown operation receipts require review, not a replay. Server disable always wins.
+- **Expanded** remains the normal saved state even if storage/research later changes its historical digest. Broken apron blocks are not repaired/refilled. Old/manual posts, unsupported layouts and Main Bases are not adopted into this feature.
+
+All existing operator commands remain useful for testing/administration. These additional level-2-operator, player/look-target tools use the same growth service as the menus:
+
+```text
+/standandhold outpost help
+/standandhold outpost grow
+/standandhold outpost mode manual
+/standandhold outpost mode automatic
+```
+
+`outpost` alone also displays help, and the two mode literals autocomplete. `grow` is immediate manual application, not a force flag or a free level upgrade. `status` includes readable growth mode/state before the retained operation diagnostics. Existing preview/prepare/expand/status/recover semantics remain below. Command grants/debug shortcuts are not earned-loop evidence.
+
+The additive top-level tile `growth` compound (`version: 1`, integer `mode`, bounded `pause`) preserves Manual/Automatic and paused reason; absent data defaults Manual. Unknown fields survive known-version edits. Malformed/future raw data is retained and disables growth without disabling ordinary building storage. Building/world/site/operation schema numbers and prices/caps are unchanged. Menus sync only compact state/mode, not block lists or tokens; their updates do not run terrain inspections. Only an attempted expansion does the bounded preflight/hash. Parsed operation receipts are cached until their metadata epoch changes.
+
+## Operator Confirmed Apron Application
 
 Back up the **whole disposable modern world** before opting in. In its server-side `config/standandhold-structures.toml`, set `expansionEnabled = true` and restart the instance (do not reset unrelated config). Leave it false on servers that do not accept bounded ground replacement or have unverified claim/protection mods. Old/manual posts and Main Bases never become eligible. Upgrade a new supported checkpoint's post normally to local level 2; setting world stage alone does not upgrade it.
 
@@ -86,7 +108,7 @@ Close menus, look directly at that post within six blocks as an operator, then:
 /standandhold outpost expand <token-from-prepare>
 ```
 
-This is the **M18 operator prototype**, not the intended ordinary upgrade UI. `preview` is optional inspection, `status` is optional diagnostics and `recover` is only exceptional metadata sealing; they are not five compulsory upgrade steps. The [player-facing growth direction](outpost-expansion-design.md#player-facing-growth-direction) replaces typed confirmation with menu controls and an optional automatic mode in planned work, not in the current jar.
+This retained **M18 operator workflow** supplements the M19 player menus. `preview` is optional inspection, `status` is optional diagnostics and `recover` is only exceptional metadata sealing; they are not five compulsory upgrade steps. The [growth contract](outpost-expansion-design.md#player-facing-growth-direction) documents both interfaces.
 
 `prepare` reports ground-replacement consent and issues a single-use token, but saves no world receipt or blocks. Its coloured Confirm line **only fills chat**; review it, then press Enter to apply. It expires after 200 unpaused game ticks (10 seconds at 20 TPS), is bound to that player/dimension/site/level/stage/config and exact before-state/protected-building digest, and is invalid after disconnect/restart or another preparation by that player. The transient server cache holds at most 64 entries. Once confirmation looks up an owned token it is consumed, even if revalidation fails; prepare again, never use a force flag. Normal building/lab progress or player edits during those ten seconds can invalidate consent safely.
 
@@ -111,7 +133,7 @@ Normal removal unregisters the post and base. Admin edits that suppress removal 
 Mechanics belong to the [automated ladder](automated-testing.md): native structures/refusals/commands/AI, real restart persistence and client screenshots. No manual command/number readback is required.
 
 1. In a disposable world, judge checkpoint/Main Base entrance, lab access, lighting and defender movement for feel. These are original alpha foundations, not finished bases.
-2. For opt-in expansion, use the procedure above and judge the narrow outer apron/entrance and the clarity of consent. Required tests already cover exact writes, protected state, faults, expiry, permissions and restarts.
+2. For enabled growth, judge whether the Status/Growth tabs and Manual/Automatic choice feel clear, and whether the narrow apron/entrance is useful. Menu/command access, writes, protected state, faults, consent, mode buttons and persistence are automated; larger authored layouts remain separate work.
 3. Natural generation across varied terrain, real multiplayer and packaged installs remain separate coverage; a deterministic worker-proxy test is not concurrent natural-worldgen proof. Retain test worlds and restore sparse defaults after dense QA.
 
 Play for about 5 minutes. Does anything feel off or annoying?
@@ -124,10 +146,10 @@ Later original layouts may include outposts, research facilities, barracks, supp
 
 ### Base Evolution Proposal
 
-Liam's M12 feedback proposes growing individual checkpoints/outposts alongside the army. Keep the **global human stage** (technology/unit availability) distinct from each site's **local building/base level** (paid upgrades, infrastructure and eventual footprint). Current Command Posts already save a level, but upgrading does not enlarge a generated structure.
+Liam's feedback proposes growing individual checkpoints/outposts alongside the army. Keep the **global human stage** (technology/unit availability) distinct from each site's **local building/base level** (paid upgrades, infrastructure and footprint). A level upgrade alone does not resize a site in Manual mode; opted-in Automatic mode can apply the supported apron after local level 2. Larger useful layouts remain separately authored work, not implied by a level increase.
 
 - Illustrative future targets: Stage 0 small checkpoints with 3-5 defenders, Stage 1 larger sites with 5-8, then later tiers. These are design examples, not new defaults, measured performance budgets or approved balance changes.
 - Physical growth needs bounded loaded-only footprint preflight, protected player blocks/storage/tiles, partial-failure safety and persistent site ownership. A global stage increase must not silently overwrite nearby builds or reset defender reservations/cooldowns.
 - Existing per-site building levels now control bounded defender capacity (see [capacity contract](buildings.md#defender-capacity-contract)); shared nearby quotas still apply. This does not enlarge generated layouts. Physical expansion and larger shared population budgets need a separate design/load test; the showcase work itself introduced neither.
 
-The [outpost expansion design](outpost-expansion-design.md) defines the bounded outer apron, explicit eligibility/terrain budgets and conservative recovery. M16 admitted preview first; M18 adds one default-disabled confirmed application, not automatic resizing, Main Base growth or a durable crash-recovery system.
+The [outpost expansion design](outpost-expansion-design.md) defines the bounded outer apron, eligibility/terrain budgets and conservative recovery. M18 added one opt-in operator application; M19 adds player controls and saved per-site automation of that same apron. No arbitrary resizing, Main Base growth, old-site adoption or durable crash-recovery system is provided.

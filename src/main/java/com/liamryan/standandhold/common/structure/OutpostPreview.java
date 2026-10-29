@@ -4,6 +4,7 @@ import com.liamryan.standandhold.common.building.*;
 import com.liamryan.standandhold.config.StructureConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Continuation;
 import net.minecraft.world.entity.Entity;
@@ -14,13 +15,22 @@ import net.minecraft.world.phys.AABB;
 /** Server-authoritative observation only; no SavedData access, registration, repair, or dirty calls. */
 public final class OutpostPreview {
     private OutpostPreview() { }
+    public static final class EntityObstruction extends IllegalArgumentException {
+        public EntityObstruction(String message) { super(message); }
+    }
     public record Inspection(ExpansionPlan plan, java.util.List<ExpansionOperation.Change> changes) { }
     public static SiteProvenance requirePost(ServerPlayer player, BuildingBlockEntity post) {
         var level = player.level();
-        if (!level.getServer().isSameThread() || player.isSpectator() || post.isRemoved() || post.getLevel() != level
-                || !level.hasChunkAt(post.getBlockPos()) || level.getBlockEntity(post.getBlockPos()) != post
-                || post.kind() != BuildingKind.COMMAND_POST
+        if (player.isRemoved() || !player.isAlive() || player.isSpectator()
                 || player.distanceToSqr(post.getBlockPos().getX() + 0.5, post.getBlockPos().getY() + 0.5, post.getBlockPos().getZ() + 0.5) > 36) {
+            throw new IllegalArgumentException("Preview needs the same loaded post within 6 blocks; no spectators or remote coordinates.");
+        }
+        return requirePost(level, post);
+    }
+    public static SiteProvenance requirePost(ServerLevel level, BuildingBlockEntity post) {
+        if (!level.getServer().isSameThread() || post.isRemoved() || post.getLevel() != level
+                || !level.hasChunkAt(post.getBlockPos()) || level.getBlockEntity(post.getBlockPos()) != post
+                || post.kind() != BuildingKind.COMMAND_POST) {
             throw new IllegalArgumentException("Preview needs the same loaded post within 6 blocks; no spectators or remote coordinates.");
         }
         post.requireWritable();
@@ -45,7 +55,10 @@ public final class OutpostPreview {
     }
     public static ExpansionPlan inspect(ServerPlayer player, BuildingBlockEntity post) { return inspectDetails(player, post).plan(); }
     public static Inspection inspectDetails(ServerPlayer player, BuildingBlockEntity post) {
-        var level = player.level(); var site = requirePost(player, post);
+        requirePost(player, post); return inspectDetails(player.level(), post);
+    }
+    public static Inspection inspectDetails(ServerLevel level, BuildingBlockEntity post) {
+        var site = requirePost(level, post);
         ExpansionPlan.requireEligible(site, post.state().level(), level.getMinY(), level.getMaxY());
         var pending = post.siteOperation().orElse(null);
         if (pending != null && pending.phase() != ExpansionOperation.Phase.PREPARED) { throw new IllegalArgumentException("Existing expansion operation needs operator review; use /standandhold outpost status."); }
@@ -76,8 +89,8 @@ public final class OutpostPreview {
             }
             return Continuation.CONTINUE;
         });
-        if (saturated[0]) { throw new IllegalArgumentException("Preview entity inspection limit reached (128); nothing changed."); }
-        if (blocked[0]) { throw new IllegalArgumentException("Entity obstructs proposed apron; nothing changed."); }
+        if (saturated[0]) { throw new EntityObstruction("Preview entity inspection limit reached (128); nothing changed."); }
+        if (blocked[0]) { throw new EntityObstruction("Entity obstructs proposed apron; nothing changed."); }
         var changes = plan.cells().stream().map(cell -> new ExpansionOperation.Change(cell.pos(), net.minecraft.nbt.NbtUtils.writeBlockState(states.get(cell.pos())), cell.material())).toList();
         return new Inspection(plan, changes);
     }

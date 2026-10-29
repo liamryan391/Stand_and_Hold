@@ -4,6 +4,7 @@ import com.liamryan.standandhold.common.building.BuildingKind;
 import com.liamryan.standandhold.common.building.BuildingMenu;
 import com.liamryan.standandhold.common.building.BuildingState;
 import com.liamryan.standandhold.common.building.MenuValues;
+import com.liamryan.standandhold.common.structure.OutpostGrowth;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
@@ -20,6 +21,8 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
     private Button start;
     private Button deposit;
     private Button withdraw;
+    private Button expand, manual, automatic, statusTab, growthTab;
+    private boolean growthView;
     private boolean sampleMode;
     private int mouseX, mouseY;
     public BuildingScreen(BuildingMenu menu, Inventory inventory, Component title) { super(menu, inventory, title, 300, 230); }
@@ -35,7 +38,17 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
             button.setMessage(Component.translatable(sampleMode ? "gui.standandhold.sample_mode" : "gui.standandhold.supply_mode"));
             updateTransfers();
         }).bounds(leftPos + 202, topPos + 202, 90, 20).build());
-        if (menu.kind() == BuildingKind.COMMAND_POST) { upgrade = button("upgrade", 202, 177, 90, UPGRADE); }
+        if (menu.kind() == BuildingKind.COMMAND_POST) {
+            upgrade = button("upgrade", 202, 177, 90, UPGRADE);
+            expand = button("expand", 8, 177, 90, EXPAND);
+            manual = button("growth_manual", 102, 177, 90, GROWTH_MANUAL);
+            automatic = button("growth_automatic", 202, 177, 90, GROWTH_AUTOMATIC);
+            statusTab = addRenderableWidget(Button.builder(Component.translatable("gui.standandhold.tab_status"), b -> { growthView = false; updateGrowth(); })
+                    .bounds(leftPos + 158, topPos + 3, 64, 16).build());
+            growthTab = addRenderableWidget(Button.builder(Component.translatable("gui.standandhold.tab_growth"), b -> { growthView = true; updateGrowth(); })
+                    .bounds(leftPos + 226, topPos + 3, 66, 16).build());
+            updateGrowth();
+        }
         if (menu.kind() == BuildingKind.LAB) {
             start = button("start_research", 8, 177, 90, TOGGLE_RESEARCH);
             next = button("next_research", 102, 177, 90, NEXT_RESEARCH);
@@ -62,10 +75,24 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
         withdraw.active = valid && (sampleMode ? menu.number(SAMPLES) > 0 && menu.number(SAMPLE_ROOM) > 0
                 : batch > 0 && menu.number(LOCAL) >= batch && menu.number(GLOBAL) <= Long.MAX_VALUE - batch);
     }
+    private void updateGrowth() {
+        if (upgrade == null) { return; }
+        boolean valid = menu.number(STATUS) != 7;
+        long state = menu.number(GROWTH_STATUS), mode = menu.number(GROWTH_MODE);
+        expand.setMessage(Component.translatable(state == OutpostGrowth.TERRAIN || state == OutpostGrowth.ENTITY ? "gui.standandhold.retry_growth" : "gui.standandhold.expand"));
+        upgrade.visible = !growthView;
+        expand.visible = manual.visible = automatic.visible = growthView;
+        statusTab.active = growthView; growthTab.active = !growthView;
+        expand.active = valid && (state == OutpostGrowth.READY || state == OutpostGrowth.TERRAIN || state == OutpostGrowth.ENTITY);
+        manual.active = valid && mode != 0 && state != OutpostGrowth.UNAVAILABLE;
+        automatic.active = valid && mode != 1 && state != OutpostGrowth.UNSUPPORTED && state != OutpostGrowth.UNAVAILABLE
+                && state != OutpostGrowth.DISABLED && state != OutpostGrowth.REVIEW;
+    }
     @Override protected void containerTick() {
         boolean valid = menu.number(STATUS) != 7;
         updateTransfers();
         if (upgrade != null) { upgrade.active = valid && menu.number(UPGRADE_STATUS) == 0; }
+        updateGrowth();
         if (next != null) {
             next.active = valid && menu.hasResearchOptions();
             pause.active = valid && (menu.target() != null || menu.number(STATUS) == 10);
@@ -85,13 +112,21 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
     }
     @Override protected void extractLabels(GuiGraphicsExtractor g, int mx, int my) {
         mouseX = mx; mouseY = my;
-        text(g, title.getString(), 7, 284, 0xfff0f3f1);
+        text(g, title.getString(), 7, menu.kind() == BuildingKind.COMMAND_POST ? 144 : 284, 0xfff0f3f1);
         line(g, 28, "gui.standandhold.progression", menu.number(POINTS), menu.number(STAGE));
         line(g, 42, "gui.standandhold.global", menu.number(GLOBAL));
         line(g, 56, "gui.standandhold.local", menu.number(LOCAL), menu.number(CAPACITY));
         line(g, 70, "gui.standandhold.samples", menu.number(SAMPLES), menu.number(BATCH));
         if (menu.kind() == BuildingKind.COMMAND_POST) {
             int level = (int) Math.clamp(menu.number(LEVEL), 1, 5);
+            if (growthView) {
+                line(g, 88, "gui.standandhold.growth_mode", Component.translatable(menu.number(GROWTH_MODE) == 1 ? "gui.standandhold.growth_automatic" : "gui.standandhold.growth_manual"));
+                wrap(g, Component.translatable("gui.standandhold.growth_status." + Math.clamp(menu.number(GROWTH_STATUS), 0, 8)).getString(), 102);
+                line(g, 128, "gui.standandhold.growth_footprint");
+                line(g, 142, "gui.standandhold.growth_ground");
+                line(g, 156, "gui.standandhold.growth_preserved");
+                return;
+            }
             line(g, 88, "gui.standandhold.level", level, Component.translatable("gui.standandhold.level." + level));
             line(g, 100, "gui.standandhold.generation", menu.number(GENERATION_POINTS), menu.number(GENERATION_SUPPLIES), menu.number(GENERATION_INTERVAL) / 20);
             line(g, 112, "gui.standandhold.defenders", menu.number(DEFENDERS), menu.number(DEFENDER_CAP));

@@ -18,7 +18,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 
-/** Explicit server actions only: no on-load application, global tick, chunk ticket or currency transaction. */
+/** Shared bounded server application; no on-load replay, global scan, chunk ticket or currency transaction. */
 public final class OutpostExpansion {
     private record Ticket(ExpansionOperation operation, String dimension, BlockPos anchor, int level, int stage, String policy, UUID previous) { }
     private static final Map<MinecraftServer, ExpansionTokens<Ticket>> TOKENS = new WeakHashMap<>();
@@ -29,6 +29,7 @@ public final class OutpostExpansion {
     }
     public static void stopped(ServerStoppedEvent event) { TOKENS.remove(event.getServer()); }
     public static UUID prepare(ServerPlayer player, BuildingBlockEntity post) {
+        post.requireGrowthWritable();
         requireEnabled(); var inspection = OutpostPreview.inspectDetails(player, post);
         var site = inspection.plan().site(); var digest = protectedDigest(player.level(), post, site);
         var previous = post.siteOperation().orElse(null);
@@ -42,6 +43,7 @@ public final class OutpostExpansion {
     public static ExpansionApply.Result confirm(ServerPlayer player, BuildingBlockEntity post, UUID token) {
         if (!player.level().getServer().isSameThread()) { throw new IllegalArgumentException("Expansion requires the server thread."); }
         var ticket = tokens(player.level().getServer()).take(player.getUUID(), token, player.level().getGameTime());
+        post.requireGrowthWritable();
         requireEnabled(); var inspection = OutpostPreview.inspectDetails(player, post); var site = inspection.plan().site();
         var previous = post.siteOperation().orElse(null);
         if (!ticket.dimension().equals(site.dimension()) || !ticket.anchor().equals(post.getBlockPos()) || !ticket.operation().siteId().equals(site.id())
@@ -75,15 +77,34 @@ public final class OutpostExpansion {
     }
     public static ExpansionApply.Access access(ServerPlayer player, BuildingBlockEntity post, ExpansionOperation operation) {
         var site = OutpostPreview.requirePost(player, post); operation.validateSite(site);
-        var level = player.level(); var state = post.state(); String policy = policy(); int stage = stage(player);
+        return access(player.level(), post, operation, () -> !player.isRemoved() && player.isAlive() && !player.isSpectator()
+                && player.level() == post.getLevel() && player.distanceToSqr(site.anchor().getX() + 0.5, site.anchor().getY() + 0.5, site.anchor().getZ() + 0.5) <= 36);
+    }
+    public static ExpansionApply.Result applyNow(ServerPlayer player, BuildingBlockEntity post) {
+        OutpostPreview.requirePost(player, post);
+        return applyNow(player.level(), post, () -> !player.isRemoved() && player.isAlive() && !player.isSpectator()
+                && player.level() == post.getLevel() && player.distanceToSqr(post.getBlockPos().getX() + 0.5, post.getBlockPos().getY() + 0.5, post.getBlockPos().getZ() + 0.5) <= 36);
+    }
+    public static ExpansionApply.Result applyNow(ServerLevel level, BuildingBlockEntity post) { return applyNow(level, post, () -> true); }
+    private static ExpansionApply.Result applyNow(ServerLevel level, BuildingBlockEntity post, java.util.function.BooleanSupplier actor) {
+        requireEnabled();
+        OutpostPreview.requirePost(level, post); post.requireGrowthWritable();
+        if (post.siteOperation().isPresent()) { throw new IllegalArgumentException("Existing operation needs review; no automatic replay or repair."); }
+        var inspection = OutpostPreview.inspectDetails(level, post);
+        var operation = new ExpansionOperation(UUID.randomUUID(), inspection.plan().site().id(), inspection.changes(),
+                protectedDigest(level, post, inspection.plan().site()), ExpansionOperation.Phase.PREPARED, 0, "");
+        return ExpansionApply.apply(operation, access(level, post, operation, actor));
+    }
+    private static ExpansionApply.Access access(ServerLevel level, BuildingBlockEntity post, ExpansionOperation operation, java.util.function.BooleanSupplier actor) {
+        var site = OutpostPreview.requirePost(level, post); operation.validateSite(site);
+        var state = post.state(); String policy = policy(); int stage = stage(level);
         long[] epoch = {post.siteEpoch()};
         return new ExpansionApply.Access() {
             public boolean valid() {
-                return StructureConfig.EXPANSION.get() && level.getServer().isSameThread() && !player.isRemoved() && player.isAlive() && !player.isSpectator() && player.level() == level
+                return StructureConfig.EXPANSION.get() && level.getServer().isSameThread() && actor.getAsBoolean()
                         && level.hasChunkAt(site.anchor()) && !post.isRemoved() && level.getBlockEntity(site.anchor()) == post
-                        && !post.isMainBase() && post.siteEpoch() == epoch[0] && post.state().equals(state)
-                        && player.distanceToSqr(site.anchor().getX() + 0.5, site.anchor().getY() + 0.5, site.anchor().getZ() + 0.5) <= 36
-                        && policy.equals(policy()) && stage == stage(player);
+                        && !post.isMainBase() && post.growthSupported() && post.siteEpoch() == epoch[0] && post.state().equals(state)
+                        && policy.equals(policy()) && stage == stage(level);
             }
             public CompoundTag read(BlockPos pos) { return OutpostExpansion.read(level, site, pos); }
             public boolean write(ExpansionOperation.Change change) {
@@ -138,7 +159,11 @@ public final class OutpostExpansion {
         if (tag instanceof ListTag list) { var result = new ListTag(); for (Tag value : list) { result.add(canonical(value)); } return result; }
         return tag.copy();
     }
-    private static int stage(ServerPlayer player) { return ProgressionRules.stageFor(HumanWorldData.get(player.level().getServer()).points(), HumanProgressionConfig.thresholds()).level(); }
+    private static int stage(ServerPlayer player) { return stage(player.level()); }
+    private static int stage(ServerLevel level) {
+        var data = HumanWorldData.get(level.getServer()); data.requireSupportedVersion();
+        return ProgressionRules.stageFor(data.points(), HumanProgressionConfig.thresholds()).level();
+    }
     private static String policy() { return "apron-v1|" + StructureConfig.EXPANSION.get() + "|" + StructureConfig.DIMENSIONS.get() + "|" + StructureConfig.CHECKPOINT_RADIUS.get() + "|" + StructureConfig.SLOPE.get() + "|" + Arrays.toString(HumanProgressionConfig.thresholds()); }
     private static void requireEnabled() { if (!StructureConfig.EXPANSION.get()) { throw new IllegalArgumentException("Expansion is disabled by default; an operator must enable expansionEnabled in server structure config. Preview stays read-only."); } }
 }

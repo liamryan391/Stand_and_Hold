@@ -15,6 +15,7 @@ import com.liamryan.standandhold.common.structure.StructurePlacement;
 import com.liamryan.standandhold.common.structure.OutpostPreview;
 import com.liamryan.standandhold.common.structure.OutpostExpansion;
 import com.liamryan.standandhold.common.structure.ExpansionOperation;
+import com.liamryan.standandhold.common.structure.OutpostGrowth;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.HumanProgressionConfig;
 import java.nio.file.*;
@@ -47,6 +48,16 @@ import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
 public final class QaClient {
     private static final BlockPos POST = new BlockPos(8, 64, 8), LAB = new BlockPos(8, 64, 12), CRATE = new BlockPos(12, 64, 12);
     private record View(String name, BuildingKind kind, String state, int scale) { }
+    private record GrowthView(String name, int state, int mode, int scale) { }
+    private final List<GrowthView> growthViews = List.of(
+            new GrowthView("growth-manual-ready", OutpostGrowth.READY, 0, 2),
+            new GrowthView("growth-manual-ready-large", OutpostGrowth.READY, 0, 3),
+            new GrowthView("growth-automatic-waiting-large", OutpostGrowth.LEVEL, 1, 3),
+            new GrowthView("growth-terrain-paused-large", OutpostGrowth.TERRAIN, 1, 3),
+            new GrowthView("growth-entity-paused-large", OutpostGrowth.ENTITY, 1, 3),
+            new GrowthView("growth-disabled-large", OutpostGrowth.DISABLED, 0, 3),
+            new GrowthView("growth-review-large", OutpostGrowth.REVIEW, 1, 3),
+            new GrowthView("growth-ready-for-menu-action", OutpostGrowth.READY, 0, 2));
     private final List<View> views = List.of(
             new View("command-post", BuildingKind.COMMAND_POST, "", 2),
             new View("command-post-upgraded-large", BuildingKind.COMMAND_POST, "upgraded", 3),
@@ -67,6 +78,8 @@ public final class QaClient {
     private final List<String> captures = new ArrayList<>();
     private static final List<UUID> fixtureReservations = new ArrayList<>();
     private BlockPos checkpointLab;
+    private BlockPos growthPost;
+    private int growthView;
     private boolean previewReply, previewBlockedReply;
     private boolean expansionDisabledReply, expansionAppliedReply, expansionStatusReply;
     private String consentCommand, expansionProtected;
@@ -100,6 +113,8 @@ public final class QaClient {
             if (capturing) { return; }
             switch (phase) {
                 case 0 -> {
+                    mc.options.tutorialStep = net.minecraft.client.tutorial.TutorialSteps.NONE;
+                    mc.getTutorial().stop();
                     if (!(mc.gui.screen() instanceof TitleScreen)) {
                         if (mc.gui.screen() instanceof net.minecraft.client.gui.screens.AccessibilityOnboardingScreen) { mc.gui.setScreen(new TitleScreen()); }
                         return;
@@ -358,7 +373,66 @@ public final class QaClient {
                 }
                 case 42 -> {
                     if (++settle < 25 || !mc.levelRenderer.isSectionCompiledAndVisible(checkpointLab, 0)) { return; }
-                    capture(mc, "outpost-expanded-apron", 8);
+                    capture(mc, "outpost-expanded-apron", 43);
+                }
+                case 43 -> {
+                    mc.gui.setScreen(null); mc.gui.hud.getChat().clearMessages(true); phase = 44;
+                    onServer(mc, () -> {
+                        var level = mc.getSingleplayerServer().overworld();
+                        for (var pos : BlockPos.betweenClosed(48, 62, 16, 63, 70, 31)) {
+                            level.setBlockAndUpdate(pos, (pos.getY() == 62 ? Blocks.DIRT : pos.getY() == 63 ? Blocks.GRASS_BLOCK : Blocks.AIR).defaultBlockState());
+                        }
+                        var placed = StructurePlacement.place(level, StructureKind.CHECKPOINT, 3, 1);
+                        if (!placed.success()) { throw new IllegalStateException("Growth visual fixture: " + placed.message()); }
+                        growthPost = placed.commandPost();
+                    });
+                }
+                case 44 -> {
+                    var next = growthViews.get(growthView); mc.options.guiScale().set(next.scale()); mc.resizeGui(); phase = 45;
+                    onServer(mc, () -> {
+                        var level = mc.getSingleplayerServer().overworld(); var post = tile(level, growthPost); var actor = player(mc); actor.closeContainer();
+                        com.liamryan.standandhold.config.StructureConfig.EXPANSION.set(next.state() != OutpostGrowth.DISABLED);
+                        post.change(new BuildingState(next.state() == OutpostGrowth.LEVEL ? 1 : 2, 22, 3, "", 0));
+                        post.changeGrowth(new OutpostGrowth.Settings(next.mode() == 0 || next.state() == OutpostGrowth.LEVEL ? OutpostGrowth.Mode.MANUAL : OutpostGrowth.Mode.AUTOMATIC,
+                                next.state() >= OutpostGrowth.TERRAIN ? next.state() : 0));
+                        actor.connection.teleport(growthPost.getX() + .5, growthPost.getY(), growthPost.getZ() + 4.5, 180, 16);
+                        actor.openMenu(post, post::writeMenuData);
+                    });
+                }
+                case 45 -> {
+                    if (++settle > 200) { throw new IllegalStateException("Growth menu did not sync"); }
+                    if (!(mc.gui.screen() instanceof BuildingScreen) || !(mc.player.containerMenu instanceof BuildingMenu menu) || settle < 20) { return; }
+                    var expected = growthViews.get(growthView);
+                    if (expected.state() == OutpostGrowth.LEVEL && menu.number(BuildingMenu.GROWTH_STATUS) == OutpostGrowth.LEVEL && menu.number(BuildingMenu.GROWTH_MODE) == 0) {
+                        press(mc, "gui.standandhold.tab_growth"); press(mc, "gui.standandhold.growth_automatic"); phase = 52; settle = 0; return;
+                    }
+                    if (menu.number(BuildingMenu.GROWTH_STATUS) != expected.state() || menu.number(BuildingMenu.GROWTH_MODE) != expected.mode()) {
+                        throw new IllegalStateException("Growth state mismatch for " + expected.name() + ": " + menu.number(BuildingMenu.GROWTH_STATUS));
+                    }
+                    press(mc, "gui.standandhold.tab_growth"); phase = 46; settle = 0;
+                }
+                case 46 -> { if (++settle >= 6) { capture(mc, growthViews.get(growthView).name(), 47); } }
+                case 47 -> {
+                    if (growthViews.get(growthView).state() == OutpostGrowth.LEVEL) { press(mc, "gui.standandhold.growth_manual"); phase = 53; }
+                    else { growthView++; phase = growthView == growthViews.size() ? 48 : 44; }
+                    settle = 0;
+                }
+                case 48 -> { press(mc, "gui.standandhold.expand"); phase = 49; settle = 0; }
+                case 49 -> {
+                    if (++settle > 200) { throw new IllegalStateException("Actual growth menu action did not expand"); }
+                    if (mc.player.containerMenu instanceof BuildingMenu menu && menu.number(BuildingMenu.GROWTH_STATUS) == OutpostGrowth.EXPANDED && settle >= 15) {
+                        capture(mc, "growth-expanded-menu-action", 50);
+                    }
+                }
+                case 50 -> { mc.options.guiScale().set(3); mc.resizeGui(); phase = 51; settle = 0; }
+                case 51 -> { if (++settle >= 10) { capture(mc, "growth-expanded-large", 8); } }
+                case 52 -> {
+                    if (++settle > 200) { throw new IllegalStateException("Automatic mode button did not sync"); }
+                    if (mc.player.containerMenu instanceof BuildingMenu menu && menu.number(BuildingMenu.GROWTH_MODE) == 1) { phase = 46; settle = 0; }
+                }
+                case 53 -> {
+                    if (++settle > 200) { throw new IllegalStateException("Manual mode button did not sync"); }
+                    if (mc.player.containerMenu instanceof BuildingMenu menu && menu.number(BuildingMenu.GROWTH_MODE) == 0) { growthView++; phase = 44; settle = 0; }
                 }
                 case 8 -> {
                     mc.gui.setScreen(null);
@@ -374,6 +448,14 @@ public final class QaClient {
         }
     }
     private static ServerPlayer player(Minecraft mc) { return Objects.requireNonNull(mc.getSingleplayerServer().getPlayerList().getPlayer(mc.player.getUUID())); }
+    private static void press(Minecraft mc, String key) {
+        if (!(mc.gui.screen() instanceof BuildingScreen screen)) { throw new IllegalStateException("Expected real building screen"); }
+        var button = screen.children().stream().filter(child -> child instanceof net.minecraft.client.gui.components.Button)
+                .map(child -> (net.minecraft.client.gui.components.Button) child)
+                .filter(candidate -> candidate.visible && candidate.active && candidate.getMessage().getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents text && text.getKey().equals(key))
+                .findFirst().orElseThrow(() -> new IllegalStateException("Missing active GUI control: " + key));
+        button.onPress(new net.minecraft.client.input.KeyEvent(com.mojang.blaze3d.platform.InputConstants.KEY_RETURN, 0, 0));
+    }
     private void checkPreviewUnchanged(Minecraft mc) {
         var level = mc.getSingleplayerServer().overworld(); var post = tile(level, checkpointLab.offset(2, 0, 1));
         if (!post.saveWithFullMetadata(level.registryAccess()).equals(previewPostBefore)

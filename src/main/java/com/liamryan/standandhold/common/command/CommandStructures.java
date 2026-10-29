@@ -9,6 +9,7 @@ import com.liamryan.standandhold.common.structure.StructureKind;
 import com.liamryan.standandhold.common.structure.StructurePlacement;
 import com.liamryan.standandhold.common.structure.OutpostPreview;
 import com.liamryan.standandhold.common.structure.OutpostExpansion;
+import com.liamryan.standandhold.common.structure.OutpostGrowth;
 import com.liamryan.standandhold.common.support.SupportCallIn;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import com.liamryan.standandhold.config.HumanProgressionConfig;
@@ -31,7 +32,13 @@ final class CommandStructures {
     private CommandStructures() { }
     static void addChildren(LiteralArgumentBuilder<CommandSourceStack> root) {
         root.then(Commands.literal("outpost").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                .executes(context -> growthHelp(context.getSource()))
+                .then(Commands.literal("help").executes(context -> growthHelp(context.getSource())))
                 .then(Commands.literal("preview").executes(context -> preview(context.getSource())))
+                .then(Commands.literal("grow").executes(context -> growth(context.getSource(), null)))
+                .then(Commands.literal("mode")
+                        .then(Commands.literal("manual").executes(context -> growth(context.getSource(), OutpostGrowth.Mode.MANUAL)))
+                        .then(Commands.literal("automatic").executes(context -> growth(context.getSource(), OutpostGrowth.Mode.AUTOMATIC))))
                 .then(Commands.literal("prepare").executes(context -> expansion(context.getSource(), "prepare", null)))
                 .then(Commands.literal("expand").then(Commands.argument("token", UuidArgument.uuid()).executes(context -> expansion(context.getSource(), "expand", UuidArgument.getUuid(context, "token")))))
                 .then(Commands.literal("status").executes(context -> expansion(context.getSource(), "status", null)))
@@ -43,6 +50,21 @@ final class CommandStructures {
                 .then(Commands.literal("list").executes(context -> inspect(context.getSource(), false)))
                 .then(Commands.literal("nearest").executes(context -> inspect(context.getSource(), true)))
                 .then(Commands.literal("status").executes(context -> inspect(context.getSource(), true))));
+    }
+    private static int growthHelp(CommandSourceStack source) {
+        source.sendSuccess(() -> Component.literal("Face a loaded checkpoint post within 6 blocks. grow | mode manual | mode automatic; same rules as the Growth menu."), false);
+        source.sendSuccess(() -> Component.literal("Advanced tools retained: preview | prepare | expand <token> | status | recover. Server expansionEnabled must allow placement; no repair/refill bypass."), false);
+        return 1;
+    }
+    private static int growth(CommandSourceStack source, OutpostGrowth.Mode mode) throws CommandSyntaxException {
+        try {
+            var player = source.getPlayerOrException(); var post = SupportCallIn.lookedAt(player);
+            if (mode == null) { OutpostGrowth.expand(player, post); }
+            else { OutpostGrowth.setMode(player, post, mode); }
+            source.sendSuccess(() -> Component.literal(mode == null ? "Outpost expanded once; buildings/storage/caps unchanged."
+                    : "Outpost growth: " + mode + "; no resource spending or level change."), false);
+            return 1;
+        } catch (IllegalArgumentException | IllegalStateException failure) { throw ERROR.create(failure.getMessage()); }
     }
     private static int expansion(CommandSourceStack source, String action, java.util.UUID token) throws CommandSyntaxException {
         try {
@@ -63,7 +85,8 @@ final class CommandStructures {
             if (action.equals("expand")) {
                 var result = OutpostExpansion.confirm(player, post, token);
                 if (!result.success()) { throw new IllegalStateException(result.message()); } message = result.message();
-            } else { message = action.equals("recover") ? OutpostExpansion.recover(player, post) : OutpostExpansion.status(player, post); }
+            } else { message = action.equals("recover") ? OutpostExpansion.recover(player, post) : "Growth " + post.growthSettings().mode()
+                    + " / " + OutpostGrowth.label(OutpostGrowth.status(player.level(), post)) + ". " + OutpostExpansion.status(player, post); }
             source.sendSuccess(() -> Component.literal(message), false); return 1;
         } catch (IllegalArgumentException | IllegalStateException exception) { throw ERROR.create(exception.getMessage()); }
     }

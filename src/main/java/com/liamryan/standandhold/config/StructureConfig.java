@@ -33,7 +33,7 @@ public final class StructureConfig {
             .defineInRange("checkpointCrateSupplies", 2, 0, 100);
     public static final ModConfigSpec.IntValue MAIN_BASE_SUPPLIES = B.comment("Initial local crate supplies per new Main Base, bounded by building capacity.")
             .defineInRange("mainBaseCrateSupplies", 5, 0, 100);
-    public static final ModConfigSpec.BooleanValue EXPANSION = B.comment("EXPERIMENTAL, off by default: explicit operator prepare/expand of proven radius-4 level-2+ checkpoints only. Replaces 88 surrounding ground cells; matching player dirt/grass cannot be identified. Not claim-mod approval or crash-atomic recovery. Back up the whole world. Never auto-expands, repairs, adds capacity or charges/grants resources.")
+    public static final ModConfigSpec.BooleanValue EXPANSION = B.comment("EXPERIMENTAL master switch, off by default: allows menu/manual/operator expansion and per-site Automatic opt-in for proven radius-4 level-2+ checkpoints only. Replaces 88 surrounding ground cells; matching player dirt/grass cannot be identified. Not claim-mod approval or crash-atomic recovery. Back up the whole world. No automatic level purchase, repair, capacity increase or resource charge/reward.")
             .define("expansionEnabled", false);
     public static final ModConfigSpec SPEC = B.build();
 

@@ -14,6 +14,7 @@ import com.liamryan.standandhold.common.progression.ProgressionRules;
 import com.liamryan.standandhold.common.npc.DefenderDeployment;
 import com.liamryan.standandhold.common.structure.SiteProvenance;
 import com.liamryan.standandhold.common.structure.ExpansionOperation;
+import com.liamryan.standandhold.common.structure.OutpostGrowth;
 import com.liamryan.standandhold.config.NpcConfig;
 import com.liamryan.standandhold.config.ResponseConfig;
 import com.liamryan.standandhold.common.threat.ThreatResponse;
@@ -52,6 +53,11 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
     private int mainBaseNotices;
     private Dynamic<?> retainedSite;
     private long siteEpoch;
+    private long operationCacheEpoch = -1;
+    private java.util.Optional<ExpansionOperation> operationCache;
+    private OutpostGrowth.Settings growth = OutpostGrowth.Settings.DEFAULT;
+    private Dynamic<?> retainedGrowth;
+    private boolean growthSupported = true;
 
     public BuildingBlockEntity(BlockPos pos, BlockState block) { super(BuildingRegistry.ENTITY.get(), pos, block); }
     public BuildingKind kind() { return ((BuildingBlock) getBlockState().getBlock()).kind(); }
@@ -71,10 +77,22 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         retainedSite = new Dynamic<>(NbtOps.INSTANCE, site.save()); siteEpoch++; setChanged();
     }
     public long siteEpoch() { return siteEpoch; }
+    public boolean growthSupported() { return growthSupported; }
+    public OutpostGrowth.Settings growthSettings() { return growth; }
+    public void requireGrowthWritable() {
+        requireWritable();
+        if (!growthSupported) { throw new IllegalStateException("Unsupported growth data retained; normal building storage remains available."); }
+    }
+    public void changeGrowth(OutpostGrowth.Settings settings) {
+        requireGrowthWritable();
+        if (!growth.equals(settings)) { growth = settings; siteEpoch++; setChanged(); }
+    }
     public java.util.Optional<ExpansionOperation> siteOperation() {
+        if (operationCacheEpoch == siteEpoch) { return operationCache; }
         var site = site();
         var tag = (CompoundTag) retainedSite.convert(NbtOps.INSTANCE).getValue();
-        return tag.get("operation") == null ? java.util.Optional.empty() : java.util.Optional.of(ExpansionOperation.read(tag.get("operation"), site));
+        var parsed = tag.get("operation") == null ? java.util.Optional.<ExpansionOperation>empty() : java.util.Optional.of(ExpansionOperation.read(tag.get("operation"), site));
+        operationCache = parsed; operationCacheEpoch = siteEpoch; return parsed;
     }
     public void storeSiteOperation(ExpansionOperation operation) {
         requireWritable(); var site = site(); operation.validateSite(site);
@@ -129,6 +147,12 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         output.putBoolean("main_base", mainBase);
         output.putInt("main_base_notices", mainBaseNotices);
         if (retainedSite != null) { output.store("site", Codec.PASSTHROUGH, retainedSite); }
+        if (!growthSupported && retainedGrowth != null) { output.store("growth", Codec.PASSTHROUGH, retainedGrowth); }
+        else {
+            CompoundTag saved = retainedGrowth != null && retainedGrowth.convert(NbtOps.INSTANCE).getValue() instanceof CompoundTag old ? old.copy() : new CompoundTag();
+            var current = growth.save(); for (String key : current.keySet()) { saved.put(key, current.get(key)); }
+            output.store("growth", CompoundTag.CODEC, saved);
+        }
         if ((schema != 1 || malformed) && retainedState != null) {
             output.store("building", Codec.PASSTHROUGH, retainedState);
         } else {
@@ -145,6 +169,14 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         mainBaseNotices = Math.clamp(input.getIntOr("main_base_notices", 0), 0, 3);
         retainedSite = input.read("site", Codec.PASSTHROUGH).orElse(null);
         siteEpoch++;
+        retainedGrowth = input.read("growth", Codec.PASSTHROUGH).orElse(null);
+        growth = OutpostGrowth.Settings.DEFAULT; growthSupported = true;
+        if (retainedGrowth != null) {
+            try {
+                if (!(retainedGrowth.convert(NbtOps.INSTANCE).getValue() instanceof CompoundTag tag)) { throw new IllegalArgumentException("Malformed growth data"); }
+                growth = OutpostGrowth.Settings.read(tag);
+            } catch (IllegalArgumentException failure) { growthSupported = false; }
+        }
         retainedState = input.read("building", Codec.PASSTHROUGH).orElse(null);
         malformed = retainedState != null && !(retainedState.convert(NbtOps.INSTANCE).getValue() instanceof CompoundTag);
         state = malformed || retainedState == null ? BuildingState.EMPTY : BuildingState.CODEC.parse(retainedState).getOrThrow();
@@ -191,6 +223,7 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
             building.responseElapsed = 0;
             try {
                 building.requireWritable();
+                OutpostGrowth.tick(server, building);
                 if (building.operational(HumanWorldData.get(server.getServer()))) { ThreatResponse.tick(server, building); }
             } catch (IllegalArgumentException | IllegalStateException exception) { building.reportOnce(exception); }
         }
