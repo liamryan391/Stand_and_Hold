@@ -11,7 +11,7 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M18 exit gate passed; Liam's growth-UX feedback incorporated into the unstarted follow-up scopes**; see [STATUS.md](STATUS.md).
+Current position: **Phase M19 player/developer growth controls exit gate passed**; see [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
@@ -427,7 +427,7 @@ Scope: replace the M18 operator-only interaction as the normal way to use its on
 - [x] **19.1 Define the player interaction and saved policy before code.** [Contract](outpost-expansion-design.md#player-facing-growth-direction) fixes additive growth-v1 Manual/Automatic policy, explicit retry after a saved pause, existing loaded-post cadence, cheap menu state and shared immediate preflight/applicator. Existing commands retained; old/future receipts are not adopted/replayed, prices/caps/pins unchanged. Implementation/verification remain below.
 - [x] **19.2 Add a simple server-authoritative Command Post growth action alongside commands.** Status/Growth tabs, manual Expand and explicit Manual/Automatic selection use the shared immediate preflight/applicator, with actor/menu/identity/range checks. Existing operator commands retained; grow/mode/help and literal completion added. Native tests and real client packets cover non-op menu use, mode selection and once-only expansion; no token required in normal menus.
 - [x] **19.3 Add bounded automatic application for opted-in eligible sites.** Additive growth-v1 mode/pause defaults Manual and retains unknown raw data. The existing loaded-post cadence applies the same 137 cells once after earned level 2; obstruction/interrupted state pauses. Native real chunk unload/reload and two JVMs verify saved choice, no on-load replay and no stale-reference chunk loading. No automatic purchases, refill, cap increase or larger layout.
-- [ ] **19.4 Verify and document both interaction modes and retained command tools.** Logic/native GameTests for menu/command access, shared rules, policy, manual/automatic application, duplicate actions, normal post-application storage changes and interrupted/disabled state; two-JVM and unload/reload persistence; reviewed normal/large qaClient menus; final clean build/jar isolation and green CI. Human feedback only for clarity and feel.
+- [x] **19.4 Verify and document both interaction modes and retained command tools.** Final clean build passed 15,437 assertions/all 65 required GameTests, including real chunk unload/reload and newer-save refusal. Two real JVMs retained five growth states plus prior receipts; normal dedicated server reached Done/status/help/stop/clean exit. All 35 final e2ca06a4-prefix client captures opened/reviewed; actual menu/mode packets passed. Jar metadata/QA exclusion inspected; Windows implementation CI 40793286116 passed build, GameTests, restart and artifacts. Human feel, real multiplayer/packaged and power-loss proof remain separate.
 
 Exit gate:
 
