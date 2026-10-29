@@ -25,7 +25,7 @@ final class ArtChecks {
     private static void sources() throws Exception {
         Path root = Path.of("src/main/resources/assets/standandhold");
         String meshes = Files.readString(Path.of("src/main/java/com/liamryan/standandhold/client/HumanNpcMeshes.java"));
-        for (String id : List.of("survivor_defender", "army_rifleman", "field_command_post", "research_lab", "supply_crate")) {
+        for (String id : List.of("survivor_defender", "army_rifleman", "heavy_soldier", "elite_soldier", "field_command_post", "research_lab", "supply_crate")) {
             Path path = Path.of("art/blockbench/" + id + ".bbmodel");
             var source = JsonParser.parseString(Files.readString(path)).getAsJsonObject();
             boolean human = source.getAsJsonObject("meta").get("model_format").getAsString().equals("modded_entity");

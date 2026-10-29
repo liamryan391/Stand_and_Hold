@@ -17,9 +17,25 @@ public final class NpcRegistry {
     private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(StandAndHoldConstants.MOD_ID);
     public static final DeferredHolder<EntityType<?>, EntityType<HumanNpc>> SURVIVOR = type(HumanTier.SURVIVOR_DEFENDER);
     public static final DeferredHolder<EntityType<?>, EntityType<HumanNpc>> ARMY = type(HumanTier.ARMY_RIFLEMAN);
+    public static final DeferredHolder<EntityType<?>, EntityType<HumanNpc>> HEAVY = type(HumanTier.HEAVY_SOLDIER);
+    public static final DeferredHolder<EntityType<?>, EntityType<HumanNpc>> ELITE = type(HumanTier.ELITE_SOLDIER);
     public static final DeferredItem<SpawnEggItem> SURVIVOR_EGG = egg(HumanTier.SURVIVOR_DEFENDER, SURVIVOR);
     public static final DeferredItem<SpawnEggItem> ARMY_EGG = egg(HumanTier.ARMY_RIFLEMAN, ARMY);
+    public static final DeferredItem<SpawnEggItem> HEAVY_EGG = egg(HumanTier.HEAVY_SOLDIER, HEAVY);
+    public static final DeferredItem<SpawnEggItem> ELITE_EGG = egg(HumanTier.ELITE_SOLDIER, ELITE);
     private NpcRegistry() { }
+    public static EntityType<HumanNpc> entityType(HumanTier tier) {
+        return switch (tier) {
+            case SURVIVOR_DEFENDER -> SURVIVOR.get();
+            case ARMY_RIFLEMAN -> ARMY.get();
+            case HEAVY_SOLDIER -> HEAVY.get();
+            case ELITE_SOLDIER -> ELITE.get();
+        };
+    }
+    public static HumanTier tier(EntityType<?> type) {
+        for (HumanTier tier : HumanTier.values()) { if (entityType(tier) == type) { return tier; } }
+        throw new IllegalArgumentException("Not a registered human NPC type");
+    }
     private static DeferredHolder<EntityType<?>, EntityType<HumanNpc>> type(HumanTier tier) {
         return ENTITIES.register(tier.id, id -> EntityType.Builder.of(HumanNpc::new, MobCategory.MISC)
                 .sized(0.6F, 1.8F).eyeHeight(1.62F).clientTrackingRange(8)
@@ -32,7 +48,6 @@ public final class NpcRegistry {
         ENTITIES.register(bus); ITEMS.register(bus); bus.addListener(NpcRegistry::attributes);
     }
     private static void attributes(EntityAttributeCreationEvent event) {
-        event.put(SURVIVOR.get(), HumanNpc.attributes(HumanTier.SURVIVOR_DEFENDER).build());
-        event.put(ARMY.get(), HumanNpc.attributes(HumanTier.ARMY_RIFLEMAN).build());
+        for (HumanTier tier : HumanTier.values()) { event.put(entityType(tier), HumanNpc.attributes(tier).build()); }
     }
 }

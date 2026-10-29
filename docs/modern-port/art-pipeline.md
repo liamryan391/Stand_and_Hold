@@ -8,12 +8,14 @@ Stand and Hold depicts a practical human resistance, not a copy of an existing g
 | --- | --- | --- |
 | Survivor Defender | Soft cap with a short brim, small field pack, no armour bulk | Muted red jacket, charcoal trousers, ochre strap; one shoulder stripe |
 | Army Rifleman | Rounded-off block helmet, broad protective vest | Teal uniform/helmet, graphite vest, ivory double marks; not just a recoloured Survivor |
+| Heavy Soldier | Deeper helmet, broad vest and shoulder plates | Olive/charcoal, amber bars; slower armoured melee role |
+| Elite Soldier | Short helmet/visor and compact pack | Blue-grey uniform, mint marks; mobile shared-launcher role |
 | Command Post | Rugged radio/map cabinet | Olive shell, dark screen, green route marks, warm controls |
 | Research Lab | Clean specimen workstation | Cool white shell, cyan window, contained magenta tissue, yellow caution pixels |
 | Supply Crate | Reinforced utility container | Neutral metal, yellow straps, clear latch; no random camouflage |
 | Tissue Sample | Sealed specimen pouch | Light seal, teal containment, magenta tissue; transparent outside the silhouette |
 
-Only the two implemented NPC tiers receive models. Later tiers need their own silhouettes when implemented. Both current humans remain melee prototypes; visual armour, packs and helmets do not add stats, inventories or equipment drops.
+Only the four implemented NPC tiers receive models. Later tiers need their own silhouettes when implemented. Visual accessories do not themselves add stats, inventories or equipment drops; role stats/equipment are server-controlled separately.
 
 Keep full base body faces opaque. Do not apply a 64x64 player skin to the old 64x32 UV layout: these are original box-UV models with an explicitly declared atlas. Reuse the classic body rectangles in the top half, reserving the lower half for accessories. Faces, hands and boots must remain readable in daylight and torchlight. Accessories must follow their body part through walking, head turning and melee animation, without changing hitboxes.
 
@@ -41,7 +43,7 @@ $env:GRADLE_USER_HOME = Join-Path (Get-Location).Path '.gradle-home\modern'
 .\gradlew.bat clean build --no-daemon --stacktrace
 ```
 
-The first command writes generated `HumanNpcMeshes.java`, the two entity PNGs, and utility block JSON/PNGs. `-Check` writes nothing and fails on stale output; Windows CI runs it before the clean build. The build checks source hashes, embedded/runtime PNG equality, dimensions, opaque body/accessory UV faces, block face assignments and bounded GUI text. Keep sources and generated outputs in the same commit. The exporter runs from any working directory, without Java, plugins or an installed Blockbench.
+The first command writes generated `HumanNpcMeshes.java`, the four entity PNGs, and utility block JSON/PNGs. `-Check` writes nothing and fails on stale output; Windows CI runs it before the clean build. The build checks source hashes, embedded/runtime PNG equality, dimensions, opaque body/accessory UV faces, block face assignments and bounded GUI text. Keep sources and generated outputs in the same commit. The exporter runs from any working directory, without Java, plugins or an installed Blockbench.
 
 ### Editing Contract
 

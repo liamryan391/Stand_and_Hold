@@ -7,7 +7,11 @@ import javax.imageio.ImageIO;
 class GenerateNpcTextures {
     public static void main(String[] args) throws Exception {
         make("survivor_defender", 0xff77494b, 0xff414c46, 0xffad794c, 0xffd7a481);
-        if (args.length == 0 || !args[0].equals("survivor-only")) { make("army_rifleman", 0xff397b7d, 0xff354953, 0xffb9c5a3, 0xffbd896e); }
+        if (args.length == 0 || !args[0].equals("survivor-only")) {
+            make("army_rifleman", 0xff397b7d, 0xff354953, 0xffb9c5a3, 0xffbd896e);
+            make("heavy_soldier", 0xff777f46, 0xff393e42, 0xffe7b950, 0xffc28e71);
+            make("elite_soldier", 0xff56647c, 0xff292f40, 0xff81d2bd, 0xffae7d65);
+        }
     }
     private static void make(String id, int uniform, int trousers, int trim, int skin) throws Exception {
         BufferedImage body = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
@@ -39,6 +43,22 @@ class GenerateNpcTextures {
             box(body, 0, 48, 6, 7, 3, trim); // Field pack.
             rect(body, 4, 53, 4, 3, 0xff755d43); rect(body, 5, 52, 2, 1, 0xffe0c18b);
             rect(body, 10, 41, 5, 1, uniform);
+        } else if (id.equals("heavy_soldier")) {
+            box(body, 0, 32, 9, 5, 9, trousers);
+            box(body, 0, 46, 10, 10, 6, trousers);
+            box(body, 36, 32, 5, 3, 5, uniform);
+            rect(body, 10, 41, 5, 2, trim);
+            rect(body, 7, 53, 8, 1, trim); rect(body, 7, 57, 8, 1, trim);
+            rect(body, 41, 38, 5, 1, trim);
+        } else if (id.equals("elite_soldier")) {
+            box(body, 0, 32, 9, 3, 9, uniform);
+            box(body, 0, 46, 9, 8, 5, trousers);
+            box(body, 36, 32, 9, 2, 1, 0xff34535d);
+            box(body, 36, 40, 6, 7, 3, trousers);
+            rect(body, 38, 33, 7, 1, trim);
+            rect(body, 9, 40, 3, 1, trim);
+            rect(body, 9, 52, 1, 6, trim); rect(body, 11, 54, 2, 2, uniform);
+            rect(body, 40, 44, 4, 3, uniform);
         } else {
             box(body, 0, 32, 9, 4, 9, uniform); // Helmet.
             box(body, 0, 46, 9, 9, 5, trousers); // Vest.

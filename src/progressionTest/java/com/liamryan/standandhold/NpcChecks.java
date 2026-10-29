@@ -41,6 +41,25 @@ final class NpcChecks {
         check(HumanTier.unlocked(0, 2, 3) == null, "custom stage gates can block all deployment");
         check(HumanTier.unlocked(2, 2, 3) == HumanTier.SURVIVOR_DEFENDER, "custom survivor gate");
         expect(() -> HumanTier.unlocked(7, 0, 1));
+        for (int stage = 0; stage <= 6; stage++) {
+            final int current = stage;
+            for (int mask = 0; mask < 16; mask++) {
+                final int gates = mask;
+                HumanTier expected = null;
+                for (HumanTier tier : HumanTier.values()) {
+                    if (stage >= tier.stage && (mask & 1 << tier.ordinal()) != 0) { expected = tier; }
+                }
+                check(HumanTier.unlocked(current, tier -> tier.stage, tier -> (gates & 1 << tier.ordinal()) != 0) == expected,
+                        "every stage/research combination selects highest eligible role");
+            }
+        }
+        check(HumanTier.unlocked(2, tier -> tier == HumanTier.ELITE_SOLDIER ? 2 : 6, tier -> true) == HumanTier.ELITE_SOLDIER,
+                "configured stages may reorder gates without selecting a locked lower role");
+        check(HumanTier.HEAVY_SOLDIER.usesBlade() && !HumanTier.HEAVY_SOLDIER.usesPrototype()
+                && HumanTier.ELITE_SOLDIER.usesPrototype() && !HumanTier.ELITE_SOLDIER.usesBlade(), "roles reuse separate kit paths");
+        check(HumanTier.HEAVY_SOLDIER.health > HumanTier.ELITE_SOLDIER.health
+                && HumanTier.HEAVY_SOLDIER.armor > HumanTier.ELITE_SOLDIER.armor
+                && HumanTier.HEAVY_SOLDIER.speed < HumanTier.ELITE_SOLDIER.speed, "heavy tank versus mobile elite contract");
         check(HumanTier.hasRoom(2, 3, 7, 8), "last available quota");
         check(!HumanTier.hasRoom(3, 3, 0, 8), "post cap enforced");
         check(!HumanTier.hasRoom(0, 3, 8, 8), "overlapping post/egg area cap enforced");

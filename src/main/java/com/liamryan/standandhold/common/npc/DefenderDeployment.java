@@ -19,6 +19,19 @@ import net.minecraft.world.phys.AABB;
 public final class DefenderDeployment {
     private DefenderDeployment() { }
     public record Status(int assigned, int capacity, int reason) { }
+    public static HumanTier eligibleTier(ServerLevel level) {
+        var data = HumanWorldData.get(level.getServer());
+        data.requireSupportedVersion();
+        var catalog = com.liamryan.standandhold.common.foundation.FoundationResources.get(level.getServer());
+        int stage = ProgressionRules.stageFor(data.points(), HumanProgressionConfig.thresholds()).level();
+        return HumanTier.unlocked(stage, tier -> NpcConfig.stats(tier).stage.get(), tier -> {
+            var research = NpcConfig.stats(tier).research;
+            if (research == null) { return true; }
+            String id = research.get();
+            if (id == null || id.isBlank() || net.minecraft.resources.Identifier.tryParse(id) == null) { return false; }
+            return catalog.research().containsKey(id) && data.isResearchComplete(id);
+        });
+    }
     // Stable menu codes: 0 slots, 1 disabled, 2 dormant, 3 stage locked, 4 full, 5 unavailable.
     public static Status status(ServerLevel level, BuildingBlockEntity post) {
         post.requireWritable();
@@ -27,9 +40,8 @@ public final class DefenderDeployment {
         int cap = NpcConfig.capacity(post.state().level());
         var home = new BuildingPosition(level.dimension().identifier(), post.getBlockPos());
         int assigned = data.defenderCount(home.key());
-        int stage = ProgressionRules.stageFor(data.points(), HumanProgressionConfig.thresholds()).level();
         int reason = !NpcConfig.DEPLOY.get() || cap == 0 ? 1 : !post.operational(data) ? 2
-                : HumanTier.unlocked(stage, NpcConfig.SURVIVOR.stage.get(), NpcConfig.ARMY.stage.get()) == null ? 3
+                : eligibleTier(level) == null ? 3
                 : assigned >= cap ? 4 : 0;
         return new Status(assigned, cap, reason);
     }
@@ -40,8 +52,7 @@ public final class DefenderDeployment {
         var status = status(level, post);
         if (status.reason() != 0) { return null; }
         var data = HumanWorldData.get(level.getServer());
-        int stage = ProgressionRules.stageFor(data.points(), HumanProgressionConfig.thresholds()).level();
-        var tier = HumanTier.unlocked(stage, NpcConfig.SURVIVOR.stage.get(), NpcConfig.ARMY.stage.get());
+        var tier = eligibleTier(level);
         if (tier == null) { return null; }
         var home = new BuildingPosition(level.dimension().identifier(), post.getBlockPos());
         int reserved = status.assigned(), capacity = status.capacity();
@@ -51,7 +62,7 @@ public final class DefenderDeployment {
             return nearby[0] >= NpcConfig.AREA_CAP.get() ? Continuation.ABORT : Continuation.CONTINUE;
         });
         if (!HumanTier.hasRoom(reserved, capacity, nearby[0], NpcConfig.AREA_CAP.get())) { return null; }
-        var type = tier == HumanTier.ARMY_RIFLEMAN ? NpcRegistry.ARMY.get() : NpcRegistry.SURVIVOR.get();
+        var type = NpcRegistry.entityType(tier);
         var npc = type.create(level, EntitySpawnReason.REINFORCEMENT);
         if (npc == null) { return null; }
         int radius = NpcConfig.SPAWN_RADIUS.get();

@@ -10,21 +10,27 @@ public final class NpcConfig {
     public static final class Stats {
         public final ModConfigSpec.DoubleValue health, damage, speed, armor;
         public final ModConfigSpec.IntValue stage;
+        public final ModConfigSpec.ConfigValue<String> research;
         private Stats(HumanTier tier) {
             B.push(tier.id);
             health = B.comment("Maximum health for newly spawned/reloaded NPCs. Existing health is clamped, not healed on reload.")
                     .defineInRange("health", tier.health, 1, 1024);
-            damage = B.comment("Base melee damage. Rifleman's optional prototype ranged damage/unlock/interval is in standandhold-equipment.toml.")
+            damage = B.comment("Base melee damage; held blade modifiers add to it. Shared launcher damage/unlock/interval is in standandhold-equipment.toml.")
                     .defineInRange("damage", tier.damage, 0, 2048);
             speed = B.comment("Movement speed for newly spawned/reloaded NPCs.").defineInRange("speed", tier.speed, 0.05, 0.6);
             armor = B.comment("Intrinsic armor points; no equipment drops.").defineInRange("armor", tier.armor, 0, 30);
             stage = B.comment("Minimum stage for automatic deployment only. Creative test eggs and admin /summon bypass it.")
                     .defineInRange("requiredStage", tier.stage, 0, 6);
+            research = tier == HumanTier.HEAVY_SOLDIER || tier == HumanTier.ELITE_SOLDIER
+                    ? B.comment("Required completed research for every deployment path; eggs/summons bypass recruitment only. Empty, malformed, absent or removed IDs lock this tier; lower eligible tiers remain available.")
+                            .define("requiredResearch", "standandhold:field_communications") : null;
             B.pop();
         }
     }
     public static final Stats SURVIVOR = new Stats(HumanTier.SURVIVOR_DEFENDER);
     public static final Stats ARMY = new Stats(HumanTier.ARMY_RIFLEMAN);
+    public static final Stats HEAVY = new Stats(HumanTier.HEAVY_SOLDIER);
+    public static final Stats ELITE = new Stats(HumanTier.ELITE_SOLDIER);
     public static final ModConfigSpec.BooleanValue HOSTILE_TARGETS = B.comment("Human defenders also target vanilla Enemy-marked hostile mobs, not only configured infection/test IDs. Does not grant kill rewards or samples to those mobs. Normally neutral Enemy types such as Endermen are included; disable to use mappings only.")
             .define("targetHostileMobs", true);
     public static final ModConfigSpec.BooleanValue DEPLOY = B.comment("Loaded command posts may deploy one defender per interval. No natural biome spawning or offline catch-up.")
@@ -38,7 +44,7 @@ public final class NpcConfig {
     public static final ModConfigSpec.ConfigValue<List<? extends Number>> POST_LEVELS = B.comment("Capacity targets for saved Command Post levels 1-5, independent of world human stage. Exactly five non-decreasing whole numbers from 0 to 16; 0 disables that level.",
                     "Invalid profiles reset to [3, 5, 6, 7, 8]; the absolute ceiling and shared-area cap still apply. Upgrades do not instantly spawn units or enlarge structures.")
             .define("defendersByPostLevel", DefenderCapacity.DEFAULT_LEVELS, DefenderCapacity::validProfile);
-    public static final ModConfigSpec.IntValue AREA_CAP = B.comment("Maximum loaded human NPCs of either tier near a post, including test eggs and other posts' defenders.")
+    public static final ModConfigSpec.IntValue AREA_CAP = B.comment("Maximum loaded human NPCs of all tiers near a post, including test eggs and other posts' defenders.")
             .defineInRange("maxDefendersInArea", 8, 1, 64);
     public static final ModConfigSpec.IntValue AREA_RADIUS = B.comment("Radius of the bounded loaded-entity quota query. Does not load chunks.")
             .defineInRange("areaRadius", 48, 32, 64);
@@ -50,6 +56,13 @@ public final class NpcConfig {
             .defineInRange("targetSearchIntervalTicks", 20, 20, 200);
     public static final ModConfigSpec SPEC = B.build();
     private NpcConfig() { }
-    public static Stats stats(HumanTier tier) { return tier == HumanTier.ARMY_RIFLEMAN ? ARMY : SURVIVOR; }
+    public static Stats stats(HumanTier tier) {
+        return switch (tier) {
+            case SURVIVOR_DEFENDER -> SURVIVOR;
+            case ARMY_RIFLEMAN -> ARMY;
+            case HEAVY_SOLDIER -> HEAVY;
+            case ELITE_SOLDIER -> ELITE;
+        };
+    }
     public static int capacity(int level) { return DefenderCapacity.effective(level, POST_LEVELS.get(), POST_CAP.get(), AREA_CAP.get()); }
 }

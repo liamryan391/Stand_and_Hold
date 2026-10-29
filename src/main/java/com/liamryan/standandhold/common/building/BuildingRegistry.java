@@ -35,6 +35,8 @@ public final class BuildingRegistry {
                 output.accept(SampleItems.TISSUE.get());
                 output.accept(NpcRegistry.SURVIVOR_EGG.get());
                 output.accept(NpcRegistry.ARMY_EGG.get());
+                output.accept(NpcRegistry.HEAVY_EGG.get());
+                output.accept(NpcRegistry.ELITE_EGG.get());
                 com.liamryan.standandhold.common.equipment.EquipmentRegistry.creativeItems(output::accept);
             }).build());
     private BuildingRegistry() { }

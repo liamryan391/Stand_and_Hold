@@ -24,6 +24,8 @@ public final class HumanNpcRenderer extends HumanoidMobRenderer<HumanNpc, Humano
         return switch (tier) {
             case SURVIVOR_DEFENDER -> HumanNpcMeshes.survivor_defender();
             case ARMY_RIFLEMAN -> HumanNpcMeshes.army_rifleman();
+            case HEAVY_SOLDIER -> HumanNpcMeshes.heavy_soldier();
+            case ELITE_SOLDIER -> HumanNpcMeshes.elite_soldier();
         };
     }
     @Override public HumanoidRenderState createRenderState() { return new HumanoidRenderState(); }

@@ -1,6 +1,12 @@
 # Human NPC Foundation
 
-Two small server-controlled humanoid tiers use vanilla pathfinding/goals and original alpha models/uniforms. No AI/animation library or threat mod is required. This is not the legacy army system. Army Riflemen can use the [gated Prototype Launcher](equipment.md); Survivors remain melee defenders and may receive a Blade after Stage 1 + Initial Sample Analysis. Player equipment access is separate from NPC gates.
+## Heavy And Elite Contract
+
+Heavy Soldier is a slower armoured melee role (44 health, 6 base damage, 0.24 speed, 8 armour); Elite Soldier is a mobile ranged role (36 health, 7 base melee damage, 0.30 speed, 6 armour). Heavy defaults to Stage 2 and Elite to Stage 3; both require completed `standandhold:field_communications`. Each new tier's required research ID and stage are configurable. Missing/malformed/removed research fails closed for that tier, falling back to the highest eligible lower role. Survivor/Army gates and stats are unchanged.
+
+All automatic, event and paid deployments use Elite > Heavy > Army > Survivor priority among eligible roles. World stage chooses the role; local post level only sets existing capacity. No extra population, cooldown bypass or tier transformation is introduced. Eggs/summons deliberately bypass recruitment gates for testing, but do not bypass equipment issuance gates. Heavy shares Survivor blade issue/retention; Elite shares Rifleman launcher issue and current-use gates. Existing held items are never overwritten, issued gear never drops, and a stage drop never removes issued gear or changes entity identity. Retaining a launcher does not bypass its existing current-use gate; melee remains available. Elite uses the shared prototype damage/interval, not a stronger projectile.
+
+Four server-controlled humanoid tiers use vanilla pathfinding/goals and original alpha models/uniforms. No AI/animation library or threat mod is required. This is not the legacy army system. Riflemen/Elites can use the [gated Prototype Launcher](equipment.md); Survivors/Heavies are melee defenders and may receive a Blade after Stage 1 + Initial Sample Analysis. Player equipment access is separate from NPC gates.
 
 ## Units And Access
 
@@ -8,17 +14,21 @@ Two small server-controlled humanoid tiers use vanilla pathfinding/goals and ori
 | --- | --- | --- | --- | --- |
 | `survivor_defender` | 20 | 3 | 2 | 0 |
 | `army_rifleman` | 30 | 5 | 4 | 1 |
+| `heavy_soldier` | 44 | 6 | 8 | 2 + Field Communications |
+| `elite_soldier` | 36 | 7 | 6 | 3 + Field Communications |
 
 Their named, original spawn eggs are in the Stand and Hold creative tab. For operator testing:
 
 ```text
 /give @s standandhold:survivor_defender_spawn_egg
 /give @s standandhold:army_rifleman_spawn_egg
+/give @s standandhold:heavy_soldier_spawn_egg
+/give @s standandhold:elite_soldier_spawn_egg
 /summon standandhold:survivor_defender ~ ~ ~
 /summon standandhold:army_rifleman ~ ~ ~
 ```
 
-**Test eggs and admin summons bypass stage/post quotas.** They are not a survival recruitment mechanic. No natural biome spawns are registered. Existing NPCs do not transform or disappear when the stage changes. Higher stages reuse the Army Rifleman until more tiers are implemented. Both tiers are persistent, including in Peaceful; there are no equipment/XP drops.
+**Test eggs and admin summons bypass recruitment gates/post quotas.** They are not a survival recruitment mechanic. No natural biome spawns are registered. Existing NPCs do not transform or disappear when the stage changes. All four tiers are persistent, including in Peaceful; issued gear never drops.
 
 `config/standandhold-npcs.toml` is server-owned/synced. Each tier has health, damage, movement speed, armor and required-stage settings with bounded ranges and comments. Stat changes apply to newly spawned/reloaded NPCs; reload clamps current health instead of healing damage. Stage/deployment settings apply to subsequent attempts. No existing progression thresholds or research costs are changed.
 
@@ -26,7 +36,7 @@ Their named, original spawn eggs are in the Stand and Hold creative tab. For ope
 
 NPCs float, wander, look at nearby players and fight visible, reachable hostile mobs or configured threats. Vanilla `Goal` APIs are sufficient for this foundation; a Brain/library would not simplify these tasks. Target acquisition accepts vanilla `Enemy`-marked mobs by default, plus the existing [optional ID/tag mappings](samples-and-threats.md). A mapping identifies a target even if its point/drop rewards are zero. Empty, malformed or missing mappings never turn into an infection fallback target or extra rewards.
 
-Set `targetHostileMobs=false` in `standandhold-npcs.toml` to restore mapping-only defence. The default broad classification includes normally neutral monsters such as Endermen, not every angry animal. Optional threat mobs outside `Enemy` still need explicit IDs/tags. Targeting a skeleton/creeper does not grant points or samples under the default zombie-only reward mapping. Elite is an equipment tier here, not a registered Elite NPC.
+Set `targetHostileMobs=false` in `standandhold-npcs.toml` to restore mapping-only defence. The default broad classification includes normally neutral monsters such as Endermen, not every angry animal. Optional threat mobs outside `Enemy` still need explicit IDs/tags. Targeting a skeleton/creeper does not grant points or samples under the default zombie-only reward mapping.
 
 After the equipment stage/research unlock, an Army Rifleman's empty main hand may receive one non-dropping prototype. Vanilla ranged navigation uses the same target/home safety, checks line of sight and fires only within 12 blocks, at least 40 ticks apart by default. Inside 3 blocks or when ranged use is unavailable, melee remains the fallback. Weapon state and next-shot timestamp save with the entity; no new deployment source/quota is added. Existing held items are not overwritten, and the original intrinsic armour/melee stats do not change. See [Equipment](equipment.md) for config, friendly-hit protection and QA limits.
 
@@ -38,7 +48,7 @@ NPC kills do **not** earn points/samples with the default `requirePlayerKill=tru
 
 ## Command-Post Deployment
 
-A loaded, writable Field Command Post may deploy one unlocked unit every **1,200 loaded ticks** (about 60 seconds at 20 TPS). Stage 0 selects a Survivor; stage 1+ selects a Rifleman by default. There is no automatic-deployment supply cost. Upgrading a post changes its capacity target, not unit stats, stage gates, spawn timing or physical footprint.
+A loaded, writable Field Command Post may deploy one unlocked unit every **1,200 loaded ticks** (about 60 seconds at 20 TPS). Stage 0 selects a Survivor; stage 1 selects a Rifleman. With Field Communications completed, stage 2 selects Heavy and stage 3+ Elite; without it, Army remains the fallback. There is no automatic-deployment supply cost. Upgrading a post changes capacity, not unit stats, recruitment gates or spawn timing. Physical growth remains the separately guarded opt-in system.
 
 - Level targets: **3/5/6/7/8 saved reservations** at levels 1-5, including unloaded defenders. Effective capacity is clamped by the server ceiling, area ceiling and 16-entry roster hard limit; see the [capacity/config rollout contract](buildings.md#defender-capacity-contract). Existing configs that explicitly say `maxDefendersPerPost = 3` still cap every level at three; fresh configs use ceiling 16. Raise an existing ceiling deliberately to opt into growth, rather than resetting/deleting configs.
 - Default area cap: **8 living loaded humans within a 48-block box**, including nearby posts and manually spawned test units. The local query stops when it reaches the cap.
@@ -60,6 +70,10 @@ Unknown or malformed roster data refuses deployment rather than silently resetti
 ## Original Visuals
 
 The [art pipeline](art-pipeline.md) holds editable original Blockbench projects and deterministic exports. Models use an explicit **64x64 box-UV atlas**, with classic humanoid body rectangles in the top half and accessory UVs below, not the player-skin layout. Survivor has a soft cap/brim, red jacket and ochre pack; Rifleman has a teal helmet, graphite vest and double sleeve marks. Geometry follows vanilla humanoid animation and held-item transforms, with no new collision/stats/equipment behavior. Tests check opaque base/accessory faces and exact source/runtime texture parity. `GenerateNpcTextures.java` seeds uniforms/eggs, but embedded Blockbench PNGs are authoritative after editing. These remain simple alpha visuals, not finished rigged characters or clip-driven animation.
+
+Heavy adds an olive/charcoal uniform, amber markings, deeper helmet, broad vest and arm-following shoulder plates. Elite has a blue-grey uniform, mint markings, a short helmet/visor and compact torso-following pack. Both use original editable `.bbmodel` sources; `scripts/seed-tier-models.ps1` is an authoring seed, not a runtime dependency. Do not re-seed after hand edits without backing up the source. The normal exporter and CI `-Check` validate all seven original source models.
+
+For a disposable operator test, add 30 supplies, set stage 1, complete `parasite_samples` and `field_communications`, then set stage 2/3 before a normal deployment/event/paid call-in. All commands begin `/standandhold`; see the existing support/event docs for cooldowns. These are grants for technical QA, not earned-loop evidence. Existing explicit population ceilings remain authoritative, and a full lower-tier roster is not replaced just because a higher tier unlocks.
 
 ## Manual QA
 

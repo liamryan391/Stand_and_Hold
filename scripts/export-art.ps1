@@ -67,7 +67,7 @@ $models = @(Get-ChildItem (Join-Path $root 'art/blockbench') -Filter '*.bbmodel'
 if ($models.Count -eq 0) { throw 'No editable art sources found.' }
 foreach ($file in $models) {
     $id = $file.BaseName
-    if ($id -notin @('survivor_defender','army_rifleman','field_command_post','research_lab','supply_crate')) { throw "Unknown source id: $id" }
+    if ($id -notin @('survivor_defender','army_rifleman','heavy_soldier','elite_soldier','field_command_post','research_lab','supply_crate')) { throw "Unknown source id: $id" }
     $model = Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8 | ConvertFrom-Json
     if ($model.meta.model_format -eq 'modded_entity') {
         if ($model.elements.Count -gt 64 -or $model.textures.Count -ne 1 -or $model.resolution.width -ne 64 -or $model.resolution.height -ne 64) { throw 'Humanoid source must have <=64 cubes and one 64x64 texture.' }

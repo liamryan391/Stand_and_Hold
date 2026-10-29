@@ -80,6 +80,8 @@ public final class QaClient {
     private BlockPos checkpointLab;
     private BlockPos growthPost;
     private int growthView;
+    private int tierView;
+    private static final List<String> TIER_VIEWS = List.of("tiers-front", "tiers-back", "heavy-side", "elite-side", "tiers-torchlight", "tier-eggs", "heavy-front", "elite-front");
     private boolean previewReply, previewBlockedReply;
     private boolean expansionDisabledReply, expansionAppliedReply, expansionStatusReply;
     private String consentCommand, expansionProtected;
@@ -425,7 +427,7 @@ public final class QaClient {
                     }
                 }
                 case 50 -> { mc.options.guiScale().set(3); mc.resizeGui(); phase = 51; settle = 0; }
-                case 51 -> { if (++settle >= 10) { capture(mc, "growth-expanded-large", 8); } }
+                case 51 -> { if (++settle >= 10) { capture(mc, "growth-expanded-large", 54); } }
                 case 52 -> {
                     if (++settle > 200) { throw new IllegalStateException("Automatic mode button did not sync"); }
                     if (mc.player.containerMenu instanceof BuildingMenu menu && menu.number(BuildingMenu.GROWTH_MODE) == 1) { phase = 46; settle = 0; }
@@ -434,7 +436,31 @@ public final class QaClient {
                     if (++settle > 200) { throw new IllegalStateException("Manual mode button did not sync"); }
                     if (mc.player.containerMenu instanceof BuildingMenu menu && menu.number(BuildingMenu.GROWTH_MODE) == 0) { growthView++; phase = 44; settle = 0; }
                 }
+                case 54 -> {
+                    mc.gui.setScreen(null); mc.options.guiScale().set(2); mc.resizeGui(); mc.gui.hud.getChat().clearMessages(true);
+                    if (mc.gui.hud.isHidden() != (tierView != 5)) { mc.gui.hud.toggle(); }
+                    phase = 55;
+                    onServer(mc, () -> tierScene(mc, tierView));
+                }
+                case 55 -> {
+                    if (++settle > 300) { throw new IllegalStateException("Tier scene did not become visible"); }
+                    if (settle < 50 || !mc.levelRenderer.isSectionCompiledAndVisible(new BlockPos(88,64,8), 0)) { return; }
+                    if (tierView == 5) {
+                        mc.gui.setScreen(new net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen(
+                                mc.player, mc.player.connection.enabledFeatures(), mc.options.operatorItemsTab().get()));
+                        phase = 57; settle = 0; return;
+                    }
+                    capture(mc, TIER_VIEWS.get(tierView), 56);
+                }
+                case 56 -> { tierView++; phase = tierView == TIER_VIEWS.size() ? 8 : 54; settle = 0; }
+                case 57 -> {
+                    if (++settle >= 10) {
+                        if (!(mc.gui.screen() instanceof net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen)) { throw new IllegalStateException("Tier egg inventory did not render"); }
+                        capture(mc, "tier-eggs", 56);
+                    }
+                }
                 case 8 -> {
+                    if (mc.gui.hud.isHidden()) { mc.gui.hud.toggle(); }
                     mc.gui.setScreen(null);
                     mc.disconnectWithSavingScreen();
                     result(mc, true, "Real menus/screens captured; world saved and client stopped");
@@ -486,6 +512,40 @@ public final class QaClient {
         }
     }
     private static BuildingBlockEntity tile(ServerLevel level, BlockPos pos) { return (BuildingBlockEntity) level.getBlockEntity(pos); }
+    private static void tierScene(Minecraft mc, int view) {
+        var level = mc.getSingleplayerServer().overworld(); var player = player(mc); player.closeContainer();
+        if (view == 0) {
+            for (var pos : BlockPos.betweenClosed(80, 62, 0, 100, 70, 16)) {
+                level.setBlockAndUpdate(pos, (pos.getY()==62 ? Blocks.DIRT : pos.getY()==63 ? Blocks.STONE_BRICKS : Blocks.AIR).defaultBlockState());
+            }
+            for (var tier : com.liamryan.standandhold.common.npc.HumanTier.values()) {
+                var npc = NpcRegistry.entityType(tier).create(level, EntitySpawnReason.COMMAND);
+                if (npc == null) { throw new IllegalStateException("Tier visual factory"); }
+                npc.snapTo(84.5 + tier.ordinal()*3,64,8.5,0,0); npc.setYBodyRot(0); npc.setYHeadRot(0); npc.setNoAi(true);
+                npc.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND,
+                        (tier.usesBlade() ? com.liamryan.standandhold.common.equipment.EquipmentRegistry.BLADE.get()
+                                : com.liamryan.standandhold.common.equipment.EquipmentRegistry.PROTOTYPE.get()).getDefaultInstance());
+                level.addFreshEntity(npc);
+            }
+            player.getInventory().setItem(0,NpcRegistry.SURVIVOR_EGG.get().getDefaultInstance());
+            player.getInventory().setItem(1,NpcRegistry.ARMY_EGG.get().getDefaultInstance());
+            player.getInventory().setItem(2,NpcRegistry.HEAVY_EGG.get().getDefaultInstance());
+            player.getInventory().setItem(3,NpcRegistry.ELITE_EGG.get().getDefaultInstance());
+        }
+        level.clockManager().setTotalTicks(level.dimensionType().defaultClock().orElseThrow(), view == 4 ? 18000 : 6000);
+        if (view == 4) {
+            for (int x : new int[]{83,87,91,95}) { level.setBlockAndUpdate(new BlockPos(x,64,10), Blocks.TORCH.defaultBlockState()); }
+        }
+        player.getAbilities().flying=true; player.onUpdateAbilities();
+        switch(view) {
+            case 1 -> player.connection.teleport(89,65,0.5,0,6);
+            case 2 -> player.connection.teleport(86.5,65,11.5,-126.87F,5);
+            case 3 -> player.connection.teleport(98,65,11.5,123.69F,5);
+            case 6 -> player.connection.teleport(90.5,65,13.5,180,6);
+            case 7 -> player.connection.teleport(93.5,65,13.5,180,6);
+            default -> player.connection.teleport(89,65,18.5,180,6);
+        }
+    }
     private static void open(Minecraft mc, View view) {
         var level = mc.getSingleplayerServer().overworld(); var player = player(mc);
         player.closeContainer();

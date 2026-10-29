@@ -55,7 +55,7 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         setPersistenceRequired();
         if (!level.isClientSide()) { applyStats(true); }
     }
-    public HumanTier tier() { return getType() == NpcRegistry.ARMY.get() ? HumanTier.ARMY_RIFLEMAN : HumanTier.SURVIVOR_DEFENDER; }
+    public HumanTier tier() { return NpcRegistry.tier(getType()); }
     @Override public boolean requiresCustomPersistence() { return true; }
     public static AttributeSupplier.Builder attributes(HumanTier tier) {
         return createMobAttributes().add(Attributes.MAX_HEALTH, tier.health).add(Attributes.MOVEMENT_SPEED, tier.speed)
@@ -123,12 +123,12 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         super.customServerAiStep(level);
         if (tickCount % 20 != 0) { return; }
         if (!getMainHandItem().is(EquipmentRegistry.BLADE.get())) { issuedBlade = false; }
-        boolean bladeAllowed = tier() == HumanTier.SURVIVOR_DEFENDER && EquipmentConfig.value(EquipmentConfig.NPC_BLADE) && EquipmentAccess.allowed(level, EquipmentKind.BLADE);
+        boolean bladeAllowed = tier().usesBlade() && EquipmentConfig.value(EquipmentConfig.NPC_BLADE) && EquipmentAccess.allowed(level, EquipmentKind.BLADE);
         if (bladeAllowed && getMainHandItem().isEmpty()) {
             setItemSlot(EquipmentSlot.MAINHAND, EquipmentRegistry.BLADE.get().getDefaultInstance());
             setDropChance(EquipmentSlot.MAINHAND, 0); issuedBlade = true;
         }
-        if (tier() == HumanTier.ARMY_RIFLEMAN && EquipmentConfig.value(EquipmentConfig.NPC_ENABLED) && getMainHandItem().isEmpty()
+        if (tier().usesPrototype() && EquipmentConfig.value(EquipmentConfig.NPC_ENABLED) && getMainHandItem().isEmpty()
                 && EquipmentAccess.allowed(level, EquipmentKind.PROTOTYPE)) {
             setItemSlot(EquipmentSlot.MAINHAND, EquipmentRegistry.PROTOTYPE.get().getDefaultInstance());
             setDropChance(EquipmentSlot.MAINHAND, 0);
@@ -153,7 +153,7 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         super.onRemoval(reason);
     }
     private boolean rangedReady() {
-        return level() instanceof ServerLevel server && tier() == HumanTier.ARMY_RIFLEMAN && EquipmentConfig.value(EquipmentConfig.NPC_ENABLED)
+        return level() instanceof ServerLevel server && tier().usesPrototype() && EquipmentConfig.value(EquipmentConfig.NPC_ENABLED)
                 && getMainHandItem().is(EquipmentRegistry.PROTOTYPE.get()) && EquipmentAccess.allowed(server, EquipmentKind.PROTOTYPE)
                 && getTarget() != null && canAttack(getTarget()) && distanceToSqr(getTarget()) > 9;
     }
