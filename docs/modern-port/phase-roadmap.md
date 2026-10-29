@@ -443,7 +443,7 @@ Scope: two additional readable alpha roles using the existing human entity/vanil
 - [x] **20.1 Define the role/unlock/retention contract before implementation.** Distinguish Heavy and Elite roles, configurable stats and stage/research requirements; keep global stage separate from post level, existing issued-kit retention and all post/area/roster limits.
 - [x] **20.2 Register the two units, test eggs and original visual variants.** Reuse the supported human model/art export pipeline with distinguishable silhouettes/uniforms, translated names and complete textures; no copied assets or runtime library. Eggs remain deliberate admin test tools, not progression bypasses for automated deployment.
 - [x] **20.3 Apply stage/research selection through shared deployment paths.** Automatic, event and paid reinforcements choose an eligible role without bypassing cooldowns/caps or changing existing NPC identities/tiers. Use existing equipment/target rules; no new gun/ammo/complex-AI system.
-- [ ] **20.4 Verify the complete milestone and document usage.** Logic and native GameTests for role stats/AI/unlocks/retention and all deployment paths, real restart for identities/equipment/rosters, reviewed qaClient tier views, final clean build/jar isolation and green CI. Human feedback only for silhouette/combat feel; multiplayer/packaged claims stay separate.
+- [x] **20.4 Verify the complete milestone and document usage.** Logic and native GameTests for role stats/AI/unlocks/retention and all deployment paths, real restart for identities/equipment/rosters, reviewed qaClient tier views, final clean build/jar isolation and green CI. Human feedback only for silhouette/combat feel; multiplayer/packaged claims stay separate.
 
 Exit gate:
 
