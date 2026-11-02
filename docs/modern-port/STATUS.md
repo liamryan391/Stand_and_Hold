@@ -2,8 +2,8 @@
 Updated: 2026-11-02
 
 ## Position
-- M23 merged/pushed as eeb8ed4 after Windows closeout CI 41514773667 passed; Liam reports nothing feels off. M24 active on codex/m24-local-storage.
-- M24 24.1-24.3 implemented; local verification passed, Windows CI/publication pending. Explicit opt-in storage preserves flat defaults and lab/crate limits.
+- M24 24.1-24.4 exit gate passed on codex/m24-local-storage; Windows implementation CI 41546801428 green. M23 feel feedback passed.
+- Explicit opt-in levelled Command Post storage preserves flat defaults and lab/crate limits; paid upgrades add empty capacity, never a refill.
 - No stats, spawn/cost limits, dependencies, version or pins changed. Legacy references, packaged M22 profile and user worlds/configs preserved.
 - NeoForge-first; Fabric M14 14.4-14.5 deferred. Pins: MC 26.3 / NeoForge 26.3.0.57-beta / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
 
@@ -21,4 +21,4 @@ Updated: 2026-11-02
 - No power-loss/claim-mod guarantee, automatic repair or offline catch-up. Independent beta/public release approval and wider reliability remain separate.
 
 ## Next Milestone
-`Continue: M24 steps 24.1-24.4 (level-aware Command Post supply capacity, conservation rules, readable upgrade benefits and automated verification) on codex/m24-local-storage.`
+`Continue: M25 steps 25.1-25.4 (Level-3 layout preservation contract, bounded read-only planner, preview controls and automated verification) on codex/m25-level3-preview.`
