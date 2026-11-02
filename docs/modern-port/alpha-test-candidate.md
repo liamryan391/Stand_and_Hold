@@ -16,7 +16,7 @@ Prepared for controlled testing, **not published or tagged as a modern release**
 
 Use [Building](building.md) for the pinned Java selector/wrapper, and inspect `META-INF/neoforge.mods.toml`: mod ID `standandhold`, version `0.1.0-alpha.1`, Minecraft `[26.3]`, NeoForge `[26.3.0.57-beta,26.4)`. Do not use a sources jar or the legacy GitHub release. Installer/profile instructions follow the selected loader's official documentation linked in the toolchain/build guides; do not substitute a moving latest loader.
 
-Local artifact size/hash and observed build/launch evidence are recorded in STATUS.md when verified. A GitHub Actions build artifact is separate from a published mod release. Source history identifies its implementation; no new tag is created by preparation.
+Use [Isolated Packaged Testing](packaged-testing.md) for checksum manifests, fresh launcher/server profiles, EULA boundaries and observed installation outcomes. A GitHub Actions build artifact is separate from a published mod release. Source history identifies its implementation; no new tag is created by preparation.
 
 ## Scope Of This Candidate
 

@@ -47,6 +47,12 @@ jobs:
           .\gradlew.bat clean build --no-daemon --stacktrace
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+      - name: Verify isolated packaged QA preparation
+        shell: pwsh
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\test-packaged-qa.ps1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
       - name: Run in-world GameTests
         shell: pwsh
         run: |

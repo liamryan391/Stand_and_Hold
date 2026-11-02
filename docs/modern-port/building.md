@@ -72,9 +72,9 @@ Run each separately from a prepared Java 25 shell:
 
 Check main menu without errors, Mods list showing Stand and Hold / 0.1.0-alpha.1,
 then create a fresh disposable world, enter it, save/quit, and exit the client.
-Check the sample, buildings and two human test eggs in a disposable world with commands enabled;
-the [NPC guide](human-npcs.md) separates test-egg access from automatic deployment gates. No generated
-structures are present yet. Save/reopen to test persistence.
+Check the sample, buildings and human test eggs in a disposable world with commands enabled;
+the [NPC guide](human-npcs.md) separates test-egg access from automatic deployment gates. Test generated
+checkpoints/Main Base foundations on suitable terrain. Save/reopen to test persistence.
 
 ```powershell
 .\gradlew.bat runServer --no-daemon --stacktrace
@@ -91,6 +91,9 @@ Development servers may use offline mode: keep them private, set `server-ip=127.
 ignored test `server.properties`, and never expose them to the Internet.
 Logs are `run/modern-client/logs/latest.log` and `run/modern-server/logs/latest.log`.
 Never open 1.12 worlds/configs here. Test without external mods first.
+
+Source runs are not packaged-install proof. [Isolated Packaged Testing](packaged-testing.md) covers
+the normal jar, checksum-verified installer, fresh private launcher profile and production server.
 
 ## IntelliJ IDEA Setup
 
