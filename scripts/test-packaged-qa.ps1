@@ -16,6 +16,7 @@ Assert ($manifest.artifactSHA256 -eq (Get-FileHash -LiteralPath (Join-Path $resu
 Assert (-not (Test-Path -LiteralPath (Join-Path $result.ServerDirectory 'eula.txt'))) 'Preparation must not write an EULA.'
 $properties = Get-Content -LiteralPath (Join-Path $result.ServerDirectory 'server.properties') -Raw | ConvertFrom-StringData
 Assert ($properties.'server-ip' -eq '127.0.0.1' -and $properties.'server-port' -eq '25586' -and $properties.'online-mode' -eq 'true') 'Loopback-only server with normal authentication.'
+Assert ($properties.'pause-when-empty-seconds' -eq '-1') 'Private console fixture must keep loaded chunks ticking without players.'
 $pack = [IO.Compression.ZipFile]::OpenRead($result.ClientPack)
 try {
     Assert ($pack.Entries.Count -eq 3) 'Pack must contain only index, marker and our mod.'

@@ -73,7 +73,7 @@ try {
 $properties = @(
     'server-ip=127.0.0.1', 'server-port=25586', 'online-mode=true', 'max-players=2',
     'level-name=m22-packaged', 'level-type=minecraft:flat', 'generate-structures=false',
-    'view-distance=2', 'simulation-distance=2', 'gamemode=creative',
+    'view-distance=2', 'simulation-distance=2', 'gamemode=creative', 'pause-when-empty-seconds=-1',
     'generator-settings={"layers":[{"block":"minecraft:bedrock","height":1},{"block":"minecraft:dirt","height":2},{"block":"minecraft:grass_block","height":1}],"biome":"minecraft:plains"}'
 ) -join "`n"
 [IO.File]::WriteAllText((Join-Path $server 'server.properties'), $properties + "`n", $utf8)
