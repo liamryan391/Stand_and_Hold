@@ -1,16 +1,16 @@
 # Status
-Updated: 2026-10-29 - Handoff branch: `codex/m21-outpost-layout`
+Updated: 2026-11-02 - Work branch: `codex/m21-outpost-layout`
 
 ## Position
-- M1-M13, M15-M20 exit gates passed; M21 useful Level-2 layout remains unimplemented.
-- Four original human roles; Heavy defaults to Stage 2/Elite Stage 3 + Field Communications. Shared deployments retain quotas/cooldowns, old identities and issued kit.
-- The same opt-in apron still requires earned local level 2; no automatic level purchases, new cost/reward/population, old-site adoption or repair.
+- M21 implementation and local verification passed; publication/green CI remain before merge.
+- Level-2 Growth opens a 13x13 yard with a small watch deck; direct sites and sealed old aprons retain buildings, work, storage, identities and reservations.
+- Same opt-in Manual/Automatic controls and local level-2 gate; no new cost/reward/population, automatic level purchase, repair or adoption.
 - NeoForge-first; Fabric M14 14.4-14.5 deferred. Pins: MC 26.3 / NeoForge 26.3.0.57-beta / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
 
 ## Verified
-- Clean build passed 15,826 assertions/all 80 GameTests, including new roles/eggs/config/AI/projectiles/shared deployment and prior regressions; normal jar metadata/QA exclusion inspected.
-- Final two-JVM fixture qa-3a7fcf36-0d3b-4c68-99d9-b3fffc6ff8ed passed with Heavy/Elite UUIDs/kit/damaged health/rosters plus prior receipts; normal runServer reached Done/stop/clean exit.
-- Final qaClient passed; all 43 e4881307-prefix PNGs opened/reviewed. Windows implementation CI 40799057223 passed build/GameTests/restart/artifacts; no new human play pass claimed.
+- Final clean build: 30,177 assertions/all 98 required GameTests passed, including protected removals, navigation, faults, old receipts and prior regressions; jar metadata/QA exclusion inspected.
+- Final two-JVM fixture qa-aefd22c8-df57-4cf9-bea7-94ed5896a623 passed; normal runServer reached Done, answered status/help and stopped cleanly.
+- Final qaClient passed; all 47 0627d8c3-prefix PNGs opened/reviewed, including yard overhead/entrance/watch/menu views. CI pending; no new human play pass claimed.
 
 ## Risks And Decisions
 - No new dependency/pin approval; only Liam accepts EULAs. Public source/downloads do not grant blanket asset reuse; original code/art policy retained.

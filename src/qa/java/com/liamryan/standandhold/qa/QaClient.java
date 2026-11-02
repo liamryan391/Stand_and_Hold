@@ -81,6 +81,8 @@ public final class QaClient {
     private BlockPos growthPost;
     private int growthView;
     private int tierView;
+    private int yardView;
+    private static final List<String> YARD_VIEWS = List.of("yard-overhead", "yard-entrance", "yard-watch-deck", "yard-watch-view");
     private static final List<String> TIER_VIEWS = List.of("tiers-front", "tiers-back", "heavy-side", "elite-side", "tiers-torchlight", "tier-eggs", "heavy-front", "elite-front");
     private boolean previewReply, previewBlockedReply;
     private boolean expansionDisabledReply, expansionAppliedReply, expansionStatusReply;
@@ -427,7 +429,7 @@ public final class QaClient {
                     }
                 }
                 case 50 -> { mc.options.guiScale().set(3); mc.resizeGui(); phase = 51; settle = 0; }
-                case 51 -> { if (++settle >= 10) { capture(mc, "growth-expanded-large", 54); } }
+                case 51 -> { if (++settle >= 10) { capture(mc, "growth-expanded-large", 60); } }
                 case 52 -> {
                     if (++settle > 200) { throw new IllegalStateException("Automatic mode button did not sync"); }
                     if (mc.player.containerMenu instanceof BuildingMenu menu && menu.number(BuildingMenu.GROWTH_MODE) == 1) { phase = 46; settle = 0; }
@@ -459,6 +461,28 @@ public final class QaClient {
                         capture(mc, "tier-eggs", 56);
                     }
                 }
+                case 60 -> {
+                    mc.gui.setScreen(null); mc.gui.hud.getChat().clearMessages(true); if (!mc.gui.hud.isHidden()) { mc.gui.hud.toggle(); }
+                    phase = 61;
+                    onServer(mc, () -> {
+                        var level = mc.getSingleplayerServer().overworld(); var post = tile(level, growthPost); var c = post.site().center(); var actor = player(mc); actor.closeContainer();
+                        if (post.site().appliedRevision() != 2 || post.yardOperation().orElseThrow().phase() != ExpansionOperation.Phase.APPLIED) { throw new IllegalStateException("Yard visual fixture did not seal revision 2"); }
+                        level.clockManager().setTotalTicks(level.dimensionType().defaultClock().orElseThrow(), 6000);
+                        actor.getAbilities().flying = true; actor.onUpdateAbilities();
+                        switch (yardView) {
+                            case 0 -> actor.connection.teleport(c.getX()+.5,c.getY()+13,c.getZ()+12.5,180,50);
+                            case 1 -> actor.connection.teleport(c.getX()+.5,c.getY()+1,c.getZ()+7.5,180,7);
+                            case 2 -> actor.connection.teleport(c.getX()+1.5,c.getY()+5,c.getZ()+4.5,129,23);
+                            default -> actor.connection.teleport(c.getX()-3.5,c.getY()+3,c.getZ()+.5,0,12);
+                        }
+                    });
+                }
+                case 61 -> {
+                    if (++settle > 200) { throw new IllegalStateException("Yard scene did not render"); }
+                    if (settle < 35 || !mc.levelRenderer.isSectionCompiledAndVisible(growthPost, 0)) { return; }
+                    capture(mc, YARD_VIEWS.get(yardView), 62);
+                }
+                case 62 -> { yardView++; phase = yardView == YARD_VIEWS.size() ? 54 : 60; settle = 0; }
                 case 8 -> {
                     if (mc.gui.hud.isHidden()) { mc.gui.hud.toggle(); }
                     mc.gui.setScreen(null);

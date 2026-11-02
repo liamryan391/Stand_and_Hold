@@ -59,18 +59,20 @@ final class GrowthTests {
     }
     private static void clean(GameTestHelper h, BuildingBlockEntity post) { h.getLevel().getChunkAt(post.getBlockPos()).tryMarkSaved(); }
     private static boolean dirty(GameTestHelper h, BuildingBlockEntity post) { return h.getLevel().getChunkAt(post.getBlockPos()).isUnsaved(); }
+    private static boolean noOperation(BuildingBlockEntity post) { return post.siteOperation().isEmpty() && post.yardOperation().isEmpty(); }
     private static void refused(GameTestHelper h, Runnable action) {
         try { action.run(); h.fail("Expected growth refusal"); } catch (IllegalArgumentException | IllegalStateException expected) { }
     }
     private static void applied(GameTestHelper h, BuildingBlockEntity post) {
-        var operation = post.siteOperation().orElseThrow();
-        h.assertTrue(post.site().appliedRevision() == 1 && operation.phase() == ExpansionOperation.Phase.APPLIED
-                && operation.observe(pos -> NbtUtils.writeBlockState(h.getLevel().getBlockState(pos))).state() == ExpansionOperation.Observed.ALL_AFTER, "Exact existing 137-cell apron applied once");
+        var operation = post.yardOperation().orElseThrow();
+        h.assertTrue(post.site().appliedRevision() == 2 && operation.targetRevision() == 2 && operation.phase() == ExpansionOperation.Phase.APPLIED
+                && operation.observe(pos -> NbtUtils.writeBlockState(h.getLevel().getBlockState(pos))).state() == ExpansionOperation.Observed.ALL_AFTER, "Exact revision-2 yard applied once");
     }
     private static void manual(GameTestHelper h) {
         var f = begin(h, 2); h.runAfterDelay(3, () -> {
             var data = HumanWorldData.get(h.getLevel().getServer()); var global = HumanWorldData.CODEC.encodeStart(NbtOps.INSTANCE, data).getOrThrow();
-            var state = f.post().state(); var before = OutpostExpansion.protectedDigest(h.getLevel(), f.post(), f.post().site()); int chunks = h.getLevel().getChunkSource().getLoadedChunksCount();
+            var state = f.post().state(); var plan = LevelTwoGrowth.inspect(f.player(), f.post());
+            var before = OutpostExpansion.yardDigest(h.getLevel(), f.post(), f.post().site(), plan.changes()); int chunks = h.getLevel().getChunkSource().getLoadedChunksCount();
             var other = QaPlayer.join(h.getLevel());
             h.assertFalse(f.menu().clickMenuButton(other, BuildingMenu.EXPAND), "Foreign player cannot invoke this menu");
             f.player().setGameMode(GameType.SPECTATOR); h.assertFalse(f.menu().clickMenuButton(f.player(), BuildingMenu.EXPAND), "Spectator refused"); f.player().setGameMode(GameType.SURVIVAL);
@@ -80,10 +82,10 @@ final class GrowthTests {
             h.assertFalse(f.menu().clickMenuButton(f.player(), BuildingMenu.EXPAND), "Duplicate packet cannot repeat expansion");
             h.assertTrue(f.player().messages("message.standandhold.growth_complete") == 1 && f.post().state().equals(state)
                     && global.equals(HumanWorldData.CODEC.encodeStart(NbtOps.INSTANCE, data).getOrThrow()) && chunks == h.getLevel().getChunkSource().getLoadedChunksCount()
-                    && before.equals(OutpostExpansion.protectedDigest(h.getLevel(), f.post(), f.post().site())), "Once-only feedback, unchanged protected buildings/resources/caps/chunks");
+                    && before.equals(OutpostExpansion.yardDigest(h.getLevel(), f.post(), f.post().site(), plan.changes())), "Once-only feedback, unchanged protected buildings/resources/caps/chunks");
             f.post().change(f.post().state().supplies(7)); f.menu().broadcastChanges();
             h.assertTrue(f.menu().number(BuildingMenu.GROWTH_STATUS) == OutpostGrowth.EXPANDED, "Normal storage change does not turn Expanded into a repair problem");
-            var broken = f.post().siteOperation().orElseThrow().changes().getFirst().pos(); h.getLevel().setBlockAndUpdate(broken, Blocks.AIR.defaultBlockState());
+            var broken = f.post().yardOperation().orElseThrow().changes().getFirst().pos(); h.getLevel().setBlockAndUpdate(broken, Blocks.AIR.defaultBlockState());
             drive(h, f.post(), ResponseConfig.CHECK_INTERVAL.get()); h.assertTrue(h.getLevel().getBlockState(broken).isAir(), "No automatic repair"); h.succeed();
         });
     }
@@ -91,15 +93,15 @@ final class GrowthTests {
         var f = begin(h, 1); h.runAfterDelay(3, () -> {
             h.assertTrue(f.menu().clickMenuButton(f.player(), BuildingMenu.GROWTH_AUTOMATIC), "Explicit opt-in at level 1");
             clean(h, f.post()); h.assertTrue(f.menu().clickMenuButton(f.player(), BuildingMenu.GROWTH_AUTOMATIC) && !dirty(h, f.post()), "Duplicate selection is idempotent/no dirty spam");
-            drive(h, f.post(), ResponseConfig.CHECK_INTERVAL.get()); h.assertTrue(f.post().siteOperation().isEmpty() && f.post().state().level() == 1, "Automatic mode does not grant/spend for a level");
+            drive(h, f.post(), ResponseConfig.CHECK_INTERVAL.get()); h.assertTrue(noOperation(f.post()) && f.post().state().level() == 1, "Automatic mode does not grant/spend for a level");
             var data = HumanWorldData.get(h.getLevel().getServer()); data.setSupplies(10); HumanPointManager.setStage(h.getLevel().getServer(), HumanStage.LOCAL_ARMY_RESPONSE);
             ResearchManager.complete(data, FoundationResources.get(h.getLevel().getServer()), HumanProgressionConfig.thresholds(), "standandhold:parasite_samples");
             long points = data.points(), supplies = data.supplies();
             h.assertTrue(f.menu().clickMenuButton(f.player(), BuildingMenu.UPGRADE) && f.post().state().supplies() == 0, "Normal upgrade pays exactly 20 local supplies");
             var pos = f.post().getBlockPos(); f.player().snapTo(pos.getX() + 20, pos.getY(), pos.getZ(), 0, 0);
             drive(h, f.post(), ResponseConfig.CHECK_INTERVAL.get()); applied(h, f.post());
-            var id = f.post().siteOperation().orElseThrow().id(); clean(h, f.post()); drive(h, f.post(), ResponseConfig.CHECK_INTERVAL.get());
-            h.assertTrue(f.post().siteOperation().orElseThrow().id().equals(id) && !dirty(h, f.post()) && data.points() == points && data.supplies() == supplies
+            var id = f.post().yardOperation().orElseThrow().id(); clean(h, f.post()); drive(h, f.post(), ResponseConfig.CHECK_INTERVAL.get());
+            h.assertTrue(f.post().yardOperation().orElseThrow().id().equals(id) && !dirty(h, f.post()) && data.points() == points && data.supplies() == supplies
                     && f.post().state().level() == 2 && f.post().state().samples() == 2, "Automatic growth is player-independent, once-only, no extra debit/reward/dirty spam"); h.succeed();
         });
     }
@@ -108,9 +110,9 @@ final class GrowthTests {
             h.assertTrue(f.menu().clickMenuButton(f.player(), BuildingMenu.GROWTH_AUTOMATIC), "Opt in");
             var pos = f.post().site().center().offset(-6, 1, -6); h.getLevel().setBlockAndUpdate(pos, Blocks.CHEST.defaultBlockState());
             drive(h, f.post(), ResponseConfig.CHECK_INTERVAL.get());
-            h.assertTrue(f.post().growthSettings().pause() == OutpostGrowth.TERRAIN && f.post().siteOperation().isEmpty() && h.getLevel().getBlockState(pos).is(Blocks.CHEST), "Obstruction is protected and pause saved before writes");
+            h.assertTrue(f.post().growthSettings().pause() == OutpostGrowth.TERRAIN && noOperation(f.post()) && h.getLevel().getBlockState(pos).is(Blocks.CHEST), "Obstruction is protected and pause saved before writes");
             h.getLevel().setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState()); clean(h, f.post()); drive(h, f.post(), ResponseConfig.CHECK_INTERVAL.get());
-            h.assertTrue(f.post().siteOperation().isEmpty() && !dirty(h, f.post()), "Clearing obstruction does not cause a hidden retry loop");
+            h.assertTrue(noOperation(f.post()) && !dirty(h, f.post()), "Clearing obstruction does not cause a hidden retry loop");
             h.assertTrue(f.menu().clickMenuButton(f.player(), BuildingMenu.EXPAND), "Explicit retry uses same manual action"); applied(h, f.post());
             h.assertTrue(f.post().growthSettings().pause() == 0 && f.post().growthSettings().mode() == OutpostGrowth.Mode.AUTOMATIC, "Retry retains preference and clears pause"); h.succeed();
         });
@@ -121,9 +123,9 @@ final class GrowthTests {
             var pig = net.minecraft.world.entity.EntityTypes.PIG.create(h.getLevel(), net.minecraft.world.entity.EntitySpawnReason.COMMAND);
             pig.snapTo(pos.getX() + .5, pos.getY(), pos.getZ() + .5, 0, 0); pig.setNoAi(true); h.getLevel().addFreshEntity(pig);
             drive(h, f.post(), ResponseConfig.CHECK_INTERVAL.get());
-            h.assertTrue(f.post().growthSettings().pause() == OutpostGrowth.ENTITY && pig.isAlive() && f.post().siteOperation().isEmpty(), "Animal obstruction pauses without damage or writes");
+            h.assertTrue(f.post().growthSettings().pause() == OutpostGrowth.ENTITY && pig.isAlive() && noOperation(f.post()), "Animal obstruction pauses without damage or writes");
             OutpostGrowth.setMode(f.player(), f.post(), OutpostGrowth.Mode.MANUAL); pig.discard(); drive(h, f.post(), ResponseConfig.CHECK_INTERVAL.get());
-            h.assertTrue(f.post().siteOperation().isEmpty(), "Manual mode never auto-applies"); h.succeed();
+            h.assertTrue(noOperation(f.post()), "Manual mode never auto-applies"); h.succeed();
         });
     }
     private static void future(GameTestHelper h) {
@@ -137,7 +139,7 @@ final class GrowthTests {
                 h.assertTrue(!post.growthSupported() && OutpostGrowth.status(h.getLevel(), post) == OutpostGrowth.UNAVAILABLE, "Malformed/future policy disables growth only");
                 refused(h, () -> OutpostGrowth.setMode(h.getLevel(), post, OutpostGrowth.Mode.AUTOMATIC));
                 refused(h, () -> OutpostExpansion.prepare(f.player(), post)); post.change(post.state().supplies(9)); drive(h, post, ResponseConfig.CHECK_INTERVAL.get());
-                h.assertTrue(post.saveWithFullMetadata(h.getLevel().registryAccess()).get("growth").equals(raw) && post.state().supplies() == 9 && post.siteOperation().isEmpty(), "Raw policy retained while ordinary storage still works");
+                h.assertTrue(post.saveWithFullMetadata(h.getLevel().registryAccess()).get("growth").equals(raw) && post.state().supplies() == 9 && noOperation(post), "Raw policy retained while ordinary storage still works");
             }
             var known = original.copy(); known.getCompoundOrEmpty("growth").putString("extension", "keep"); var post = load(h, old, known);
             OutpostGrowth.setMode(h.getLevel(), post, OutpostGrowth.Mode.AUTOMATIC);
@@ -186,7 +188,7 @@ final class GrowthTests {
             StructureConfig.EXPANSION.set(false);
             h.assertFalse(f.menu().clickMenuButton(f.player(), BuildingMenu.EXPAND), "Disabled config blocks player action");
             h.assertFalse(f.menu().clickMenuButton(f.player(), BuildingMenu.GROWTH_AUTOMATIC), "Disabled config blocks opt-in");
-            h.assertTrue(f.post().siteOperation().isEmpty(), "No receipt when disabled"); StructureConfig.EXPANSION.set(true);
+            h.assertTrue(noOperation(f.post()), "No receipt when disabled"); StructureConfig.EXPANSION.set(true);
             var old = f.post().saveWithFullMetadata(h.getLevel().registryAccess()).copy(); old.remove("site"); var post = load(h, f.post(), old);
             h.assertTrue(OutpostGrowth.status(h.getLevel(), post) == OutpostGrowth.UNSUPPORTED, "Old/manual post is not adopted");
             refused(h, () -> OutpostGrowth.setMode(h.getLevel(), post, OutpostGrowth.Mode.AUTOMATIC));
@@ -218,7 +220,7 @@ final class GrowthTests {
             server.getDataStorage().set(HumanWorldData.TYPE, HumanWorldData.CODEC.parse(NbtOps.INSTANCE, future).getOrThrow());
             try {
                 drive(h, f.post(), ResponseConfig.CHECK_INTERVAL.get());
-                h.assertTrue(OutpostGrowth.status(h.getLevel(), f.post()) == OutpostGrowth.UNAVAILABLE && f.post().siteOperation().isEmpty(), "Automatic growth cannot place against a newer global save");
+                h.assertTrue(OutpostGrowth.status(h.getLevel(), f.post()) == OutpostGrowth.UNAVAILABLE && noOperation(f.post()), "Automatic growth cannot place against a newer global save");
                 refused(h, () -> OutpostExpansion.prepare(f.player(), f.post()));
                 h.assertFalse(f.menu().clickMenuButton(f.player(), BuildingMenu.EXPAND), "Menu respects unsupported global save");
                 h.assertTrue(future.equals(HumanWorldData.CODEC.encodeStart(NbtOps.INSTANCE, HumanWorldData.get(server)).getOrThrow()), "Unknown global save is retained without rewriting");
@@ -239,7 +241,7 @@ final class GrowthTests {
         StructureConfig.EXPANSION.set(false); level.getChunk(old.getBlockPos().getX() >> 4, old.getBlockPos().getZ() >> 4);
         var post = (BuildingBlockEntity) level.getBlockEntity(old.getBlockPos());
         h.assertTrue(post != null && post != old && post.site().id().equals(id) && post.growthSettings().mode() == OutpostGrowth.Mode.AUTOMATIC
-                && post.siteOperation().isEmpty() && post.state().equals(new BuildingState(2, 13, 2, "", 0)), "Actual chunk serialization/unload/reload retains choice, identity and storage without on-load growth");
+                && noOperation(post) && post.state().equals(new BuildingState(2, 13, 2, "", 0)), "Actual chunk serialization/unload/reload retains choice, identity and storage without on-load growth");
         StructureConfig.EXPANSION.set(true); drive(h, post, ResponseConfig.CHECK_INTERVAL.get()); applied(h, post);
         for (var pos : new BlockPos[]{post.getBlockPos(), post.getBlockPos().offset(-2, 0, -1), post.getBlockPos().offset(3, 0, -2)}) { level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState()); }
         h.succeed();

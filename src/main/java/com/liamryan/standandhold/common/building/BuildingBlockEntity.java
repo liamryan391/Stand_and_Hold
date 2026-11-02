@@ -55,6 +55,8 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
     private long siteEpoch;
     private long operationCacheEpoch = -1;
     private java.util.Optional<ExpansionOperation> operationCache;
+    private long yardCacheEpoch = -1;
+    private java.util.Optional<ExpansionOperation> yardCache;
     private OutpostGrowth.Settings growth = OutpostGrowth.Settings.DEFAULT;
     private Dynamic<?> retainedGrowth;
     private boolean growthSupported = true;
@@ -91,11 +93,15 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         if (operationCacheEpoch == siteEpoch) { return operationCache; }
         var site = site();
         var tag = (CompoundTag) retainedSite.convert(NbtOps.INSTANCE).getValue();
+        if (tag.get("operation") instanceof CompoundTag receipt && receipt.getIntOr("operation_version", -1) != 1) {
+            throw new IllegalArgumentException("Unsupported legacy apron operation version; retained for review.");
+        }
         var parsed = tag.get("operation") == null ? java.util.Optional.<ExpansionOperation>empty() : java.util.Optional.of(ExpansionOperation.read(tag.get("operation"), site));
         operationCache = parsed; operationCacheEpoch = siteEpoch; return parsed;
     }
     public void storeSiteOperation(ExpansionOperation operation) {
         requireWritable(); var site = site(); operation.validateSite(site);
+        if (operation.targetRevision() != 1 || yardOperation().isPresent()) { throw new IllegalStateException("Legacy apron cannot replace a yard receipt."); }
         var old = siteOperation().orElse(null);
         if (kind() != BuildingKind.COMMAND_POST || isMainBase() || !worldPosition.equals(site.anchor())
                 || site.appliedRevision() != 0 && !(site.appliedRevision() == 1 && old != null && old.id().equals(operation.id()) && operation.phase() == ExpansionOperation.Phase.APPLIED)
@@ -111,6 +117,33 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         }
         tag.put("operation", saved);
         if (operation.phase() == ExpansionOperation.Phase.APPLIED) { tag.putInt("applied_revision", 1); }
+        retainedSite = new Dynamic<>(NbtOps.INSTANCE, tag); siteEpoch++; setChanged();
+    }
+    public java.util.Optional<ExpansionOperation> yardOperation() {
+        if (yardCacheEpoch == siteEpoch) { return yardCache; }
+        var site = site(); var tag = (CompoundTag) retainedSite.convert(NbtOps.INSTANCE).getValue();
+        var parsed = tag.get("yard_operation") == null ? java.util.Optional.<ExpansionOperation>empty()
+                : java.util.Optional.of(ExpansionOperation.read(tag.get("yard_operation"), site));
+        if (parsed.isPresent() && parsed.get().targetRevision() != 2) { throw new IllegalArgumentException("Unsupported yard receipt revision."); }
+        yardCache = parsed; yardCacheEpoch = siteEpoch; return parsed;
+    }
+    public void storeYardOperation(ExpansionOperation operation) {
+        requireGrowthWritable(); var site = site(); operation.validateSite(site); var old = yardOperation().orElse(null);
+        if (operation.targetRevision() != 2 || kind() != BuildingKind.COMMAND_POST || isMainBase() || !worldPosition.equals(site.anchor())
+                || site.appliedRevision() != operation.sourceRevision() && !(site.appliedRevision() == 2 && old != null && old.id().equals(operation.id()) && operation.phase() == ExpansionOperation.Phase.APPLIED)
+                || old != null && (!old.id().equals(operation.id()) || !old.changes().equals(operation.changes()) || !old.protectedDigest().equals(operation.protectedDigest())
+                        || old.sourceRevision() != operation.sourceRevision())) {
+            throw new IllegalStateException("Cannot replace a sealed/ambiguous yard receipt or change its intent.");
+        }
+        var apron = siteOperation().orElse(null);
+        if (operation.sourceRevision() == 0 && apron != null || operation.sourceRevision() == 1 && (apron == null || apron.phase() != ExpansionOperation.Phase.APPLIED)) {
+            throw new IllegalStateException("Yard source requires no apron intent, or a sealed revision-1 apron.");
+        }
+        var tag = ((CompoundTag) retainedSite.convert(NbtOps.INSTANCE).getValue()).copy();
+        var saved = tag.getCompoundOrEmpty("yard_operation").copy(); var current = operation.save();
+        for (String key : current.keySet()) { if (!key.equals("cells") || old == null) { saved.put(key, current.get(key)); } }
+        tag.put("yard_operation", saved);
+        if (operation.phase() == ExpansionOperation.Phase.APPLIED) { tag.putInt("applied_revision", 2); }
         retainedSite = new Dynamic<>(NbtOps.INSTANCE, tag); siteEpoch++; setChanged();
     }
     public boolean isMainBase() { return mainBase && kind() == BuildingKind.COMMAND_POST; }

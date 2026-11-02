@@ -456,9 +456,11 @@ Priority: P2
 
 Scope: improve usable space rather than repeat the cramped M18 outer ring. One original Level-2 layout/delta first; Level-3 second floors, functional sensors/wire, new storage mechanics, larger shared armies and Main Base expansion stay outside this milestone. M19 interaction controls are reused, not replaced with another command procedure.
 
-- [ ] **21.1 Author the layout and upgrade contract.** Define a usable yard, protected command/lab/storage access, clear entrance and one modest watch position; distinguish new sites, already-apron-expanded sites and customised sites. Show exact local-level/footprint requirements and identify preserved buildings and any old-wall removals before mutation.
-- [ ] **21.2 Implement bounded planning and protected application.** Extend provenance/layout revisions and expected-state deltas only as required; refuse unsupported/occupied/unknown changes and preserve inventories, labs, identities, receipts and reservations. No silent adoption, full-site regeneration or loot reseed.
-- [ ] **21.3 Integrate manual/automatic growth and readable status.** The same menu policy selects the supported layout at the earned local level. Make failure/space requirements actionable; capacity remains the existing shared policy, not a side effect of decorative towers.
+- [x] **21.1 Author the layout and upgrade contract.** Define a usable yard, protected command/lab/storage access, clear entrance and one modest watch position; distinguish new sites, already-apron-expanded sites and customised sites. Show exact local-level/footprint requirements and identify preserved buildings and any old-wall removals before mutation.
+- [x] **21.2 Implement bounded planning and protected application.** Extend provenance/layout revisions and expected-state deltas only as required; refuse unsupported/occupied/unknown changes and preserve inventories, labs, identities, receipts and reservations. No silent adoption, full-site regeneration or loot reseed.
+  - [x] **21.2.1** Add additive revision-2 receipts while retaining sealed apron-v1 intent and diagnostics.
+  - [x] **21.2.2** Author the bounded yard/watch delta, exact-state protection and shared guarded application.
+- [x] **21.3 Integrate manual/automatic growth and readable status.** The same menu policy selects the supported layout at the earned local level. Make failure/space requirements actionable; capacity remains the existing shared policy, not a side effect of decorative towers.
 - [ ] **21.4 Verify usefulness and safety.** GameTests for new/apron/customised cases, terrain/entrance/NPC access, protected removal and fault/repeat behavior; two-JVM persistence; reviewed overhead/interior/menu captures; clean build/jar isolation and green CI. Liam judges space/navigation and visual payoff after automation.
 
 Exit gate:

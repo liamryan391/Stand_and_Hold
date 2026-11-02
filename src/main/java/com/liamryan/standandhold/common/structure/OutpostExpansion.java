@@ -56,23 +56,26 @@ public final class OutpostExpansion {
         return ExpansionApply.apply(ticket.operation(), access(player, post, ticket.operation()));
     }
     public static String status(ServerPlayer player, BuildingBlockEntity post) {
-        var site = OutpostPreview.requirePost(player, post); var operation = post.siteOperation().orElse(null);
+        var site = OutpostPreview.requirePost(player, post); var operation = latest(post);
         if (operation == null) { return "No expansion operation; applied revision " + site.appliedRevision() + ". Preview never builds."; }
         var observed = operation.observe(pos -> read(player.level(), site, pos));
-        boolean protectedOk = operation.protectedDigest().equals(protectedDigest(player.level(), post, site));
+        boolean protectedOk = operation.protectedDigest().equals(protectedDigest(player.level(), post, site, operation));
         return "Operation " + operation.id() + " / " + operation.phase() + " / " + observed.state()
                 + " / protected " + (protectedOk ? "matching" : "changed") + "; recorded index " + operation.index()
                 + (observed.firstConflict() >= 0 ? "; conflict " + operation.changes().get(observed.firstConflict()).pos().toShortString() : "")
                 + ". " + operation.detail() + " No automatic replay/repair.";
     }
     public static String recover(ServerPlayer player, BuildingBlockEntity post) {
-        var site = OutpostPreview.requirePost(player, post); var operation = post.siteOperation().orElseThrow(() -> new IllegalArgumentException("No operation to inspect/seal."));
-        if (operation.phase() == ExpansionOperation.Phase.APPLIED || site.appliedRevision() != 0) { throw new IllegalArgumentException("Already sealed/unsupported; no repair or refill is available."); }
+        post.requireGrowthWritable();
+        var site = OutpostPreview.requirePost(player, post); var operation = latest(post);
+        if (operation == null) { throw new IllegalArgumentException("No operation to inspect/seal."); }
+        if (operation.phase() == ExpansionOperation.Phase.APPLIED || site.appliedRevision() != operation.sourceRevision()) { throw new IllegalArgumentException("Already sealed/unsupported; no repair or refill is available."); }
         if (operation.observe(pos -> read(player.level(), site, pos)).state() != ExpansionOperation.Observed.ALL_AFTER
-                || !operation.protectedDigest().equals(protectedDigest(player.level(), post, site))) {
+                || !operation.protectedDigest().equals(protectedDigest(player.level(), post, site, operation))) {
             throw new IllegalArgumentException("Recovery refused: delta/protected state is not fully matching all-after. Review/restore backup; no blocks changed.");
         }
-        post.storeSiteOperation(operation.withPhase(ExpansionOperation.Phase.APPLIED, 137, "Operator verified all-after; receipt sealed without block writes."));
+        var sealed = operation.withPhase(ExpansionOperation.Phase.APPLIED, operation.changes().size(), "Operator verified all-after; receipt sealed without block writes.");
+        if (operation.targetRevision() == 1) { post.storeSiteOperation(sealed); } else { post.storeYardOperation(sealed); }
         return "Sealed operation " + operation.id() + "; metadata only, no blocks/cost/reward/repair.";
     }
     public static ExpansionApply.Access access(ServerPlayer player, BuildingBlockEntity post, ExpansionOperation operation) {
@@ -86,6 +89,10 @@ public final class OutpostExpansion {
                 && player.level() == post.getLevel() && player.distanceToSqr(post.getBlockPos().getX() + 0.5, post.getBlockPos().getY() + 0.5, post.getBlockPos().getZ() + 0.5) <= 36);
     }
     public static ExpansionApply.Result applyNow(ServerLevel level, BuildingBlockEntity post) { return applyNow(level, post, () -> true); }
+    public static ExpansionOperation latest(BuildingBlockEntity post) { return post.yardOperation().orElseGet(() -> post.siteOperation().orElse(null)); }
+    public static ExpansionApply.Access access(ServerLevel level, BuildingBlockEntity post, ExpansionOperation operation) {
+        return access(level, post, operation, () -> true);
+    }
     private static ExpansionApply.Result applyNow(ServerLevel level, BuildingBlockEntity post, java.util.function.BooleanSupplier actor) {
         requireEnabled();
         OutpostPreview.requirePost(level, post); post.requireGrowthWritable();
@@ -109,13 +116,17 @@ public final class OutpostExpansion {
             public CompoundTag read(BlockPos pos) { return OutpostExpansion.read(level, site, pos); }
             public boolean write(ExpansionOperation.Change change) {
                 guard(level, site, change.pos());
-                var block = switch (change.material()) { case FLOOR -> Blocks.STONE_BRICKS; case WALL -> Blocks.COBBLESTONE; case LIGHT -> Blocks.TORCH; };
+                var block = switch (change.material()) {
+                    case FLOOR -> Blocks.STONE_BRICKS; case WALL -> Blocks.COBBLESTONE; case LIGHT -> Blocks.TORCH;
+                    case AIR -> Blocks.AIR; case STEP -> Blocks.STONE_BRICK_STAIRS;
+                };
                 return level.setBlock(change.pos(), block.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
             }
-            public String protectedDigest() { return OutpostExpansion.protectedDigest(level, post, site); }
+            public String protectedDigest() { return OutpostExpansion.protectedDigest(level, post, site, operation); }
             public void store(ExpansionOperation current) {
                 if (!level.hasChunkAt(site.anchor()) || post.isRemoved() || level.getBlockEntity(site.anchor()) != post) { throw new IllegalStateException("Original writable anchor missing"); }
-                post.storeSiteOperation(current); epoch[0] = post.siteEpoch();
+                if (current.targetRevision() == 1) { post.storeSiteOperation(current); } else { post.storeYardOperation(current); }
+                epoch[0] = post.siteEpoch();
             }
         };
     }
@@ -130,11 +141,21 @@ public final class OutpostExpansion {
         if (!level.getWorldBorder().isWithinBounds(pos)) { throw new IllegalArgumentException("Operation outside world border."); }
     }
     public static String protectedDigest(ServerLevel level, BuildingBlockEntity post, SiteProvenance site) {
+        return protectedDigest(level, post, site, 4, Set.of());
+    }
+    public static String protectedDigest(ServerLevel level, BuildingBlockEntity post, SiteProvenance site, ExpansionOperation operation) {
+        return operation.targetRevision() == 1 ? protectedDigest(level, post, site)
+                : yardDigest(level, post, site, operation.changes());
+    }
+    public static String yardDigest(ServerLevel level, BuildingBlockEntity post, SiteProvenance site, List<ExpansionOperation.Change> changes) {
+        return protectedDigest(level, post, site, 6, changes.stream().map(ExpansionOperation.Change::pos).collect(java.util.stream.Collectors.toSet()));
+    }
+    private static String protectedDigest(ServerLevel level, BuildingBlockEntity post, SiteProvenance site, int radius, Set<BlockPos> edits) {
         try {
             var digest = MessageDigest.getInstance("SHA-256");
             try (var out = new DataOutputStream(new DigestOutputStream(OutputStream.nullOutputStream(), digest))) {
-                for (var pos : BlockPos.betweenClosed(site.center().offset(-4, 0, -4), site.center().offset(4, 5, 4))) {
-                    guard(level, site, pos); out.writeLong(pos.asLong());
+                for (var pos : BlockPos.betweenClosed(site.center().offset(-radius, 0, -radius), site.center().offset(radius, 5, radius))) {
+                    guard(level, site, pos); if (edits.contains(pos)) { continue; } out.writeLong(pos.asLong());
                     var state = level.getBlockState(pos); NbtIo.write((CompoundTag) canonical(NbtUtils.writeBlockState(state)), out);
                     if (state.hasBlockEntity() && !pos.equals(site.anchor()) && !pos.equals(site.anchor().offset(-2, 0, -1)) && !pos.equals(site.anchor().offset(3, 0, -2))) {
                         throw new IllegalArgumentException("Extra protected block entity inside original footprint; no expansion attempted.");
@@ -144,7 +165,12 @@ public final class OutpostExpansion {
                         var saved = tile.saveWithFullMetadata(level.registryAccess());
                         if (saved.sizeInBytes() > 262144) { throw new IllegalArgumentException("Protected building metadata exceeds 256 KiB safety budget."); }
                         var tag = saved.copy();
-                        if (tile == post) { var provenance = tag.getCompoundOrEmpty("site"); provenance.remove("operation"); provenance.putInt("applied_revision", 0); }
+                        if (tile == post) {
+                            var provenance = tag.getCompoundOrEmpty("site");
+                            if (radius == 4) { provenance.remove("operation"); }
+                            else { provenance.remove("yard_operation"); tag.remove("growth"); }
+                            provenance.putInt("applied_revision", 0);
+                        }
                         NbtIo.write((CompoundTag) canonical(tag), out);
                     }
                 }

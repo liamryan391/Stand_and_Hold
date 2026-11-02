@@ -8,7 +8,10 @@ import net.minecraft.resources.Identifier;
 
 /** Bounded intent/diagnostic receipt, not a durable write-ahead journal. */
 public record ExpansionOperation(UUID id, UUID siteId, List<Change> changes, String protectedDigest,
-                                 Phase phase, int index, String detail) {
+                                 Phase phase, int index, String detail, int sourceRevision, int targetRevision) {
+    public ExpansionOperation(UUID id, UUID siteId, List<Change> changes, String protectedDigest, Phase phase, int index, String detail) {
+        this(id, siteId, changes, protectedDigest, phase, index, detail, 0, 1);
+    }
     public enum Phase { PREPARED, REVIEW, APPLIED }
     public enum Observed { ALL_BEFORE, ALL_AFTER, MIXED, CONFLICT }
     public record Observation(Observed state, int firstConflict) { }
@@ -20,20 +23,23 @@ public record ExpansionOperation(UUID id, UUID siteId, List<Change> changes, Str
     public ExpansionOperation {
         Objects.requireNonNull(id); Objects.requireNonNull(siteId); Objects.requireNonNull(phase);
         changes = List.copyOf(changes);
-        if (changes.size() != 137 || protectedDigest == null || !protectedDigest.matches("[0-9a-f]{64}")
+        if (targetRevision != 1 && targetRevision != 2 || sourceRevision < 0 || sourceRevision >= targetRevision
+                || targetRevision == 1 && (sourceRevision != 0 || changes.size() != 137)
+                || changes.isEmpty() || changes.size() > ExpansionPlan.MAX_CELLS || protectedDigest == null || !protectedDigest.matches("[0-9a-f]{64}")
                 || index < 0 || index > changes.size() || detail == null || detail.length() > 160
-                || phase == Phase.PREPARED && index != 0 || phase == Phase.APPLIED && index != 137) {
+                || phase == Phase.PREPARED && index != 0 || phase == Phase.APPLIED && index != changes.size()) {
             throw new IllegalArgumentException("Malformed expansion operation receipt.");
         }
         for (var cell : changes) { if (cell.before().equals(cell.after())) { throw new IllegalArgumentException("Expansion before/after states must differ."); } }
     }
     public void validateSite(SiteProvenance site) {
-        if (!siteId.equals(site.id()) || !changes.stream().map(c -> new ExpansionPlan.Cell(c.pos(), c.material())).toList().equals(ExpansionPlan.layout(site))) {
-            throw new IllegalArgumentException("Operation does not match the exact site/apron layout.");
+        var layout = targetRevision == 1 ? ExpansionPlan.layout(site) : LevelTwoPlan.layout(site, sourceRevision);
+        if (!siteId.equals(site.id()) || !changes.stream().map(c -> new ExpansionPlan.Cell(c.pos(), c.material())).toList().equals(layout)) {
+            throw new IllegalArgumentException("Operation does not match the exact authored site/layout revision.");
         }
     }
     public ExpansionOperation withPhase(Phase next, int at, String message) {
-        return new ExpansionOperation(id, siteId, changes, protectedDigest, next, at, message.substring(0, Math.min(160, message.length())));
+        return new ExpansionOperation(id, siteId, changes, protectedDigest, next, at, message.substring(0, Math.min(160, message.length())), sourceRevision, targetRevision);
     }
     public Observation observe(Function<BlockPos, CompoundTag> read) {
         int before = 0, after = 0;
@@ -46,7 +52,8 @@ public record ExpansionOperation(UUID id, UUID siteId, List<Change> changes, Str
         return new Observation(before == changes.size() ? Observed.ALL_BEFORE : after == changes.size() ? Observed.ALL_AFTER : Observed.MIXED, -1);
     }
     public CompoundTag save() {
-        var tag = new CompoundTag(); tag.putInt("operation_version", 1);
+        var tag = new CompoundTag(); tag.putInt("operation_version", targetRevision);
+        if (targetRevision == 2) { tag.putInt("source_revision", sourceRevision); tag.putInt("target_revision", targetRevision); }
         tag.putString("id", id.toString()); tag.putString("site_uuid", siteId.toString());
         tag.putString("protected_digest", protectedDigest); tag.putString("phase", phase.name());
         tag.putInt("index", index); tag.putString("detail", detail);
@@ -58,8 +65,10 @@ public record ExpansionOperation(UUID id, UUID siteId, List<Change> changes, Str
         tag.put("cells", list); return tag;
     }
     public static ExpansionOperation read(Tag raw, SiteProvenance site) {
-        if (!(raw instanceof CompoundTag tag) || integer(tag, "operation_version") != 1) { throw new IllegalArgumentException("Unsupported/malformed expansion operation; retained for review."); }
-        if (!(tag.get("cells") instanceof ListTag list) || list.size() != 137) { throw new IllegalArgumentException("Malformed expansion cell list."); }
+        if (!(raw instanceof CompoundTag tag)) { throw new IllegalArgumentException("Unsupported/malformed expansion operation; retained for review."); }
+        int version = integer(tag, "operation_version");
+        if (version != 1 && version != 2 || version == 2 && integer(tag, "target_revision") != 2) { throw new IllegalArgumentException("Unsupported expansion operation version."); }
+        if (!(tag.get("cells") instanceof ListTag list) || list.isEmpty() || list.size() > ExpansionPlan.MAX_CELLS || version == 1 && list.size() != 137) { throw new IllegalArgumentException("Malformed expansion cell list."); }
         var changes = new ArrayList<Change>();
         for (Tag entry : list) {
             if (!(entry instanceof CompoundTag row) || !(row.get("pos") instanceof LongTag)
@@ -71,11 +80,19 @@ public record ExpansionOperation(UUID id, UUID siteId, List<Change> changes, Str
             changes.add(new Change(BlockPos.of(row.getLongOr("pos", 0)), before, material));
         }
         var operation = new ExpansionOperation(uuid(tag, "id"), uuid(tag, "site_uuid"), changes, tag.getStringOr("protected_digest", ""),
-                Phase.valueOf(tag.getStringOr("phase", "")), integer(tag, "index"), tag.getStringOr("detail", ""));
+                Phase.valueOf(tag.getStringOr("phase", "")), integer(tag, "index"), tag.getStringOr("detail", ""), version == 1 ? 0 : integer(tag, "source_revision"), version);
         operation.validateSite(site); return operation;
     }
     public static CompoundTag afterState(ExpansionPlan.Material material) {
-        var tag = new CompoundTag(); tag.putString("id", switch (material) { case FLOOR -> "minecraft:stone_bricks"; case WALL -> "minecraft:cobblestone"; case LIGHT -> "minecraft:torch"; }); return tag;
+        var tag = new CompoundTag(); tag.putString("id", switch (material) {
+            case FLOOR -> "minecraft:stone_bricks"; case WALL -> "minecraft:cobblestone"; case LIGHT -> "minecraft:torch";
+            case AIR -> "minecraft:air"; case STEP -> "minecraft:stone_brick_stairs";
+        });
+        if (material == ExpansionPlan.Material.STEP) {
+            var properties = new CompoundTag(); properties.putString("facing", "north"); properties.putString("half", "bottom");
+            properties.putString("shape", "straight"); properties.putString("waterlogged", "false"); tag.put("properties", properties);
+        }
+        return tag;
     }
     private static void validateState(CompoundTag tag) {
         if (tag == null || tag.keySet().size() > 2 || !(tag.get("id") instanceof StringTag)) { throw new IllegalArgumentException("Malformed expected block state."); }

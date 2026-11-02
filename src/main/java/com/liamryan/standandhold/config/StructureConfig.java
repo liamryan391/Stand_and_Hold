@@ -33,7 +33,7 @@ public final class StructureConfig {
             .defineInRange("checkpointCrateSupplies", 2, 0, 100);
     public static final ModConfigSpec.IntValue MAIN_BASE_SUPPLIES = B.comment("Initial local crate supplies per new Main Base, bounded by building capacity.")
             .defineInRange("mainBaseCrateSupplies", 5, 0, 100);
-    public static final ModConfigSpec.BooleanValue EXPANSION = B.comment("EXPERIMENTAL master switch, off by default: allows menu/manual/operator expansion and per-site Automatic opt-in for proven radius-4 level-2+ checkpoints only. Replaces 88 surrounding ground cells; matching player dirt/grass cannot be identified. Not claim-mod approval or crash-atomic recovery. Back up the whole world. No automatic level purchase, repair, capacity increase or resource charge/reward.")
+    public static final ModConfigSpec.BooleanValue EXPANSION = B.comment("EXPERIMENTAL master switch, off by default: menu/grow/Automatic build one useful revision-2 yard for proven radius-4 local-level-2+ checkpoints. Legacy token tools still build apron v1. Fresh yards replace 88 surrounding ground cells, open exact original walls and add a modest watch deck; sealed aprons are reused, not repaired. Matching player dirt/blocks cannot be identified. Not claim-mod approval or crash-atomic recovery. Back up the whole world. No automatic level purchase, refill, capacity increase or resource charge/reward.")
             .define("expansionEnabled", false);
     public static final ModConfigSpec SPEC = B.build();
 

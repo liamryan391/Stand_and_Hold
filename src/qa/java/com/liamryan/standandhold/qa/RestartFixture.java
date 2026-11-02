@@ -110,7 +110,12 @@ final class RestartFixture {
         // Keep the reserved real raider stable while the second JVM loads its entity chunk.
         var response = ThreatResponse.state(level, tile(level, POST));
         for (UUID id : response.raiders()) {
-            var entity = level.getEntity(id); if (entity instanceof net.minecraft.world.entity.Mob mob) { mob.setNoAi(true); }
+            var entity = level.getEntity(id); if (entity instanceof net.minecraft.world.entity.Mob mob) {
+                mob.setNoAi(true);
+                // Keep the real reserved raider outside the other fixture sites' future wall deltas.
+                // Its UUID/home/cooldown reservation is retained; this is setup, not a spawn-guard bypass.
+                mob.snapTo(30.5, 64, 2.5, 0, 0);
+            }
         }
     }
     private static void support(ServerLevel level) {
@@ -131,13 +136,14 @@ final class RestartFixture {
         RestartExpansionFixture.seed(level, receipt);
         RestartGrowthFixture.seed(level, receipt);
         RestartTierFixture.seed(level, receipt);
+        RestartYardFixture.seed(level, receipt);
     }
     private static void verify(MinecraftServer server, ServerLevel level) {
         var data = HumanWorldData.get(server); var base = tile(level, BASE); var lab = tile(level, LAB);
         check(data.points() == 42 && data.stage() == HumanStage.SURVIVORS && data.supplies() == 110, "Global progression/supply balances including once-only support debit");
         check(data.isResearchComplete("standandhold:parasite_samples"), "Research receipt");
         check(data.mission("standandhold:recover_parasite_samples").orElseThrow().progress() == 2, "Partial mission");
-        check(data.isMainBase(new BuildingPosition(level.dimension().identifier(), BASE)) && data.commandPostKeys().size() == 13, "All thirteen original/generated/operation/growth/tier site registrations");
+        check(data.isMainBase(new BuildingPosition(level.dimension().identifier(), BASE)) && data.commandPostKeys().size() == 16, "All sixteen original/generated/operation/growth/tier/yard site registrations");
         var checkpoint = BlockPos.of(Long.parseLong(receipt.getProperty("checkpoint")));
         check(data.commandPostKeys().contains(new BuildingPosition(level.dimension().identifier(), checkpoint).key()), "Generated checkpoint registration survived");
         check(tile(level, checkpoint).site().id().toString().equals(receipt.getProperty("siteUuid"))
@@ -168,6 +174,7 @@ final class RestartFixture {
         RestartExpansionFixture.verify(level, receipt);
         RestartGrowthFixture.verify(level, receipt);
         RestartTierFixture.verify(level, receipt);
+        RestartYardFixture.verify(level, receipt);
     }
     private static HumanWorldData data(ServerLevel level) { return HumanWorldData.get(level.getServer()); }
     private static String preview(ServerLevel level) {

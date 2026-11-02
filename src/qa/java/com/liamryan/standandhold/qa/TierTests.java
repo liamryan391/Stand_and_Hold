@@ -168,6 +168,13 @@ final class TierTests {
         QaWorld.begin(h); unlock(h); stage(h, tier.stage);
         var npc = h.spawn(NpcRegistry.entityType(tier), HOME);
         var enemy = h.spawn(targetType, HOME.offset(tier.usesPrototype() ? 8 : 4, 0, 0)); enemy.setNoAi(true); enemy.setPersistenceRequired();
+        npc.getRandom().setSeed(918273L); enemy.getRandom().setSeed(182736L);
+        h.runAfterDelay(450, () -> {
+            if (enemy.isAlive() && enemy.getHealth() == enemy.getMaxHealth()) {
+                com.mojang.logging.LogUtils.getLogger().warn("QA combat pending: tier={} npc={} target={} held={} eligible={} sight={} enemy={}",
+                        tier,npc.position(),npc.getTarget(),npc.getMainHandItem(),npc.canAttack(enemy),npc.getSensing().hasLineOfSight(enemy),enemy.position());
+            }
+        });
         float health = enemy.getHealth();
         h.succeedWhen(() -> {
             h.assertTrue(enemy.getHealth() < health || !enemy.isAlive(), "Independent AI damages " + targetType + " using " + tier);

@@ -48,8 +48,11 @@ public final class OutpostGrowth {
             var site = post.site();
             if (site.radius() != 4 || !site.anchor().equals(post.getBlockPos()) || !site.dimension().equals(level.dimension().identifier().toString())) { return UNSUPPORTED; }
             var operation = post.siteOperation().orElse(null);
-            if (site.appliedRevision() == 1 && operation != null && operation.phase() == ExpansionOperation.Phase.APPLIED) { return EXPANDED; }
-            if (site.appliedRevision() != 0 || operation != null) { return REVIEW; }
+            var yard = post.yardOperation().orElse(null);
+            if (site.appliedRevision() == 2 && yard != null && yard.phase() == ExpansionOperation.Phase.APPLIED
+                    && (yard.sourceRevision() == 0 ? operation == null : operation != null && operation.phase() == ExpansionOperation.Phase.APPLIED)) { return EXPANDED; }
+            if (yard != null || site.appliedRevision() > 1 || site.appliedRevision() == 0 && operation != null
+                    || site.appliedRevision() == 1 && (operation == null || operation.phase() != ExpansionOperation.Phase.APPLIED)) { return REVIEW; }
             if (!StructureConfig.EXPANSION.get()) { return DISABLED; }
             if (post.state().level() < 2) { return LEVEL; }
             return post.growthSettings().pause() == 0 ? READY : post.growthSettings().pause();
@@ -72,7 +75,7 @@ public final class OutpostGrowth {
         post.requireGrowthWritable();
         if (status(player.level(), post) == EXPANDED) { throw new IllegalArgumentException("Already expanded; no repeat, repair or refill."); }
         try {
-            var result = OutpostExpansion.applyNow(player, post);
+            var result = LevelTwoGrowth.applyNow(player, post);
             if (!result.success()) { post.changeGrowth(new Settings(post.growthSettings().mode(), REVIEW)); throw new IllegalStateException(result.message()); }
             post.changeGrowth(new Settings(post.growthSettings().mode(), 0));
         } catch (IllegalArgumentException | IllegalStateException failure) {
@@ -91,7 +94,7 @@ public final class OutpostGrowth {
         }
         if (state != READY) { return; }
         try {
-            var result = OutpostExpansion.applyNow(level, post);
+            var result = LevelTwoGrowth.applyNow(level, post);
             if (!result.success()) { post.changeGrowth(new Settings(Mode.AUTOMATIC, REVIEW)); }
         } catch (IllegalArgumentException | IllegalStateException failure) {
             post.changeGrowth(new Settings(Mode.AUTOMATIC, blocked(failure)));

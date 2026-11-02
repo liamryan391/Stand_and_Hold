@@ -7,7 +7,7 @@ import net.minecraft.core.BlockPos;
 /** Pure, read-only apron planner. Its terrain adapter deliberately has no mutation API. */
 public record ExpansionPlan(SiteProvenance site, List<Cell> cells, int reads, int columns) {
     public static final int RADIUS = 6, MAX_READS = 2048, MAX_CELLS = 256, MAX_ENTITIES = 128;
-    public enum Material { FLOOR, WALL, LIGHT }
+    public enum Material { FLOOR, WALL, LIGHT, AIR, STEP }
     public enum Sample { GROUND, CLEAR, WET, TILE, OCCUPIED }
     public record Cell(BlockPos pos, Material material) { }
     public interface Terrain {

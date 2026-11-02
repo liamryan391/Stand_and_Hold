@@ -26,7 +26,7 @@ final class ExpansionChecks {
             var plan = ExpansionPlan.inspect(receipt, 2, -64, 320, terrain);
             check(plan.cells().size() == 137 && new HashSet<>(plan.cells().stream().map(ExpansionPlan.Cell::pos).toList()).size() == 137, "exact unique delta");
             for (var material : ExpansionPlan.Material.values()) {
-                long expected = switch (material) { case FLOOR -> 88; case WALL -> 45; case LIGHT -> 4; };
+                long expected = switch (material) { case FLOOR -> 88; case WALL -> 45; case LIGHT -> 4; case AIR, STEP -> 0; };
                 check(plan.cells().stream().filter(c -> c.material() == material).count() == expected, "exact material count");
             }
             check(plan.reads() == 616 && terrain.reads == plan.reads() && plan.columns() == 169, "actual read/column budgets");

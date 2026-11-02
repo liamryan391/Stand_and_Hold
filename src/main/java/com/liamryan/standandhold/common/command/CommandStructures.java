@@ -35,6 +35,7 @@ final class CommandStructures {
                 .executes(context -> growthHelp(context.getSource()))
                 .then(Commands.literal("help").executes(context -> growthHelp(context.getSource())))
                 .then(Commands.literal("preview").executes(context -> preview(context.getSource())))
+                .then(Commands.literal("layout").executes(context -> layout(context.getSource())))
                 .then(Commands.literal("grow").executes(context -> growth(context.getSource(), null)))
                 .then(Commands.literal("mode")
                         .then(Commands.literal("manual").executes(context -> growth(context.getSource(), OutpostGrowth.Mode.MANUAL)))
@@ -54,7 +55,18 @@ final class CommandStructures {
     private static int growthHelp(CommandSourceStack source) {
         source.sendSuccess(() -> Component.literal("Face a loaded checkpoint post within 6 blocks. grow | mode manual | mode automatic; same rules as the Growth menu."), false);
         source.sendSuccess(() -> Component.literal("Advanced tools retained: preview | prepare | expand <token> | status | recover. Server expansionEnabled must allow placement; no repair/refill bypass."), false);
+        source.sendSuccess(() -> Component.literal("layout previews the useful Level-2 yard; grow/menu apply it. preview/prepare/expand retain the legacy apron tool."), false);
         return 1;
+    }
+    private static int layout(CommandSourceStack source) throws CommandSyntaxException {
+        try {
+            var player = source.getPlayerOrException(); var post = SupportCallIn.lookedAt(player);
+            var plan = com.liamryan.standandhold.common.structure.LevelTwoGrowth.inspect(player, post);
+            source.sendSuccess(() -> Component.literal("Level-2 yard / READ ONLY / source revision " + plan.site().appliedRevision()
+                    + " / " + plan.changes().size() + " planned cells / " + bounds(plan.site().center(), 6)), false);
+            source.sendSuccess(() -> Component.literal("Opens obsolete inner walls; adds a west watch deck and lit entrance. Buildings/storage/defenders stay. No writes/cost/reward."), false);
+            return 1;
+        } catch (IllegalArgumentException | IllegalStateException failure) { throw ERROR.create(failure.getMessage()); }
     }
     private static int growth(CommandSourceStack source, OutpostGrowth.Mode mode) throws CommandSyntaxException {
         try {

@@ -26,8 +26,9 @@ public final class ExpansionApply {
             }
             if (!access.valid() || operation.observe(access::read).state() != ExpansionOperation.Observed.ALL_AFTER
                     || !operation.protectedDigest().equals(access.protectedDigest())) { throw new IllegalStateException("Final delta/protected-footprint mismatch"); }
-            access.store(operation.withPhase(ExpansionOperation.Phase.APPLIED, 137, "All 137 cells verified; no extra cost/reward."));
-            return new Result(true, "Apron applied once: 137 cells; buildings/storage/caps unchanged. Operation " + operation.id());
+            int count = operation.changes().size();
+            access.store(operation.withPhase(ExpansionOperation.Phase.APPLIED, count, "All " + count + " cells verified; no extra cost/reward."));
+            return new Result(true, (operation.targetRevision() == 1 ? "Apron" : "Level-2 yard") + " applied once: " + count + " cells; buildings/storage/caps unchanged. Operation " + operation.id());
         } catch (RuntimeException failure) {
             String detail = "Cell " + index + ": " + failure.getMessage();
             try { access.store(operation.withPhase(ExpansionOperation.Phase.REVIEW, index, detail)); }

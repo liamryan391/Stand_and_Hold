@@ -23,7 +23,9 @@ final class RestartGrowthFixture {
                 check(post.growthSettings().pause() == OutpostGrowth.TERRAIN, "Actual obstruction saved a pause");
             }
             if (i == 3) {
-                check(OutpostExpansion.applyNow(level, post).success(), "Actual apron before save"); post.change(post.state().supplies(9));
+                check(OutpostExpansion.applyNow(level, post).success(), "Actual apron before save");
+                receipt.setProperty("yard.oldApron", post.siteOperation().orElseThrow().save().toString());
+                check(LevelTwoGrowth.applyNow(level, post).success(), "Actual apron-to-yard upgrade before save"); post.change(post.state().supplies(9));
             }
             if (i == 4) {
                 var plan = OutpostPreview.inspectDetails(level, post);
@@ -41,17 +43,19 @@ final class RestartGrowthFixture {
             check(post.state().level() == (i == 1 ? 1 : 2) && post.state().supplies() == (i == 3 ? 9 : 13) && post.state().samples() == 2, "No growth-driven spending, upgrade or refill after restart");
             if (i == 3) {
                 check(OutpostGrowth.status(level, post) == OutpostGrowth.EXPANDED, "Applied stays Expanded after legitimate storage change/restart");
-                var operation = post.siteOperation().orElseThrow(); var broken = operation.changes().getFirst().pos(); level.setBlockAndUpdate(broken, Blocks.AIR.defaultBlockState()); drive(level, post);
-                check(level.getBlockState(broken).isAir() && post.siteOperation().orElseThrow().id().equals(operation.id()), "Applied mode never repairs/repeats after restart");
+                check(post.siteOperation().orElseThrow().save().toString().equals(receipt.getProperty("yard.oldApron")), "Original apron receipt survives yard/restart unchanged");
+                var operation = post.yardOperation().orElseThrow(); var broken = operation.changes().stream().filter(c -> c.material() != ExpansionPlan.Material.AIR).findFirst().orElseThrow().pos();
+                level.setBlockAndUpdate(broken, Blocks.AIR.defaultBlockState()); drive(level, post);
+                check(level.getBlockState(broken).isAir() && post.yardOperation().orElseThrow().id().equals(operation.id()), "Applied mode never repairs/repeats after restart");
             } else if (i == 4) {
                 drive(level, post);
                 check(post.growthSettings().pause() == OutpostGrowth.REVIEW && post.siteOperation().orElseThrow().observe(pos -> NbtUtils.writeBlockState(level.getBlockState(pos))).state() == ExpansionOperation.Observed.ALL_BEFORE, "Interrupted automatic receipt pauses, no replay after restart");
             } else {
                 if (i == 2) { level.setBlockAndUpdate(post.site().center().offset(-6, 1, -6), Blocks.AIR.defaultBlockState()); }
-                drive(level, post); check(post.siteOperation().isEmpty(), "Manual/low-level/paused policy cannot cause restart growth: " + key);
+                drive(level, post); check(post.siteOperation().isEmpty() && post.yardOperation().isEmpty(), "Manual/low-level/paused policy cannot cause restart growth: " + key);
                 if (i == 1) {
                     post.change(new BuildingState(2, 13, 2, "", 0)); drive(level, post);
-                    check(post.site().appliedRevision() == 1 && post.state().supplies() == 13, "Retained Automatic preference uses loaded cadence after level becomes eligible");
+                    check(post.site().appliedRevision() == 2 && post.state().supplies() == 13, "Retained Automatic preference uses loaded cadence after level becomes eligible");
                 }
             }
         }
