@@ -39,6 +39,8 @@ final class RestartFixture {
         try {
             ticks++;
             if (ticks == 1) {
+                com.liamryan.standandhold.config.BuildingConfig.LEVEL_STORAGE.set(true);
+                com.liamryan.standandhold.config.BuildingConfig.STORAGE_LEVELS.set(BuildingStorage.DEFAULT_LEVELS);
                 NpcConfig.POST_CAP.set(16); NpcConfig.POST_LEVELS.set(DefenderCapacity.DEFAULT_LEVELS);
                 com.liamryan.standandhold.config.StructureConfig.CHECKPOINT_RADIUS.set(4);
                 level.getGameRules().set(GameRules.SPAWN_MOBS, false, server);
@@ -160,6 +162,7 @@ final class RestartFixture {
         RestartTierFixture.seed(level, receipt);
         RestartYardFixture.seed(level, receipt);
         RestartDutyFixture.seed(level, receipt);
+        RestartStorageFixture.seed(level, BASE, receipt);
     }
     private static void verify(MinecraftServer server, ServerLevel level) {
         var data = HumanWorldData.get(server); var base = tile(level, BASE); var lab = tile(level, LAB);
@@ -202,6 +205,7 @@ final class RestartFixture {
         RestartTierFixture.verify(level, receipt);
         RestartYardFixture.verify(level, receipt);
         RestartDutyFixture.verify(level, receipt);
+        RestartStorageFixture.verify(level, receipt);
     }
     private static HumanWorldData data(ServerLevel level) { return HumanWorldData.get(level.getServer()); }
     private static String preview(ServerLevel level) {

@@ -1,4 +1,9 @@
 {
+  "gui.standandhold.next_storage": "Next level storage: %s (+%s)",
+  "gui.standandhold.final_storage": "Final level storage: %s",
+  "gui.standandhold.tip.over_capacity": "Above capacity: supplies are retained. Imports and generation wait for room; export and normal spending remain available.",
+  "gui.standandhold.tip.level_storage": "Levelled Command Post capacity. The normal upgrade pays local costs; added room starts empty. Generation rate is unchanged.",
+  "gui.standandhold.tip.flat_storage": "Flat server capacity: local levels do not change supply storage. Existing supplies are retained when limits fall; export remains available.",
   "gui.standandhold.tab_duties": "Duties",
   "gui.standandhold.duty_guard": "Guard",
   "gui.standandhold.duty_patrol": "Patrol",

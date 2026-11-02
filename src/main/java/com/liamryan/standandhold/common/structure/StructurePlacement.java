@@ -5,7 +5,6 @@ import com.liamryan.standandhold.common.building.BuildingKind;
 import com.liamryan.standandhold.common.building.BuildingPosition;
 import com.liamryan.standandhold.common.building.BuildingRegistry;
 import com.liamryan.standandhold.common.world.HumanWorldData;
-import com.liamryan.standandhold.config.BuildingConfig;
 import com.liamryan.standandhold.config.StructureConfig;
 import com.mojang.logging.LogUtils;
 import java.util.ArrayList;
@@ -84,7 +83,7 @@ public final class StructurePlacement {
                 if (cell.material() == StructurePlan.Material.CRATE) {
                     var crate = (BuildingBlockEntity) world.getBlockEntity(cell.pos());
                     int initial = kind == StructureKind.CHECKPOINT ? StructureConfig.CHECKPOINT_SUPPLIES.get() : StructureConfig.MAIN_BASE_SUPPLIES.get();
-                    crate.change(crate.state().supplies(Math.min(initial, BuildingConfig.CAPACITY.get())));
+                    crate.change(crate.state().supplies(Math.min(initial, crate.supplyCapacity())));
                 }
             }
             if (kind == StructureKind.CHECKPOINT) {

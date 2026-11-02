@@ -1,6 +1,8 @@
 package com.liamryan.standandhold;
 
 import com.liamryan.standandhold.common.building.BuildingPosition;
+import com.liamryan.standandhold.common.building.BuildingKind;
+import com.liamryan.standandhold.common.building.BuildingStorage;
 import com.liamryan.standandhold.common.building.BuildingState;
 import com.liamryan.standandhold.common.building.BuildingTransactions;
 import com.liamryan.standandhold.common.building.MenuValues;
@@ -21,7 +23,7 @@ import net.minecraft.nbt.NbtOps;
 final class BuildingChecks {
     private static int assertions;
     static void run() throws Exception {
-        transfer(); researchAndUpgrades(); savesAndPositions(); menuValues(); mainBaseNotices(); growthPolicy();
+        transfer(); storageCapacity(); researchAndUpgrades(); savesAndPositions(); menuValues(); mainBaseNotices(); growthPolicy();
         check(MenuValues.statusCode("Requires standandhold:parasite_samples") == 3, "sample-named prerequisite is not a physical sample shortage");
         check(MenuValues.statusCode("Requires standandhold:stage_training") == 3, "stage-named prerequisite is not a stage shortage");
         check(MenuValues.statusCode("Requires 5 local samples") == 5, "physical sample shortage keeps its code");
@@ -74,6 +76,40 @@ final class BuildingChecks {
         expect(() -> start.insertSamples(0));
         expect(() -> start.insertSamples(4097));
         check(start.insertSamples(4096).samples() == 4096, "bounded M5 sample insertion");
+    }
+    private static void storageCapacity() {
+        var profile = BuildingStorage.DEFAULT_LEVELS;
+        check(BuildingStorage.validProfile(profile), "Default capacity profile is bounded and non-decreasing");
+        for (int flat : new int[]{1, 17, 2000, 999999, 1000000}) {
+            for (var kind : BuildingKind.values()) {
+                for (int level = 1; level <= 5; level++) {
+                    check(BuildingStorage.capacity(kind, level, flat, false, profile) == flat, "Disabled mode preserves every explicit flat limit");
+                    int cap = BuildingStorage.capacity(kind, level, flat, true, profile);
+                    check(cap == (kind == BuildingKind.COMMAND_POST ? profile.get(level - 1) : flat), "Only posts get their current level capacity");
+                    var almost = new BuildingState(level, cap - 1, 2, "", 0);
+                    var full = BuildingStorage.generate(almost, Integer.MAX_VALUE, cap);
+                    check(full.supplies() == cap && full.samples() == 2, "Generation only credits remaining room");
+                    check(BuildingStorage.generate(full, 1, cap).equals(full), "Full storage cannot refill or overflow");
+                    var excess = full.supplies(Long.MAX_VALUE);
+                    check(BuildingStorage.generate(excess, 10000, cap).equals(excess), "Over-cap signed-long balances are not clamped");
+                    var exported = BuildingTransactions.transfer(excess, 0, 10, cap, false);
+                    check(exported.local().supplies() == Long.MAX_VALUE - 10 && exported.global() == 10, "Over-cap export conserves long balances");
+                }
+            }
+        }
+        for (Object bad : List.of(List.of(), List.of(1, 2), List.of(1, 2, 3, 4, 0), List.of(1, 2, 3, 4, 1000001),
+                List.of(1, 2, 3, 2, 5), List.of(1, 2, 3, 4, 4.5), List.of(1, 2, 3, 4, "5"), "invalid")) {
+            check(!BuildingStorage.validProfile(bad), "Malformed profile rejected");
+            check(BuildingStorage.capacity(BuildingKind.COMMAND_POST, 5, 17, true, bad) == 17, "Malformed runtime profile falls back to explicit flat cap");
+        }
+        check(!BuildingStorage.validProfile(null), "Missing runtime profile rejected");
+        expect(() -> BuildingStorage.capacity(BuildingKind.COMMAND_POST, 0, 2000, true, profile));
+        expect(() -> BuildingStorage.capacity(BuildingKind.COMMAND_POST, 6, 2000, true, profile));
+        expect(() -> BuildingStorage.capacity(BuildingKind.COMMAND_POST, 1, 0, true, profile));
+        expect(() -> BuildingStorage.generate(BuildingState.EMPTY, -1, 2000));
+        var state = BuildingState.EMPTY.supplies(15);
+        expect(() -> BuildingTransactions.transfer(state, 10, 10, 20, true));
+        check(state.supplies() == 15, "Short room rejects whole transfer without clamping");
     }
     private static void mainBaseNotices() {
         for (int seen = 0; seen <= 3; seen++) {

@@ -30,11 +30,12 @@ public final class BuildingMenu extends AbstractContainerMenu {
             TARGET = 7, STATUS = 8, CAPACITY = 9, REQUIRED_WORK = 10, GENERATION_INTERVAL = 11, GENERATION_POINTS = 12,
             GENERATION_SUPPLIES = 13, UPGRADE_POINTS = 14, UPGRADE_SUPPLIES = 15, UPGRADE_SAMPLES = 16,
             UPGRADE_STATUS = 17, BATCH = 18, UPGRADE_RESEARCH = 19, LAB_INTERVAL = 20, HELD_SAMPLES = 21, SAMPLE_ROOM = 22, RUNNING = 23,
-            DEFENDERS = 24, DEFENDER_CAP = 25, DEPLOYMENT_STATUS = 26, GROWTH_STATUS = 27, GROWTH_MODE = 28, DUTY_MODE = 29, WATCH_STATUS = 30;
+            DEFENDERS = 24, DEFENDER_CAP = 25, DEPLOYMENT_STATUS = 26, GROWTH_STATUS = 27, GROWTH_MODE = 28, DUTY_MODE = 29, WATCH_STATUS = 30,
+            NEXT_CAPACITY = 31, LEVEL_STORAGE = 32;
     public static final int IMPORT = 0, EXPORT = 1, UPGRADE = 2, PAUSE = 3, NEXT_RESEARCH = 4, DEPOSIT_SAMPLES = 5, TAKE_SAMPLES = 6, TOGGLE_RESEARCH = 7;
     public static final int EXPAND = 8, GROWTH_MANUAL = 9, GROWTH_AUTOMATIC = 10;
     public static final int DUTY_GUARD = 11, DUTY_PATROL = 12;
-    private final long[] numbers = new long[31];
+    private final long[] numbers = new long[33];
     private final BlockPos pos;
     private final BuildingKind kind;
     private final List<Option> options;
@@ -116,7 +117,9 @@ public final class BuildingMenu extends AbstractContainerMenu {
                 var entry = catalog.research().get(state.target());
                 numbers[STATUS] = entry == null ? 10 : statusCode(BuildingTransactions.researchBlocked(state, data, entry, HumanProgressionConfig.thresholds()));
             }
-            numbers[CAPACITY] = BuildingConfig.CAPACITY.get(); numbers[REQUIRED_WORK] = BuildingConfig.LAB_WORK.get();
+            numbers[CAPACITY] = building.supplyCapacity(); numbers[REQUIRED_WORK] = BuildingConfig.LAB_WORK.get();
+            numbers[NEXT_CAPACITY] = BuildingConfig.capacity(kind, Math.min(5, state.level() + 1));
+            numbers[LEVEL_STORAGE] = BuildingConfig.LEVEL_STORAGE.get() && BuildingStorage.validProfile(BuildingConfig.STORAGE_LEVELS.get()) ? 1 : 0;
             numbers[GENERATION_INTERVAL] = BuildingConfig.INTERVAL.get(); numbers[GENERATION_POINTS] = BuildingConfig.POINTS.get();
             numbers[GENERATION_SUPPLIES] = BuildingConfig.SUPPLIES.get(); numbers[BATCH] = BuildingConfig.TRANSFER.get();
             if (building.isMainBase() && !building.operational(data)) { numbers[GENERATION_POINTS] = 0; numbers[GENERATION_SUPPLIES] = 0; }
@@ -163,7 +166,7 @@ public final class BuildingMenu extends AbstractContainerMenu {
                     return true;
                 }
                 case IMPORT, EXPORT -> {
-                    var result = BuildingTransactions.transfer(state, data.supplies(), BuildingConfig.TRANSFER.get(), BuildingConfig.CAPACITY.get(), action == IMPORT);
+                    var result = BuildingTransactions.transfer(state, data.supplies(), BuildingConfig.TRANSFER.get(), building.supplyCapacity(), action == IMPORT);
                     data.setSupplies(result.global()); building.change(result.local());
                 }
                 case UPGRADE -> {

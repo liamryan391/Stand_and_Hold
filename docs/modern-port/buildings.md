@@ -18,7 +18,7 @@ Right-click opens a server-owned menu. Escape closes it. Ordinary nearby players
 | Research Lab | Target ID, work units, local supplies/samples | +1 work per 100 loaded ticks, 12 work per research; blocked/completed targets do not consume resources or gain work |
 | Supply Crate | Local supplies/samples | Storage/transfer only, no ticking |
 
-Storage capacity defaults to 2,000 supplies per building; Supplies-mode Import/Export moves exactly 10 between global and local storage. Insufficient balance, overflow, or insufficient capacity rejects the whole batch. Lowering capacity does not destroy existing storage; exporting still works while above the new cap. Samples mode stores/takes up to 64 physical items, limited by available items/free space, with a hard 4,096 local cap. See [Samples And Threats](samples-and-threats.md) for pickup missions, mappings, inventory rules and edge-case tests.
+Storage capacity defaults to 2,000 supplies per building, with levelled Command Post storage off; see the explicit [supply capacity opt-in](#supply-capacity-contract). Supplies-mode Import/Export moves exactly 10 between global and local storage. Insufficient balance, overflow, or insufficient capacity rejects the whole batch. Lowering capacity does not destroy existing storage; exporting still works while above the new cap. Samples mode stores/takes up to 64 physical items, limited by available items/free space, with a hard 4,096 local cap. See [Samples And Threats](samples-and-threats.md) for pickup missions, mappings, inventory rules and edge-case tests.
 
 Lab selection cycles through the server's research definitions with **Next research**. Selecting/clearing a target resets that lab's work and leaves it **stopped**; selection never authorizes spending. **Start research** begins a ready, funded target; the same button becomes **Pause research**, preserving work/storage. Paused/running state survives reload. The progress bar and Work/Left values show completed and remaining work; blocked/paused labs do not advance. Existing modern labs without the additive `researching` saved flag retain work but wait for Start.
 
@@ -31,6 +31,14 @@ Each loaded Command Post is registered by dimension and position (up to 4,096). 
 ## Upgrades
 
 Human points are a minimum gate, **not spent**. The other costs are spent from that Command Post only. Levels do not add stat bonuses, enlarge the structure or generate a Main Base. Human stage selects unlocked unit tiers, independently of the individual post level.
+
+### Supply Capacity Contract
+
+`standandhold-buildings.toml` retains `supplyCapacity = 2000` as the default flat limit for all buildings. New and existing configs default `levelledCommandPostStorage = false`: the mod cannot know whether an existing value of 2,000 was a deliberate flat-cap choice, so it never opts a server in implicitly. To enable the storage payoff deliberately, set `levelledCommandPostStorage = true`. Only Command Posts then use `commandPostSupplyCapacities = [2000, 3000, 4000, 6000, 8000]` at local levels 1-5; labs/crates still use the unchanged flat setting. This is an optional alpha profile, not a supply-generation or defender buff.
+
+The profile has exactly five non-decreasing whole numbers from 1 to 1,000,000. NeoForge corrects invalid saved config entries to the commented defaults; a malformed in-memory profile falls back to the existing flat cap rather than minting storage or discarding balances. Disabling the mode restores the configured flat limit without changing any saved amount. The menu shows current capacity and the next level's capacity/difference, with a tooltip distinguishing levelled from flat mode.
+
+One authoritative capacity lookup serves menu status, imports and loaded generation; upgrades change the local level through the existing cost transaction and immediately expose that level's limit. Upgrading never fills the new space, changes global supplies or changes generation rates/defender limits. Config/level reductions do not clamp existing storage; above-cap buildings can export or spend supplies, while imports/generation wait for room. Limits are derived, not saved, so no NBT migration or reload refill is needed. Existing long-value overflow checks, read-only unknown-save handling and serial server menu actions remain in force.
 
 ### Defender Capacity Contract
 
@@ -47,7 +55,7 @@ Saved reservations count assigned units even when unloaded; the area limit count
 | 3 -> 4 Fortified Base | 1,200 | 100 | 2 | Field Communications |
 | 4 -> 5 Main Base | 5,200 | 200 | 5 | Special Division Training |
 
-Building balance is in `config/standandhold-buildings.toml` (server-owned, synced): generation rewards/interval, capacity/batch, lab interval/work, and the four-entry upgrade point/supply/sample/research lists. Research definitions remain [JSON data](foundation-data.md). Defaults for M2/M3 thresholds/research/rewards are unchanged.
+Building balance is in `config/standandhold-buildings.toml` (server-owned, synced): generation rewards/interval, flat capacity/batch, opt-in Command Post capacity profile, lab interval/work, and the four-entry upgrade point/supply/sample/research lists. Research definitions remain [JSON data](foundation-data.md). Defaults for M2/M3 thresholds/research/rewards are unchanged.
 
 ## Safety And Persistence
 

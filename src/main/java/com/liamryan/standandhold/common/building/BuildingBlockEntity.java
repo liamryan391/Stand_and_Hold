@@ -67,6 +67,7 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
     public BuildingBlockEntity(BlockPos pos, BlockState block) { super(BuildingRegistry.ENTITY.get(), pos, block); }
     public BuildingKind kind() { return ((BuildingBlock) getBlockState().getBlock()).kind(); }
     public BuildingState state() { return state; }
+    public int supplyCapacity() { return BuildingConfig.capacity(kind(), state.level()); }
     public com.liamryan.standandhold.common.npc.DefenderDuty duty() { return duty; }
     public boolean dutySupported() { return dutySupported; }
     public void changeDuty(com.liamryan.standandhold.common.npc.DefenderDuty next) {
@@ -308,8 +309,7 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
                     HumanPointManager.addPoints(server.getServer(), points);
                     changed = true;
                 }
-                long add = Math.min(BuildingConfig.SUPPLIES.get(), Math.max(0, BuildingConfig.CAPACITY.get() - building.state.supplies()));
-                if (add > 0) { building.change(building.state.supplies(building.state.supplies() + add)); }
+                building.change(BuildingStorage.generate(building.state, BuildingConfig.SUPPLIES.get(), building.supplyCapacity()));
             } else if (building.kind() == BuildingKind.LAB && !building.state.target().isEmpty()) {
                 FoundationCatalog catalog = FoundationResources.get(server.getServer());
                 var entry = catalog.research(building.state.target());

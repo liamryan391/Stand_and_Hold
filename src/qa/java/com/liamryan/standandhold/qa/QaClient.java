@@ -72,7 +72,15 @@ public final class QaClient {
             new View("lab-running", BuildingKind.LAB, "running", 2),
             new View("lab-paused-large", BuildingKind.LAB, "paused", 3),
             new View("lab-blocked-large", BuildingKind.LAB, "blocked", 3),
-            new View("lab-completed-large", BuildingKind.LAB, "completed", 3));
+            new View("lab-completed-large", BuildingKind.LAB, "completed", 3),
+            new View("storage-level-one", BuildingKind.COMMAND_POST, "storage-one", 2),
+            new View("storage-level-two-large", BuildingKind.COMMAND_POST, "storage-two", 3),
+            new View("storage-over-cap-large", BuildingKind.COMMAND_POST, "storage-over", 3),
+            new View("storage-flat", BuildingKind.COMMAND_POST, "storage-flat", 2),
+            new View("storage-flat-large", BuildingKind.COMMAND_POST, "storage-flat", 3),
+            new View("storage-maximum-large", BuildingKind.COMMAND_POST, "storage-max", 3),
+            new View("storage-long-balances-large", BuildingKind.COMMAND_POST, "storage-long", 3),
+            new View("storage-upgrade-ready", BuildingKind.COMMAND_POST, "storage-upgrade", 2));
     private final String id = System.getProperty("standandhold.qa.id", UUID.randomUUID().toString());
     private final long deadline = System.nanoTime() + 300_000_000_000L;
     private CompletableFuture<Void> serverAction;
@@ -158,11 +166,20 @@ public final class QaClient {
                     if (++settle < 20) { return; }
                     var next = views.get(view);
                     if (next.kind() == BuildingKind.COMMAND_POST) {
-                        int cap = switch (next.state()) { case "upgraded", "full" -> 5; case "disabled" -> 0; default -> 3; };
+                        int cap = switch (next.state()) { case "upgraded", "full", "storage-two", "storage-over", "storage-flat", "storage-long" -> 5;
+                            case "storage-max" -> 8; case "disabled" -> 0; default -> 3; };
                         int reason = switch (next.state()) { case "full" -> 4; case "disabled" -> 1; case "dormant" -> 2; default -> 0; };
                         if (menu.number(BuildingMenu.DEFENDER_CAP) != cap || menu.number(BuildingMenu.DEPLOYMENT_STATUS) != reason
                                 || menu.number(BuildingMenu.DEFENDERS) != (next.state().equals("full") ? 5 : 0)) {
                             throw new IllegalStateException("Post capacity/status did not sync: " + next.state());
+                        }
+                        if (next.state().startsWith("storage-")) {
+                            long storage = switch (next.state()) { case "storage-two", "storage-over", "storage-long" -> 3000; case "storage-max" -> 8000; default -> 2000; };
+                            long following = switch (next.state()) { case "storage-two", "storage-over", "storage-long" -> 4000; case "storage-max" -> 8000; case "storage-flat" -> 2000; default -> 3000; };
+                            if (menu.number(BuildingMenu.CAPACITY) != storage || menu.number(BuildingMenu.NEXT_CAPACITY) != following
+                                    || menu.number(BuildingMenu.LEVEL_STORAGE) != (next.state().equals("storage-flat") ? 0 : 1)) {
+                                throw new IllegalStateException("Storage benefit did not sync: " + next.state());
+                            }
                         }
                     }
                     if (next.kind() == BuildingKind.LAB) {
@@ -171,13 +188,16 @@ public final class QaClient {
                             if (menu.number(BuildingMenu.STATUS) == 0 || menu.number(BuildingMenu.STATUS) == 1) { throw new IllegalStateException("Blocked research not synced"); }
                         } else if (menu.number(BuildingMenu.STATUS) != expected) { throw new IllegalStateException("Research state did not sync: " + next.state()); }
                     }
-                    capture(mc, next.name(), 5);
+                    capture(mc, next.name(), next.state().equals("storage-upgrade") ? 82 : next.state().equals("storage-over") ? 84 : 5);
                 }
                 case 5 -> {
                     boolean reset = views.get(view).kind() == BuildingKind.COMMAND_POST;
                     onServer(mc, () -> {
                         player(mc).closeContainer();
                         if (reset) { resetPost(mc.getSingleplayerServer().overworld()); }
+                        if (views.get(view).state().startsWith("storage-")) {
+                            var data = HumanWorldData.get(mc.getSingleplayerServer()); data.setSupplies(113); data.setProgression(10, com.liamryan.standandhold.common.progression.HumanStage.SURVIVORS);
+                        }
                     });
                     phase = 17; settle = 0;
                 }
@@ -449,6 +469,22 @@ public final class QaClient {
                     phase = 55;
                     onServer(mc, () -> tierScene(mc, tierView));
                 }
+                case 82 -> { press(mc, "gui.standandhold.upgrade"); mc.options.guiScale().set(3); mc.resizeGui(); phase = 83; settle = 0; }
+                case 83 -> {
+                    if (++settle > 200) { throw new IllegalStateException("Storage upgrade did not sync"); }
+                    if (settle < 15 || !(mc.player.containerMenu instanceof BuildingMenu menu) || menu.number(BuildingMenu.LEVEL) != 2) { return; }
+                    if (menu.number(BuildingMenu.CAPACITY) != 3000 || menu.number(BuildingMenu.NEXT_CAPACITY) != 4000 || menu.number(BuildingMenu.LOCAL) != 20) {
+                        throw new IllegalStateException("Real upgrade did not spend exactly twenty local supplies or expose empty additional room");
+                    }
+                    capture(mc, "storage-upgrade-applied-large", 5);
+                }
+                case 84 -> { press(mc, "gui.standandhold.export"); phase = 85; settle = 0; }
+                case 85 -> {
+                    if (++settle > 200) { throw new IllegalStateException("Over-cap export did not sync"); }
+                    if (settle < 15 || !(mc.player.containerMenu instanceof BuildingMenu menu) || menu.number(BuildingMenu.LOCAL) != 4990) { return; }
+                    if (menu.number(BuildingMenu.GLOBAL) != 133 || menu.number(BuildingMenu.CAPACITY) != 3000) { throw new IllegalStateException("Over-cap export did not conserve server balances"); }
+                    capture(mc, "storage-export-over-cap-large", 5);
+                }
                 case 55 -> {
                     if (++settle > 300) { throw new IllegalStateException("Tier scene did not become visible"); }
                     if (settle < 50 || !mc.levelRenderer.isSectionCompiledAndVisible(new BlockPos(88,64,8), 0)) { return; }
@@ -594,6 +630,9 @@ public final class QaClient {
     }
     private void onServer(Minecraft mc, Runnable work) { serverAction = CompletableFuture.runAsync(work, mc.getSingleplayerServer()); }
     private static void fixture(ServerLevel level, ServerPlayer player) {
+        com.liamryan.standandhold.config.BuildingConfig.LEVEL_STORAGE.set(false);
+        com.liamryan.standandhold.config.BuildingConfig.CAPACITY.set(2000);
+        com.liamryan.standandhold.config.BuildingConfig.STORAGE_LEVELS.set(BuildingStorage.DEFAULT_LEVELS);
         NpcConfig.POST_CAP.set(16); NpcConfig.POST_LEVELS.set(DefenderCapacity.DEFAULT_LEVELS);
         com.liamryan.standandhold.config.StructureConfig.CHECKPOINT_RADIUS.set(4);
         level.getGameRules().set(GameRules.SPAWN_MOBS, false, level.getServer());
@@ -660,6 +699,15 @@ public final class QaClient {
             resetPost(level);
             building = tile(level, POST); data.registerCommandPost(home);
             building.change(new BuildingState(view.state().equals("upgraded") || view.state().equals("full") ? 2 : 1, 20, 0, "", 0));
+            if (view.state().startsWith("storage-")) {
+                var config = com.liamryan.standandhold.config.BuildingConfig.LEVEL_STORAGE;
+                config.set(!view.state().equals("storage-flat")); data.setSupplies(view.state().equals("storage-long") ? Long.MAX_VALUE : 123);
+                data.setProgression(150, com.liamryan.standandhold.common.progression.HumanStage.LOCAL_ARMY_RESPONSE);
+                int levelNumber = switch (view.state()) { case "storage-two", "storage-over", "storage-flat", "storage-long" -> 2; case "storage-max" -> 5; default -> 1; };
+                long supplies = switch (view.state()) { case "storage-two" -> 2990; case "storage-over" -> 5000; case "storage-flat" -> 1500;
+                    case "storage-max" -> 8000; case "storage-long" -> Long.MAX_VALUE; case "storage-upgrade" -> 40; default -> 1990; };
+                building.change(new BuildingState(levelNumber, supplies, 0, "", 0));
+            }
             NpcConfig.POST_CAP.set(view.state().equals("disabled") ? 0 : 16);
             if (view.state().equals("full")) {
                 for (int i = 0; i < 5; i++) {
@@ -686,6 +734,7 @@ public final class QaClient {
         player.openMenu(building, building::writeMenuData);
     }
     private static void resetPost(ServerLevel level) {
+        com.liamryan.standandhold.config.BuildingConfig.LEVEL_STORAGE.set(false);
         var data = HumanWorldData.get(level.getServer());
         String key = new BuildingPosition(level.dimension().identifier(), POST).key();
         for (var id : fixtureReservations) { data.releaseDefender(key, id); }

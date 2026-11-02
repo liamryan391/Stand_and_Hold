@@ -105,7 +105,7 @@ final class DutyTests {
         h.runAfterDelay(240, () -> {
             h.assertTrue(npc.localDuty().requests() > 0 && npc.localDuty().requests() <= 3, "Unreachable path uses at most three requests then backoff, not per-tick retries");
             h.assertTrue(npc.position().distanceToSqr(goal.getX() + .5, goal.getY(), goal.getZ() + .5) > 1, "No teleport into unreachable enclosure");
-            h.assertTrue(chunks == h.getLevel().getChunkSource().getLoadedChunksCount(), "Stuck duty requests no chunks"); h.succeed();
+            h.assertTrue(chunks == h.getLevel().getChunkSource().getLoadedChunksCount(), "Stuck duty requests no chunks (before=" + chunks + ", after=" + h.getLevel().getChunkSource().getLoadedChunksCount() + ")"); h.succeed();
         });
     }
     private static void reassign(GameTestHelper h) {
