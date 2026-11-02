@@ -31,7 +31,7 @@ final class RestartFixture {
     private static final String WORLD = System.getProperty("standandhold.qa.world"), PHASE = System.getProperty("standandhold.qa.phase");
     private static final Properties receipt = new Properties();
     private static int ticks;
-    private static boolean finished;
+    private static boolean finished, raiderIsolated, supportSeeded;
     private static HumanNpc npc;
     static void tick(ServerTickEvent.Post event) {
         if (finished) { return; }
@@ -48,8 +48,16 @@ final class RestartFixture {
                 if (PHASE.equals("write")) { seed(server, level); }
                 else { try (var in = Files.newInputStream(path("receipt"))) { receipt.load(in); } }
             }
-            if (PHASE.equals("write") && ticks == 5) { support(level); }
+            if (PHASE.equals("write") && ticks >= 5 && !raiderIsolated) {
+                if (reservedRaiderLoaded(level)) { isolateRaiders(level); raiderIsolated = true; }
+                else if (ticks >= 40) { throw new IllegalStateException("Reserved raider never loaded within the bounded setup budget"); }
+            }
+            if (PHASE.equals("write") && ticks >= 6 && raiderIsolated && !supportSeeded) {
+                if (isolatedRaiderVisible(level)) { support(level); supportSeeded = true; }
+                else if (ticks >= 60) { throw new IllegalStateException("Isolated raider never became visible within the bounded setup budget"); }
+            }
             if (PHASE.equals("write") && ticks == 80) {
+                check(supportSeeded, "Dependent sites seeded after real raider isolation");
                 check(npc.hasIssuedBlade(), "Stage 1 blade was actually issued before restart");
                 npc.setNoAi(true);
                 RestartTierFixture.freeze();
@@ -107,18 +115,32 @@ final class RestartFixture {
         check(npc != null, "NPC factory"); npc.snapTo(10.5, 64, 10.5, 0, 0); level.addFreshEntity(npc);
         String raid = ThreatResponse.raid(level, tile(level, POST));
         check(raid.startsWith("Outpost raid"), "Actual persisted raid: " + raid);
-        // Keep the reserved real raider stable while the second JVM loads its entity chunk.
+    }
+    private static boolean reservedRaiderLoaded(ServerLevel level) {
+        var ids = ThreatResponse.state(level, tile(level, POST)).raiders();
+        check(ids.size() == 1, "One real reserved raider before fixture isolation");
+        return level.getEntity(ids.iterator().next()) != null;
+    }
+    private static void isolateRaiders(ServerLevel level) {
+        // A just-added raider may not be lookup-visible until its forced chunk finishes loading.
+        // Isolate it on the later setup tick, before other sites' guarded wall deltas are inspected.
         var response = ThreatResponse.state(level, tile(level, POST));
+        check(response.raiders().size() == 1, "One real reserved raider before fixture isolation");
         for (UUID id : response.raiders()) {
-            var entity = level.getEntity(id); if (entity instanceof net.minecraft.world.entity.Mob mob) {
-                mob.setNoAi(true);
-                // Keep the real reserved raider outside the other fixture sites' future wall deltas.
-                // Its UUID/home/cooldown reservation is retained; this is setup, not a spawn-guard bypass.
-                mob.snapTo(30.5, 64, 2.5, 0, 0);
-            }
+            var entity = level.getEntity(id);
+            check(entity instanceof net.minecraft.world.entity.Mob && entity.entityTags().contains(ThreatResponse.RAID_TAG), "Reserved raid entity is loaded before isolation");
+            var mob = (net.minecraft.world.entity.Mob) entity; mob.setNoAi(true);
+            mob.snapTo(30.5, 64, 2.5, 0, 0);
+            receipt.setProperty("raider", id.toString());
         }
     }
+    private static boolean isolatedRaiderVisible(ServerLevel level) {
+        UUID raider = UUID.fromString(receipt.getProperty("raider"));
+        return level.getEntitiesOfClass(net.minecraft.world.entity.Mob.class, new net.minecraft.world.phys.AABB(30, 64, 2, 31, 67, 3), candidate -> candidate.getUUID().equals(raider)).size() == 1;
+    }
     private static void support(ServerLevel level) {
+        // Cross-chunk entity visibility settles on normal ticks, not inside the teleport callback.
+        check(isolatedRaiderVisible(level), "Same raider is indexed at its separate clear fixture position before site setup");
         var caller = QaPlayer.join(level); caller.snapTo(8.5, 64, 12.5, 180, 16);
         check(SupportCallIn.request(caller, tile(level, POST)).success(), "Paid reinforcement before restart");
         QaPlayer.closeAll();
@@ -158,6 +180,9 @@ final class RestartFixture {
         check(level.getEntity(UUID.fromString(receipt.getProperty("npc"))) instanceof HumanNpc saved && saved.hasIssuedBlade(), "Same NPC retains issued blade at Stage 0");
         var response = ThreatResponse.state(level, tile(level, POST));
         check(response.raids() == 1 && response.raiders().size() == 1 && response.nextRaid() == Long.parseLong(receipt.getProperty("response")), "Raid counters/reservation/cooldown, no restart reset");
+        check(response.raiders().contains(UUID.fromString(receipt.getProperty("raider")))
+                && level.getEntity(UUID.fromString(receipt.getProperty("raider"))) instanceof net.minecraft.world.entity.Mob savedRaider
+                && savedRaider.isNoAi() && savedRaider.blockPosition().equals(new BlockPos(30, 64, 2)), "Same isolated real raider and physical position survived restart");
         String home = new BuildingPosition(level.dimension().identifier(), POST).key();
         check(response.reinforcements() == 1 && response.nextReinforcement() == Long.parseLong(receipt.getProperty("supportCooldown")) && data.defenderCount(home) == 5, "Support cooldown/counter/upgraded roster survives restart");
         check(level.getEntity(UUID.fromString(receipt.getProperty("supportNpc"))) instanceof HumanNpc unit && unit.commandPost().map(p -> p.key().equals(home)).orElse(false), "Same paid defender/home survived, no duplicate on restart");
