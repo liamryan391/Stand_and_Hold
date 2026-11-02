@@ -1,22 +1,21 @@
 # Status
-Updated: 2026-11-02 - Handoff branch: `codex/roadmap-2-planning`
+Updated: 2026-11-02
 
 ## Position
-- M1-M13, M15-M21 exit gates passed; M21 is the last currently scoped NeoForge milestone.
-- Level-2 Growth opens a 13x13 yard with a small watch deck; direct sites and sealed old aprons retain buildings, work, storage, identities and reservations.
-- Same opt-in Manual/Automatic controls and local level-2 gate; no new cost/reward/population, automatic level purchase, repair or adoption.
+- M1-M13, M15-M21 exit gates passed. Roadmap 2 defines M22-M31 in phase-roadmap.md; all new implementation steps remain unchecked.
+- Priorities: real normal-jar installs, useful defender duties/storage, guarded Level-3 growth, focused original motion, specialist tiers/Main Bases and integrated alpha QA.
+- Planning only: no gameplay, balance, dependency, version or toolchain changes. Commands stay alongside simple player controls; vehicles/aircraft remain deferred.
 - NeoForge-first; Fabric M14 14.4-14.5 deferred. Pins: MC 26.3 / NeoForge 26.3.0.57-beta / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
 
 ## Verified
-- Final clean build: 30,177 assertions/all 98 required GameTests passed, including protected removals, navigation, faults, old receipts and prior regressions; jar metadata/QA exclusion inspected.
-- Three consecutive two-JVM fixtures passed after the QA-only isolation fix (latest qa-9993754d-b85a-4d99-8d2c-2c8627c879cb); normal runServer reached Done/stop/clean exit.
-- qaClient passed; all 47 0627d8c3-prefix PNGs opened/reviewed. Windows CI 41445890117 passed build/GameTests/restart/artifacts after the QA-only isolation fix; no new human play pass claimed.
+- Planning verification: `git diff --check` and focused docs review passed; no new local build, launch, external-mod audit or in-game result is claimed.
+- Prior M21 baseline: 30,177 assertions/98 GameTests, three two-JVM restart pairs, normal server and 47 reviewed qaClient PNGs; normal jar inspected.
+- Prior M21 completion CI 41446563953 passed. New milestone evidence must be observed separately, not inherited as packaged/multiplayer proof.
 
 ## Risks And Decisions
-- No new dependency/pin approval; only Liam accepts EULAs. Public source/downloads do not grant blanket asset reuse; original code/art policy retained.
-- Undead Nights/GeckoLib/SecurityCraft/Lost Cities have listed 26.3 candidates, not tested combinations; Contagion's bootstrap failure remains open.
-- Mixed/unknown/newer-save state pauses growth; server disable wins. No atomic power-loss promise, automatic repair or claim-mod support.
-- Natural-worldgen concurrency/load, real multiplayer and packaged installs remain separate; preserve legacy `1.12`, alpha tag and ignored local files.
+- Packaged installs, real multi-client/load and external threat combinations remain unverified. Contagion stays unsupported; dated candidate listings require fresh audit/approval in their owning phase.
+- Only Liam accepts EULAs; new runtime libraries/test-mod installations and pin changes need approval. Preserve `1.12`, alpha tag, worlds/configs and original code/art.
+- No power-loss/claim-mod guarantee, automatic repair or offline population catch-up. Independent beta testing and public release approval remain separate.
 
 ## Next Milestone
-`Continue: Roadmap 2 planning (prioritise the backlog, define bounded NeoForge milestones and automated exit gates) on codex/roadmap-2-planning.`
+`Continue: M22 steps 22.1-22.4 (isolated normal-jar installation, packaged client/server and restart proof, regression verification) on codex/m22-packaged-alpha.`

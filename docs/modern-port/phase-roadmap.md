@@ -1,6 +1,6 @@
 # Modern Port Phase Roadmap
 
-This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names remain stable; each phase now has numbered tasks and smaller subtasks where needed.
+This is the single phase roadmap for the NeoForge rewrite: foundation work M0-M21 and Roadmap 2 M22-M31. Existing identifiers stay stable; larger work is split prospectively, not renamed or silently added to a completed phase.
 
 ## How To Track Work
 
@@ -11,12 +11,12 @@ This roadmap covers the NeoForge modern rewrite. The existing M0-M14 phase names
 - Tick tasks as verification passes. Commit logical changes; Git history records hashes, and the session report records publication.
 - Later phases describe planned scope. Expand large steps before implementation as APIs, dependencies, and testing needs become clearer.
 
-Current position: **Phase M19 player/developer growth controls exit gate passed**; see [STATUS.md](STATUS.md).
+Current position: maintained only in [STATUS.md](STATUS.md).
 
 ## Priority Scale
 
 - P0 - Preservation and decision gates: must happen before risky changes.
-- P1 - Critical foundation: required for any playable modern build.
+- P1 - Critical foundation and alpha reliability: correctness, install/session safety and evidence needed to trust the playable build.
 - P2 - Core gameplay: important systems that create the Stand and Hold loop.
 - P3 - Differentiators: major quality and identity features that make the mod stand out.
 - P4 - Later expansion: large or risky systems to defer until the foundation is stable.
@@ -468,11 +468,179 @@ Exit gate:
 - One Level-2 upgrade provides visibly useful space with working building/defender access and no loss, duplication or unsafe replay of existing state.
 - Larger multi-level growth and functional defensive systems remain explicitly separate, not implied by the Level-2 layout.
 
-## Later Content Backlog
+## Roadmap 2 - Useful Defence And A Testable Alpha
 
-Not a second live roadmap or approval to implement everything at once; refine into bounded milestone steps before starting work. The [direction/reference review](gameplay-direction-and-references.md) records the larger level/identity vision.
+The product goal is **recover samples -> research -> improve a local outpost -> put its defenders to useful work -> defend that investment**. Prioritise a readable, dependable version of that loop over a large catalogue of unfinished guns, soldiers or bases. The [direction/reference review](gameplay-direction-and-references.md) records the identity and design hypotheses; it is dated research, not a fresh compatibility audit or asset licence.
 
-- **P2:** Level-3 usable upper floor and dedicated zones; original additional layouts and properly budgeted storage upgrades.
-- **P3:** Functional watch positions, guarded approaches, reachable patrols and clear defensive feedback; original soldier/weapon/armour animation polish, after a small pipeline evaluation and explicit approval if a runtime library is required.
-- **P3:** Isolated optional horde/urban-world coexistence QA using verified candidate artifacts, only after installation/dependency approval; no external-mod support claim from listings alone.
-- **P4:** Ground vehicles before aircraft, following the existing warfare/performance contract; broader combined-arms content and additional loaders after stable NeoForge gameplay. No copied art/code or automatic pin changes.
+This planning pass changes no gameplay, balance, version, toolchain, dependency or public release status. M22-M31 are bounded implementation milestones, not a promise to deliver them all in one run. A named library/mod remains a candidate until its owning phase rechecks the exact artifact and Liam approves installation. P1-P4 express importance/risk; prerequisite phases still run before their dependants.
+
+### Sequence And Dependencies
+
+| Phase / work branch | Priority | Prerequisites | Maximum feature slice |
+| --- | --- | --- | --- |
+| M22 `codex/m22-packaged-alpha` | P1 | Verified M21 baseline | One isolated normal-jar client/server installation, not another dev-run claim |
+| M23 `codex/m23-defender-duties` | P2 | M22 | Guard/Patrol choice and one reachable watch assignment at a supported outpost |
+| M24 `codex/m24-local-storage` | P2 | M22-M23 | Level-aware Command Post supply capacity; no new supply network |
+| M25 `codex/m25-level3-preview` | P2 | M23-M24 | One Level-3 upper-deck contract and read-only planner; no placement |
+| M26 `codex/m26-level3-growth` | P2 | M25 gate | That one guarded delta through existing growth controls |
+| M27 `codex/m27-motion-polish` | P3 | M23, M26 | One original Rifleman/Launcher presentation slice; library admission only if necessary |
+| M28 `codex/m28-specialist-tiers` | P2 | M23, M27 | Super Elite and Special Division using existing weapon/deployment foundations |
+| M29 `codex/m29-mainbase-layout` | P2 | M26, M28 | One original new-site Main Base layout; no old-base retrofit or multi-chunk engine |
+| M30 `codex/m30-threat-coexistence` | P3 | M22, M28-M29; installation approval | One exact optional threat/horde combination, baseline and removal checks |
+| M31 `codex/m31-alpha-integration` | P1 | M22-M29; explicit M30 disposition | Bounded load/network testing, earned-loop review and an internal alpha candidate |
+
+### Shared Exit Rules
+
+- Keep the approved pins, preserved legacy branch/tag and original-code/art policy. No 1.12 world/config import, mass AI rewrite, new loader split or dependency shopping list. Any runtime library, optional test-mod installation, pin change or EULA acceptance follows [AGENTS.md](../../AGENTS.md); a roadmap checkbox is not that approval.
+- Keep player actions in the existing local menus. Retain admin commands/help/diagnostics and add a small useful command where needed, but never make players copy tokens or read receipts for normal progression. Global stage, local level, physical layout revision and shared defender capacity remain different concepts.
+- Specify numeric write/read/path/spawn/packet budgets before implementation; prefer the existing bounds. No global tick scans, force-loaded production chunks, offline catch-up, unbounded retries or new population budget hidden inside a building/visual phase. A blocked path/action backs off and explains why.
+- Extend the [automated ladder](automated-testing.md), not Liam's command checklist: logic/codec/transaction checks; native GameTests for every in-world feature and refusal; real two-JVM persistence; `qaClient` captures opened and judged by the agent. New tests add to the existing required set; do not freeze the old test count or weaken failures. Use bounded readiness conditions, not assumed entity/chunk availability after a fixed sleep.
+- Code/build phases require `clean build`, correct normal-jar metadata/QA exclusion, relevant client/dedicated proof and green CI before merge. Authored layout and UI phases also require reviewed before/after and normal/large-scale captures. All saved changes need missing/malformed/future-data retention, no repeated debit/reward, and save/restart coverage. None promises cross-file power-loss atomicity.
+- Packaged runs must use the normal jar without `standandhold_qa` or Gradle output directories. Synthetic server players prove authority/transactions, not real network multiplayer. Record the exact profile/mod list, config, artifact and observed results; unavailable tests stay unavailable. A blocked exit gate needs a fix or Liam's explicit revised gate, not a renamed pass.
+- Liam remains the alpha tester; independent beta feedback is deferred, not fabricated. Automate mechanics first, leave only motion/feel/earned play or inaccessible real-install/network checks to him at the end. Feel-check availability never blocks a technical merge; unrun checks remain unverified. Do not publish, retag, change the version, add telemetry or promise mod support during planning. Real clips/screenshots and honest limitations take precedence over marketing claims.
+
+## Phase M22 - Packaged Alpha Baseline
+
+Priority: P1. Prerequisite: M21's verified normal jar and unchanged pins.
+
+Scope: establish that a tester can run the normal mod outside Gradle. Keep all profiles, scripts, credentials and worlds isolated; no content, balance or installer-framework rewrite.
+
+- [ ] **22.1 Define and prepare the isolated install contract.** Reuse approved platform tooling/an existing launcher with exact pins; identify a fresh disposable client profile and loopback-only server directory, timeouts, expected logs, artifact checksum and backup boundaries. Never overwrite an existing profile or accept an EULA. No source/same-ID duplicate jar or QA classpath in either production profile.
+  - [ ] **22.1.1** Audit the verified modern build/CI artifact, required platform files and existing launcher/server facilities; document an explicit per-profile manifest rather than a moving latest download or copied user profile. The same filename/version on the preserved 1.12 release is not the modern artifact.
+  - [ ] **22.1.2** Prepare bounded, repeatable setup/console-driving helpers where needed, with explicit target paths, refusal to reuse valuable worlds and no credentials/EULA acceptance in scripts. Authentication/EULA handoff is explicit if actually encountered.
+- [ ] **22.2 Prove the packaged dedicated server and restart.** Reach Done, execute existing progression/status/save commands, stop cleanly and restart the same disposable world using only the normal mod jar. Verify saved progression and a small loaded building fixture, no duplicate initialization, no client-class loading and no QA mod. Test-only chunk tickets must stay in the fixture, not production logic.
+- [ ] **22.3 Prove the packaged client.** Launch the exact profile, inspect Mods, enter/save/reopen a fresh world and exercise the existing menus/guide/sample/defender loop with automation where available. Preserve screenshots/logs; actual normal-profile entry is required, not a successful `runQaClient` relabelled as packaged proof. Do all independent work before asking Liam for an inaccessible launcher/account step.
+- [ ] **22.4 Close the install baseline.** Re-run the existing automated regression ladder, inspect jar isolation, record exact client/server outcomes in the existing candidate/build guidance, and pass CI. Fix only demonstrated packaging/stability blockers; keep missing multiplayer/external-mod proof separate.
+
+Exit gate: observed normal-jar client entry/reload and dedicated Done/stop/restart on the exact target, with retained evidence and no new gameplay/dependency. If a necessary environment or EULA prerequisite is blocked, record it and request the specific action; do not mark installation passed.
+
+## Phase M23 - Useful Defender Duties
+
+Priority: P2. Prerequisite: M22; reuse M21's reachable yard/watch geometry and the existing human goals/roster.
+
+Scope: one local Guard/Patrol policy and one modest watch assignment, not squads, commanders, a new AI engine or more spawns. Missing duty data retains the existing guard/home behaviour.
+
+- [ ] **23.1 Define bounded duties and ownership.** Distinguish idle guard, local patrol and temporary threat-response orders; define return-to-post, blocked/unloaded target backoff, maximum waypoints/path requests and one watch-slot reservation. Only already-assigned eligible defenders participate; eggs do not silently become a free garrison.
+- [ ] **23.2 Implement reachable local orders and persistence.** Reuse vanilla navigation/goals, existing home/pursuit radius and optional threat matching. Preserve entity UUID/type/health/issued gear, home and quota; resolve watch-slot contention without stacking or teleporting units. Persist supported intent, validate on reload, abandon stale targets safely and never infer death from an unloaded lookup.
+- [ ] **23.3 Expose simple server-authoritative controls.** Add a small Command Post duty choice/status and matching admin inspection/debug tools. No remote order network or mandatory command ritual. Combat interrupts duty, then returns to valid work; existing support/event patrol ownership must not fight the new idle duty.
+- [ ] **23.4 Verify actual movement and authority.** GameTests must observe arrival/return and bounded stuck-path attempts, zombie/skeleton/creeper combat, player/animal exclusions, shared slots, unload and missing-post cases. Restart intent/UUIDs and review duty/menu/watch captures; ask Liam only about responsiveness and movement in motion after the mechanical checks.
+
+Exit gate: defenders visibly perform a reachable useful duty and return after combat without extra population, chunk loads, path spam or loss of existing state. A watch deck is not advertised as a sensor, turret or staffed facility until its tested assignment exists.
+
+## Phase M24 - Local Storage Progression
+
+Priority: P2. Prerequisites: M22-M23.
+
+Scope: earned local Command Post levels can provide real supply capacity. Labs/crates retain their existing independent storage behaviour; no new inventories, automatic transfers, convoy routes or passive-generation buff.
+
+- [ ] **24.1 Define the capacity/config rollout.** Choose a bounded per-level Command Post profile and explain the payoff in the existing menu. Preserve deliberate existing flat-cap settings; document opt-in/default handling before choosing values. Points remain a gate, level purchase uses the existing transaction, and planning grants no new prices or balance defaults.
+- [ ] **24.2 Apply capacity through one authoritative rule.** Deposits, generation, upgrades and menu status share it. Changing config/level never clamps away stored supplies, refills a bank or changes lab/crate balances; above-cap export stays available. Keep long-value/overflow and unknown-modern-data protections.
+- [ ] **24.3 Make the payoff readable.** Show effective capacity and the next level's storage benefit beside existing upgrade requirements, without a second purchase procedure. Retain transfers/debug commands; do not silently spend the shared global bank or scan nearby containers.
+- [ ] **24.4 Verify conservation.** Logic and native tests cover exact-cap batches, over-cap retention/export, config disable/legacy settings, upgrade repeats and competing actions. Restart balances/levels, review normal/large GUI views and pass the full ladder/CI without changing defender limits or generation rates.
+
+Exit gate: a paid local level has an understandable storage benefit, all relevant paths use the same limit, and no saved supplies are destroyed, minted or charged twice.
+
+## Phase M25 - Level-3 Contract And Read-only Preview
+
+Priority: P2. Prerequisites: M23-M24.
+
+Scope: author one usable upper-deck/second-floor slice over a proven revision-2 checkpoint. This milestone cannot place blocks or charge resources; no new building/profession, multi-chunk base or claim integration.
+
+- [ ] **25.1 Author the Level-3 layout and preservation contract.** Specify exact supports, stairs, headroom, entrance/building access and bounds. Keep one chunk and the existing 256-write/2,048-cached-preflight ceilings; declare the separate fixed protected-verification envelope. Reduce the design if it does not fit, rather than silently increasing budgets. Local level 3 is not global Stage 3.
+  - [ ] **25.1.1** Define revision-2 eligibility and unsupported/customised cases, exact old-wall/roof removals and preserved lab/command/crate/NPC positions; do not infer ownership from matching player blocks.
+  - [ ] **25.1.2** Define source/target receipts and the Manual/Automatic progression contract before implementation, including sites whose level already exceeds their physical revision. At most one supported delta per action/cadence; no free level purchase, regeneration or repair.
+- [ ] **25.2 Implement the bounded pure planner and world adapter.** Capture expected before states, protect containers/fluids/supporting builds/entities, use only loaded cells and fail without mutations. Keep M18 apron and M21 yard previews/receipts readable and unchanged.
+- [ ] **25.3 Expose a readable preview through existing tools.** Describe the next available layout, bounds and specific blocker in menu/help/operator preview; no new mandatory token flow. Add original planned views/fixture captures only where clearly labelled preview, not a built gameplay feature.
+- [ ] **25.4 Verify read-only behaviour.** Pure and native tests cover supported/customised sites, every planned removal, headroom/terrain/world border, missing chunks, unknown receipts and strict no-change assertions for resources, tile NBT, entity state and dirty flags. Review the preview views and pass CI.
+
+Exit gate: one precisely bounded, useful Level-3 plan can be inspected safely; no blocks, currency, rewards or layout receipts are mutated. Placement remains outside this milestone.
+
+## Phase M26 - Guarded Level-3 Application
+
+Priority: P2. Prerequisite: the M25 planner/contract exit gate.
+
+Scope: apply only that authored revision-2-to-Level-3 delta through existing growth controls. No full reconstruction, automatic repair, Main Base adoption or new army/storage bonus hidden in geometry.
+
+- [ ] **26.1 Extend receipts additively.** Retain old apron/yard intent, unknown fields and site identity; persist only the new exact bounded operation/progress. Missing/malformed/future or mixed state pauses instead of replaying, and historical digests are not confused with ordinary later storage changes.
+- [ ] **26.2 Apply through shared expected-state guards.** Validate actors/config/level and expected state before each write, plus protected data at completion. Refuse altered supports, occupied stairs/decks and lost anchors; preserve inventory/work, health, rosters and cooldowns. No rollback over a newly placed build and no claim of crash-atomic saves or arbitrary third-party callback safety.
+- [ ] **26.3 Reuse Manual/Automatic and operator tools.** One Expand/Retry applies the next eligible supported layout; opted-in Automatic uses the existing bounded cadence and saved pause. Keep old admin commands, clear preview/status and explicit all-after metadata recovery; a cosmetic level downgrade does not demolish an existing floor.
+- [ ] **26.4 Verify failure and restart.** Native tests inject first/middle/last-write failure, late state/entity obstruction where supported, changed protected data, missing anchor and repeated/concurrent actions. Test real navigation to both floors/buildings, exact all-after recovery and two-JVM no-replay; review before/after/interior/menu captures and pass CI.
+
+Exit gate: one Level-3 site grows usefully with reachable access and preserved old state, while partial/unknown operations fail safely. No routine recovery command or repeated resource grant is needed to enjoy the upgrade.
+
+## Phase M27 - Original Motion And Equipment Readability
+
+Priority: P3. Prerequisites: M23 and M26.
+
+Scope: polish one Rifleman and the existing Prototype Launcher first. No new firing/ammo/reload mechanics, combat rebalance, mass asset replacement or copied animations/models.
+
+- [ ] **27.1 Evaluate the smallest viable original pipeline.** Prototype walk/aim/attack transitions using the current native model/export stack. If that cannot meet the defined presentation need, prepare one exact animation-library proposal with a no-dependency fallback, licence/transitive/side contract and maintenance cost; stop for Liam's approval before installation. A previously listed GeckoLib artifact is not automatic approval or proof it works here.
+- [ ] **27.2 Author the bounded art slice.** Keep editable original source, rig/UV conventions, visible face/silhouette and correct hand/muzzle orientation in first/third person. Validate exported textures/models deterministically; do not import another mod's weapon, uniform or sound asset.
+- [ ] **27.3 Add restrained presentation only.** Aim/attack feedback must agree with server-authoritative firing and melee/cooldown rules. Cover walking, idle, damaged/dead and missing optional presentation cases; avoid camera discomfort or an every-tick packet/effect stream. Other armour/units use the established pipeline later, not an implicit full-art overhaul.
+- [ ] **27.4 Verify side safety and regression.** Dedicated/packaged launches must not load client classes; native combat/target/cooldown checks stay required. Review front/back/side/held/lighting/menu captures, resource reload and supported fallback, with motion/visual feel left to Liam after automation. If a required library was approved, declare it honestly and retest the normal installation contract.
+
+Exit gate: the selected unit/weapon reads and animates better without changing gameplay or breaking side/install safety. No unapproved library or unreviewed art enters the normal jar.
+
+## Phase M28 - Specialist Human Tiers
+
+Priority: P2. Prerequisites: M23 and the M27 pipeline disposition.
+
+Scope: two original roles at most, Super Elite and Special Parasite Division, using existing melee/projectile equipment. No exotic weapons, vehicles, new research engine or separate deployment director.
+
+- [ ] **28.1 Define roles, gates and rarity.** Specify configurable stats/research/stage requirements and useful role differences before implementation: Super Elite at Stage 4 and Special Division at Stage 5 plus Special Division Training as the initial contract. Bound Special Division recruitment to active Main Bases with at most one reserved specialist per base initially, inside existing shared quotas; unloaded specialists still reserve that slot. No deployment at every checkpoint or global threat scan.
+- [ ] **28.2 Register entities/eggs and original variants.** Reuse human save/AI/equipment contracts and the supported art pipeline, preserving old registry IDs and all four existing roles. Test eggs remain admin tools, not a survival recruitment bypass; player equipment access remains separate from NPC issue/use gates.
+- [ ] **28.3 Integrate shared recruitment and retention.** Automatic/event/paid paths share eligible selection, rarity, post/area reservations and cooldowns. Missing research/mappings/config fails closed for the affected tier with a valid lower-role fallback; no promotion/deletion of existing units or loss of issued kit after stage drops. No new population budget.
+- [ ] **28.4 Verify the complete role slice.** Logic/native tests cover stats, stage/research/Main Base gates, fallback, rarity/contention, combat/friendly exclusions, all deployment entry points and no gear drops. Restart mixed UUIDs/health/equipment/rosters; review distinguishing views/eggs and pass CI without a threat mod.
+
+Exit gate: both roles are identifiable and useful, specialist recruitment is genuinely limited, and existing identities, optional threat rules and quotas survive intact.
+
+## Phase M29 - Inhabited Main Base Layout
+
+Priority: P2. Prerequisites: M26 and M28.
+
+Scope: one original new-site Main Base arrangement within the existing one-chunk placement budget, using existing Command Post/Lab/Crate blocks and duties. No multichunk generator, retrofit of old bases, new scientist/barracks profession or automatic outpost-to-Main-Base conversion.
+
+- [ ] **29.1 Author distinct usable zones.** Specify command, research, supply and a modest barracks/guard area, protected movement/lighting and clear dormant/active presentation. A bench/zone marker remains decoration, not a promised production building. Keep global activation stage separate from local level and specialist research.
+- [ ] **29.2 Place only new eligible sites safely.** Reuse dimension/terrain/fluid/open-space/border checks and unchanged rarity unless a separately documented change is justified. Existing generated bases retain their blocks/state; no chunk-load regeneration, extra seeded loot or offline garrison refill. Version any new provenance without adopting unsupported old sites.
+- [ ] **29.3 Integrate existing systems without side effects.** Register the correct command anchor, validate its Lab/Crate tiles without a new global registry, preserve one-time notices, and use shared bounded duty/deployment services. Status/list/nearest and loaded-only cleanup must identify the site without scanning or loading the world.
+- [ ] **29.4 Verify placement and use.** Native tests cover clear and unsuitable terrain, preserved custom blocks, occupied refusal, registration/removal, dormancy/activation and capped specialist deployment. Save/restart both old and new layouts without refill or reannouncements; review overhead/interior/night/menu views and pass CI.
+
+Exit gate: a new Main Base is visually distinct and usable as a command/research/supply site, while old sites and bounded safety rules remain intact. Full Main Base growth is not implied.
+
+## Phase M30 - Optional Threat Coexistence
+
+Priority: P3. Prerequisites: M22, M28-M29 and explicit installation approval for the exact isolated combination.
+
+Scope: one threat/horde artifact first, not a large modpack or new infection mechanics. The October reference listings are dated candidates; this plan makes no fresh availability/support claim. Urban-world QA is a separate deferred combination.
+
+- [ ] **30.1 Recheck and propose one exact artifact.** Verify author-controlled manifest/source, pinned Minecraft/NeoForge/Java fit, required/transitive mods, licence, sides and known conflicts; record source/file/hash and request Liam's approval before installation. Undead Nights is a candidate horde test, not proof of infection compatibility. Retest Contagion only with newly verified compatible evidence and approval; its known failed jar stays unsupported.
+- [ ] **30.2 Add only verified optional mappings/adapters.** Prefer registry IDs/tags, retain the zombie baseline and safe missing/invalid mappings, and keep external classes out of common initialization. Test-only files live in isolated profiles, never normal development runs, build requirements or release jars.
+- [ ] **30.3 Exercise with/without/removal safely.** Test actual mapped kills/drops, defender targeting, bounded raids/duties and outpost refusal around changed terrain on client and dedicated server. Repeat the clean baseline without the mod; removal uses a backed-up disposable copy and does not promise the other mod's blocks/entities survive removal.
+- [ ] **30.4 Record the exact support disposition.** Extend first-party regression tests/fixtures for mapping logic, retain combination evidence and inspect artifact isolation. Label passed, blocked or unsupported combinations explicitly; no automatic target fallback or invented M11 external-infection pass. A blocked gate requires a fix or Liam's explicit deferral before advancing its claimed coverage.
+
+Exit gate: the selected optional combination has observed client/server/gameplay/removal-boundary evidence, or an explicit deferred/unsupported disposition approved by Liam. Stand and Hold still launches and plays alone.
+
+## Phase M31 - Integrated Alpha Candidate
+
+Priority: P1. Prerequisites: M22-M29 and an explicit M30 disposition; no public-beta claim or new dependency is implied.
+
+Scope: integrate and assess the built slices, fix demonstrated defects and prepare an internal NeoForge alpha candidate. Not a feature/balance overhaul, publishing permission, version/tag change or a substitute for later independent beta testers.
+
+- [ ] **31.1 Define and run a bounded load fixture.** Compare a recorded baseline with 1/2/4 loaded posts, reporting actual units/reservations under unchanged shared caps, named hardware/config, warm-up/duration and profiler/tick/packet evidence. Define acceptable budgets before running; do not infer percentiles from an average or universal performance from one machine. Extend automated regressions for fixes, not a blanket rewrite.
+- [ ] **31.2 Verify real client/server sessions.** Use at least two actual network clients where available; observe competing menu/upgrade/research/support actions, reconnect, death/dimension transitions, chunk edges and server restart. Automate the mechanics and read logs/screens yourself. Synthetic players, integrated-server screens and one real client are not two-client evidence; if access/accounts block this, record the gap and ask the one necessary question rather than fabricate a pass.
+- [ ] **31.3 Rehearse the earned loop and resolve friction.** Liam tests resource acquisition, local upgrades/growth, useful duties, research and one real defence without progression grants in a fresh modern world. Automated tests cover numeric correctness; record confusing steps, time to useful payoff and combat/navigation feel. Debug exploration is labelled separately. Independent unfamiliar beta feedback stays deferred until its actual release gate.
+- [ ] **31.4 Prepare the honest candidate and showcase.** Run the full automated and relevant packaged ladder, inspect the normal jar, and update existing build/candidate/known-issue/command guidance. Prepare real before/after base views and a short genuine defence clip with accurate requirements/support claims; no public posts/uploads, fabricated footage or unsupported popularity promises. A release/version/tag decision requires separate explicit approval, never reuse the preserved legacy tag.
+
+Exit gate: observed regression, install, persistence and bounded session/load evidence; remaining gaps are explicit rather than promoted to supported claims. Record supplied alpha feedback or its explicit deferral without blocking the technical merge on a feel check. A public multiplayer/stable/beta or earned-playthrough claim cannot be made without its corresponding evidence and release approval.
+
+## Deferred Expansion Admission
+
+These are prioritised options, not numbered implementation milestones or an extra live roadmap. Scope them prospectively after the relevant alpha evidence; no installation, dependency or large-system approval is implied.
+
+- **P2:** Additional Level-4/5 outpost and Main Base growth, a mixed-role recruitment policy, richer supply/research facilities and missions that use the finished duties. Each needs a separate bounded layout/transaction/saved-state contract, not a single full-faction rewrite.
+- **P3:** Carry the proven motion pipeline to other units/armour and improve the prototype's original model/sounds; then scope one ammo/reload or weapon-role experiment at a time. No mass gun catalogue or combat rebalance hidden in art work.
+- **P3:** One original functional defence device at a time (for example a watch alert), with truthful range/effects, targeting, power/resource costs if any, disable/comfort settings and bounded tests. Wire/fences/searchlights stay decorative unless their tested function exists.
+- **P3:** Separately approved Lost Cities urban-terrain or SecurityCraft coexistence/claim API tests, and a new exact-target infection combination if available. Listed files are not support; base growth never assumes third-party land-claim permission.
+- **P4:** One small ground utility transport before combat vehicles or aircraft, using the [vehicle admission contract](warfare-support-design.md#physical-vehicles-deferred-admission-gate): authority, collision/passengers, inventory/UUID, unload/reconnect recovery, original art and measured 1/4/8-vehicle budgets. A library needs exact-artifact approval first; no custom physics/engine commitment in this roadmap.
+- **P4:** Aircraft/free flight, large combined-arms forces, full scientist/profession AI and independent convoys after smaller systems prove useful and affordable. No long-distance force-loading or unbounded army director.
+- **P4:** Fabric/other loaders remain deferred under the M14 parity/admission decision until the NeoForge alpha is stable enough to maintain. No pin change, common-module split or extra library solely to anticipate a later port.
