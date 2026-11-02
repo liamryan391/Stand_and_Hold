@@ -461,7 +461,7 @@ Scope: improve usable space rather than repeat the cramped M18 outer ring. One o
   - [x] **21.2.1** Add additive revision-2 receipts while retaining sealed apron-v1 intent and diagnostics.
   - [x] **21.2.2** Author the bounded yard/watch delta, exact-state protection and shared guarded application.
 - [x] **21.3 Integrate manual/automatic growth and readable status.** The same menu policy selects the supported layout at the earned local level. Make failure/space requirements actionable; capacity remains the existing shared policy, not a side effect of decorative towers.
-- [ ] **21.4 Verify usefulness and safety.** GameTests for new/apron/customised cases, terrain/entrance/NPC access, protected removal and fault/repeat behavior; two-JVM persistence; reviewed overhead/interior/menu captures; clean build/jar isolation and green CI. Liam judges space/navigation and visual payoff after automation.
+- [x] **21.4 Verify usefulness and safety.** GameTests for new/apron/customised cases, terrain/entrance/NPC access, protected removal and fault/repeat behavior; two-JVM persistence; reviewed overhead/interior/menu captures; clean build/jar isolation and green CI. Liam judges space/navigation and visual payoff after automation.
 
 Exit gate:
 
