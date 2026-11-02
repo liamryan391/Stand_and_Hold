@@ -2,22 +2,22 @@
 Updated: 2026-11-02
 
 ## Position
-- M22 22.1 passed on codex/m22-packaged-alpha; 22.2-22.4 remain open. Do not merge until real packaged client/server gates pass.
-- Fresh manifest/normal-jar pack and loopback-only production server prepared; original Modrinth pack/worlds and legacy references untouched.
-- No gameplay, balance, dependency, version or toolchain changes; vehicles/aircraft remain deferred.
+- M22 22.1-22.4 exit gates passed; NeoForge packaged baseline ready for M23 after CI-gated merge. M1-M13/M15-M21 remain passed.
+- Real normal-jar Modrinth client entry/reload and loopback-only production Done/save/stop/restart proved; original pack/worlds and legacy references untouched.
+- No gameplay, balance, dependency, version or toolchain changes. Private console fixture alone disables vanilla empty-server pausing; vehicles/aircraft deferred.
 - NeoForge-first; Fabric M14 14.4-14.5 deferred. Pins: MC 26.3 / NeoForge 26.3.0.57-beta / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
 
 ## Verified
-- M22 clean build/native GameTests passed: 30,177 assertions/98 required tests, no XML failures/errors/skips; offline pack checks and 7-model art check passed.
-- Source two-JVM restart passed; all 47 e4a69ae3-prefix qaClient PNGs reviewed (lab-completed-large, yard-watch-view, tiers-front included).
-- Normal jar metadata/QA exclusion checked; 409,863 bytes, SHA256 5dddffba3c052414dc29c8d7f665bd46542799b29801756314c227da007a119a. Implementation Windows CI 41467683553 passed.
+- Final clean build/native tests passed (26s): 30,177 assertions/98 required cases, zero XML failures/errors/skips; offline pack and seven-model art checks passed.
+- Source restart qa-8930c997 passed; 47 e4a69ae3-prefix source QA PNGs and ten packaged PNGs reviewed, including 2026-11-02_15.54.12.png (completed Lab after reload).
+- Normal jar metadata/QA exclusion checked; build/client/server SHA256 5dddffba3c052414dc29c8d7f665bd46542799b29801756314c227da007a119a, 409,863 bytes. Windows code CI 41477801816 passed.
 
 ## Risks And Decisions
-- Packaged client blocked before launch by Modrinth Microsoft sign-in failure; Liam handles account prompts. No client entry/reload pass claimed.
-- Production installer passed; first boot detected exact pins/normal jar then requested EULA and exited before Done. Only Liam may accept the fresh server/eula.txt; it remains false.
-- Session: .local/packaged-qa/m22-20261102-143650-32816cbd. See packaged-testing.md. Multiplayer/external threat combinations remain unverified; Contagion unsupported.
-- Only Liam accepts EULAs; new runtime libraries/test-mod installations and pin changes need approval. Preserve `1.12`, alpha tag, worlds/configs and original code/art.
+- Liam signed in manually and explicitly delegated EULA acceptance for this one server fixture; no reusable acceptance flag or account handling added.
+- Session .local/packaged-qa/m22-20261102-143650-32816cbd retained; packaged-testing.md separates admin fixtures, original failures, transient warnings and observed passes.
+- Real multiplayer/load, other launcher/OS and external threats remain unverified; Contagion unsupported. No new earned-loop/player-only drop pass or public release claimed.
+- Runtime libraries/test mods, pins and fresh EULA prompts retain their approval boundaries. Preserve `1.12`, alpha tag, worlds/configs and original code/art.
 - No power-loss/claim-mod guarantee, automatic repair or offline population catch-up. Independent beta testing and public release approval remain separate.
 
 ## Next Milestone
-`Continue: M22 steps 22.2-22.4 (finish packaged client/server and restart proof after Liam handles EULA/sign-in, then regression/CI closure) on codex/m22-packaged-alpha.`
+`Continue: M23 steps 23.1-23.4 (bounded defender duties, persistent local orders, Command Post controls and automated verification) on codex/m23-defender-duties.`
