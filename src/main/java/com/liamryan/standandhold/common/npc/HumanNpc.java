@@ -49,6 +49,8 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
     private boolean issuedBlade;
     private BlockPos patrolTarget;
     private long patrolUntil;
+    private int localWaypoint;
+    private LocalDutyGoal localDuty;
 
     public HumanNpc(EntityType<? extends HumanNpc> type, Level level) {
         super(type, level);
@@ -76,7 +78,9 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0, false));
         goalSelector.addGoal(3, new MoveTowardsRestrictionGoal(this, 0.9));
         goalSelector.addGoal(3, new PatrolGoal());
-        goalSelector.addGoal(4, new RandomStrollGoal(this, 0.7, 120));
+        localDuty = new LocalDutyGoal(this);
+        goalSelector.addGoal(4, localDuty);
+        goalSelector.addGoal(5, new RandomStrollGoal(this, 0.7, 120));
         goalSelector.addGoal(5, new LookAtPlayerGoal(this, Player.class, 6));
         goalSelector.addGoal(6, new RandomLookAroundGoal(this));
         targetSelector.addGoal(1, new ThreatTarget(this));
@@ -98,6 +102,10 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         setHomeTo(position.pos(), NpcConfig.HOME_RADIUS.get());
     }
     public java.util.Optional<BuildingPosition> commandPost() { return BuildingPosition.parse(commandPost); }
+    public int localWaypoint() { return localWaypoint; }
+    public void localWaypoint(int index) { localWaypoint = Math.clamp(index, 0, 1); }
+    public LocalDutyGoal localDuty() { return localDuty; }
+    public boolean hasResponseOrder() { return patrolTarget != null && !commandPost.isEmpty() && level().getGameTime() < patrolUntil && isWithinHome(patrolTarget); }
     public boolean hasIssuedBlade() { return issuedBlade && getMainHandItem().is(EquipmentRegistry.BLADE.get()); }
     public void assignPatrol(BlockPos target, long until) {
         if (!commandPost.isEmpty() && isWithinHome(target)) { patrolTarget = target.immutable(); patrolUntil = until; }
@@ -107,6 +115,7 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         output.putString("standandhold_command_post", commandPost);
         output.putLong("standandhold_next_prototype_shot", nextPrototypeShot);
         output.putBoolean("standandhold_issued_blade", issuedBlade);
+        output.putInt("standandhold_local_waypoint", localWaypoint);
         if (patrolTarget != null) { output.putLong("standandhold_patrol_target", patrolTarget.asLong()); output.putLong("standandhold_patrol_until", patrolUntil); }
     }
     @Override protected void readAdditionalSaveData(ValueInput input) {
@@ -115,6 +124,7 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         if (!level().isClientSide()) { applyStats(false); }
         nextPrototypeShot = Math.clamp(input.getLongOr("standandhold_next_prototype_shot", 0), 0, level().getGameTime() + 200);
         issuedBlade = input.getBooleanOr("standandhold_issued_blade", false);
+        localWaypoint = Math.clamp(input.getIntOr("standandhold_local_waypoint", 0), 0, 1);
         BuildingPosition.parse(commandPost).ifPresent(position -> setHomeTo(position.pos(), NpcConfig.HOME_RADIUS.get()));
         patrolUntil = Math.clamp(input.getLongOr("standandhold_patrol_until", 0), 0, level().getGameTime() + 72000);
         patrolTarget = input.getLong("standandhold_patrol_target").map(BlockPos::of).filter(this::isWithinHome).orElse(null);
@@ -190,10 +200,11 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         @Override public boolean canUse() {
             return getTarget() == null && patrolTarget != null && !commandPost.isEmpty() && level().getGameTime() < patrolUntil
                     && isWithinHome(patrolTarget) && level().hasChunksAt(patrolTarget.offset(-1, -1, -1), patrolTarget.offset(1, 2, 1))
-                    && level().getWorldBorder().isWithinBounds(patrolTarget) && patrolTarget.distToCenterSqr(position()) > 4;
+                    && level().getWorldBorder().isWithinBounds(patrolTarget);
         }
         @Override public boolean canContinueToUse() { return canUse(); }
         @Override public void tick() {
+            if (patrolTarget.distToCenterSqr(position()) <= 4) { getNavigation().stop(); return; }
             if (level().getGameTime() < nextPath) { return; }
             nextPath = level().getGameTime() + 40;
             getNavigation().moveTo(patrolTarget.getX() + 0.5, patrolTarget.getY(), patrolTarget.getZ() + 0.5, 0.8);

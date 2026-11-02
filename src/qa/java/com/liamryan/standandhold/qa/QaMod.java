@@ -39,7 +39,7 @@ public final class QaMod {
                     new TestEnvironmentDefinition.SetDifficulty(Difficulty.NORMAL)));
             event.registerTest(id(name), new FunctionGameTestInstance(
                     ResourceKey.create(Registries.TEST_FUNCTION, id(name)),
-                    new TestData<>(environment, Level.OVERWORLD, id("arena"), name.equals("lab_finishes_once") ? 1700 : 500,
+                    new TestData<>(environment, Level.OVERWORLD, id("arena"), name.equals("lab_finishes_once") ? 1700 : name.startsWith("duty_") ? 1000 : 500,
                             0, true, Rotation.NONE, false, 1, 1, true, 0)));
         }
     }

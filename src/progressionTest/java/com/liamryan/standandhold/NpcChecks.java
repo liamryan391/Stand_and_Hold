@@ -13,6 +13,16 @@ import javax.imageio.ImageIO;
 final class NpcChecks {
     private static int assertions;
     static void run() throws Exception {
+        var duty = com.liamryan.standandhold.common.npc.DefenderDuty.DEFAULT;
+        var patrol = duty.mode(com.liamryan.standandhold.common.npc.DefenderDuty.Mode.PATROL).watch(UUID.randomUUID());
+        check(com.liamryan.standandhold.common.npc.DefenderDuty.read(patrol.save()).equals(patrol), "duty policy and unique watch UUID round trip");
+        check(patrol.mode(com.liamryan.standandhold.common.npc.DefenderDuty.Mode.GUARD).equals(duty), "guard releases watch policy without changing recruitment");
+        var futureDuty = patrol.save(); futureDuty.putInt("version", 99);
+        expect(() -> com.liamryan.standandhold.common.npc.DefenderDuty.read(futureDuty));
+        var malformedDuty = patrol.save(); malformedDuty.putString("watch", "bad");
+        expect(() -> com.liamryan.standandhold.common.npc.DefenderDuty.read(malformedDuty));
+        var malformedMode = patrol.save(); malformedMode.putString("mode", "1");
+        expect(() -> com.liamryan.standandhold.common.npc.DefenderDuty.read(malformedMode));
         check(DefenderCapacity.validProfile(DefenderCapacity.DEFAULT_LEVELS), "default capacity profile");
         check(DefenderCapacity.validProfile(List.of(0L, 0L, 8L, 16L, 16L)), "integer TOML profile and disabled early levels");
         for (Object invalid : List.of("bad", List.of(3, 5), List.of(3, 2, 6, 7, 8), List.of(-1, 5, 6, 7, 8),

@@ -145,6 +145,10 @@ public final class HumanWorldData extends SavedData {
         return true;
     }
     public int defenderCount(String key) { return defenderRoster(key).size(); }
+    public boolean hasDefender(String key, UUID id) { return defenderRoster(key).contains(id.toString()); }
+    public java.util.Set<UUID> defenderIds(String key) {
+        return defenderRoster(key).keySet().stream().map(UUID::fromString).collect(java.util.stream.Collectors.toUnmodifiableSet());
+    }
     public boolean reserveDefender(String key, UUID id, int limit) {
         requirePostRegistry();
         if (limit < 0 || limit > 16) { throw new IllegalArgumentException("Invalid defender limit."); }

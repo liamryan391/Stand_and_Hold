@@ -60,10 +60,20 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
     private OutpostGrowth.Settings growth = OutpostGrowth.Settings.DEFAULT;
     private Dynamic<?> retainedGrowth;
     private boolean growthSupported = true;
+    private com.liamryan.standandhold.common.npc.DefenderDuty duty = com.liamryan.standandhold.common.npc.DefenderDuty.DEFAULT;
+    private Dynamic<?> retainedDuty;
+    private boolean dutySupported = true;
 
     public BuildingBlockEntity(BlockPos pos, BlockState block) { super(BuildingRegistry.ENTITY.get(), pos, block); }
     public BuildingKind kind() { return ((BuildingBlock) getBlockState().getBlock()).kind(); }
     public BuildingState state() { return state; }
+    public com.liamryan.standandhold.common.npc.DefenderDuty duty() { return duty; }
+    public boolean dutySupported() { return dutySupported; }
+    public void changeDuty(com.liamryan.standandhold.common.npc.DefenderDuty next) {
+        requireWritable();
+        if (kind() != BuildingKind.COMMAND_POST || !dutySupported) { throw new IllegalStateException("Unsupported duty data retained; storage remains available."); }
+        if (!duty.equals(next)) { duty = next; setChanged(); }
+    }
     public SiteProvenance site() {
         if (retainedSite == null) { throw new IllegalArgumentException("No site provenance; old/manual posts are not adopted."); }
         if (!(retainedSite.convert(NbtOps.INSTANCE).getValue() instanceof CompoundTag tag)) {
@@ -179,6 +189,13 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         output.putInt("building_version", schema);
         output.putBoolean("main_base", mainBase);
         output.putInt("main_base_notices", mainBaseNotices);
+        if (!dutySupported && retainedDuty != null) { output.store("duties", Codec.PASSTHROUGH, retainedDuty); }
+        else if (kind() == BuildingKind.COMMAND_POST || retainedDuty != null) {
+            var saved = retainedDuty != null && retainedDuty.convert(NbtOps.INSTANCE).getValue() instanceof CompoundTag old ? old.copy() : new CompoundTag();
+            saved.remove("watch"); var current = duty.save();
+            for (String key : current.keySet()) { saved.put(key, current.get(key)); }
+            output.store("duties", CompoundTag.CODEC, saved);
+        }
         if (retainedSite != null) { output.store("site", Codec.PASSTHROUGH, retainedSite); }
         if (!growthSupported && retainedGrowth != null) { output.store("growth", Codec.PASSTHROUGH, retainedGrowth); }
         else {
@@ -200,6 +217,14 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         schema = input.getIntOr("building_version", 1);
         mainBase = input.getBooleanOr("main_base", false);
         mainBaseNotices = Math.clamp(input.getIntOr("main_base_notices", 0), 0, 3);
+        retainedDuty = input.read("duties", Codec.PASSTHROUGH).orElse(null);
+        duty = com.liamryan.standandhold.common.npc.DefenderDuty.DEFAULT; dutySupported = true;
+        if (retainedDuty != null) {
+            try {
+                if (!(retainedDuty.convert(NbtOps.INSTANCE).getValue() instanceof CompoundTag raw)) { throw new IllegalArgumentException("Malformed duty data."); }
+                duty = com.liamryan.standandhold.common.npc.DefenderDuty.read(raw);
+            } catch (IllegalArgumentException failure) { dutySupported = false; }
+        }
         retainedSite = input.read("site", Codec.PASSTHROUGH).orElse(null);
         siteEpoch++;
         retainedGrowth = input.read("growth", Codec.PASSTHROUGH).orElse(null);

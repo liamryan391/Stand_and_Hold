@@ -6,6 +6,8 @@ import com.liamryan.standandhold.common.progression.ProgressionRules;
 import com.liamryan.standandhold.common.sample.SampleEvents;
 import com.liamryan.standandhold.common.sample.SampleInventory;
 import com.liamryan.standandhold.common.npc.DefenderDeployment;
+import com.liamryan.standandhold.common.npc.DefenderDuties;
+import com.liamryan.standandhold.common.npc.DefenderDuty;
 import com.liamryan.standandhold.common.structure.OutpostGrowth;
 import net.minecraft.server.level.ServerPlayer;
 import com.liamryan.standandhold.common.world.HumanWorldData;
@@ -28,10 +30,11 @@ public final class BuildingMenu extends AbstractContainerMenu {
             TARGET = 7, STATUS = 8, CAPACITY = 9, REQUIRED_WORK = 10, GENERATION_INTERVAL = 11, GENERATION_POINTS = 12,
             GENERATION_SUPPLIES = 13, UPGRADE_POINTS = 14, UPGRADE_SUPPLIES = 15, UPGRADE_SAMPLES = 16,
             UPGRADE_STATUS = 17, BATCH = 18, UPGRADE_RESEARCH = 19, LAB_INTERVAL = 20, HELD_SAMPLES = 21, SAMPLE_ROOM = 22, RUNNING = 23,
-            DEFENDERS = 24, DEFENDER_CAP = 25, DEPLOYMENT_STATUS = 26, GROWTH_STATUS = 27, GROWTH_MODE = 28;
+            DEFENDERS = 24, DEFENDER_CAP = 25, DEPLOYMENT_STATUS = 26, GROWTH_STATUS = 27, GROWTH_MODE = 28, DUTY_MODE = 29, WATCH_STATUS = 30;
     public static final int IMPORT = 0, EXPORT = 1, UPGRADE = 2, PAUSE = 3, NEXT_RESEARCH = 4, DEPOSIT_SAMPLES = 5, TAKE_SAMPLES = 6, TOGGLE_RESEARCH = 7;
     public static final int EXPAND = 8, GROWTH_MANUAL = 9, GROWTH_AUTOMATIC = 10;
-    private final long[] numbers = new long[29];
+    public static final int DUTY_GUARD = 11, DUTY_PATROL = 12;
+    private final long[] numbers = new long[31];
     private final BlockPos pos;
     private final BuildingKind kind;
     private final List<Option> options;
@@ -128,10 +131,13 @@ public final class BuildingMenu extends AbstractContainerMenu {
                 var deployment = DefenderDeployment.status(server, building);
                 numbers[DEFENDERS] = deployment.assigned(); numbers[DEFENDER_CAP] = deployment.capacity(); numbers[DEPLOYMENT_STATUS] = deployment.reason();
                 numbers[GROWTH_STATUS] = OutpostGrowth.status(server, building); numbers[GROWTH_MODE] = building.growthSettings().mode().ordinal();
+                numbers[DUTY_MODE] = building.dutySupported() ? building.duty().mode().ordinal() : -1;
+                numbers[WATCH_STATUS] = DefenderDuties.watchStatus(server, building);
             }
         } catch (IllegalArgumentException | IllegalStateException exception) {
             numbers[STATUS] = 7; numbers[UPGRADE_STATUS] = 7; numbers[DEPLOYMENT_STATUS] = 5;
             numbers[GROWTH_STATUS] = OutpostGrowth.UNAVAILABLE;
+            numbers[DUTY_MODE] = -1; numbers[WATCH_STATUS] = 4;
         }
     }
     @Override public void broadcastChanges() { updateNumbers(); super.broadcastChanges(); }
@@ -143,7 +149,7 @@ public final class BuildingMenu extends AbstractContainerMenu {
     @Override public boolean clickMenuButton(Player player, int action) {
         if (building == null || player.containerMenu != this || player.isSpectator() || !stillValid(player)
                 || !(player.level() instanceof ServerLevel server) || !server.getServer().isSameThread()
-                || action < IMPORT || action > GROWTH_AUTOMATIC) { return false; }
+                || action < IMPORT || action > DUTY_PATROL) { return false; }
         try {
             building.requireWritable();
             if (FoundationResources.get(server.getServer()) != catalog) { throw new IllegalStateException("Definitions changed; close and reopen this menu."); }
@@ -151,6 +157,11 @@ public final class BuildingMenu extends AbstractContainerMenu {
             data.requireSupportedVersion();
             BuildingState state = building.state();
             switch (action) {
+                case DUTY_GUARD, DUTY_PATROL -> {
+                    if (kind != BuildingKind.COMMAND_POST) { return false; }
+                    DefenderDuties.setMode(server, building, action == DUTY_GUARD ? DefenderDuty.Mode.GUARD : DefenderDuty.Mode.PATROL);
+                    return true;
+                }
                 case IMPORT, EXPORT -> {
                     var result = BuildingTransactions.transfer(state, data.supplies(), BuildingConfig.TRANSFER.get(), BuildingConfig.CAPACITY.get(), action == IMPORT);
                     data.setSupplies(result.global()); building.change(result.local());

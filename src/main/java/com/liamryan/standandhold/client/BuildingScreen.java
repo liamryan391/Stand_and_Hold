@@ -21,8 +21,9 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
     private Button start;
     private Button deposit;
     private Button withdraw;
-    private Button expand, manual, automatic, statusTab, growthTab;
+    private Button expand, manual, automatic, statusTab, growthTab, dutyTab, guard, patrol;
     private boolean growthView;
+    private boolean dutyView;
     private boolean sampleMode;
     private int mouseX, mouseY;
     public BuildingScreen(BuildingMenu menu, Inventory inventory, Component title) { super(menu, inventory, title, 300, 230); }
@@ -43,10 +44,14 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
             expand = button("expand", 8, 177, 90, EXPAND);
             manual = button("growth_manual", 102, 177, 90, GROWTH_MANUAL);
             automatic = button("growth_automatic", 202, 177, 90, GROWTH_AUTOMATIC);
-            statusTab = addRenderableWidget(Button.builder(Component.translatable("gui.standandhold.tab_status"), b -> { growthView = false; updateGrowth(); })
-                    .bounds(leftPos + 158, topPos + 3, 64, 16).build());
-            growthTab = addRenderableWidget(Button.builder(Component.translatable("gui.standandhold.tab_growth"), b -> { growthView = true; updateGrowth(); })
-                    .bounds(leftPos + 226, topPos + 3, 66, 16).build());
+            statusTab = addRenderableWidget(Button.builder(Component.translatable("gui.standandhold.tab_status"), b -> { growthView = false; dutyView = false; updateGrowth(); })
+                    .bounds(leftPos + 145, topPos + 3, 45, 16).build());
+            growthTab = addRenderableWidget(Button.builder(Component.translatable("gui.standandhold.tab_growth"), b -> { growthView = true; dutyView = false; updateGrowth(); })
+                    .bounds(leftPos + 194, topPos + 3, 45, 16).build());
+            dutyTab = addRenderableWidget(Button.builder(Component.translatable("gui.standandhold.tab_duties"), b -> { growthView = false; dutyView = true; updateGrowth(); })
+                    .bounds(leftPos + 243, topPos + 3, 49, 16).build());
+            guard = button("duty_guard", 8, 177, 136, DUTY_GUARD);
+            patrol = button("duty_patrol", 156, 177, 136, DUTY_PATROL);
             updateGrowth();
         }
         if (menu.kind() == BuildingKind.LAB) {
@@ -80,9 +85,12 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
         boolean valid = menu.number(STATUS) != 7;
         long state = menu.number(GROWTH_STATUS), mode = menu.number(GROWTH_MODE);
         expand.setMessage(Component.translatable(state == OutpostGrowth.TERRAIN || state == OutpostGrowth.ENTITY ? "gui.standandhold.retry_growth" : "gui.standandhold.expand"));
-        upgrade.visible = !growthView;
+        upgrade.visible = !growthView && !dutyView;
         expand.visible = manual.visible = automatic.visible = growthView;
-        statusTab.active = growthView; growthTab.active = !growthView;
+        guard.visible = patrol.visible = dutyView;
+        guard.active = valid && menu.number(DUTY_MODE) == 1;
+        patrol.active = valid && menu.number(DUTY_MODE) == 0;
+        statusTab.active = growthView || dutyView; growthTab.active = !growthView; dutyTab.active = !dutyView;
         expand.active = valid && (state == OutpostGrowth.READY || state == OutpostGrowth.TERRAIN || state == OutpostGrowth.ENTITY);
         manual.active = valid && mode != 0 && state != OutpostGrowth.UNAVAILABLE;
         automatic.active = valid && mode != 1 && state != OutpostGrowth.UNSUPPORTED && state != OutpostGrowth.UNAVAILABLE
@@ -112,13 +120,21 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
     }
     @Override protected void extractLabels(GuiGraphicsExtractor g, int mx, int my) {
         mouseX = mx; mouseY = my;
-        text(g, title.getString(), 7, menu.kind() == BuildingKind.COMMAND_POST ? 144 : 284, 0xfff0f3f1);
+        text(g, title.getString(), 7, menu.kind() == BuildingKind.COMMAND_POST ? 132 : 284, 0xfff0f3f1);
         line(g, 28, "gui.standandhold.progression", menu.number(POINTS), menu.number(STAGE));
         line(g, 42, "gui.standandhold.global", menu.number(GLOBAL));
         line(g, 56, "gui.standandhold.local", menu.number(LOCAL), menu.number(CAPACITY));
         line(g, 70, "gui.standandhold.samples", menu.number(SAMPLES), menu.number(BATCH));
         if (menu.kind() == BuildingKind.COMMAND_POST) {
             int level = (int) Math.clamp(menu.number(LEVEL), 1, 5);
+            if (dutyView) {
+                line(g, 88, "gui.standandhold.duty_mode", Component.translatable(menu.number(DUTY_MODE) == 1 ? "gui.standandhold.duty_patrol"
+                        : menu.number(DUTY_MODE) == 0 ? "gui.standandhold.duty_guard" : "gui.standandhold.status.7"));
+                line(g, 108, "gui.standandhold.defenders", menu.number(DEFENDERS), menu.number(DEFENDER_CAP));
+                line(g, 128, "gui.standandhold.duty_watch", Component.translatable("gui.standandhold.watch." + Math.clamp(menu.number(WATCH_STATUS), 0, 5)));
+                line(g, 150, "gui.standandhold.duty_priority");
+                return;
+            }
             if (growthView) {
                 line(g, 88, "gui.standandhold.growth_mode", Component.translatable(menu.number(GROWTH_MODE) == 1 ? "gui.standandhold.growth_automatic" : "gui.standandhold.growth_manual"));
                 wrap(g, Component.translatable("gui.standandhold.growth_status." + Math.clamp(menu.number(GROWTH_STATUS), 0, 8)).getString(), 102);

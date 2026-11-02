@@ -5,6 +5,9 @@ import com.liamryan.standandhold.common.building.*;
 import com.liamryan.standandhold.common.foundation.FoundationResources;
 import com.liamryan.standandhold.common.npc.NpcRegistry;
 import com.liamryan.standandhold.common.npc.DefenderCapacity;
+import com.liamryan.standandhold.common.npc.DefenderDuties;
+import com.liamryan.standandhold.common.npc.DefenderDuty;
+import com.liamryan.standandhold.common.npc.HumanNpc;
 import com.liamryan.standandhold.config.NpcConfig;
 import com.liamryan.standandhold.common.research.ResearchManager;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
@@ -82,6 +85,8 @@ public final class QaClient {
     private int growthView;
     private int tierView;
     private int yardView;
+    private UUID dutyNpc;
+    private boolean dutyArrived;
     private static final List<String> YARD_VIEWS = List.of("yard-overhead", "yard-entrance", "yard-watch-deck", "yard-watch-view");
     private static final List<String> TIER_VIEWS = List.of("tiers-front", "tiers-back", "heavy-side", "elite-side", "tiers-torchlight", "tier-eggs", "heavy-front", "elite-front");
     private boolean previewReply, previewBlockedReply;
@@ -482,7 +487,81 @@ public final class QaClient {
                     if (settle < 35 || !mc.levelRenderer.isSectionCompiledAndVisible(growthPost, 0)) { return; }
                     capture(mc, YARD_VIEWS.get(yardView), 62);
                 }
-                case 62 -> { yardView++; phase = yardView == YARD_VIEWS.size() ? 54 : 60; settle = 0; }
+                case 62 -> { yardView++; phase = yardView == YARD_VIEWS.size() ? 70 : 60; settle = 0; }
+                case 70 -> {
+                    if (mc.gui.hud.isHidden()) { mc.gui.hud.toggle(); }
+                    mc.options.guiScale().set(2); mc.resizeGui(); phase = 71; settle = 0;
+                    onServer(mc, () -> {
+                        var level = mc.getSingleplayerServer().overworld(); var post = tile(level, growthPost); var actor = player(mc);
+                        DefenderDuties.setMode(level, post, DefenderDuty.Mode.GUARD);
+                        actor.closeContainer(); actor.connection.teleport(growthPost.getX() + .5, growthPost.getY(), growthPost.getZ() + 4.5, 180, 16);
+                        actor.openMenu(post, post::writeMenuData);
+                    });
+                }
+                case 71 -> {
+                    if (++settle > 200) { throw new IllegalStateException("Duty menu did not sync"); }
+                    if (!(mc.gui.screen() instanceof BuildingScreen) || !(mc.player.containerMenu instanceof BuildingMenu menu) || menu.number(BuildingMenu.DUTY_MODE) != 0 || settle < 15) { return; }
+                    press(mc, "gui.standandhold.tab_duties"); phase = 81; settle = 0;
+                }
+                case 81 -> { if (++settle >= 6) { capture(mc, "duties-guard", 72); } }
+                case 72 -> { press(mc, "gui.standandhold.duty_patrol"); mc.options.guiScale().set(3); mc.resizeGui(); phase = 73; settle = 0; }
+                case 73 -> {
+                    if (++settle > 200) { throw new IllegalStateException("Actual Patrol action did not sync"); }
+                    if (!(mc.player.containerMenu instanceof BuildingMenu menu) || menu.number(BuildingMenu.DUTY_MODE) != 1 || settle < 15) { return; }
+                    capture(mc, "duties-patrol-large", 74);
+                }
+                case 74 -> {
+                    phase = 75; settle = 0;
+                    onServer(mc, () -> {
+                        var level = mc.getSingleplayerServer().overworld(); var post = tile(level, growthPost); var c = post.site().center();
+                        var npc = NpcRegistry.SURVIVOR.get().create(level, EntitySpawnReason.COMMAND);
+                        if (npc == null) { throw new IllegalStateException("Duty NPC factory"); }
+                        var home = new BuildingPosition(level.dimension().identifier(), growthPost); npc.assignPost(home);
+                        npc.snapTo(c.getX() + 2.5, c.getY() + 1, c.getZ() + 4.5, 180, 0);
+                        if (!HumanWorldData.get(level.getServer()).reserveDefender(home.key(), npc.getUUID(), 16) || !level.addFreshEntity(npc)) { throw new IllegalStateException("Duty fixture reservation"); }
+                        dutyNpc = npc.getUUID();
+                    });
+                }
+                case 75 -> {
+                    if (++settle > 200) { throw new IllegalStateException("Saved watch reservation did not sync"); }
+                    if (!(mc.player.containerMenu instanceof BuildingMenu menu) || menu.number(BuildingMenu.WATCH_STATUS) != 5 || settle < 15) { return; }
+                    capture(mc, "duties-watch-reserved-large", 76);
+                }
+                case 76 -> {
+                    if (++settle > 500) { throw new IllegalStateException("Actual duty NPC did not reach the watch deck"); }
+                    if (dutyArrived) {
+                        mc.gui.setScreen(null); if (!mc.gui.hud.isHidden()) { mc.gui.hud.toggle(); } phase = 77; settle = 0;
+                        onServer(mc, () -> {
+                            var post = tile(mc.getSingleplayerServer().overworld(), growthPost); var c = post.site().center(); var actor = player(mc); actor.closeContainer();
+                            actor.getAbilities().flying = true; actor.onUpdateAbilities(); actor.connection.teleport(c.getX() + 1.5, c.getY() + 5, c.getZ() + 4.5, 129, 23);
+                        });
+                    } else {
+                        onServer(mc, () -> {
+                            var level = mc.getSingleplayerServer().overworld(); var post = tile(level, growthPost);
+                            dutyArrived = level.getEntity(dutyNpc) instanceof HumanNpc npc && npc.localDuty().watch()
+                                    && DefenderDuties.watchPosition(post).distToCenterSqr(npc.position()) < 1;
+                        });
+                    }
+                }
+                case 77 -> { if (++settle >= 35 && mc.levelRenderer.isSectionCompiledAndVisible(growthPost, 0)) { capture(mc, "duty-watch-arrival", 78); } }
+                case 78 -> {
+                    if (mc.gui.hud.isHidden()) { mc.gui.hud.toggle(); } phase = 79; settle = 0;
+                    onServer(mc, () -> {
+                        var level = mc.getSingleplayerServer().overworld(); var post = tile(level, growthPost); var actor = player(mc);
+                        actor.connection.teleport(growthPost.getX() + .5, growthPost.getY(), growthPost.getZ() + 4.5, 180, 16);
+                        actor.openMenu(post, post::writeMenuData);
+                    });
+                }
+                case 79 -> {
+                    if (++settle > 200) { throw new IllegalStateException("Duty reset menu did not open"); }
+                    if (!(mc.gui.screen() instanceof BuildingScreen) || !(mc.player.containerMenu instanceof BuildingMenu) || settle < 15) { return; }
+                    press(mc, "gui.standandhold.tab_duties"); press(mc, "gui.standandhold.duty_guard"); phase = 80; settle = 0;
+                }
+                case 80 -> {
+                    if (++settle > 200) { throw new IllegalStateException("Actual Guard action did not sync"); }
+                    if (!(mc.player.containerMenu instanceof BuildingMenu menu) || menu.number(BuildingMenu.DUTY_MODE) != 0 || menu.number(BuildingMenu.WATCH_STATUS) != 0 || settle < 15) { return; }
+                    capture(mc, "duties-guard-reset-large", 54);
+                }
                 case 8 -> {
                     if (mc.gui.hud.isHidden()) { mc.gui.hud.toggle(); }
                     mc.gui.setScreen(null);

@@ -59,6 +59,18 @@ A loaded, writable Field Command Post may deploy one unlocked unit every **1,200
 
 The area cap is not a global population budget. Widely separated posts can each recruit a small group. Do not use mass admin egg/spawner automation as performance evidence.
 
+## Local Duty Contract
+
+Command Posts default to **Guard**, retaining existing home/wander behaviour. The Duties tab or admin `/standandhold commandpost duty guard|patrol` selects a saved per-post policy; `duty status` inspects the nearest loaded post within 64 blocks and at most its 16 reserved UUIDs. Ordinary menu users need the same local ownership/range/validity checks as other building actions. Switching policy never recruits, pays, grants rewards, changes quotas or adopts test eggs.
+
+Patrol uses two short waypoints south of the post. A proven applied revision-2 yard additionally offers exactly one watch slot at its west deck's open centre. Only existing home-assigned **ledger members** may claim it. The UUID reservation lives in the post, including across unload/restart. A missing loaded-entity lookup does not release it; confirmed roster removal permits reassignment. Guard explicitly clears the slot. An occupied, damaged, unloaded or unsupported destination is not repaired or teleported to.
+
+Vanilla combat outranks temporary response orders, which outrank local duties. A response order holds its destination until its existing expiry; local work resumes afterward. Combat interrupts local travel and returns to a valid duty afterward. Missing loaded posts release homes through the existing removal check; unloaded homes suspend duty without assuming death. Dormant Main Bases suspend local work. Watch is a position assignment, not a new sensor, turret, sight-range bonus or spawn source.
+
+Post/ledger/waypoint resolution is throttled to 40 ticks per assigned NPC. Navigation requests are at most one per 40 ticks; three unproductive attempts incur 200 ticks of backoff. There are two waypoints and one watch target, with loaded support/headroom/fluid/border/collision checks and vanilla non-loading pathfinding. No global tick handler, entity scan, chunk ticket, population catch-up or teleport is added. The existing target search and home radius remain unchanged.
+
+Optional post `duties` version 1 stores mode and watch UUID; unknown fields survive writes, while unknown/malformed policies remain retained and disable only duty controls. Missing data means Guard. Entity home/UUID/type/health/gear remain existing saved data, with one clamped waypoint index added. Runtime path/backoff counters restart without offline catch-up. This is not a world-schema upgrade or legacy conversion.
+
 ## Saved Quotas And Removal
 
 Modern `HumanWorldData` schema **4** adds a bounded `defenders` compound: dimension-aware post key to at most 16 reserved entity UUIDs. Existing modern schema 0-3 data migrates without deleting progression, research, mission receipts, registrations or unknown fields. This does not import 1.12 worlds. The ledger dirties only when a reservation changes.

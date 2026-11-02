@@ -159,6 +159,7 @@ final class RestartFixture {
         RestartGrowthFixture.seed(level, receipt);
         RestartTierFixture.seed(level, receipt);
         RestartYardFixture.seed(level, receipt);
+        RestartDutyFixture.seed(level, receipt);
     }
     private static void verify(MinecraftServer server, ServerLevel level) {
         var data = HumanWorldData.get(server); var base = tile(level, BASE); var lab = tile(level, LAB);
@@ -200,6 +201,7 @@ final class RestartFixture {
         RestartGrowthFixture.verify(level, receipt);
         RestartTierFixture.verify(level, receipt);
         RestartYardFixture.verify(level, receipt);
+        RestartDutyFixture.verify(level, receipt);
     }
     private static HumanWorldData data(ServerLevel level) { return HumanWorldData.get(level.getServer()); }
     private static String preview(ServerLevel level) {
