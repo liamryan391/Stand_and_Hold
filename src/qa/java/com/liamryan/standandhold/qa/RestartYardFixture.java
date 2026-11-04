@@ -17,7 +17,13 @@ final class RestartYardFixture {
             var lab=(BuildingBlockEntity)level.getBlockEntity(post.getBlockPos().offset(-2,0,-1));lab.change(new BuildingState(1,23,3,"standandhold:field_communications",4,false));
             var plan=LevelTwoGrowth.inspect(level,post);var op=new ExpansionOperation(UUID.randomUUID(),plan.site().id(),plan.changes(),OutpostExpansion.yardDigest(level,post,plan.site(),plan.changes()),ExpansionOperation.Phase.PREPARED,0,"",0,2);
             var access=OutpostExpansion.access(level,post,op);
-            if(i==0){check(ExpansionApply.apply(op,access).success(),"Real direct yard before restart");}
+            if(i==0){
+                check(ExpansionApply.apply(op,access).success(),"Real direct yard before restart");
+                post.change(new BuildingState(3,11,2,"",0));
+                var before=post.saveWithFullMetadata(level.registryAccess());
+                check(LevelThreePreview.inspect(level,post).changes().size()==63,"Read-only deck candidate before restart");
+                check(before.equals(post.saveWithFullMetadata(level.registryAccess())),"Preview leaves receipt/storage unchanged before restart");
+            }
             else{
                 post.storeYardOperation(op);int count=i==1?7:op.changes().size();
                 for(int cell=0;cell<count;cell++){check(access.write(op.changes().get(cell)),"Interrupted real yard write");}
@@ -33,7 +39,7 @@ final class RestartYardFixture {
         for(int i=0;i<CHUNKS.length;i++){
             var post=(BuildingBlockEntity)level.getBlockEntity(BlockPos.of(Long.parseLong(receipt.getProperty("yard."+i+".post"))));
             check(post!=null&&post.site().id().toString().equals(receipt.getProperty("yard."+i+".site")),"Same yard site identity after restart");
-            check(post.state().equals(new BuildingState(2,11,2,"",0)),"No repeat costs/refill after restart");
+            check(post.state().equals(new BuildingState(i==0?3:2,11,2,"",0)),"No repeat costs/refill after restart");
             var lab=(BuildingBlockEntity)level.getBlockEntity(post.getBlockPos().offset(-2,0,-1));
             check(lab.state().equals(new BuildingState(1,23,3,"standandhold:field_communications",4,false)),"Paused lab storage/target/work retained");
             var op=post.yardOperation().orElseThrow();check(op.id().toString().equals(receipt.getProperty("yard."+i+".operation")),"Same operation identity");
@@ -41,6 +47,12 @@ final class RestartYardFixture {
             check(observed==(i==1?ExpansionOperation.Observed.MIXED:ExpansionOperation.Observed.ALL_AFTER),"Exact saved write prefix/all-after state");
             for(int tick=0;tick<com.liamryan.standandhold.config.ResponseConfig.CHECK_INTERVAL.get();tick++){BuildingBlockEntity.tick(level,post.getBlockPos(),post.getBlockState(),post);}
             check(post.yardOperation().orElseThrow().equals(op),"No automatic receipt replay or repair after restart");
+            if(i==0){
+                var before=post.saveWithFullMetadata(level.registryAccess());
+                var plan=LevelThreePreview.inspect(level,post);
+                check(plan.changes().size()==63&&plan.reads()==1521,"Same bounded deck candidate after real JVM restart");
+                check(before.equals(post.saveWithFullMetadata(level.registryAccess()))&&post.site().appliedRevision()==2,"No preview receipt, block work or dirty data replay");
+            }
             if(i==2){
                 var actor=QaPlayer.join(level);var p=post.getBlockPos();actor.snapTo(p.getX()+.5,p.getY(),p.getZ()+4.5,180,16);
                 OutpostExpansion.recover(actor,post);check(post.site().appliedRevision()==2,"Explicit all-after recovery after real restart");QaPlayer.closeAll();

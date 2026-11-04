@@ -1,20 +1,21 @@
 # Status
-Updated: 2026-11-02
+Updated: 2026-11-04
 
 ## Position
-- M24 24.1-24.4 exit gate passed on codex/m24-local-storage; Windows implementation CI 41546801428 green. M23 feel feedback passed.
-- Explicit opt-in levelled Command Post storage preserves flat defaults and lab/crate limits; paid upgrades add empty capacity, never a refill.
+- M25 25.1-25.3 complete on codex/m25-level3-preview; 25.4 local gates passed, CI/publication pending.
+- Read-only 63-cell upper-deck candidate; 1,521-cell loaded preflight. No application/receipt, cost, refill or mode change.
 - No stats, spawn/cost limits, dependencies, version or pins changed. Legacy references, packaged M22 profile and user worlds/configs preserved.
 - NeoForge-first; Fabric M14 14.4-14.5 deferred. Pins: MC 26.3 / NeoForge 26.3.0.57-beta / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
 
 ## Verified
-- M24 exact clean build passed (5s), 30,656 assertions. Full 121-case native run passed (34s) with all required assertions retained; one prior intermittent failure is recorded below.
-- Two-JVM restart qa-c504c2a9 passed: paid level 4, 6,001 over-cap supplies/2 samples retained; mode-disable/export conserved resources and did not refill or clamp.
-- Isolated runQaClient passed (1m56s); all 62 d5b5259e-prefix PNGs opened/reviewed, including storage-level-two-large.png and storage-upgrade-applied-large.png. Art/packaging checks passed.
-- Normal jar metadata/QA exclusion inspected; SHA256 311ef7d3495f1242a30b1aae9ee5401946038bc434641e4dbe4b9900d1f3e2e8. No M24 packaged-install pass claimed.
+- M25 clean build/native run passed (33s): 33,802 logic assertions and all 131 required GameTests, including 10 new strict read-only cases.
+- Valid direct/apron histories, every proposed edit/roof replacement, protected terrain/headroom/entities, unknown receipts, menu/command authority and no automatic work passed.
+- Two-JVM restart qa-0ea93fbf passed: same 63-cell candidate after reload; no receipt, resource reset or automatic application.
+- runQaClient passed (2m1s); five new 66af355b-prefix preview PNGs and eight representative menu/apron regressions opened/reviewed. Render waits fixed early captures.
+- Art/packaging-preparation checks passed; normal jar metadata/QA exclusion inspected. Final publication waits for green Windows CI.
 
 ## Risks And Decisions
-- Known QA risks: one pre-menu native client exit and one duty_blocked_backoff chunk-count failure; unchanged checks passed afterward. Causes unverified; never skip failures.
+- Prior QA risks: one pre-menu native client exit and one duty_blocked_backoff chunk-count failure; retained checks passed in M25's full native run. Causes unverified.
 - M22 isolated fixture retained; its one-server EULA authorization does not apply to fresh prompts. No account handling or reusable acceptance flag added.
 - Real multiplayer/load, other launcher/OS and external threats remain unverified; Contagion unsupported. No new earned-loop/player-only drop pass or public release claimed.
 - Runtime libraries/test mods, pins and fresh EULA prompts retain their approval boundaries. Preserve `1.12`, alpha tag, worlds/configs and original code/art.

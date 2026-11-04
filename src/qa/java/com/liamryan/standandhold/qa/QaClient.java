@@ -98,6 +98,8 @@ public final class QaClient {
     private static final List<String> YARD_VIEWS = List.of("yard-overhead", "yard-entrance", "yard-watch-deck", "yard-watch-view");
     private static final List<String> TIER_VIEWS = List.of("tiers-front", "tiers-back", "heavy-side", "elite-side", "tiers-torchlight", "tier-eggs", "heavy-front", "elite-front");
     private boolean previewReply, previewBlockedReply;
+    private boolean deckReply, deckBlockedReply;
+    private net.minecraft.nbt.CompoundTag deckPostBefore, deckHumanBefore;
     private boolean expansionDisabledReply, expansionAppliedReply, expansionStatusReply;
     private String consentCommand, expansionProtected;
     private net.minecraft.nbt.CompoundTag previewPostBefore, previewGlobalBefore;
@@ -111,6 +113,8 @@ public final class QaClient {
         if (text.contains("Expansion is disabled by default")) { expansionDisabledReply = true; }
         if (text.contains("Apron applied once")) { expansionAppliedReply = true; }
         if (text.contains("APPLIED / ALL_AFTER")) { expansionStatusReply = true; }
+        if (text.contains("Level-3 upper deck / READ ONLY")) { deckReply = true; }
+        if (text.contains("Level-3 source/headroom changed")) { deckBlockedReply = true; }
         if (event.getMessage().getStyle().getClickEvent() instanceof net.minecraft.network.chat.ClickEvent.SuggestCommand suggest
                 && suggest.command().startsWith("/standandhold outpost expand ")) { consentCommand = suggest.command(); }
     }
@@ -523,7 +527,65 @@ public final class QaClient {
                     if (settle < 35 || !mc.levelRenderer.isSectionCompiledAndVisible(growthPost, 0)) { return; }
                     capture(mc, YARD_VIEWS.get(yardView), 62);
                 }
-                case 62 -> { yardView++; phase = yardView == YARD_VIEWS.size() ? 70 : 60; settle = 0; }
+                case 62 -> { yardView++; phase = yardView == YARD_VIEWS.size() ? 90 : 60; settle = 0; }
+                case 90 -> {
+                    if (mc.gui.hud.isHidden()) { mc.gui.hud.toggle(); }
+                    mc.options.guiScale().set(2); mc.resizeGui(); phase = 91; settle = 0;
+                    onServer(mc, () -> {
+                        var level = mc.getSingleplayerServer().overworld(); var post = tile(level, growthPost); var actor = player(mc); actor.closeContainer();
+                        post.change(new BuildingState(2,post.state().supplies(),post.state().samples(),"",0));
+                        actor.connection.teleport(growthPost.getX()+.5,growthPost.getY(),growthPost.getZ()+4.5,180,16); actor.openMenu(post,post::writeMenuData);
+                    });
+                }
+                case 91 -> {
+                    if (++settle > 200) { throw new IllegalStateException("Deck level gate menu missing"); }
+                    if (!(mc.gui.screen() instanceof BuildingScreen) || !(mc.player.containerMenu instanceof BuildingMenu menu) || menu.number(BuildingMenu.LEVEL)!=2 || settle<15) { return; }
+                    press(mc,"gui.standandhold.tab_growth"); phase=104; settle=0;
+                }
+                case 104 -> { if (++settle>=6) { capture(mc,"deck-preview-requires-level",92); } }
+                case 92 -> {
+                    phase=93;
+                    onServer(mc, () -> {
+                        var level=mc.getSingleplayerServer().overworld(); var post=tile(level,growthPost); var actor=player(mc); actor.closeContainer();
+                        post.change(new BuildingState(3,post.state().supplies(),post.state().samples(),"",0));
+                        deckPostBefore=post.saveWithFullMetadata(level.registryAccess());
+                        deckHumanBefore=(net.minecraft.nbt.CompoundTag)HumanWorldData.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE,HumanWorldData.get(level.getServer())).getOrThrow();
+                        actor.openMenu(post,post::writeMenuData);
+                    });
+                }
+                case 93 -> {
+                    if (++settle > 200) { throw new IllegalStateException("Deck preview menu missing"); }
+                    if (!(mc.gui.screen() instanceof BuildingScreen) || !(mc.player.containerMenu instanceof BuildingMenu menu) || menu.number(BuildingMenu.LEVEL)!=3 || menu.number(BuildingMenu.LAYOUT_REVISION)!=2 || settle<15) { return; }
+                    press(mc,"gui.standandhold.tab_growth"); phase=105; settle=0;
+                }
+                case 105 -> { if (++settle>=6) { capture(mc,"deck-preview-only",94); } }
+                case 94 -> { mc.options.guiScale().set(3); mc.resizeGui(); phase=95; settle=0; }
+                case 95 -> { if (++settle>=8) { capture(mc,"deck-preview-only-large",96); } }
+                case 96 -> { mc.gui.hud.getChat().clearMessages(true); press(mc,"gui.standandhold.preview_deck"); phase=97; settle=0; }
+                case 97 -> {
+                    if (++settle>200) { throw new IllegalStateException("Actual deck preview menu reply missing"); }
+                    if (!deckReply || settle<12) { return; } phase=98;
+                    onServer(mc, () -> { checkDeckUnchanged(mc); player(mc).closeContainer(); });
+                }
+                case 98 -> {
+                    if (++settle<12 || mc.player.containerMenu!=mc.player.inventoryMenu) { return; }
+                    mc.gui.setScreen(new ChatScreen("",false)); capture(mc,"deck-preview-plan-large",99);
+                }
+                case 99 -> {
+                    phase=100;
+                    onServer(mc, () -> { var post=tile(mc.getSingleplayerServer().overworld(),growthPost); mc.getSingleplayerServer().overworld().setBlockAndUpdate(post.site().center().offset(2,6,3),Blocks.GOLD_BLOCK.defaultBlockState()); });
+                }
+                case 100 -> { mc.gui.hud.getChat().clearMessages(true); mc.player.connection.sendCommand("standandhold outpost layout"); phase=101; settle=0; }
+                case 101 -> {
+                    if (++settle>200) { throw new IllegalStateException("Specific deck preview blocker missing"); }
+                    if (!deckBlockedReply || settle<12) { return; } phase=102;
+                    onServer(mc, () -> checkDeckUnchanged(mc));
+                }
+                case 102 -> { capture(mc,"deck-preview-blocked-large",103); }
+                case 103 -> {
+                    phase=70;
+                    onServer(mc, () -> { var level=mc.getSingleplayerServer().overworld(); var post=tile(level,growthPost); level.setBlockAndUpdate(post.site().center().offset(2,6,3),Blocks.AIR.defaultBlockState()); });
+                }
                 case 70 -> {
                     if (mc.gui.hud.isHidden()) { mc.gui.hud.toggle(); }
                     mc.options.guiScale().set(2); mc.resizeGui(); phase = 71; settle = 0;
@@ -613,6 +675,12 @@ public final class QaClient {
         }
     }
     private static ServerPlayer player(Minecraft mc) { return Objects.requireNonNull(mc.getSingleplayerServer().getPlayerList().getPlayer(mc.player.getUUID())); }
+    private void checkDeckUnchanged(Minecraft mc) {
+        var level=mc.getSingleplayerServer().overworld(); var post=tile(level,growthPost);
+        if (!deckPostBefore.equals(post.saveWithFullMetadata(level.registryAccess()))
+                || !deckHumanBefore.equals(HumanWorldData.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE,HumanWorldData.get(level.getServer())).getOrThrow())
+                || post.site().appliedRevision()!=2) { throw new IllegalStateException("Deck preview changed saved state or built the layout"); }
+    }
     private static void press(Minecraft mc, String key) {
         if (!(mc.gui.screen() instanceof BuildingScreen screen)) { throw new IllegalStateException("Expected real building screen"); }
         var button = screen.children().stream().filter(child -> child instanceof net.minecraft.client.gui.components.Button)

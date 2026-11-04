@@ -135,5 +135,11 @@
   "item.standandhold.elite_boots": "Elite Boots",
   "message.standandhold.equipment_locked": "Equipment locked: requires human stage %s and research %s. Data must also be available.",
   "tooltip.standandhold.equipment_gate": "Requires stage %s and research %s (normal equip/use).",
-  "tooltip.standandhold.friendly_safe": "Players and allied teams are protected."
+  "tooltip.standandhold.friendly_safe": "Players and allied teams are protected.",
+  "gui.standandhold.preview_deck": "Preview deck",
+  "gui.standandhold.tip.preview_deck": "Read-only check of the Level-3 upper deck and stairs. Reports space/receipt blockers in chat. Does not build, charge, start work or change Automatic mode.",
+  "gui.standandhold.deck_requires_level": "Yard complete. Upper-deck preview needs local level 3.",
+  "gui.standandhold.deck_preview_only": "Upper deck: preview only. Placement not enabled.",
+  "gui.standandhold.deck_shape": "Plan: 5x4 deck + two-wide stairs",
+  "gui.standandhold.deck_check": "Preview reports space/blockers in chat"
 }

@@ -26,6 +26,7 @@ public final class ProgressionChecks {
         ExpansionChecks.run();
         OperationChecks.run();
         YardChecks.run();
+        LevelThreeChecks.run();
         ArtChecks.run();
         EquipmentChecks.run();
         ResponseChecks.run();

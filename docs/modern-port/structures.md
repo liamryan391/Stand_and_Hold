@@ -108,6 +108,28 @@ For proven radius-4 checkpoints at local level 2+, source revision 0 uses **183 
 
 `site.yard_operation` has `operation_version = 2`, source/target revision, exact ordered expected states and protected-envelope digest. The original `site.operation` is retained unchanged, including unknown fields. A completed yard sets `applied_revision = 2`; no global save migration is needed. Prepared/mixed/future data pauses rather than replaying. `status/recover` use the latest receipt; explicit all-after recovery seals metadata only. No repair/refill, rollback, extra cost/reward, population increase or power-loss atomicity is promised. The [detailed contract](outpost-expansion-design.md#level-2-yard-contract-m21) records bounds and preservation rules.
 
+## Read-Only Upper-Deck Preview
+
+At an intact revision-2 yard, upgrade the original Command Post to **local level 3** using its
+normal costs. Growth then offers **Preview deck**. It reports the candidate or the exact
+obstructing coordinate/entity in chat; it does not start construction. Operators can also look
+at the loaded post within six blocks and use `/standandhold outpost layout`. At revision 0/1
+that command still previews the Level-2 yard; the legacy apron commands are unchanged.
+
+The original candidate is a 5x4 upper floor over the command nook, two-wide north-facing stairs,
+rails and two lights: 63 planned cells, including replacement of nine roof slabs. The ground
+entrance, lab/crate/post, west watch deck, storage, work, defenders and saved modes remain.
+The strict source check covers a fixed 13x13x9 envelope (1,521 cached cells, one loaded chunk)
+and refuses changed walls/support/headroom, containers/fluids or actors in the proposed edits.
+Unknown/missing/inconsistent source receipts refuse without repair or adoption. A blocked
+preview changes no pause/mode/receipt, currency, blocks or dirty flags; legitimate storage
+changes after yard completion do not invalidate its historical receipt.
+
+**This is not a built Level-3 feature.** Expand/Automatic still stop after the supported yard;
+neither a high world stage nor local level 3-5 grants a floor. No additional purchase, token or
+mandatory command is introduced. Placement requires its separate guarded-application work.
+See the [exact preservation contract](outpost-expansion-design.md#level-3-read-only-contract).
+
 ## Operator Confirmed Apron Application
 
 Back up the **whole disposable modern world** before opting in. In its server-side `config/standandhold-structures.toml`, set `expansionEnabled = true` and restart the instance (do not reset unrelated config). Leave it false on servers that do not accept bounded ground replacement or have unverified claim/protection mods. Old/manual posts and Main Bases never become eligible. Upgrade a new supported checkpoint's post normally to local level 2; setting world stage alone does not upgrade it.

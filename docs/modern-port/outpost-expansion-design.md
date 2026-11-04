@@ -65,6 +65,52 @@ This is a small fortification, not a barracks/vehicle facility or a full growing
 
 ## Protection And Work Budgets
 
+### Level-3 Read-Only Contract
+
+The upper-deck candidate is **physical revision 2 -> 3**, distinct from global human Stage 3.
+Eligibility requires local post level 3-5, the original radius-4 checkpoint identity and an
+APPLIED revision-2 yard receipt. A direct yard requires no apron receipt; a yard sourced from
+revision 1 requires its APPLIED apron receipt. Missing, future, reordered, mixed or inconsistent
+receipts refuse; matching player blocks never establish provenance. Historical protected
+digests are not compared with current storage: normal supply/research changes are legitimate.
+
+Coordinates below are relative to the proven original floor centre, with south at +z:
+
+- Retain the entire 13x13 floor/perimeter, west watch deck, south three-wide entrance and all
+  three building positions/NBT. No NPC is moved, respawned or assigned a new home.
+- Upper floor: x=-1..3, z=-2..1, y=4 (20 stone-brick cells). Exactly the nine original bottom
+  smooth-stone roof slabs at x=-1..1, z=-2..0, y=4 are replaced; no old wall is removed.
+- New support columns: (-1,1), (3,1), (3,-2), each y=1..3 (9 cobblestone cells). Existing
+  rear command-nook columns remain. The lower command/lab/crate routes retain two-block headroom.
+- Two-wide north-facing stairs: x=2..3, z=5,4,3,2 at y=1,2,3,4 respectively (8 steps),
+  with all cells below each step down to y=1 filled (12 cobblestone supports). Landing is at
+  z=1, y=4. The south entrance remains open; approach stairs from the yard at z=5.
+- Twelve one-high deck rail cells at y=5 along the 5x4 perimeter, excluding the two southern
+  landing cells x=2..3,z=1. Two supported torches at (-1,-2) and (3,-2), y=6.
+- Total: **63 unique expected-state edits**, 9 roof replacements and 54 additions; no digging,
+  terrain replacements, extra storage/population bonus, price, reward or refill. Stair treads
+  and the upper walking area have two-block headroom (through y=6).
+
+The cached preflight envelope is x/z=-6..6, y=-1..7: **1,521 unique block-state reads**, 169
+columns, within the existing 2,048-read/256-write ceilings and one originating chunk. Exact
+authored revision-2 states are required throughout (the three known building tiles are retained);
+the support layer y=-1 must be full dry natural ground. Additional blocks, containers, fluids,
+missing/altered walls, roofs, floors, watch deck or headroom refuse without mutation. Identical
+player-placed replacements remain indistinguishable and confer no ownership/claim approval.
+The separate protected-verification envelope for future application is the same fixed 1,521
+cells plus the three existing building NBT records, not an unbounded neighborhood hash.
+One loaded-entity query, capped at 128 candidates, checks the changed cells and two blocks over
+roof replacements; actors standing on the changed roof/support are not relocated or ignored.
+
+M25 inspects only: no receipt/version is added, no block or balance changes, no dirty flags,
+mode/pause changes, token, automatic preview tick or saved plan. Menu Preview and operator
+`outpost layout` report the plan or specific blocker. Existing `preview/prepare/expand` retain
+their apron meaning. Manual/Automatic still apply only the supported Level-2 yard; an already
+level-3/4/5 post is not rebuilt or charged by inspection. A site behind its physical revision
+must complete each supported delta, at most one per explicit action/existing automatic cadence.
+Purchasing a local level remains the normal independent paid upgrade. M26 must extend receipts
+and guards before revision-3 application is admitted; a downgrade will not demolish a built floor.
+
 Server thread only, explicit operator action, no tick queue or automatic response to stage/level changes:
 
 1. Resolve the looked-at loaded post within six blocks; require operator level 2, same dimension, non-spectator, supported site/building saves and actual tile identity. Recheck allowed dimensions, world border and build height. Do not accept arbitrary remote coordinates or a force/overwrite flag.

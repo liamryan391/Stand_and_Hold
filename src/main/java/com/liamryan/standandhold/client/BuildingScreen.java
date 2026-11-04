@@ -21,7 +21,7 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
     private Button start;
     private Button deposit;
     private Button withdraw;
-    private Button expand, manual, automatic, statusTab, growthTab, dutyTab, guard, patrol;
+    private Button expand, previewDeck, manual, automatic, statusTab, growthTab, dutyTab, guard, patrol;
     private boolean growthView;
     private boolean dutyView;
     private boolean sampleMode;
@@ -42,6 +42,7 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
         if (menu.kind() == BuildingKind.COMMAND_POST) {
             upgrade = button("upgrade", 202, 177, 90, UPGRADE);
             expand = button("expand", 8, 177, 90, EXPAND);
+            previewDeck = button("preview_deck", 8, 177, 90, PREVIEW_DECK);
             manual = button("growth_manual", 102, 177, 90, GROWTH_MANUAL);
             automatic = button("growth_automatic", 202, 177, 90, GROWTH_AUTOMATIC);
             statusTab = addRenderableWidget(Button.builder(Component.translatable("gui.standandhold.tab_status"), b -> { growthView = false; dutyView = false; updateGrowth(); })
@@ -87,6 +88,9 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
         expand.setMessage(Component.translatable(state == OutpostGrowth.TERRAIN || state == OutpostGrowth.ENTITY ? "gui.standandhold.retry_growth" : "gui.standandhold.expand"));
         upgrade.visible = !growthView && !dutyView;
         expand.visible = manual.visible = automatic.visible = growthView;
+        previewDeck.visible = growthView && menu.number(LAYOUT_REVISION) == 2;
+        previewDeck.active = valid && menu.number(LEVEL) >= 3 && state == OutpostGrowth.EXPANDED;
+        if (previewDeck.visible) { expand.visible = false; }
         guard.visible = patrol.visible = dutyView;
         guard.active = valid && menu.number(DUTY_MODE) == 1;
         patrol.active = valid && menu.number(DUTY_MODE) == 0;
@@ -140,6 +144,15 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
             }
             if (growthView) {
                 line(g, 88, "gui.standandhold.growth_mode", Component.translatable(menu.number(GROWTH_MODE) == 1 ? "gui.standandhold.growth_automatic" : "gui.standandhold.growth_manual"));
+                if (menu.number(LAYOUT_REVISION) == 2) {
+                    String key = menu.number(GROWTH_STATUS) != OutpostGrowth.EXPANDED ? "gui.standandhold.growth_status." + Math.clamp(menu.number(GROWTH_STATUS), 0, 8)
+                            : menu.number(LEVEL) < 3 ? "gui.standandhold.deck_requires_level" : "gui.standandhold.deck_preview_only";
+                    wrap(g, Component.translatable(key).getString(), 102);
+                    line(g, 128, "gui.standandhold.deck_shape");
+                    line(g, 142, "gui.standandhold.deck_check");
+                    line(g, 156, "gui.standandhold.growth_preserved");
+                    return;
+                }
                 wrap(g, Component.translatable("gui.standandhold.growth_status." + Math.clamp(menu.number(GROWTH_STATUS), 0, 8)).getString(), 102);
                 line(g, 128, "gui.standandhold.growth_footprint");
                 line(g, 142, "gui.standandhold.growth_ground");
