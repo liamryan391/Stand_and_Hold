@@ -482,7 +482,7 @@ This planning pass changes no gameplay, balance, version, toolchain, dependency 
 | M23 `codex/m23-defender-duties` | P2 | M22 | Guard/Patrol choice and one reachable watch assignment at a supported outpost |
 | M24 `codex/m24-local-storage` | P2 | M22-M23 | Level-aware Command Post supply capacity; no new supply network |
 | M25 `codex/m25-level3-preview` | P2 | M23-M24 | One Level-3 upper-deck contract and read-only planner; no placement |
-| M26 `codex/m26-level3-growth` | P2 | M25 gate | That one guarded delta through existing growth controls |
+| M26 `codex/m26-level3-application` | P2 | M25 gate | That one guarded delta through existing growth controls |
 | M27 `codex/m27-motion-polish` | P3 | M23, M26 | One original Rifleman/Launcher presentation slice; library admission only if necessary |
 | M28 `codex/m28-specialist-tiers` | P2 | M23, M27 | Super Elite and Special Division using existing weapon/deployment foundations |
 | M29 `codex/m29-mainbase-layout` | P2 | M26, M28 | One original new-site Main Base layout; no old-base retrofit or multi-chunk engine |
@@ -564,7 +564,7 @@ Scope: apply only that authored revision-2-to-Level-3 delta through existing gro
 - [x] **26.1 Extend receipts additively.** Retain old apron/yard intent, unknown fields and site identity; persist only the new exact bounded operation/progress. Missing/malformed/future or mixed state pauses instead of replaying, and historical digests are not confused with ordinary later storage changes.
 - [x] **26.2 Apply through shared expected-state guards.** Validate actors/config/level and expected state before each write, plus protected data at completion. Refuse altered supports, occupied stairs/decks and lost anchors; preserve inventory/work, health, rosters and cooldowns. No rollback over a newly placed build and no claim of crash-atomic saves or arbitrary third-party callback safety.
 - [x] **26.3 Reuse Manual/Automatic and operator tools.** One Expand/Retry applies the next eligible supported layout; opted-in Automatic uses the existing bounded cadence and saved pause. Keep old admin commands, clear preview/status and explicit all-after metadata recovery; a cosmetic level downgrade does not demolish an existing floor.
-- [ ] **26.4 Verify failure and restart.** Native tests inject first/middle/last-write failure, late state/entity obstruction where supported, changed protected data, missing anchor and repeated/concurrent actions. Test real navigation to both floors/buildings, exact all-after recovery and two-JVM no-replay; review before/after/interior/menu captures and pass CI.
+- [x] **26.4 Verify failure and restart.** Native tests inject first/middle/last-write failure, late state/entity obstruction where supported, changed protected data, missing anchor and repeated/concurrent actions. Test real navigation to both floors/buildings, exact all-after recovery and two-JVM no-replay; review before/after/interior/menu captures and pass CI.
 
 Exit gate: one Level-3 site grows usefully with reachable access and preserved old state, while partial/unknown operations fail safely. No routine recovery command or repeated resource grant is needed to enjoy the upgrade.
 
