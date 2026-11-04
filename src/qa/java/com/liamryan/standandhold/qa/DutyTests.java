@@ -30,6 +30,7 @@ final class DutyTests {
         cases.put("duty_combat_creeper_return", h -> combat(h, EntityTypes.CREEPER));
         cases.put("duty_missing_post", DutyTests::missing);
         cases.put("duty_unloaded_home", DutyTests::unloaded);
+        cases.put("duty_chunk_audit_control", DutyTests::chunkAuditControl);
         cases.put("duty_unresolved_watch_owner", DutyTests::unresolved);
         cases.put("duty_menu_authority_save", DutyTests::menu);
         cases.put("duty_response_priority", DutyTests::response);
@@ -101,11 +102,13 @@ final class DutyTests {
             if (x == 0 && z == 0) { continue; }
             for (int y = 0; y < 4; y++) { h.getLevel().setBlockAndUpdate(goal.offset(x, y, z), Blocks.STONE.defaultBlockState()); }
         } }
-        var npc = assigned(h, post, post.getBlockPos().offset(0, 0, 7)); int chunks = h.getLevel().getChunkSource().getLoadedChunksCount();
+        var npc = assigned(h, post, post.getBlockPos().offset(0, 0, 7));
+        var chunks = chunkHolders(h);
+        h.onEachTick(() -> assertNoNewChunks(h, chunks));
         h.runAfterDelay(240, () -> {
             h.assertTrue(npc.localDuty().requests() > 0 && npc.localDuty().requests() <= 3, "Unreachable path uses at most three requests then backoff, not per-tick retries");
             h.assertTrue(npc.position().distanceToSqr(goal.getX() + .5, goal.getY(), goal.getZ() + .5) > 1, "No teleport into unreachable enclosure");
-            h.assertTrue(chunks == h.getLevel().getChunkSource().getLoadedChunksCount(), "Stuck duty requests no chunks (before=" + chunks + ", after=" + h.getLevel().getChunkSource().getLoadedChunksCount() + ")"); h.succeed();
+            assertNoNewChunks(h, chunks); h.succeed();
         });
     }
     private static void reassign(GameTestHelper h) {
@@ -178,11 +181,38 @@ final class DutyTests {
     private static void unloaded(GameTestHelper h) {
         QaWorld.begin(h); var npc = h.spawn(NpcRegistry.SURVIVOR.get(), HOME); var pos = h.absolutePos(HOME).offset(4096, 0, 4096);
         var home = new BuildingPosition(h.getLevel().dimension().identifier(), pos); data(h).registerCommandPost(home); npc.assignPost(home); data(h).reserveDefender(home.key(), npc.getUUID(), 16);
-        h.assertFalse(h.getLevel().hasChunkAt(pos), "Far home deliberately unloaded"); int chunks = h.getLevel().getChunkSource().getLoadedChunksCount();
+        h.assertFalse(h.getLevel().hasChunkAt(pos), "Far home deliberately unloaded");
+        var chunks = chunkHolders(h);
+        h.onEachTick(() -> assertNoNewChunks(h, chunks));
         h.runAfterDelay(100, () -> {
             h.assertTrue(npc.commandPost().orElseThrow().equals(home) && data(h).hasDefender(home.key(), npc.getUUID()) && npc.localDuty().requests() == 0, "Unloaded home is suspended, not treated as death");
-            h.assertFalse(h.getLevel().hasChunkAt(pos), "Duty never loads absent home"); h.assertTrue(chunks == h.getLevel().getChunkSource().getLoadedChunksCount(), "No chunk growth"); h.succeed();
+            h.assertFalse(h.getLevel().hasChunkAt(pos), "Duty never loads absent home"); assertNoNewChunks(h, chunks); h.succeed();
         });
+    }
+    private static void chunkAuditControl(GameTestHelper h) {
+        QaWorld.begin(h); var before = chunkHolders(h);
+        var pos = h.absolutePos(HOME).offset(4096, 0, 4096);
+        h.assertFalse(h.getLevel().hasChunkAt(pos), "Control starts without remote chunk");
+        h.getLevel().getChunkAt(pos);
+        var added = chunkHolders(h); added.removeAll(before);
+        h.assertTrue(!added.isEmpty(), "Coordinate audit detects a deliberate QA-only load"); h.succeed();
+    }
+    // Count equality mistakes unrelated unloads for loads and can hide equal-sized replacements.
+    // Inspect both pinned maps so pending generation is included before the delayed AI checks.
+    private static Set<Long> chunkHolders(GameTestHelper h) {
+        var map = h.getLevel().getChunkSource().chunkMap; var keys = new HashSet<Long>();
+        try {
+            for (var name : List.of("updatingChunkMap", "visibleChunkMap")) {
+                var field = net.minecraft.server.level.ChunkMap.class.getDeclaredField(name);
+                field.setAccessible(true);
+                keys.addAll(((Map<Long, ?>) field.get(map)).keySet());
+            }
+        } catch (ReflectiveOperationException failure) { throw new IllegalStateException("Pinned QA chunk audit unavailable", failure); }
+        return keys;
+    }
+    private static void assertNoNewChunks(GameTestHelper h, Set<Long> before) {
+        var added = chunkHolders(h); added.removeAll(before);
+        h.assertTrue(added.isEmpty(), "Duty adds no chunk holders, even while unrelated chunks unload: " + added);
     }
     private static void unresolved(GameTestHelper h) {
         var post = begin(h, true); var key = home(h, post).key(); var absent = UUID.randomUUID(); data(h).reserveDefender(key, absent, 16);
