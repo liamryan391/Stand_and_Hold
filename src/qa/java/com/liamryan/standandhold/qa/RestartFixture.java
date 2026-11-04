@@ -166,13 +166,14 @@ final class RestartFixture {
         RestartYardFixture.seed(level, receipt);
         RestartDutyFixture.seed(level, receipt);
         RestartStorageFixture.seed(level, BASE, receipt);
+        RestartDeckFixture.seed(level, receipt);
     }
     private static void verify(MinecraftServer server, ServerLevel level) {
         var data = HumanWorldData.get(server); var base = tile(level, BASE); var lab = tile(level, LAB);
         check(data.points() == 42 && data.stage() == HumanStage.SURVIVORS && data.supplies() == 110, "Global progression/supply balances including once-only support debit");
         check(data.isResearchComplete("standandhold:parasite_samples"), "Research receipt");
         check(data.mission("standandhold:recover_parasite_samples").orElseThrow().progress() == 2, "Partial mission");
-        check(data.isMainBase(new BuildingPosition(level.dimension().identifier(), BASE)) && data.commandPostKeys().size() == 16, "All sixteen original/generated/operation/growth/tier/yard site registrations");
+        check(data.isMainBase(new BuildingPosition(level.dimension().identifier(), BASE)) && data.commandPostKeys().size() == 20, "All twenty original/generated/operation/growth/tier/yard/deck site registrations");
         var checkpoint = BlockPos.of(Long.parseLong(receipt.getProperty("checkpoint")));
         check(data.commandPostKeys().contains(new BuildingPosition(level.dimension().identifier(), checkpoint).key()), "Generated checkpoint registration survived");
         check(tile(level, checkpoint).site().id().toString().equals(receipt.getProperty("siteUuid"))
@@ -209,6 +210,7 @@ final class RestartFixture {
         RestartYardFixture.verify(level, receipt);
         RestartDutyFixture.verify(level, receipt);
         RestartStorageFixture.verify(level, receipt);
+        RestartDeckFixture.verify(level, receipt);
     }
     private static HumanWorldData data(ServerLevel level) { return HumanWorldData.get(level.getServer()); }
     private static String preview(ServerLevel level) {

@@ -65,6 +65,44 @@ This is a small fortification, not a barracks/vehicle facility or a full growing
 
 ## Protection And Work Budgets
 
+### Level-3 Application Contract
+
+Application uses only the M25 63-cell candidate below. An additive `site.deck_operation`
+(`operation_version=3`, source 2, target 3) records ordered exact before/after cells and a
+protected digest. Apron/yard receipts, site identity and unknown fields remain intact. The
+source must be a sealed, unmodified revision-2 yard at local level 3+; matching blocks never
+substitute for receipts. Every new receipt validates the original roof/air before states.
+
+Preflight stays at 1,521 cached block states, 63 edits, one chunk and one entity query capped
+at 128 candidates. Protected verification separately covers the fixed 13x13 x y=-1..7
+envelope, excluding the 63 edits, and at most three original building NBT records (256 KiB
+each). It normalises only applied revision, this operation's changing receipt and growth
+policy; it retains old receipts, lab work, storage and duty/roster data. Its historical
+digest is not an instruction to repair after legitimate later storage or duty changes.
+
+The existing synchronous applicator checks actor/config/stage/local state, anchor identity
+and expected before state before each write; completion verifies all after states and
+protected data. The bounded preflight entity snapshot is also rechecked immediately before
+each deck write, including actors standing over replaced roof slabs. This catches an already
+observed actor moved into an edit by a callback without additional entity queries. New entities
+inserted from outside that snapshot by arbitrary third-party callbacks are not guaranteed;
+there is no async player movement between ordinary synchronous server-thread writes.
+
+Manual Expand/Retry and Automatic use the same service. At most one supported revision delta
+is applied per action/existing cadence: a high-level revision-0 site first gets its yard,
+not both floors at once. Buying a level remains the independent normal paid action; physical
+growth gives no supplies, samples, soldiers, points or capacity bonus. Server disable wins.
+An applied upper deck remains when local level/world stage drops; the original west watch
+deck/duty slot stays available and no new patrol or population budget is added.
+After a sealed deck, the derived east yard waypoint moves from post+(2,0,3) to +(4,0,3)
+to clear the stairs. Saved waypoint indexes/homes and actors are not reset or teleported.
+
+PREPARED/all-before, mixed, conflicting, missing/future receipts or lost anchors never replay
+on load. They pause for review, with no rollback over player edits or resurrection of tiles.
+Explicit operator `outpost recover` may seal an unsealed fully matching all-after operation
+and protected state, metadata only. Sealed/damaged decks do not repair or refill. Same-chunk
+saves reduce scope but are not a durable journal, power-loss guarantee or claim-mod approval.
+
 ### Level-3 Read-Only Contract
 
 The upper-deck candidate is **physical revision 2 -> 3**, distinct from global human Stage 3.

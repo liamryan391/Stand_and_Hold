@@ -57,6 +57,8 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
     private java.util.Optional<ExpansionOperation> operationCache;
     private long yardCacheEpoch = -1;
     private java.util.Optional<ExpansionOperation> yardCache;
+    private long deckCacheEpoch = -1;
+    private java.util.Optional<ExpansionOperation> deckCache;
     private OutpostGrowth.Settings growth = OutpostGrowth.Settings.DEFAULT;
     private Dynamic<?> retainedGrowth;
     private boolean growthSupported = true;
@@ -112,7 +114,7 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
     }
     public void storeSiteOperation(ExpansionOperation operation) {
         requireWritable(); var site = site(); operation.validateSite(site);
-        if (operation.targetRevision() != 1 || yardOperation().isPresent()) { throw new IllegalStateException("Legacy apron cannot replace a yard receipt."); }
+        if (operation.targetRevision() != 1 || yardOperation().isPresent() || deckOperation().isPresent()) { throw new IllegalStateException("Legacy apron cannot replace a yard/deck receipt."); }
         var old = siteOperation().orElse(null);
         if (kind() != BuildingKind.COMMAND_POST || isMainBase() || !worldPosition.equals(site.anchor())
                 || site.appliedRevision() != 0 && !(site.appliedRevision() == 1 && old != null && old.id().equals(operation.id()) && operation.phase() == ExpansionOperation.Phase.APPLIED)
@@ -140,7 +142,7 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
     }
     public void storeYardOperation(ExpansionOperation operation) {
         requireGrowthWritable(); var site = site(); operation.validateSite(site); var old = yardOperation().orElse(null);
-        if (operation.targetRevision() != 2 || kind() != BuildingKind.COMMAND_POST || isMainBase() || !worldPosition.equals(site.anchor())
+        if (operation.targetRevision() != 2 || deckOperation().isPresent() || kind() != BuildingKind.COMMAND_POST || isMainBase() || !worldPosition.equals(site.anchor())
                 || site.appliedRevision() != operation.sourceRevision() && !(site.appliedRevision() == 2 && old != null && old.id().equals(operation.id()) && operation.phase() == ExpansionOperation.Phase.APPLIED)
                 || old != null && (!old.id().equals(operation.id()) || !old.changes().equals(operation.changes()) || !old.protectedDigest().equals(operation.protectedDigest())
                         || old.sourceRevision() != operation.sourceRevision())) {
@@ -155,6 +157,33 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         for (String key : current.keySet()) { if (!key.equals("cells") || old == null) { saved.put(key, current.get(key)); } }
         tag.put("yard_operation", saved);
         if (operation.phase() == ExpansionOperation.Phase.APPLIED) { tag.putInt("applied_revision", 2); }
+        retainedSite = new Dynamic<>(NbtOps.INSTANCE, tag); siteEpoch++; setChanged();
+    }
+    public java.util.Optional<ExpansionOperation> deckOperation() {
+        if (deckCacheEpoch == siteEpoch) { return deckCache; }
+        var site = site(); var tag = (CompoundTag) retainedSite.convert(NbtOps.INSTANCE).getValue();
+        var parsed = tag.get("deck_operation") == null ? java.util.Optional.<ExpansionOperation>empty()
+                : java.util.Optional.of(ExpansionOperation.read(tag.get("deck_operation"), site));
+        if (parsed.isPresent() && parsed.get().targetRevision() != 3) { throw new IllegalArgumentException("Unsupported deck receipt revision."); }
+        deckCache = parsed; deckCacheEpoch = siteEpoch; return parsed;
+    }
+    public void storeDeckOperation(ExpansionOperation operation) {
+        requireGrowthWritable(); var site = site(); operation.validateSite(site); var old = deckOperation().orElse(null);
+        if (operation.targetRevision() != 3 || kind() != BuildingKind.COMMAND_POST || isMainBase() || !worldPosition.equals(site.anchor())
+                || site.appliedRevision() != 2 && !(site.appliedRevision() == 3 && old != null && old.id().equals(operation.id()) && operation.phase() == ExpansionOperation.Phase.APPLIED)
+                || old != null && (!old.id().equals(operation.id()) || !old.changes().equals(operation.changes()) || !old.protectedDigest().equals(operation.protectedDigest()))) {
+            throw new IllegalStateException("Cannot replace a sealed/ambiguous deck receipt or change its intent.");
+        }
+        var yard = yardOperation().orElseThrow(() -> new IllegalArgumentException("Deck requires a sealed yard receipt.")); var apron = siteOperation().orElse(null);
+        if (yard.phase() != ExpansionOperation.Phase.APPLIED || yard.sourceRevision() == 0 && apron != null
+                || yard.sourceRevision() == 1 && (apron == null || apron.phase() != ExpansionOperation.Phase.APPLIED)) {
+            throw new IllegalStateException("Deck requires consistent sealed apron/yard source receipts.");
+        }
+        var tag = ((CompoundTag) retainedSite.convert(NbtOps.INSTANCE).getValue()).copy();
+        var saved = tag.getCompoundOrEmpty("deck_operation").copy(); var current = operation.save();
+        for (String key : current.keySet()) { if (!key.equals("cells") || old == null) { saved.put(key, current.get(key)); } }
+        tag.put("deck_operation", saved);
+        if (operation.phase() == ExpansionOperation.Phase.APPLIED) { tag.putInt("applied_revision", 3); }
         retainedSite = new Dynamic<>(NbtOps.INSTANCE, tag); siteEpoch++; setChanged();
     }
     public boolean isMainBase() { return mainBase && kind() == BuildingKind.COMMAND_POST; }

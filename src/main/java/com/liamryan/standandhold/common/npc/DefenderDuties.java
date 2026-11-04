@@ -28,7 +28,9 @@ public final class DefenderDuties {
     public static BlockPos watchPosition(BuildingBlockEntity post) {
         try {
             var site = post.site();
-            return site.appliedRevision() == 2 && post.yardOperation().orElseThrow().phase() == ExpansionOperation.Phase.APPLIED
+            boolean supported = site.appliedRevision() == 2 || site.appliedRevision() == 3
+                    && post.deckOperation().orElseThrow().phase() == ExpansionOperation.Phase.APPLIED;
+            return supported && post.yardOperation().orElseThrow().phase() == ExpansionOperation.Phase.APPLIED
                     ? site.center().offset(-4, 3, 0) : null;
         } catch (IllegalArgumentException | IllegalStateException | java.util.NoSuchElementException invalid) { return null; }
     }
@@ -49,5 +51,11 @@ public final class DefenderDuties {
         if (watchPosition(post) == null) { return 1; }
         return post.duty().watch() == null ? 2 : 5;
     }
-    public static BlockPos waypoint(BuildingBlockEntity post, int index) { return post.getBlockPos().offset(index == 0 ? -2 : 2, 0, 3); }
+    public static BlockPos waypoint(BuildingBlockEntity post, int index) {
+        int east = 2;
+        try {
+            if (post.site().appliedRevision() == 3 && post.deckOperation().orElseThrow().phase() == ExpansionOperation.Phase.APPLIED) { east = 4; }
+        } catch (IllegalArgumentException | IllegalStateException | java.util.NoSuchElementException unsupported) { /* Keep ordinary/older posts' original targets. */ }
+        return post.getBlockPos().offset(index == 0 ? -2 : east, 0, 3);
+    }
 }

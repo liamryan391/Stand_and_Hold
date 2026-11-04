@@ -40,7 +40,7 @@ public final class OutpostPreview {
         if (!site.anchor().equals(post.getBlockPos()) || !site.dimension().equals(level.dimension().identifier().toString())) {
             throw new IllegalArgumentException("Site anchor/dimension mismatch; no repair or adoption attempted.");
         }
-        if (site.radius() != 4 || site.appliedRevision() > 2) { throw new IllegalArgumentException("Unsupported site radius/applied revision."); }
+        if (site.radius() != 4 || site.appliedRevision() > 3) { throw new IllegalArgumentException("Unsupported site radius/applied revision."); }
         // Original building tiles stay outside the delta and are only checked, never reconstructed.
         for (var kind : new BuildingKind[]{BuildingKind.LAB, BuildingKind.CRATE}) {
             BlockPos pos = kind == BuildingKind.LAB ? site.anchor().offset(-site.radius() + 2, 0, -site.radius() + 3)
@@ -59,6 +59,7 @@ public final class OutpostPreview {
     }
     public static Inspection inspectDetails(ServerLevel level, BuildingBlockEntity post) {
         var site = requirePost(level, post);
+        if (post.deckOperation().isPresent()) { throw new IllegalArgumentException("Deck receipt exists; use outpost status. No legacy apron replay."); }
         if (post.yardOperation().isPresent()) { throw new IllegalArgumentException("Yard receipt exists; use outpost status. No legacy apron replay."); }
         ExpansionPlan.requireEligible(site, post.state().level(), level.getMinY(), level.getMaxY());
         var pending = post.siteOperation().orElse(null);

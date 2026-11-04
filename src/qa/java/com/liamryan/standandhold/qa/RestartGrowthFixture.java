@@ -42,7 +42,7 @@ final class RestartGrowthFixture {
             check(post != null && post.site().id().toString().equals(receipt.getProperty(key + ".site")) && post.growthSettings().toString().equals(receipt.getProperty(key + ".policy")), "Same growth choice/pause/site across JVMs: " + key);
             check(post.state().level() == (i == 1 ? 1 : 2) && post.state().supplies() == (i == 3 ? 9 : 13) && post.state().samples() == 2, "No growth-driven spending, upgrade or refill after restart");
             if (i == 3) {
-                check(OutpostGrowth.status(level, post) == OutpostGrowth.EXPANDED, "Applied stays Expanded after legitimate storage change/restart");
+                check(OutpostGrowth.status(level, post) == OutpostGrowth.DECK_LEVEL, "Completed yard waits for local level 3 after legitimate storage change/restart, not repair");
                 check(post.siteOperation().orElseThrow().save().toString().equals(receipt.getProperty("yard.oldApron")), "Original apron receipt survives yard/restart unchanged");
                 var operation = post.yardOperation().orElseThrow(); var broken = operation.changes().stream().filter(c -> c.material() != ExpansionPlan.Material.AIR).findFirst().orElseThrow().pos();
                 level.setBlockAndUpdate(broken, Blocks.AIR.defaultBlockState()); drive(level, post);

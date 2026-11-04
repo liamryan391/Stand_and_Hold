@@ -23,7 +23,8 @@ public record ExpansionOperation(UUID id, UUID siteId, List<Change> changes, Str
     public ExpansionOperation {
         Objects.requireNonNull(id); Objects.requireNonNull(siteId); Objects.requireNonNull(phase);
         changes = List.copyOf(changes);
-        if (targetRevision != 1 && targetRevision != 2 || sourceRevision < 0 || sourceRevision >= targetRevision
+        if (targetRevision != 1 && targetRevision != 2 && targetRevision != 3 || sourceRevision < 0 || sourceRevision >= targetRevision
+                || targetRevision == 3 && (sourceRevision != 2 || changes.size() != 63)
                 || targetRevision == 1 && (sourceRevision != 0 || changes.size() != 137)
                 || changes.isEmpty() || changes.size() > ExpansionPlan.MAX_CELLS || protectedDigest == null || !protectedDigest.matches("[0-9a-f]{64}")
                 || index < 0 || index > changes.size() || detail == null || detail.length() > 160
@@ -33,9 +34,17 @@ public record ExpansionOperation(UUID id, UUID siteId, List<Change> changes, Str
         for (var cell : changes) { if (cell.before().equals(cell.after())) { throw new IllegalArgumentException("Expansion before/after states must differ."); } }
     }
     public void validateSite(SiteProvenance site) {
-        var layout = targetRevision == 1 ? ExpansionPlan.layout(site) : LevelTwoPlan.layout(site, sourceRevision);
+        var layout = targetRevision == 1 ? ExpansionPlan.layout(site) : targetRevision == 2 ? LevelTwoPlan.layout(site, sourceRevision) : LevelThreePlan.layout(site);
         if (!siteId.equals(site.id()) || !changes.stream().map(c -> new ExpansionPlan.Cell(c.pos(), c.material())).toList().equals(layout)) {
             throw new IllegalArgumentException("Operation does not match the exact authored site/layout revision.");
+        }
+        if (targetRevision == 3) {
+            var source = LevelThreePlan.sourceStates(site);
+            for (var change : changes) {
+                if (!change.before().equals(source.getOrDefault(change.pos(), afterState(ExpansionPlan.Material.AIR)))) {
+                    throw new IllegalArgumentException("Deck receipt does not match the exact authored source state.");
+                }
+            }
         }
     }
     public ExpansionOperation withPhase(Phase next, int at, String message) {
@@ -53,7 +62,7 @@ public record ExpansionOperation(UUID id, UUID siteId, List<Change> changes, Str
     }
     public CompoundTag save() {
         var tag = new CompoundTag(); tag.putInt("operation_version", targetRevision);
-        if (targetRevision == 2) { tag.putInt("source_revision", sourceRevision); tag.putInt("target_revision", targetRevision); }
+        if (targetRevision >= 2) { tag.putInt("source_revision", sourceRevision); tag.putInt("target_revision", targetRevision); }
         tag.putString("id", id.toString()); tag.putString("site_uuid", siteId.toString());
         tag.putString("protected_digest", protectedDigest); tag.putString("phase", phase.name());
         tag.putInt("index", index); tag.putString("detail", detail);
@@ -67,7 +76,7 @@ public record ExpansionOperation(UUID id, UUID siteId, List<Change> changes, Str
     public static ExpansionOperation read(Tag raw, SiteProvenance site) {
         if (!(raw instanceof CompoundTag tag)) { throw new IllegalArgumentException("Unsupported/malformed expansion operation; retained for review."); }
         int version = integer(tag, "operation_version");
-        if (version != 1 && version != 2 || version == 2 && integer(tag, "target_revision") != 2) { throw new IllegalArgumentException("Unsupported expansion operation version."); }
+        if (version < 1 || version > 3 || version >= 2 && integer(tag, "target_revision") != version) { throw new IllegalArgumentException("Unsupported expansion operation version."); }
         if (!(tag.get("cells") instanceof ListTag list) || list.isEmpty() || list.size() > ExpansionPlan.MAX_CELLS || version == 1 && list.size() != 137) { throw new IllegalArgumentException("Malformed expansion cell list."); }
         var changes = new ArrayList<Change>();
         for (Tag entry : list) {

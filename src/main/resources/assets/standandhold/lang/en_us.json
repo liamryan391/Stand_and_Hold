@@ -141,5 +141,10 @@
   "gui.standandhold.deck_requires_level": "Yard complete. Upper-deck preview needs local level 3.",
   "gui.standandhold.deck_preview_only": "Upper deck: preview only. Placement not enabled.",
   "gui.standandhold.deck_shape": "Plan: 5x4 deck + two-wide stairs",
-  "gui.standandhold.deck_check": "Preview reports space/blockers in chat"
+  "gui.standandhold.deck_check": "Preview reports space/blockers in chat",
+  "gui.standandhold.growth_status.9": "Yard complete. Upper deck requires local level 3.",
+  "gui.standandhold.deck_retained": "Keeps buildings, storage and west watch",
+  "gui.standandhold.deck_no_charge": "No extra growth charge.",
+  "gui.standandhold.deck_built": "Level-3 upper deck + stairs complete",
+  "gui.standandhold.deck_kept": "Level drops never demolish this layout"
 }

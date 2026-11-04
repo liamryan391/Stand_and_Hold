@@ -26,6 +26,7 @@ public final class LevelTwoGrowth {
     }
     private static Inspection inspectDetails(ServerLevel level, BuildingBlockEntity post) {
         var site = OutpostPreview.requirePost(level, post); post.requireGrowthWritable();
+        if (post.deckOperation().isPresent()) { throw new IllegalArgumentException("Deck receipt exists; no yard replay or repair."); }
         if (post.yardOperation().isPresent()) { throw new IllegalArgumentException("Yard operation already exists; inspect status, no replay or repair."); }
         var apron = post.siteOperation().orElse(null);
         if (site.appliedRevision() == 0 && apron != null || site.appliedRevision() == 1 && (apron == null || apron.phase() != ExpansionOperation.Phase.APPLIED)) {

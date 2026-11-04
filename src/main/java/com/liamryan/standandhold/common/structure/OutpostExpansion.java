@@ -75,7 +75,9 @@ public final class OutpostExpansion {
             throw new IllegalArgumentException("Recovery refused: delta/protected state is not fully matching all-after. Review/restore backup; no blocks changed.");
         }
         var sealed = operation.withPhase(ExpansionOperation.Phase.APPLIED, operation.changes().size(), "Operator verified all-after; receipt sealed without block writes.");
-        if (operation.targetRevision() == 1) { post.storeSiteOperation(sealed); } else { post.storeYardOperation(sealed); }
+        if (operation.targetRevision() == 1) { post.storeSiteOperation(sealed); }
+        else if (operation.targetRevision() == 2) { post.storeYardOperation(sealed); }
+        else { post.storeDeckOperation(sealed); }
         return "Sealed operation " + operation.id() + "; metadata only, no blocks/cost/reward/repair.";
     }
     public static ExpansionApply.Access access(ServerPlayer player, BuildingBlockEntity post, ExpansionOperation operation) {
@@ -89,7 +91,9 @@ public final class OutpostExpansion {
                 && player.level() == post.getLevel() && player.distanceToSqr(post.getBlockPos().getX() + 0.5, post.getBlockPos().getY() + 0.5, post.getBlockPos().getZ() + 0.5) <= 36);
     }
     public static ExpansionApply.Result applyNow(ServerLevel level, BuildingBlockEntity post) { return applyNow(level, post, () -> true); }
-    public static ExpansionOperation latest(BuildingBlockEntity post) { return post.yardOperation().orElseGet(() -> post.siteOperation().orElse(null)); }
+    public static ExpansionOperation latest(BuildingBlockEntity post) {
+        return post.deckOperation().orElseGet(() -> post.yardOperation().orElseGet(() -> post.siteOperation().orElse(null)));
+    }
     public static ExpansionApply.Access access(ServerLevel level, BuildingBlockEntity post, ExpansionOperation operation) {
         return access(level, post, operation, () -> true);
     }
@@ -125,7 +129,9 @@ public final class OutpostExpansion {
             public String protectedDigest() { return OutpostExpansion.protectedDigest(level, post, site, operation); }
             public void store(ExpansionOperation current) {
                 if (!level.hasChunkAt(site.anchor()) || post.isRemoved() || level.getBlockEntity(site.anchor()) != post) { throw new IllegalStateException("Original writable anchor missing"); }
-                if (current.targetRevision() == 1) { post.storeSiteOperation(current); } else { post.storeYardOperation(current); }
+                if (current.targetRevision() == 1) { post.storeSiteOperation(current); }
+                else if (current.targetRevision() == 2) { post.storeYardOperation(current); }
+                else { post.storeDeckOperation(current); }
                 epoch[0] = post.siteEpoch();
             }
         };
@@ -144,17 +150,24 @@ public final class OutpostExpansion {
         return protectedDigest(level, post, site, 4, Set.of());
     }
     public static String protectedDigest(ServerLevel level, BuildingBlockEntity post, SiteProvenance site, ExpansionOperation operation) {
-        return operation.targetRevision() == 1 ? protectedDigest(level, post, site)
-                : yardDigest(level, post, site, operation.changes());
+        return operation.targetRevision() == 1 ? protectedDigest(level, post, site) : operation.targetRevision() == 2
+                ? yardDigest(level, post, site, operation.changes()) : deckDigest(level, post, site, operation.changes());
     }
     public static String yardDigest(ServerLevel level, BuildingBlockEntity post, SiteProvenance site, List<ExpansionOperation.Change> changes) {
         return protectedDigest(level, post, site, 6, changes.stream().map(ExpansionOperation.Change::pos).collect(java.util.stream.Collectors.toSet()));
     }
     private static String protectedDigest(ServerLevel level, BuildingBlockEntity post, SiteProvenance site, int radius, Set<BlockPos> edits) {
+        return protectedDigest(level, post, site, radius, 0, 5, edits, radius == 4 ? "operation" : "yard_operation");
+    }
+    public static String deckDigest(ServerLevel level, BuildingBlockEntity post, SiteProvenance site, List<ExpansionOperation.Change> changes) {
+        return protectedDigest(level, post, site, 6, LevelThreePlan.MIN_Y, LevelThreePlan.MAX_Y,
+                changes.stream().map(ExpansionOperation.Change::pos).collect(java.util.stream.Collectors.toSet()), "deck_operation");
+    }
+    private static String protectedDigest(ServerLevel level, BuildingBlockEntity post, SiteProvenance site, int radius, int minY, int maxY, Set<BlockPos> edits, String receiptKey) {
         try {
             var digest = MessageDigest.getInstance("SHA-256");
             try (var out = new DataOutputStream(new DigestOutputStream(OutputStream.nullOutputStream(), digest))) {
-                for (var pos : BlockPos.betweenClosed(site.center().offset(-radius, 0, -radius), site.center().offset(radius, 5, radius))) {
+                for (var pos : BlockPos.betweenClosed(site.center().offset(-radius, minY, -radius), site.center().offset(radius, maxY, radius))) {
                     guard(level, site, pos); if (edits.contains(pos)) { continue; } out.writeLong(pos.asLong());
                     var state = level.getBlockState(pos); NbtIo.write((CompoundTag) canonical(NbtUtils.writeBlockState(state)), out);
                     if (state.hasBlockEntity() && !pos.equals(site.anchor()) && !pos.equals(site.anchor().offset(-2, 0, -1)) && !pos.equals(site.anchor().offset(3, 0, -2))) {
@@ -167,8 +180,8 @@ public final class OutpostExpansion {
                         var tag = saved.copy();
                         if (tile == post) {
                             var provenance = tag.getCompoundOrEmpty("site");
-                            if (radius == 4) { provenance.remove("operation"); }
-                            else { provenance.remove("yard_operation"); tag.remove("growth"); }
+                            provenance.remove(receiptKey);
+                            if (!receiptKey.equals("operation")) { tag.remove("growth"); }
                             provenance.putInt("applied_revision", 0);
                         }
                         NbtIo.write((CompoundTag) canonical(tag), out);

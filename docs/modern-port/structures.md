@@ -125,10 +125,40 @@ Unknown/missing/inconsistent source receipts refuse without repair or adoption. 
 preview changes no pause/mode/receipt, currency, blocks or dirty flags; legitimate storage
 changes after yard completion do not invalidate its historical receipt.
 
-**This is not a built Level-3 feature.** Expand/Automatic still stop after the supported yard;
-neither a high world stage nor local level 3-5 grants a floor. No additional purchase, token or
-mandatory command is introduced. Placement requires its separate guarded-application work.
+Preview itself never starts work. Neither a high world stage nor a level alone grants a floor:
+the source layout and terrain must pass the same checks when Expand/Automatic actually applies it.
+No additional purchase, token or mandatory command is introduced.
 See the [exact preservation contract](outpost-expansion-design.md#level-3-read-only-contract).
+
+## Guarded Upper-Deck Growth
+
+After the yard is complete, earn **local Command Post level 3**, then use Growth -> Expand.
+If that site is already opted into Automatic, its existing loaded-post cadence can perform
+the same supported change. One action/cadence performs at most one revision: a level-5 original
+checkpoint gets the yard first and the upper deck only on another eligible attempt. Server
+`expansionEnabled` still controls writes. Buying levels remains the normal paid action;
+physical growth adds no extra charge, supplies, rewards, slots or storage bonus.
+
+The exact 63 edits reuse the roof as a 5x4 upper floor with two-wide stairs and rails/lights.
+Original buildings, lab work, storage, entities and old receipts are preserved. The west watch
+remains one slot; the derived east patrol point moves clear of the stairs without resetting
+saved indexes/homes or teleporting anyone. A built deck stays when local level/world stage drops.
+Preview is optional; commands `layout`, `grow`, `status` and exceptional `recover` remain available.
+
+`site.deck_operation` is additive version 3, source 2/target 3; old apron/yard formats and unknown
+fields remain. Expected-state checks run before writes, and all-after/protected data is checked
+at completion. Changed/occupied terrain refuses; ordinary preflight obstruction saves a pause
+until explicit Retry/mode selection. Existing/interrupted/future operations never replay or
+repair on load. Only explicit all-after recovery with matching protected data seals metadata,
+never blocks, costs or rewards. Legitimate storage changes after a sealed operation are not
+an instruction to rebuild it.
+
+Work remains one chunk, 63 edits (256 hard ceiling), 1,521 cached preflight cells (2,048 ceiling),
+one 128-candidate entity query and a separate fixed protected envelope plus three bounded tile
+NBT records. Observed actors are rechecked before each write; arbitrary third-party callbacks
+inserting new actors outside that snapshot are not guaranteed. No claim-mod or crash-atomic
+save guarantee, rollback, refill, global scan, offline catch-up or extra population is added.
+See the [application contract](outpost-expansion-design.md#level-3-application-contract).
 
 ## Operator Confirmed Apron Application
 

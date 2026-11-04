@@ -26,8 +26,16 @@ final class LevelThreeChecks {
             for (int z = -2; z <= 0; z++) { for (int x = -1; x <= 1; x++) {
                 check(positions.contains(site.center().offset(x, 4, z)), "Every original roof slab enumerated");
             } }
-            // A candidate is not a serializable/applicable receipt; existing receipt versions stay closed.
-            expect(() -> new ExpansionOperation(UUID.randomUUID(), site.id(), plan.changes(), "a".repeat(64), ExpansionOperation.Phase.PREPARED, 0, "", 2, 3));
+            var operation = new ExpansionOperation(UUID.randomUUID(), site.id(), plan.changes(), "a".repeat(64), ExpansionOperation.Phase.PREPARED, 0, "", 2, 3);
+            check(ExpansionOperation.read(operation.save(), site).equals(operation), "Exact source-2/target-3 receipt round trips");
+            var applied = operation.withPhase(ExpansionOperation.Phase.APPLIED, 63, "complete");
+            var targetSite = new SiteProvenance(site.id(), site.dimension(), site.anchor(), 4, "debug", 3);
+            check(ExpansionOperation.read(applied.save(), targetSite).equals(applied), "Applied deck receipt reads against target revision");
+            var malformed = operation.save(); malformed.putInt("source_revision", 1); expect(() -> ExpansionOperation.read(malformed, site));
+            var future = operation.save(); future.putInt("operation_version", 4); expect(() -> ExpansionOperation.read(future, site));
+            var reordered = operation.save(); var rows = reordered.getListOrEmpty("cells"); var first = rows.removeFirst(); rows.add(first); expect(() -> ExpansionOperation.read(reordered, site));
+            var wrongBefore = operation.save(); wrongBefore.getListOrEmpty("cells").getCompoundOrEmpty(0).put("before", state("minecraft:gold_block"));
+            expect(() -> ExpansionOperation.read(wrongBefore, site));
         } }
         var site = site(0, 2);
         for (var cell : LevelThreePlan.layout(site)) {

@@ -93,9 +93,12 @@ public final class QaClient {
     private int growthView;
     private int tierView;
     private int yardView;
+    private int deckView;
+    private java.util.List<ExpansionOperation.Change> deckChanges;
     private UUID dutyNpc;
     private boolean dutyArrived;
     private static final List<String> YARD_VIEWS = List.of("yard-overhead", "yard-entrance", "yard-watch-deck", "yard-watch-view");
+    private static final List<String> DECK_VIEWS = List.of("deck-built-overhead", "deck-built-entrance", "deck-built-stairs", "deck-built-upper-view");
     private static final List<String> TIER_VIEWS = List.of("tiers-front", "tiers-back", "heavy-side", "elite-side", "tiers-torchlight", "tier-eggs", "heavy-front", "elite-front");
     private boolean previewReply, previewBlockedReply;
     private boolean deckReply, deckBlockedReply;
@@ -453,7 +456,7 @@ public final class QaClient {
                 case 48 -> { press(mc, "gui.standandhold.expand"); phase = 49; settle = 0; }
                 case 49 -> {
                     if (++settle > 200) { throw new IllegalStateException("Actual growth menu action did not expand"); }
-                    if (mc.player.containerMenu instanceof BuildingMenu menu && menu.number(BuildingMenu.GROWTH_STATUS) == OutpostGrowth.EXPANDED && settle >= 15) {
+                    if (mc.player.containerMenu instanceof BuildingMenu menu && menu.number(BuildingMenu.GROWTH_STATUS) == OutpostGrowth.DECK_LEVEL && menu.number(BuildingMenu.LAYOUT_REVISION)==2 && settle >= 15) {
                         capture(mc, "growth-expanded-menu-action", 50);
                     }
                 }
@@ -548,6 +551,7 @@ public final class QaClient {
                     onServer(mc, () -> {
                         var level=mc.getSingleplayerServer().overworld(); var post=tile(level,growthPost); var actor=player(mc); actor.closeContainer();
                         post.change(new BuildingState(3,post.state().supplies(),post.state().samples(),"",0));
+                        deckChanges=com.liamryan.standandhold.common.structure.LevelThreePreview.inspect(level,post).changes();
                         deckPostBefore=post.saveWithFullMetadata(level.registryAccess());
                         deckHumanBefore=(net.minecraft.nbt.CompoundTag)HumanWorldData.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE,HumanWorldData.get(level.getServer())).getOrThrow();
                         actor.openMenu(post,post::writeMenuData);
@@ -558,9 +562,9 @@ public final class QaClient {
                     if (!(mc.gui.screen() instanceof BuildingScreen) || !(mc.player.containerMenu instanceof BuildingMenu menu) || menu.number(BuildingMenu.LEVEL)!=3 || menu.number(BuildingMenu.LAYOUT_REVISION)!=2 || settle<15) { return; }
                     press(mc,"gui.standandhold.tab_growth"); phase=105; settle=0;
                 }
-                case 105 -> { if (++settle>=6) { capture(mc,"deck-preview-only",94); } }
+                case 105 -> { if (++settle>=6) { capture(mc,"deck-growth-ready",94); } }
                 case 94 -> { mc.options.guiScale().set(3); mc.resizeGui(); phase=95; settle=0; }
-                case 95 -> { if (++settle>=8) { capture(mc,"deck-preview-only-large",96); } }
+                case 95 -> { if (++settle>=8) { capture(mc,"deck-growth-ready-large",96); } }
                 case 96 -> { mc.gui.hud.getChat().clearMessages(true); press(mc,"gui.standandhold.preview_deck"); phase=97; settle=0; }
                 case 97 -> {
                     if (++settle>200) { throw new IllegalStateException("Actual deck preview menu reply missing"); }
@@ -583,9 +587,37 @@ public final class QaClient {
                 }
                 case 102 -> { capture(mc,"deck-preview-blocked-large",103); }
                 case 103 -> {
-                    phase=70;
-                    onServer(mc, () -> { var level=mc.getSingleplayerServer().overworld(); var post=tile(level,growthPost); level.setBlockAndUpdate(post.site().center().offset(2,6,3),Blocks.AIR.defaultBlockState()); });
+                    phase=106; mc.gui.setScreen(null);
+                    onServer(mc, () -> { var level=mc.getSingleplayerServer().overworld(); var post=tile(level,growthPost); var actor=player(mc);level.setBlockAndUpdate(post.site().center().offset(2,6,3),Blocks.AIR.defaultBlockState());actor.closeContainer();actor.openMenu(post,post::writeMenuData); });
                 }
+                case 106 -> {
+                    if(++settle>200){throw new IllegalStateException("Deck application menu missing");}
+                    if(!(mc.gui.screen() instanceof BuildingScreen)||!(mc.player.containerMenu instanceof BuildingMenu menu)||menu.number(BuildingMenu.GROWTH_STATUS)!=OutpostGrowth.READY||settle<15){return;}
+                    press(mc,"gui.standandhold.tab_growth");phase=107;settle=0;
+                }
+                case 107 -> {if(++settle>=6){press(mc,"gui.standandhold.expand");phase=108;settle=0;}}
+                case 108 -> {
+                    if(++settle>200){throw new IllegalStateException("Actual deck menu action did not seal/sync");}
+                    if(!(mc.player.containerMenu instanceof BuildingMenu menu)||menu.number(BuildingMenu.LAYOUT_REVISION)!=3||menu.number(BuildingMenu.GROWTH_STATUS)!=OutpostGrowth.EXPANDED||settle<15){return;}
+                    phase=109;onServer(mc,()->checkDeckApplied(mc));
+                }
+                case 109 -> {capture(mc,"deck-built-menu-large",110);}
+                case 110 -> {mc.options.guiScale().set(2);mc.resizeGui();phase=111;settle=0;}
+                case 111 -> {if(++settle>=8){capture(mc,"deck-built-menu",112);}}
+                case 112 -> {
+                    mc.gui.setScreen(null);mc.gui.hud.getChat().clearMessages(true);if(!mc.gui.hud.isHidden()){mc.gui.hud.toggle();}phase=113;
+                    onServer(mc,()->{
+                        var level=mc.getSingleplayerServer().overworld();var post=tile(level,growthPost);var c=post.site().center();var actor=player(mc);actor.closeContainer();actor.getAbilities().flying=true;actor.onUpdateAbilities();
+                        switch(deckView){
+                            case 0 -> actor.connection.teleport(c.getX()+.5,c.getY()+14,c.getZ()+13.5,180,50);
+                            case 1 -> actor.connection.teleport(c.getX()+.5,c.getY()+1,c.getZ()+7.5,180,8);
+                            case 2 -> actor.connection.teleport(c.getX()+4.5,c.getY()+3,c.getZ()+5.5,145,6);
+                            default -> actor.connection.teleport(c.getX()+.5,c.getY()+5,c.getZ()-.5,-30,35);
+                        }
+                    });
+                }
+                case 113 -> {if(++settle>200){throw new IllegalStateException("Built deck scene not visible");}if(settle>=35&&mc.levelRenderer.isSectionCompiledAndVisible(growthPost,0)){capture(mc,DECK_VIEWS.get(deckView),114);}}
+                case 114 -> {deckView++;phase=deckView==DECK_VIEWS.size()?70:112;settle=0;}
                 case 70 -> {
                     if (mc.gui.hud.isHidden()) { mc.gui.hud.toggle(); }
                     mc.options.guiScale().set(2); mc.resizeGui(); phase = 71; settle = 0;
@@ -680,6 +712,13 @@ public final class QaClient {
         if (!deckPostBefore.equals(post.saveWithFullMetadata(level.registryAccess()))
                 || !deckHumanBefore.equals(HumanWorldData.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE,HumanWorldData.get(level.getServer())).getOrThrow())
                 || post.site().appliedRevision()!=2) { throw new IllegalStateException("Deck preview changed saved state or built the layout"); }
+    }
+    private void checkDeckApplied(Minecraft mc) {
+        var level=mc.getSingleplayerServer().overworld();var post=tile(level,growthPost);var op=post.deckOperation().orElseThrow();
+        var current=post.saveWithFullMetadata(level.registryAccess());current.getCompoundOrEmpty("site").remove("deck_operation");current.getCompoundOrEmpty("site").putInt("applied_revision",2);
+        if(post.site().appliedRevision()!=3||op.phase()!=ExpansionOperation.Phase.APPLIED||!op.changes().equals(deckChanges)||!current.equals(deckPostBefore)
+                ||!deckHumanBefore.equals(HumanWorldData.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE,HumanWorldData.get(level.getServer())).getOrThrow())){throw new IllegalStateException("Real deck button did not preserve building/global state and exact planned receipt");}
+        for(var change:deckChanges){if(!net.minecraft.nbt.NbtUtils.writeBlockState(level.getBlockState(change.pos())).equals(change.after())){throw new IllegalStateException("Actual deck differs from authored change at "+change.pos());}}
     }
     private static void press(Minecraft mc, String key) {
         if (!(mc.gui.screen() instanceof BuildingScreen screen)) { throw new IllegalStateException("Expected real building screen"); }

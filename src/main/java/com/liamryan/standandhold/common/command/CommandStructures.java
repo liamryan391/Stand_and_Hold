@@ -55,12 +55,17 @@ final class CommandStructures {
     private static int growthHelp(CommandSourceStack source) {
         source.sendSuccess(() -> Component.literal("Face a loaded checkpoint post within 6 blocks. grow | mode manual | mode automatic; same rules as the Growth menu."), false);
         source.sendSuccess(() -> Component.literal("Advanced tools retained: preview | prepare | expand <token> | status | recover. Server expansionEnabled must allow placement; no repair/refill bypass."), false);
-        source.sendSuccess(() -> Component.literal("layout previews the next yard/deck: Level-3 is read-only, not built by grow or Automatic. preview/prepare/expand retain the legacy apron tool."), false);
+        source.sendSuccess(() -> Component.literal("layout previews the next yard/deck; grow/Automatic apply one supported delta at local level 2/3. preview/prepare/expand retain the legacy apron tool."), false);
         return 1;
     }
     private static int layout(CommandSourceStack source) throws CommandSyntaxException {
         try {
             var player = source.getPlayerOrException(); var post = SupportCallIn.lookedAt(player);
+            if (post.site().appliedRevision() == 3) {
+                OutpostPreview.requirePost(player, post);
+                if (OutpostGrowth.status(player.level(), post) != OutpostGrowth.EXPANDED) { throw new IllegalArgumentException("Deck/source receipts need operator review; no replay."); }
+                source.sendSuccess(() -> Component.literal("Level-3 upper deck already applied. Layout remains after level drops; no repeat, repair or refill."), false); return 1;
+            }
             if (post.site().appliedRevision() == 2) {
                 com.liamryan.standandhold.common.structure.LevelThreePreview.describe(player, post); return 1;
             }

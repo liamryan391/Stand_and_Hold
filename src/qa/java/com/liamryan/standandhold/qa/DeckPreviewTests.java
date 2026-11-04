@@ -24,7 +24,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.TagValueOutput;
 
 final class DeckPreviewTests {
-    private record Fixture(BuildingBlockEntity post, QaPlayer player) { }
+    record Fixture(BuildingBlockEntity post, QaPlayer player) { }
     static Map<String, Consumer<GameTestHelper>> cases() {
         var tests = new LinkedHashMap<String, Consumer<GameTestHelper>>();
         tests.put("deck_preview_direct_readonly", h -> supported(h, false));
@@ -37,6 +37,9 @@ final class DeckPreviewTests {
         tests.put("deck_preview_command_menu_authority", DeckPreviewTests::commands);
         tests.put("deck_preview_no_automatic_application", DeckPreviewTests::automatic);
         tests.put("deck_preview_unloaded", DeckPreviewTests::unloaded);
+        return scope(tests);
+    }
+    static Map<String, Consumer<GameTestHelper>> scope(Map<String, Consumer<GameTestHelper>> tests) {
         var scoped = new LinkedHashMap<String, Consumer<GameTestHelper>>();
         tests.forEach((name, test) -> scoped.put(name, h -> {
             boolean expansion = StructureConfig.EXPANSION.get(), deploy = NpcConfig.DEPLOY.get(), raids = ResponseConfig.RAIDS.get(), reinforcements = ResponseConfig.REINFORCEMENTS.get();
@@ -52,7 +55,7 @@ final class DeckPreviewTests {
         }));
         return scoped;
     }
-    private static Fixture begin(GameTestHelper h, boolean apron) {
+    static Fixture begin(GameTestHelper h, boolean apron) {
         QaWorld.begin(h); var p = h.absolutePos(new BlockPos(32, 2, 32)); int radius = StructureConfig.CHECKPOINT_RADIUS.get(); StructurePlacement.Result placed;
         try { StructureConfig.CHECKPOINT_RADIUS.set(4); placed = StructurePlacement.place(h.getLevel(), StructureKind.CHECKPOINT, p.getX() >> 4, p.getZ() >> 4); }
         finally { StructureConfig.CHECKPOINT_RADIUS.set(radius); }
@@ -64,9 +67,9 @@ final class DeckPreviewTests {
         OutpostGrowth.expand(player, post);
         return new Fixture(post, player);
     }
-    private record Snapshot(Map<BlockPos, BlockState> blocks, Map<BlockPos, CompoundTag> tiles, Tag human, Tag threat,
+    record Snapshot(Map<BlockPos, BlockState> blocks, Map<BlockPos, CompoundTag> tiles, Tag human, Tag threat,
                             Map<UUID, CompoundTag> entities, int chunks) { }
-    private static Snapshot snapshot(GameTestHelper h, BuildingBlockEntity post) {
+    static Snapshot snapshot(GameTestHelper h, BuildingBlockEntity post) {
         var level = h.getLevel(); var human = HumanWorldData.get(level.getServer()); var threat = ThreatWorldData.get(level.getServer());
         human.setDirty(false); threat.setDirty(false); level.getChunkAt(post.getBlockPos()).tryMarkSaved();
         var blocks = new LinkedHashMap<BlockPos, BlockState>(); var tiles = new LinkedHashMap<BlockPos, CompoundTag>(); var c = post.site().center();
@@ -81,7 +84,7 @@ final class DeckPreviewTests {
         return new Snapshot(blocks, tiles, HumanWorldData.CODEC.encodeStart(NbtOps.INSTANCE, human).getOrThrow(),
                 ThreatWorldData.CODEC.encodeStart(NbtOps.INSTANCE, threat).getOrThrow(), entities, level.getChunkSource().getLoadedChunksCount());
     }
-    private static void unchanged(GameTestHelper h, BuildingBlockEntity post, Snapshot before) {
+    static void unchanged(GameTestHelper h, BuildingBlockEntity post, Snapshot before) {
         h.assertTrue(!HumanWorldData.get(h.getLevel().getServer()).isDirty() && !ThreatWorldData.get(h.getLevel().getServer()).isDirty()
                 && !h.getLevel().getChunkAt(post.getBlockPos()).isUnsaved(), "Preview leaves global/threat/chunk dirty flags clear");
         h.assertTrue(snapshot(h, post).equals(before), "Exact blocks, full tile/entity NBT, balances/rosters/cooldowns and chunks unchanged");
@@ -191,7 +194,7 @@ final class DeckPreviewTests {
                 try { dispatcher.execute("standandhold outpost layout", source); h.fail("Operator-only command"); } catch (com.mojang.brigadier.exceptions.CommandSyntaxException expected) { }
                 h.assertTrue(dispatcher.execute("standandhold outpost layout", source.withPermission(server.createCommandSourceStack().permissions())) == 1, "Real layout dispatch selects deck at revision 2");
             } catch (com.mojang.brigadier.exceptions.CommandSyntaxException failure) { throw new IllegalStateException(failure); }
-            h.assertTrue(f.player().received("Level-3 upper deck / READ ONLY") && f.player().received("Placement is not enabled"), "Honest read-only output");
+            h.assertTrue(f.player().received("Level-3 upper deck / READ ONLY") && f.player().received("Preview changed nothing"), "Honest read-only output");
             var menu = new BuildingMenu(72, f.player().getInventory(), f.post(), FoundationResources.get(server)); f.player().containerMenu = menu;
             h.assertTrue(menu.number(BuildingMenu.LAYOUT_REVISION) == 2 && menu.clickMenuButton(f.player(), BuildingMenu.PREVIEW_DECK), "Ordinary local non-op can preview via authoritative menu");
             unchanged(h, f.post(), before);
@@ -207,8 +210,9 @@ final class DeckPreviewTests {
     private static void automatic(GameTestHelper h) {
         var f = begin(h, false); h.runAfterDelay(3, () -> {
             OutpostGrowth.setMode(h.getLevel(), f.post(), OutpostGrowth.Mode.AUTOMATIC); var before = snapshot(h, f.post());
-            for (int i = 0; i < 10; i++) { OutpostGrowth.tick(h.getLevel(), f.post()); LevelThreePreview.inspect(h.getLevel(), f.post()); }
-            refused(h, f.post(), () -> OutpostGrowth.expand(f.player(), f.post()), "Already expanded"); unchanged(h, f.post(), before);
+            // M26 admits explicit/cadenced growth; inspecting alone must still never start it.
+            for (int i = 0; i < 10; i++) { LevelThreePreview.inspect(h.getLevel(), f.post()); }
+            unchanged(h, f.post(), before);
             boolean enabled = StructureConfig.EXPANSION.get();
             try { StructureConfig.EXPANSION.set(false); LevelThreePreview.inspect(h.getLevel(), f.post()); unchanged(h, f.post(), before); }
             finally { StructureConfig.EXPANSION.set(enabled); }

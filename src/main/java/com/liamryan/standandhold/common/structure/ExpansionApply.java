@@ -28,7 +28,7 @@ public final class ExpansionApply {
                     || !operation.protectedDigest().equals(access.protectedDigest())) { throw new IllegalStateException("Final delta/protected-footprint mismatch"); }
             int count = operation.changes().size();
             access.store(operation.withPhase(ExpansionOperation.Phase.APPLIED, count, "All " + count + " cells verified; no extra cost/reward."));
-            return new Result(true, (operation.targetRevision() == 1 ? "Apron" : "Level-2 yard") + " applied once: " + count + " cells; buildings/storage/caps unchanged. Operation " + operation.id());
+            return new Result(true, (operation.targetRevision() == 1 ? "Apron" : operation.targetRevision() == 2 ? "Level-2 yard" : "Level-3 deck") + " applied once: " + count + " cells; buildings/storage/caps unchanged. Operation " + operation.id());
         } catch (RuntimeException failure) {
             String detail = "Cell " + index + ": " + failure.getMessage();
             try { access.store(operation.withPhase(ExpansionOperation.Phase.REVIEW, index, detail)); }

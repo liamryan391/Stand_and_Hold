@@ -84,7 +84,7 @@ final class GrowthTests {
                     && global.equals(HumanWorldData.CODEC.encodeStart(NbtOps.INSTANCE, data).getOrThrow()) && chunks == h.getLevel().getChunkSource().getLoadedChunksCount()
                     && before.equals(OutpostExpansion.yardDigest(h.getLevel(), f.post(), f.post().site(), plan.changes())), "Once-only feedback, unchanged protected buildings/resources/caps/chunks");
             f.post().change(f.post().state().supplies(7)); f.menu().broadcastChanges();
-            h.assertTrue(f.menu().number(BuildingMenu.GROWTH_STATUS) == OutpostGrowth.EXPANDED, "Normal storage change does not turn Expanded into a repair problem");
+            h.assertTrue(f.menu().number(BuildingMenu.GROWTH_STATUS) == OutpostGrowth.DECK_LEVEL, "Normal storage change keeps completed yard waiting for local level 3, not repair");
             var broken = f.post().yardOperation().orElseThrow().changes().getFirst().pos(); h.getLevel().setBlockAndUpdate(broken, Blocks.AIR.defaultBlockState());
             drive(h, f.post(), ResponseConfig.CHECK_INTERVAL.get()); h.assertTrue(h.getLevel().getBlockState(broken).isAir(), "No automatic repair"); h.succeed();
         });

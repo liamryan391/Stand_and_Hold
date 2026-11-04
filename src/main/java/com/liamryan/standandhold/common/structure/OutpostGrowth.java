@@ -11,7 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 /** Player menus and operator helpers share this policy; terrain is inspected only on an attempt. */
 public final class OutpostGrowth {
     public static final int UNSUPPORTED = 0, DISABLED = 1, LEVEL = 2, READY = 3, EXPANDED = 4,
-            TERRAIN = 5, ENTITY = 6, REVIEW = 7, UNAVAILABLE = 8;
+            TERRAIN = 5, ENTITY = 6, REVIEW = 7, UNAVAILABLE = 8, DECK_LEVEL = 9;
     public enum Mode { MANUAL, AUTOMATIC }
     public record Settings(Mode mode, int pause) {
         public static final Settings DEFAULT = new Settings(Mode.MANUAL, 0);
@@ -34,7 +34,8 @@ public final class OutpostGrowth {
     public static String label(int status) {
         return switch (status) {
             case DISABLED -> "Disabled by server"; case LEVEL -> "Requires local level 2"; case READY -> "Available";
-            case EXPANDED -> "Expanded"; case TERRAIN -> "Paused: terrain/building obstruction"; case ENTITY -> "Paused: entity obstruction";
+            case EXPANDED -> "Expanded"; case DECK_LEVEL -> "Yard complete; requires local level 3 for upper deck";
+            case TERRAIN -> "Paused: terrain/building obstruction"; case ENTITY -> "Paused: entity obstruction";
             case REVIEW -> "Paused: admin review"; case UNAVAILABLE -> "Unavailable save data"; default -> "Unsupported layout";
         };
     }
@@ -49,8 +50,16 @@ public final class OutpostGrowth {
             if (site.radius() != 4 || !site.anchor().equals(post.getBlockPos()) || !site.dimension().equals(level.dimension().identifier().toString())) { return UNSUPPORTED; }
             var operation = post.siteOperation().orElse(null);
             var yard = post.yardOperation().orElse(null);
-            if (site.appliedRevision() == 2 && yard != null && yard.phase() == ExpansionOperation.Phase.APPLIED
-                    && (yard.sourceRevision() == 0 ? operation == null : operation != null && operation.phase() == ExpansionOperation.Phase.APPLIED)) { return EXPANDED; }
+            var deck = post.deckOperation().orElse(null);
+            boolean sealedYard = yard != null && yard.phase() == ExpansionOperation.Phase.APPLIED
+                    && (yard.sourceRevision() == 0 ? operation == null : operation != null && operation.phase() == ExpansionOperation.Phase.APPLIED);
+            if (site.appliedRevision() == 3 && sealedYard && deck != null && deck.phase() == ExpansionOperation.Phase.APPLIED) { return EXPANDED; }
+            if (deck != null || site.appliedRevision() > 2) { return REVIEW; }
+            if (site.appliedRevision() == 2 && sealedYard) {
+                if (!StructureConfig.EXPANSION.get()) { return DISABLED; }
+                if (post.state().level() < 3) { return DECK_LEVEL; }
+                return post.growthSettings().pause() == 0 ? READY : post.growthSettings().pause();
+            }
             if (yard != null || site.appliedRevision() > 1 || site.appliedRevision() == 0 && operation != null
                     || site.appliedRevision() == 1 && (operation == null || operation.phase() != ExpansionOperation.Phase.APPLIED)) { return REVIEW; }
             if (!StructureConfig.EXPANSION.get()) { return DISABLED; }
@@ -73,9 +82,11 @@ public final class OutpostGrowth {
     public static void expand(ServerPlayer player, BuildingBlockEntity post) {
         OutpostPreview.requirePost(player, post);
         post.requireGrowthWritable();
-        if (status(player.level(), post) == EXPANDED) { throw new IllegalArgumentException("Already expanded; no repeat, repair or refill."); }
+        int current = status(player.level(), post);
+        if (current == EXPANDED) { throw new IllegalArgumentException("Already expanded; no repeat, repair or refill."); }
+        if (current != READY && current != TERRAIN && current != ENTITY) { throw new IllegalArgumentException(label(current) + "; no blocks changed."); }
         try {
-            var result = LevelTwoGrowth.applyNow(player, post);
+            var result = post.site().appliedRevision() == 2 ? LevelThreeGrowth.applyNow(player, post) : LevelTwoGrowth.applyNow(player, post);
             if (!result.success()) { post.changeGrowth(new Settings(post.growthSettings().mode(), REVIEW)); throw new IllegalStateException(result.message()); }
             post.changeGrowth(new Settings(post.growthSettings().mode(), 0));
         } catch (IllegalArgumentException | IllegalStateException failure) {
@@ -94,7 +105,7 @@ public final class OutpostGrowth {
         }
         if (state != READY) { return; }
         try {
-            var result = LevelTwoGrowth.applyNow(level, post);
+            var result = post.site().appliedRevision() == 2 ? LevelThreeGrowth.applyNow(level, post) : LevelTwoGrowth.applyNow(level, post);
             if (!result.success()) { post.changeGrowth(new Settings(Mode.AUTOMATIC, REVIEW)); }
         } catch (IllegalArgumentException | IllegalStateException failure) {
             post.changeGrowth(new Settings(Mode.AUTOMATIC, blocked(failure)));
