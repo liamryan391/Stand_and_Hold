@@ -115,6 +115,9 @@ final class RestartFixture {
         HumanPointManager.setStage(server, HumanStage.LOCAL_ARMY_RESPONSE);
         npc = NpcRegistry.SURVIVOR.get().create(level, EntitySpawnReason.COMMAND);
         check(npc != null, "NPC factory"); npc.snapTo(10.5, 64, 10.5, 0, 0); level.addFreshEntity(npc);
+        // This persistence fixture's raised pad begins at (0,0), close to POST. Unseeded
+        // bounded raid rolls can all miss that pad; terrain/refusal is tested separately.
+        level.getRandom().setSeed(0L);
         String raid = ThreatResponse.raid(level, tile(level, POST));
         check(raid.startsWith("Outpost raid"), "Actual persisted raid: " + raid);
     }

@@ -41,6 +41,8 @@ final class WorldTests {
         tests.put("raid_clear", WorldTests::raidClear);
         tests.put("raid_ambient_quota", WorldTests::raidQuota);
         tests.put("raid_unsafe_terrain", WorldTests::raidTerrain);
+        tests.put("raid_corner_seeded_clear", h -> cornerRaid(h, false));
+        tests.put("raid_corner_bounded_refusal", h -> cornerRaid(h, true));
         tests.put("target_zombie", h -> target(h, EntityTypes.ZOMBIE));
         tests.put("target_skeleton", h -> target(h, EntityTypes.SKELETON));
         tests.put("target_creeper", h -> target(h, EntityTypes.CREEPER));
@@ -195,6 +197,33 @@ final class WorldTests {
             String result = ThreatResponse.raid(h.getLevel(), post);
             h.assertTrue(result.contains("no safe loaded spawn"), "Unsafe ground must explain terrain refusal: " + result);
             h.assertTrue(ThreatResponse.state(h.getLevel(), post).raiders().isEmpty(), "No reservation on unsafe terrain");
+            h.succeed();
+        });
+    }
+    private static void cornerRaid(GameTestHelper h, boolean refused) {
+        QaWorld.begin(h);
+        var post = building(h, new BlockPos(8, 2, 8), BuildingRegistry.COMMAND_POST.get());
+        h.runAfterDelay(3, () -> {
+            long seed = 0;
+            if (refused) {
+                boolean found = false;
+                for (long candidate = 0; candidate < 10000 && !found; candidate++) {
+                    var random = net.minecraft.util.RandomSource.create(candidate); boolean safe = false;
+                    for (int attempt = 0; attempt < 8; attempt++) {
+                        int dx = random.nextInt(25)-12, dz = random.nextInt(25)-12;
+                        if (Math.max(Math.abs(dx), Math.abs(dz)) >= 8 && 8+dx >= 0 && 8+dz >= 0) { safe = true; }
+                    }
+                    if (!safe) { seed = candidate; found = true; }
+                }
+                h.assertTrue(found, "Bounded fixture search identifies an all-miss seed, not a retried raid");
+            }
+            h.getLevel().getRandom().setSeed(seed);
+            String result = ThreatResponse.raid(h.getLevel(), post);
+            var response = ThreatResponse.state(h.getLevel(), post);
+            h.assertTrue(refused ? result.contains("no safe loaded spawn") && response.raiders().isEmpty() && response.raids()==0
+                    : result.startsWith("Outpost raid") && !response.raiders().isEmpty() && response.raids()==1,
+                    "Corner arena seed " + seed + ": " + result);
+            h.assertTrue(response.nextRaid() > h.getLevel().getGameTime(), "Both real spawn and bounded refusal preserve their cooldown/backoff");
             h.succeed();
         });
     }
