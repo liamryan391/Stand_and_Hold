@@ -551,7 +551,7 @@ Scope: author one usable upper-deck/second-floor slice over a proven revision-2 
   - [x] **25.1.2** Define source/target receipts and the Manual/Automatic progression contract before implementation, including sites whose level already exceeds their physical revision. At most one supported delta per action/cadence; no free level purchase, regeneration or repair.
 - [x] **25.2 Implement the bounded pure planner and world adapter.** Capture expected before states, protect containers/fluids/supporting builds/entities, use only loaded cells and fail without mutations. Keep M18 apron and M21 yard previews/receipts readable and unchanged.
 - [x] **25.3 Expose a readable preview through existing tools.** Describe the next available layout, bounds and specific blocker in menu/help/operator preview; no new mandatory token flow. Add original planned views/fixture captures only where clearly labelled preview, not a built gameplay feature.
-- [ ] **25.4 Verify read-only behaviour.** Pure and native tests cover supported/customised sites, every planned removal, headroom/terrain/world border, missing chunks, unknown receipts and strict no-change assertions for resources, tile NBT, entity state and dirty flags. Review the preview views and pass CI.
+- [x] **25.4 Verify read-only behaviour.** Pure and native tests cover supported/customised sites, every planned removal, headroom/terrain/world border, missing chunks, unknown receipts and strict no-change assertions for resources, tile NBT, entity state and dirty flags. Review the preview views and pass CI.
 
 Exit gate: one precisely bounded, useful Level-3 plan can be inspected safely; no blocks, currency, rewards or layout receipts are mutated. Placement remains outside this milestone.
 

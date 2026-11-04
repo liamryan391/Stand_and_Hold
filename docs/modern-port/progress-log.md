@@ -407,4 +407,4 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 
 ## 2026-11-04 - M25 CI Diagnosis And M26 Milestone
 - Fresh/no-cache CI metadata and uploaded artifacts exposed a real M25 restart failure: unseeded raid setup missed the raised corner arena, before deck checks. Fixed QA seed only, retaining actual raid/persistence requirements and gameplay limits; native corner-arena success/refusal regressions added.
-- `clean build runGameTestServer --no-parallel` passed (33s), 33,802 assertions/133 required cases. Two-JVM qa-5f831630-655d-4a52-a9ce-42a58d957360 passed with a real reserved raider, all existing state and the read-only deck plan preserved. CI/merge remains required.
+- `clean build runGameTestServer --no-parallel` passed (33s), 33,802 assertions/133 required cases. Two-JVM qa-5f831630-655d-4a52-a9ce-42a58d957360 passed with a real reserved raider, all existing state and the read-only deck plan preserved. Windows CI 41868122995 passed every required step; docs-only closeout checked separately before M25 merge.
