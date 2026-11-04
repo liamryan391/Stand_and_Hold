@@ -2,7 +2,7 @@
 Updated: 2026-11-04
 
 ## Position
-- M25 closed; M26 26.1-26.4 exit gate passed. Implementation CI 41875531014 passed all Windows build/native/restart/artifact steps; closing docs and merging to main.
+- M25/M26 merged/pushed; codex/m27-motion-polish prepared. M26 implementation CI 41875531014 passed every Windows build/native/restart/artifact gate.
 - Guarded 63-cell deck uses additive receipts and existing Manual/Automatic controls; one delta per attempt, no bonus/cost/budget changes.
 - No stats, spawn/cost limits, dependencies, version or pins changed. Legacy references, packaged M22 profile and user worlds/configs preserved.
 - NeoForge-first; Fabric M14 14.4-14.5 deferred. Pins: MC 26.3 / NeoForge 26.3.0.57-beta / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
