@@ -459,3 +459,8 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 ## 2026-11-11 - M30 Launcher Import Check
 - Modrinth lists the new m22-neo102-3991097f profile. Verified the local marker, pack index pins and the sole normal jar's SHA-256 against the trial manifest.
 - First Play was handed to Liam. Client launch/world/reload unverified; no threat artifact installed or run. Docs only; next milestone in STATUS.md.
+
+## 2026-11-11 - M30 Packaged Client Baseline
+- Normal-jar-only Modrinth profile ran in `CLIENT in PROD`. Checked Mods, `/standandhold guide`, checkpoint generation, three menus, defender combat and a player zombie drop in a fresh Superflat fixture.
+- Lab Start/Pause/resume completed once; normal world reload retained 19 points/Stage 0, research, registration and Crate 12 supplies/1 sample. Reviewed native F2 captures; preserved both client logs and quit normally.
+- `git diff --check` passed for docs only. No build, pin or main changes; no external install, coexistence/removal or real multiplayer. Exact-artifact decision remains in STATUS.md.

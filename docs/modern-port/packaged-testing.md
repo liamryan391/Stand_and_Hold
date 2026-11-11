@@ -5,8 +5,8 @@ This procedure tests the **normal jar outside Gradle**, not the separate QA mod.
 For the isolated `codex/m30-neoforge-102-spike` worktree only, the pack helper
 and manifest require `26.3.0.102` instead of the main pin. Verify the trial
 version against that worktree's new manifest and never reuse the historical
-M22 profile or world. The trial passed the production server restart below;
-the launcher import was verified, but the first client launch is pending.
+M22 profile or world. The trial passed the production server restart and
+separate Modrinth client world reload below.
 
 ## Prepare A Fresh Session
 
@@ -79,4 +79,9 @@ In isolated session `m22-neo102-3991097f`, Liam authorized acceptance for this s
 
 `server-prod-write.log` and `server-prod-read.log` show 160 points/Stage 1, 27 global supplies and completed Initial Sample Analysis after restart. Repeating research did not award or spend anything. The dormant Main Base post at `(8,-60,7)`, v1 layout marker, and Crate at `(13,-60,3)` with 5 local supplies persisted. The temporary chunk ticket was removed before the final save.
 
-Modrinth lists the imported `Stand and Hold m22-neo102-3991097f` profile as never played. Its local session marker matches the manifest; `Get-FileHash -Algorithm SHA256` confirms its only mod is the exact normal jar tested above. The pack index pins Minecraft 26.3 and NeoForge 26.3.0.102. This is import evidence only, not client launch, world entry or reload proof. No external mod or multiplayer evidence is claimed.
+The imported `Stand and Hold m22-neo102-3991097f` profile's marker and sole mod SHA256 matched the manifest. Modrinth launched with Java 25; the log reported `CLIENT in PROD` (FML 12.0.12) and Mods showed only Minecraft 26.3, NeoForge 26.3.0.102 and Stand and Hold 0.1.0-alpha.1. `client-prod-first-launch.log` records Liam's first launch and world entry. The agent relaunched and used a separate fresh `M30 PROD Baseline` Creative Superflat world, leaving Liam's first save untouched.
+
+- `/standandhold guide` rendered, and a checkpoint placed and registered its post at `(8,-60,7)`. All three menus opened. The Command Post showed 1/3 assigned defenders and a defender intercepted a summoned zombie. A separate player sword kill away from the site dropped a Tissue Sample. This was a controlled smoke test, not an earned playthrough.
+- A labelled 20-supply grant funded 10 into the Lab and 10 into the Crate. Initial Sample Analysis stayed ready until Start, paused at 1/12, resumed, then completed at 12/12 with one rendered completion message and zero remaining local supplies. One granted sample was deposited into the Crate; the later zombie drop was separate.
+- Save and Quit to Title, then reopening the same world, preserved 19 points/Stage 0, zero global supplies, completed research, the checkpoint registration and Crate stock (12 supplies and one sample). The client saved and quit normally. `client-prod-baseline-reload.log` retains both integrated-server starts and readbacks.
+- Reviewed `2026-11-11_18.07.50.png` (paused Lab), `18.08.14` (post/cap), `18.08.36` (Crate), `18.11.15` (completed Lab) and `18.11.48` (Lab after reload) in the isolated profile's `screenshots/` folder; shortened names share that date prefix and `.png`. The `18.06.38` capture missed the fading guide; live inspection and the log verified its text. A vanilla tutorial toast overlapped the right side of the post header in the small window and was gone on reload. No external mod or multiplayer evidence is claimed.
