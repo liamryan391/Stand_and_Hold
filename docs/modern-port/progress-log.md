@@ -429,3 +429,10 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - `runQaClient` passed (87 captures); opened f5032356-prefix super-elite-front, special-division-front, specialists-back, specialists-torchlight, tier-eggs and tiers-front. Ten-model export and packaged preparation passed.
 - Exact normal jar (SHA256 dbf0b202a97e83d15a4d527c4f76665da5e6e2934d5bd38d3bc1747af15badf4) had correct metadata and no QA/authoring files; dedicated DEV run reached Done, summoned both roles and stopped.
 - Windows CI 42943525114 passed all required steps before docs closeout. No fresh production install, multiplayer or external-threat proof. Specialist motion/feel is a separate isolated review; next milestone in STATUS.md.
+
+## 2026-11-11 - M29 Inhabited Main Base Layout
+- New one-chunk bases have a lit three-wide approach, covered command/Lab/Crate bays and a barracks nook. Optional v1 tile marker is descriptive only; old/future data retained, no retrofit or cap/stock/rate changes.
+- `clean build --no-daemon --stacktrace` passed (34,620 assertions); `runGameTestServer --no-parallel` passed all 168 cases. `test-restart.ps1` passed both JVMs (qa-51d41b29), preserving both layout eras and all 22 registrations.
+- `runQaClient` passed (94 captures); reviewed seven abdf41ed Main Base views. Fixed the disposable fixture's disabled recruitment flag; an intervening Windows graphics startup exit did not recur on retry.
+- Exact normal jar (SHA256 1c37daee5ddd3e12ccc71aebf05aa498308432cfbf5eb56ff1d3079f61e66efa) verified natural v1 registration, all three tiles and stock after restart, repeat refusal and 0 dormant / +1 active local supply per default cycle. Dedicated DEV server stopped cleanly; no EULA edited.
+- Ten-model art export, jar metadata/QA exclusion, packaged preparation and Windows CI 42946651760 passed. No fresh production install, multiplayer or external-threat pass. Layout feel is an isolated review; next milestone in STATUS.md.
