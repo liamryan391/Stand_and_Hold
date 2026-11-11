@@ -39,6 +39,13 @@ tasks.named('wrapper', Wrapper).configure {
     distributionSha256Sum = '72f44c9f8ebcb1af43838f45ee5c4aa9c5444898b3468ab3f4af7b6076c5bc3f'
 }
 
+def integrationId = providers.gradleProperty('integrationId').orElse('missing').get()
+def integrationSeat = providers.gradleProperty('integrationSeat').orElse('missing').get()
+def validIntegrationId = integrationId ==~ /m31-[a-f0-9]{12}/
+def validIntegrationSeat = integrationSeat in ['A', 'B']
+def integrationRoot = "run/integration/${validIntegrationId ? integrationId : 'invalid'}"
+def integrationServerDir = file("${integrationRoot}/server")
+
 neoForge {
     version = project.neo_version
     addModdingDependenciesTo sourceSets.qa
@@ -72,12 +79,26 @@ neoForge {
         }
         showcaseClient {
             client()
-            gameDirectory = project.file('run/showcase-client')
+            gameDirectory = project.file(validIntegrationId ? "${integrationRoot}/showcase" : 'run/showcase-client')
         }
         showcaseServer {
             server()
             gameDirectory = project.file('run/showcase-server')
             programArgument '--nogui'
+        }
+        integrationServer {
+            server()
+            gameDirectory = integrationServerDir
+            programArgument '--nogui'
+            jvmArgument '-Xms512m'
+            jvmArgument '-Xmx2G'
+        }
+        integrationClient {
+            client()
+            gameDirectory = project.file("${integrationRoot}/client-${validIntegrationSeat ? integrationSeat : 'invalid'}")
+            ['--username', (integrationSeat == 'A' ? 'm31seata' : 'm31seatb'), '--quickPlayMultiplayer', '127.0.0.1:25579',
+                    '--width', '854', '--height', '480'].each { programArgument it.toString() }
+            jvmArgument '-Xmx2G'
         }
         gameTestServer {
             type = 'gameTestServer'
@@ -246,11 +267,30 @@ var generateModMetadata = tasks.register('generateModMetadata', ProcessResources
 sourceSets.main.resources.srcDir generateModMetadata
 neoForge.ideSyncTask generateModMetadata
 
-['runServer', 'runCompatServer', 'runShowcaseServer'].each { runName ->
+['runServer', 'runCompatServer', 'runShowcaseServer', 'runIntegrationServer'].each { runName ->
     tasks.named(runName, JavaExec).configure {
         // Resolve the interactive stream at execution time, not in the configuration cache.
         doFirst { task ->
             task.standardInput = System.in
+        }
+    }
+}
+
+tasks.named('runIntegrationServer', JavaExec).configure {
+    doFirst {
+        if (!validIntegrationId) { throw new GradleException('Use a fresh m31-<12 hex digits> integration session.') }
+        def settings = new File(integrationServerDir, 'server.properties')
+        def values = new Properties()
+        if (settings.isFile()) { settings.withInputStream { values.load(it) } }
+        if (values.getProperty('server-ip') != '127.0.0.1' || values.getProperty('server-port') != '25579') {
+            throw new GradleException('Integration server must be preconfigured on loopback port 25579.')
+        }
+    }
+}
+tasks.named('runIntegrationClient', JavaExec).configure {
+    doFirst {
+        if (!validIntegrationId || !validIntegrationSeat) {
+            throw new GradleException('Specify the integration session and seat A or B.')
         }
     }
 }
