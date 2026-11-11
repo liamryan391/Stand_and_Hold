@@ -30,6 +30,11 @@ final class SampleChecks {
         check(selectors.match("minecraft:husk", tag -> true).orElseThrow().points() == 1, "first matching tag wins");
         check(selectors.match("minecraft:pig", tag -> false).isEmpty(), "absent tags cannot match unrelated entities");
         check(ThreatRules.parse(List.of("missing_mod:missing|1|1|1")).match("minecraft:pig", tag -> false).isEmpty(), "absent mod ID never defaults to pig");
+        var optional = ThreatRules.parse(List.of(ThreatRules.DEFAULTS.getFirst(), "testaddon:zombie|7|1|2"));
+        var externalZombie = optional.match("testaddon:zombie", tag -> false).orElseThrow();
+        check(externalZombie.points() == 7 && externalZombie.dropCount(.9) == 2, "configured external ID uses its own reward");
+        check(optional.match("minecraft:zombie", tag -> false).orElseThrow().equals(zombie), "optional ID cannot override the same path in vanilla");
+        check(optional.match("unmapped:zombie", tag -> false).isEmpty(), "stale optional ID cannot reward an unrelated namespace");
         var duplicate = ThreatRules.parse(List.of("minecraft:zombie|1|0|0", "minecraft:zombie|5|1|1"));
         check(duplicate.rules().size() == 1 && duplicate.rules().getFirst().points() == 1 && duplicate.issues().size() == 1, "duplicate selector first wins");
         List<Object> invalid = new ArrayList<>(List.of("", "zombie|1|1|1", "#|1|1|1", "Bad:id|1|1|1", "minecraft:zombie|1", "minecraft:zombie|-1|1|1",
