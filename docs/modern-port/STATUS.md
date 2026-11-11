@@ -2,7 +2,7 @@
 Updated: 2026-11-11
 
 ## Position
-- NeoForge 26.3.0.102 promoted with Liam's approval. M31 technical candidate verified; earned-loop feedback is still open.
+- Keep the verified NeoForge 26.3.0.102 build as the internal QA baseline only. M31 earned-loop feedback is still open.
 - The root handoff.md is the Codex/Claude entry point. STATUS remains authoritative; alternate implementation ownership and review.
 - NeoForge-first; Fabric M14 14.4-14.5 deferred. Pins: MC 26.3 / NeoForge 26.3.0.102 / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
 

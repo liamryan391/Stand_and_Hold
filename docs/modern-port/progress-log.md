@@ -454,3 +454,7 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - `test-integration-load.ps1` passed 0/1/2/4 posts with 0/2/5/8 defenders and worst reported p95 1.7 ms; retained fixed-window logs and JFR. Two actual whitelisted loopback clients verified shared menus/support, death/dimension/chunk transitions and dedicated restart.
 - Final clean build, all 168 GameTests, `test-restart.ps1`, `runQaClient` (94 captures) and package validation passed; reviewed before/after base/menu PNGs and a private 26-second real raid clip. Metadata/QA exclusion checked.
 - New earned-loop feel review, authenticated remote multiplayer and fresh packaged install of this rebuild are not claimed. No public release; next review in STATUS.md.
+
+## 2026-11-11 - M31 Internal Candidate Disposition
+- Kept the verified NeoForge build for internal QA only. Confirmed Windows CI 43092501245 on the merged candidate; the isolated earned-loop world saved and exited cleanly.
+- `git diff --check` passed for the documentation update. No gameplay or pin changes; no repeat of the local build or GameTests. Liam's earned-loop feedback remains outstanding; see STATUS.md.
