@@ -2,7 +2,7 @@
 Updated: 2026-11-11
 
 ## Position
-- M26 merged/pushed. M27 native Rifleman motion and editable Launcher art verified locally; Windows CI and integration pending.
+- M27 verified and merged/pushed; codex/m28-specialist-tiers prepared. Windows CI 42938656507 passed build, native tests, restart and artifact upload.
 - Four-tick carry/aim blend and one five-tick shot cue only after accepted spawn. No firing, damage, balance, save-schema, dependency or pin changes.
 - NeoForge-first; Fabric M14 14.4-14.5 deferred. Pins: MC 26.3 / NeoForge 26.3.0.57-beta / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
 
@@ -18,4 +18,4 @@ Updated: 2026-11-11
 - Growth remains bounded; no power-loss/claim-mod guarantee or automatic repair. Independent beta/public release approval remains separate.
 
 ## Next Milestone
-`Continue: M27 steps 27.1-27.4 (original motion/equipment pipeline, bounded art slice, presentation polish and automated verification) on codex/m27-motion-polish.`
+`Continue: M28 steps 28.1-28.4 (specialist roles, original registration and visuals, shared gated recruitment and automated verification) on codex/m28-specialist-tiers.`
