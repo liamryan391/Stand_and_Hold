@@ -11,7 +11,7 @@ Historical M11 runtime checks on 2026-10-22 used Minecraft 26.3, NeoForge 26.3.0
 
 ## M30 Artifact Screening (2026-11-11)
 
-None of the screened candidates is eligible for installation on the current pins. The exact
+None of the screened candidates was eligible on the original M30 beta pin. The exact
 publisher artifacts below were read as archives in memory, not saved to disk,
 installed or executed. Their sizes and SHA-512 values matched the author-published
 version records. Each contains Java 25 classfiles (major 69), declares only
@@ -19,7 +19,7 @@ Minecraft/NeoForge as required and has no bundled jars or listed Modrinth
 dependencies. All three target client and server. These are static checks, not
 coexistence or modded-world removal results.
 
-| Exact artifact | SHA-256 | Pinned-loader disposition |
+| Exact artifact | SHA-256 | Original beta-pin disposition |
 | --- | --- | --- |
 | [Undead Nights 2.2.7](https://api.modrinth.com/v2/version/7so8Uwzl), `UndeadNights-2.2.7-NeoForge-mc26.3.jar` | `a495be88152f97501c6f19a87deb2c26fdcfbbb53a143a117c118c02aba4947c` | Manifest requires NeoForge `[26.3.0.76,)`; rejects `26.3.0.57-beta`. |
 | [Undead Nights 2.2.6](https://api.modrinth.com/v2/version/hXnSFPmW), `UndeadNights-2.2.6-NeoForge-mc26.3.jar` | `adefacf3e6b75040e5309032bfa9bbf6ea9c3a9d2631a0f45a5c63bf4e38fbe7` | Manifest admits the pin; its main class has a field reference to `ModConfig.Type.SERVER`, which the pinned FML enum lacks. Static incompatibility; no runtime test attempted. |
