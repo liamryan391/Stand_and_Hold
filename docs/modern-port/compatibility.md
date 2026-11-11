@@ -9,7 +9,36 @@ Artifact metadata and isolated runtime checks on 2026-10-22 target Minecraft 26.
 - `minecraft:zombie` remains the safe default test mapping. An infection-themed mod title does not establish new entity IDs, and infected players must not become NPC targets.
 - Keep approved external test mods in separate disposable client/server instances, outside normal development runs, build dependencies and the release jar. Never install a legacy SRP jar on the modern loader.
 
-## Exact Artifact Candidates
+## M30 Artifact Screening (2026-11-11)
+
+None of the screened candidates is eligible for installation on the current pins. The exact
+publisher artifacts below were read as archives in memory, not saved to disk,
+installed or executed. Their sizes and SHA-512 values matched the author-published
+version records. Each contains Java 25 classfiles (major 69), declares only
+Minecraft/NeoForge as required and has no bundled jars or listed Modrinth
+dependencies. All three target client and server. These are static checks, not
+coexistence or modded-world removal results.
+
+| Exact artifact | SHA-256 | Pinned-loader disposition |
+| --- | --- | --- |
+| [Undead Nights 2.2.7](https://api.modrinth.com/v2/version/7so8Uwzl), `UndeadNights-2.2.7-NeoForge-mc26.3.jar` | `a495be88152f97501c6f19a87deb2c26fdcfbbb53a143a117c118c02aba4947c` | Manifest requires NeoForge `[26.3.0.76,)`; rejects `26.3.0.57-beta`. |
+| [Undead Nights 2.2.6](https://api.modrinth.com/v2/version/hXnSFPmW), `UndeadNights-2.2.6-NeoForge-mc26.3.jar` | `adefacf3e6b75040e5309032bfa9bbf6ea9c3a9d2631a0f45a5c63bf4e38fbe7` | Manifest admits the pin; its main class has a field reference to `ModConfig.Type.SERVER`, which the pinned FML enum lacks. Static incompatibility; no runtime test attempted. |
+| [Contagion 2.1.2](https://api.modrinth.com/v2/version/G17pb0SW), `Contagion-2.1.2-NeoForge-mc26.3.jar` | `79d15a206ebeec6a1359fbdc616533ce3e9456f2b5f732166b0941d1c66688b4` | Manifest requires NeoForge `[26.3.0.76,)`; rejects `26.3.0.57-beta`. Not a replacement for the observed 2.1.1 failure below. |
+
+The [Undead Nights 2.2.7 release notes](https://www.curseforge.com/minecraft/mc-mods/undead-nights/files/9436494)
+confirm the move to a later non-beta NeoForge. The older jar's field reference was
+checked directly in its constant pool and compared against `javap` on pinned
+FML 12.0.9. Both projects expose author source repositories, but the inspected
+jars declare All Rights Reserved. Contagion's project lists MIT; do not infer
+redistribution or reuse rights from that listing.
+
+A limited Modrinth search for Minecraft 26.3 + NeoForge returned only Undead
+Nights for `horde`, only Contagion for `infection`, and no results for
+`parasite` or `zombie awareness`. That does not rule out every project or
+future build. No mapping, shim, dependency, toolchain change or support claim
+was added. Undead Nights would test horde coexistence, not infection mechanics.
+
+## Historical M11 Candidates
 
 Author-controlled release records were filtered for both `26.3` and `neoforge`. During the initial metadata review, both artifacts were inspected in memory and matched their release SHA-512, without installation. Liam subsequently approved the exact Contagion artifact for isolated QA only; Undead Nights was not installed or executed.
 
@@ -18,7 +47,7 @@ Author-controlled release records were filtered for both `26.3` and `neoforge`. 
 | Contagion | [2.1.1-NeoForge-mc26.3](https://modrinth.com/mod/contagion/version/4tdqhokG), `Contagion-2.1.1-NeoForge-mc26.3.jar` (141,723 bytes; published 2026-09-24) | `neoforge [26.3.0.16-beta,)`, `minecraft [26.3, 27.1)` | Client and server | Project metadata: MIT; this jar's `neoforge.mods.toml`: All Rights Reserved. Treat redistribution/reuse permission as unresolved; do not copy or bundle. |
 | Undead Nights | [2.2.6-NeoForge-mc26.3](https://modrinth.com/mod/undead-nights/version/hXnSFPmW), `UndeadNights-2.2.6-NeoForge-mc26.3.jar` (402,078 bytes; published 2026-09-23) | `neoforge [26.2.0.7-beta,)`, `minecraft [26.3, 27.1)` | Client and server | Project and jar metadata: All Rights Reserved; do not copy or bundle. |
 
-Both records are author-labelled releases, list no additional Modrinth dependencies, and their inspected manifests declare only Minecraft/NeoForge as required. The pinned platform satisfies those declared ranges; that is not binary/runtime proof. The first inspected class in each jar has major version 69 (Java 25); this is not an audit of every class or mixin.
+Both records are author-labelled releases, list no additional Modrinth dependencies, and their inspected manifests declare only Minecraft/NeoForge as required. The pinned platform satisfies those declared ranges; both jars nevertheless reference a loader field absent on the pin (M11 runtime failure and M30 static check respectively).
 
 Exact SHA-512 values:
 
@@ -32,7 +61,7 @@ UndeadNights-2.2.6-NeoForge-mc26.3.jar
 
 Primary metadata: [Contagion project](https://api.modrinth.com/v2/project/contagion), [exact release](https://api.modrinth.com/v2/version/4tdqhokG), [author source repository](https://github.com/MC-Mods-Pete/Contagion); [Undead Nights project](https://api.modrinth.com/v2/project/undead-nights), [exact release](https://api.modrinth.com/v2/version/hXnSFPmW), [author source repository](https://github.com/MC-Mods-Pete/UndeadNights).
 
-## Proposed Test Admission
+## M11 Test Admission
 
 | Decision field | Proposal |
 | --- | --- |

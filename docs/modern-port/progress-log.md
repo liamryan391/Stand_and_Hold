@@ -436,3 +436,9 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - `runQaClient` passed (94 captures); reviewed seven abdf41ed Main Base views. Fixed the disposable fixture's disabled recruitment flag; an intervening Windows graphics startup exit did not recur on retry.
 - Exact normal jar (SHA256 1c37daee5ddd3e12ccc71aebf05aa498308432cfbf5eb56ff1d3079f61e66efa) verified natural v1 registration, all three tiles and stock after restart, repeat refusal and 0 dormant / +1 active local supply per default cycle. Dedicated DEV server stopped cleanly; no EULA edited.
 - Ten-model art export, jar metadata/QA exclusion, packaged preparation and Windows CI 42946651760 passed. No fresh production install, multiplayer or external-threat pass. Layout feel is an isolated review; next milestone in STATUS.md.
+
+## 2026-11-11 - M30 External Artifact Screening
+- Verified publisher hashes, manifest requirements, physical sides, dependencies and Java 25 classfile headers in memory. Undead Nights 2.2.7 and Contagion 2.1.2 require NeoForge 26.3.0.76+.
+- Undead Nights 2.2.6 declares a compatible range but references `ModConfig.Type.SERVER`; `javap` confirmed that field is absent from pinned FML 12.0.9. No comparable replacement surfaced in the bounded catalog search.
+- Standalone `clean build --no-daemon --stacktrace` and `runGameTestServer --no-daemon --stacktrace --no-parallel` passed, including all 168 required cases. Jar hash matches M29; no new client/restart run or external gameplay/removal evidence.
+- Docs-only screening published on the work branch. No install, code/pin changes or merge. Explicit deferral or a separate toolchain decision remains pending in STATUS.md.
