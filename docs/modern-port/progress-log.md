@@ -464,3 +464,9 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Normal-jar-only Modrinth profile ran in `CLIENT in PROD`. Checked Mods, `/standandhold guide`, checkpoint generation, three menus, defender combat and a player zombie drop in a fresh Superflat fixture.
 - Lab Start/Pause/resume completed once; normal world reload retained 19 points/Stage 0, research, registration and Crate 12 supplies/1 sample. Reviewed native F2 captures; preserved both client logs and quit normally.
 - `git diff --check` passed for docs only. No build, pin or main changes; no external install, coexistence/removal or real multiplayer. Exact-artifact decision remains in STATUS.md.
+
+## 2026-11-11 - M30 Undead Nights Coexistence
+- Approved file 9436494, Undead Nights 2.2.7, matched publisher SHA-512 and recorded SHA-256; isolated DEV client/server only. Manual test mapping, no defaults or dependency changes.
+- `runCompatClient` and `runCompatServer` verified real mapped rewards/drop, defender targeting, bounded raid/reinforcement and occupied placement refusal; client same-mod reload passed. Both removal copies retained Stand and Hold state; foreign entity/attachment skipped. Reviewed four PNGs; logs/backups retained.
+- Java 25 `clean build --offline --no-daemon --stacktrace` passed (34,623 assertions); `runGameTestServer --offline --no-daemon --stacktrace --no-parallel` passed all 168. Added three namespace isolation assertions; normal jar unchanged.
+- No packaged external install, natural Horde Night stress, real multiplayer or infection proof. No main change or merge; next decision in STATUS.md.

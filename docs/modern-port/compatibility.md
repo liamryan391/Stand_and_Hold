@@ -38,6 +38,28 @@ Nights for `horde`, only Contagion for `infection`, and no results for
 future build. No mapping, shim, dependency, toolchain change or support claim
 was added. Undead Nights would test horde coexistence, not infection mechanics.
 
+### Isolated Undead Nights 2.2.7 Result
+
+**Passed limited coexistence and backed-up removal on the trial only:** Minecraft 26.3, NeoForge 26.3.0.102, FML 12.0.12, Java 25 and Stand and Hold 0.1.0-alpha.1. Liam approved [CurseForge file 9436494](https://www.curseforge.com/minecraft/mc-mods/undead-nights/files/9436494); the matching [publisher release on Modrinth](https://api.modrinth.com/v2/version/7so8Uwzl) supplied the 402,433-byte jar, checked against the SHA-256 above and the publisher's SHA-512 before execution. The jar remains outside Git, Gradle dependencies and the normal jar. This does not change the incompatible disposition on main's NeoForge 26.3.0.57-beta.
+
+The trial used the existing exact-ID configuration in **disposable** `config/standandhold-threats.toml` files only:
+
+```toml
+mappings = ["minecraft:zombie|5|0.35|1", "undeadnights:horde_zombie|5|1.0|1"]
+presets = []
+```
+
+The guaranteed Horde Zombie drop is for QA, not a suggested balance value. `targetHostileMobs=false` isolated mapping-based defender targeting; the dedicated fixture alone used `requirePlayerKill=false` to observe a defender kill's reward/drop. The client retained `requirePlayerKill=true`. No adapter, shipped mapping, library or production behavior changed. Elite and Demolition Zombie variants were not tested.
+
+| Check | Observed trial result |
+| --- | --- |
+| Coexistence, `runCompatClient` | Mods showed both exact releases. Fresh Superflat checkpoint registered. Player-attributed vanilla `/damage` killed a real Horde Zombie, granting +5 points and one sample. Save/reopen retained the points and a second live Horde Zombie. |
+| Coexistence, `runCompatServer` | Reached `Done`; an unmanned console fixture proved mapping-only defender targeting/kill, +5 and one sample. One reinforcement deployed with a patrol region; immediate repeat hit cooldown. Stage-2 raid spawned two vanilla raiders and refused a repeat while reserved. A checkpoint placement over a chest refused and preserved the chest. Saved a live foreign entity, stopped and exited cleanly. |
+| Removal, separate backed-up client and server save copies | Both loaded with the external rule still configured but no external jar. Minecraft skipped the saved foreign entity; server also logged a removed attachment. Client kept five points, sample and checkpoint registration. Server kept Stage 2/515 points on first readback, 27 supplies, research, registration, crate stock and event state. Vanilla target/reward still worked (+5 on a controlled probe). Both copies saved and exited normally; original modded saves/backups were not reopened without the mod. |
+| Standalone control | Production Modrinth and dedicated-server baselines are recorded in [Packaged Testing](packaged-testing.md). Post-trial clean build and all 168 required GameTests passed with no Undead Nights jar. |
+
+Logs and full pre-removal backups are local in `.local/m30-undead-9436494/` within the trial worktree. Reviewed `2026-11-11_18.30.25.png` (entity), `18.30.39` (drop), `18.31.33` (same-mod reload) and `18.33.49` (removal copy) in `run/m11-compat-client/screenshots/`; shortened names share the prefix and `.png`. The first dedicated boot reached `Done` but had no stdin; its startup log was retained and the interactive retest stopped normally. These are DEV combination runs, not a packaged external install or real multiplayer test. Natural Horde Night scheduling, modded block-breaking against bases, long-wave balance and infection gameplay remain unverified. Do not remove an external mod from a valued world on the strength of a disposable-copy result.
+
 ## Historical M11 Candidates
 
 Author-controlled release records were filtered for both `26.3` and `neoforge`. During the initial metadata review, both artifacts were inspected in memory and matched their release SHA-512, without installation. Liam subsequently approved the exact Contagion artifact for isolated QA only; Undead Nights was not installed or executed.
