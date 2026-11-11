@@ -442,3 +442,8 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Undead Nights 2.2.6 declares a compatible range but references `ModConfig.Type.SERVER`; `javap` confirmed that field is absent from pinned FML 12.0.9. No comparable replacement surfaced in the bounded catalog search.
 - Standalone `clean build --no-daemon --stacktrace` and `runGameTestServer --no-daemon --stacktrace --no-parallel` passed, including all 168 required cases. Jar hash matches M29; no new client/restart run or external gameplay/removal evidence.
 - Docs-only screening published on the work branch. No install, code/pin changes or merge. Explicit deferral or a separate toolchain decision remains pending in STATUS.md.
+
+## 2026-11-11 - M30 Trial-Only Closeout
+- Retained NeoForge 26.3.0.57-beta for the standalone M31 baseline. The 26.3.0.102 loader trial and exact Undead Nights 2.2.7 combination remain isolated; no production pin or dependency changed.
+- Linked trial packaged client/server, gameplay and backed-up removal results, 168 GameTests and Windows CI 43079580782. Natural horde load, packaged external installs, infection and real multiplayer are not claimed.
+- `git diff --check` passed for this docs-only closeout. No local build or in-game rerun. Next milestone in STATUS.md.

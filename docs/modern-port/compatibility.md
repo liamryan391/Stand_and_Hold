@@ -38,6 +38,14 @@ Nights for `horde`, only Contagion for `infection`, and no results for
 future build. No mapping, shim, dependency, toolchain change or support claim
 was added. Undead Nights would test horde coexistence, not infection mechanics.
 
+## M30 Closeout
+
+**Keep NeoForge 26.3.0.102 trial-only.** Main and the M31 standalone integration baseline stay on Minecraft 26.3 / NeoForge 26.3.0.57-beta. An optional mod is not a prerequisite for that baseline; keeping its loader fixed makes M31's load and multiplayer results easier to compare. No pin, runtime dependency, default mapping or save format changes were merged from the trial.
+
+The [isolated trial record](https://github.com/liamryan391/Stand_and_Hold/blob/98ede74dd440f655e8d3e1e898d2e2c70f6d1c9d/docs/modern-port/compatibility.md#isolated-undead-nights-227-result) documents the limited pass with [Undead Nights 2.2.7, file 9436494](https://www.curseforge.com/minecraft/mc-mods/undead-nights/files/9436494): matched artifact checksums, client/server registry-ID kill/drop mapping, defenders and bounded Stand and Hold events, and removal from backed-up disposable save copies. The trial loader also passed the [standalone packaged client and server checks](https://github.com/liamryan391/Stand_and_Hold/blob/98ede74dd440f655e8d3e1e898d2e2c70f6d1c9d/docs/modern-port/packaged-testing.md#neoforge-2630102-trial-evidence), prior-pin save read, all 168 GameTests and [Windows CI](https://github.com/liamryan391/Stand_and_Hold/actions/runs/43079580782).
+
+Do not install that combination on the beta pin. The trial is not proof of natural Horde Night load, third-party block breaking, real multiplayer, packaged external installs or infection gameplay. A future promotion should be an explicitly approved, separate loader-only change compared against the standalone integration baseline, with build, client/server, packaged and backed-up save checks rerun on the exact proposed pin. Contagion remains unverified on 26.3.0.102.
+
 ## Historical M11 Candidates
 
 Author-controlled release records were filtered for both `26.3` and `neoforge`. During the initial metadata review, both artifacts were inspected in memory and matched their release SHA-512, without installation. Liam subsequently approved the exact Contagion artifact for isolated QA only; Undead Nights was not installed or executed.
@@ -106,7 +114,7 @@ All consumers continue to use the same resolved table: death rewards, sample dro
 | Same approved jar, isolated dedicated server | Same failure at `net.petemc.contagion.Contagion.<init>(Contagion.java:60)` before Done; exit code 1 (8s). |
 | Failed jar moved out of `mods`, optional preset plus missing/invalid entries left configured | Server reached Done (0.177s), skipped absent/unknown presets and malformed entries, retained 27 points/completed Initial Sample Analysis, refused repeat reward, saved/stopped/exited cleanly (15s). |
 | No-Contagion client, generic preset and skipped optional candidate | Liam passed gameplay/targeting/mission/save-reload checks. Reviewed frames show active generic/skipped optional mapping, mission reward and human/zombie combat; client saved and fully exited normally (5m9s). This is baseline proof, not an external-mod pass. |
-| Undead Nights or another external mod | No runtime test or support claim. |
+| Undead Nights or another external mod on the M11 pin | No runtime test or support claim. See [M30 closeout](#m30-closeout) for the separate loader trial. |
 
 The pinned FML 12.0.9 enum exposes `LOCAL`, `CLIENT`, `SYNCED`, `STARTUP`, not `SERVER` (verified with the installed loader's `javap` output). The crash is an external binary/API incompatibility despite declared version ranges. Mapping guards cannot make an incompatible mod constructor load; this is not fixable by changing a target ID or catching an exception in Stand and Hold. No external jar patch, copied source, compatibility shim or pin change was made.
 
