@@ -1,5 +1,11 @@
 # Selected Modern Toolchain
 
+**Isolated trial:** On `codex/m30-neoforge-102-spike` only, Liam approved
+testing NeoForge `26.3.0.102` ([published build metadata](https://maven.neoforged.net/releases/net/neoforged/neoforge/26.3.0.102/neoforge-26.3.0.102.pom)).
+Minecraft, Java, Gradle and ModDevGradle are unchanged. The table below records
+the existing main-branch decision; the trial does not amend it or approve
+external threat mods.
+
 Decision: Phase M0, step 0.3.3, verified 2026-10-07.
 
 These are the exact pins for the modern scaffold. The preserved `1.12` branch uses its separate Java 8 toolchain. Live build/launch results belong in [STATUS.md](STATUS.md), not this version reference.

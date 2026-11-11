@@ -2,6 +2,12 @@
 
 This procedure tests the **normal jar outside Gradle**, not the separate QA mod. Use fresh modern worlds only. Minecraft 26.3, NeoForge 26.3.0.57-beta and Java 25 remain pinned; no extra mod is required. The identically named historical Forge 1.12.2 release is not this artifact.
 
+For the isolated `codex/m30-neoforge-102-spike` worktree only, the pack helper
+and manifest require `26.3.0.102` instead of the main pin. Verify the trial
+version against that worktree's new manifest and never reuse the historical
+M22 profile or world. The trial has not reached production `Done` or launcher
+world entry; successful pack preparation does not establish either.
+
 ## Prepare A Fresh Session
 
 From the repository root:

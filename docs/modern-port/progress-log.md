@@ -442,3 +442,10 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Undead Nights 2.2.6 declares a compatible range but references `ModConfig.Type.SERVER`; `javap` confirmed that field is absent from pinned FML 12.0.9. No comparable replacement surfaced in the bounded catalog search.
 - Standalone `clean build --no-daemon --stacktrace` and `runGameTestServer --no-daemon --stacktrace --no-parallel` passed, including all 168 required cases. Jar hash matches M29; no new client/restart run or external gameplay/removal evidence.
 - Docs-only screening published on the work branch. No install, code/pin changes or merge. Explicit deferral or a separate toolchain decision remains pending in STATUS.md.
+
+## 2026-11-11 - M30 Isolated NeoForge 26.3.0.102 Trial
+- Liam approved a loader-only experiment. Changed the candidate pin and exact pack guards in a separate worktree; main, M30 screening, other pins and existing worlds untouched.
+- `clean build --no-daemon --stacktrace` (34,620 checks), `runGameTestServer --no-parallel` (168), `test-restart.ps1` (qa-78776886) and Windows CI 43035903118 passed.
+- Prior-pin write / candidate read passed (qa-92e52caf). First copied fixture was already mutated by its previous read-phase export; retained the failure and seeded a fresh write-only save without weakening assertions.
+- `runQaClient` passed (94 captures); opened 8a4a22b4 guide-large, mainbase-overhead, mainbase-dormant-large, mainbase-lab-large and special-division-front. Exact jar-only DEV server reached Done, checked Stage 1, placed a base, saved and stopped.
+- Pack/export checks and official SHA-256-verified server install passed. Jar SHA-256 c370f5b190c32a7e5570e5d620a2d172de65fd7b335d44ecbe902a2c945d4c9b. Private m22-neo102-3991097f production launch stopped at eula=false; no acceptance, launcher import or external-mod run.
