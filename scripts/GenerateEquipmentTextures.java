@@ -40,15 +40,10 @@ class GenerateEquipmentTextures {
         for (int i = 2; i < 11; i++) { rect(blade, i, 13 - i, 3, 3, INK); rect(blade, i + 1, 13 - i, 1, 2, LIGHT); }
         rect(blade, 3, 10, 5, 2, TEAL); rect(blade, 2, 12, 2, 3, METAL); rect(blade, 2, 14, 3, 1, TEAL);
         write(blade, "item/anti_threat_blade.png");
-        BufferedImage launcher = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
-        rect(launcher, 2, 4, 12, 7, INK); rect(launcher, 3, 5, 9, 5, METAL); rect(launcher, 12, 6, 3, 3, TEAL);
-        rect(launcher, 4, 9, 3, 5, INK); rect(launcher, 4, 10, 2, 3, TEAL); rect(launcher, 3, 6, 6, 1, LIGHT);
-        for (int x = 5; x < 11; x += 2) { rect(launcher, x, 8, 1, 2, 0xff66c9bc); }
-        write(launcher, "item/prototype_launcher.png");
         BufferedImage bolt = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
         rect(bolt, 3, 6, 10, 4, 0xff446b70); rect(bolt, 4, 7, 8, 2, 0xff80e0cc); rect(bolt, 6, 7, 4, 1, LIGHT);
         write(bolt, "item/prototype_bolt.png");
-        System.out.println("Generated 11 original item icons and 6 original worn armour atlases.");
+        System.out.println("Generated 10 original item icons and 6 original worn armour atlases. Launcher atlas comes from Blockbench export.");
     }
     static void box(BufferedImage image, int u, int v, int w, int h, int d, int colour) {
         rect(image, u + d, v, 2 * w, d, colour); rect(image, u, v + d, 2 * (w + d), h, colour);

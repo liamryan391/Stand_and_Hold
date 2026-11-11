@@ -27,6 +27,17 @@ Author-published Modrinth metadata returned exact Minecraft 26.3/NeoForge releas
 
 M8 uses the pinned platform's `HumanoidModel` animation with original exported geometry. Walking, head look and melee movement need no external library or animation controller. Blockbench animation clips are **not** automatically executed by these models. The [official format guide](https://blockbench.net/wiki/blockbench/formats/) distinguishes model export from runtime animation support. A later clip-driven requirement must pass the dependency policy and Liam's approval first; do not install both libraries or change toolchain pins to follow an art tutorial.
 
+### Rifleman Motion
+
+M27 keeps the existing Rifleman rig and adds a native carry-to-aim blend over four
+client ticks. The running server ranged goal reports aim only for a visible target in
+the existing ranged distance band. Its synced value changes on transitions, not every
+tick. A successful bolt spawn sends one entity event for a five-tick arm-only kick.
+No camera effect, animation packets on failed shots, saved pose fields, new firing
+rules or extra runtime library. Walking legs, head look and vanilla swing/swim/death
+remain native. Non-launcher equipment and the other roles retain their old pose path;
+an occupied off hand falls back to the vanilla item pose. Aim is not an off-cooldown cue.
+
 ## Sources And Export
 
 Editable `.bbmodel` projects live in `art/blockbench/`; they are source assets, not shipped runtime resources. NPC projects use Modded Entity box UVs and named humanoid pivots. Their geometry and embedded original texture are authoritative. In Blockbench, save the project with embedded textures, then run the repository exporter rather than replacing generated Java with a version-specific built-in Java template. The official Blockbench codec/schema was consulted, not copied into the project.
@@ -43,7 +54,7 @@ $env:GRADLE_USER_HOME = Join-Path (Get-Location).Path '.gradle-home\modern'
 .\gradlew.bat clean build --no-daemon --stacktrace
 ```
 
-The first command writes generated `HumanNpcMeshes.java`, the four entity PNGs, and utility block JSON/PNGs. `-Check` writes nothing and fails on stale output; Windows CI runs it before the clean build. The build checks source hashes, embedded/runtime PNG equality, dimensions, opaque body/accessory UV faces, block face assignments and bounded GUI text. Keep sources and generated outputs in the same commit. The exporter runs from any working directory, without Java, plugins or an installed Blockbench.
+The first command writes generated `HumanNpcMeshes.java`, the four entity PNGs, utility block JSON/PNGs, and the Launcher model/atlas. `-Check` writes nothing and fails on stale output; Windows CI runs it before the clean build. The build checks source hashes, embedded/runtime PNG equality, dimensions, opaque body/accessory UV faces, face assignments, Launcher transforms and bounded GUI text. Keep sources and generated outputs in the same commit. The exporter runs from any working directory, without Java, plugins or an installed Blockbench.
 
 ### Editing Contract
 
@@ -51,7 +62,8 @@ The first command writes generated `HumanNpcMeshes.java`, the four entity PNGs, 
 2. Preserve root `head`, `body`, `right_arm`, `left_arm`, `right_leg`, `left_leg`, and `hat` nested directly under `head`. Vanilla walking/head/melee/held-item transforms use these names and pivots. Keep accessories in the corresponding head/body group.
 3. NPCs support at most 64 unrotated, non-inflated box-UV cubes and 32 uniquely named groups, one 64x64 atlas named after the model, and positive whole-pixel cube dimensions up to 32. Fractional positions/pivots are allowed; rotations, per-face UV painting layouts, meshes, animation clips and extra atlases are outside this exporter. Mirror UVs are supported. All six faces must use texture 0.
 4. Utility projects intentionally remain one full 0..16 cube with three embedded 16x16 textures: front, side, top. Full-face UVs and texture indices 0..2 only. This preserves existing collision, interaction and placement behavior. The front is world north; there is no facing property yet. Custom inventory display transforms are not exported.
-5. Save the project, export, run `-Check` and the clean build, then inspect it in Minecraft. Do not hand-edit generated Java or use Blockbench's version-specific Java exporter as the runtime output. Unsupported edits should be rejected, not silently treated as animated features.
+5. The `prototype_launcher.bbmodel` Java Block/Item source allows up to eight unrotated boxes inside 0..16 and one opaque 16x16 embedded atlas. The sealed emitter faces local north (-Z), with the grip near the item centre. Edit both hands' explicit held transforms and the GUI/ground/fixed transforms in the source. The model is a fictional pulse tool, not a functional mechanism. Keep the Rifleman face clear in carry and aim poses.
+6. Save the project, export, run `-Check` and the clean build, then inspect it in Minecraft. Do not hand-edit generated Java or use Blockbench's version-specific Java exporter as the runtime output. Unsupported edits should be rejected, not silently treated as animated features.
 
 For deliberate seed resets, run `java .\scripts\GenerateNpcTextures.java`, `java .\scripts\GenerateBuildingTextures.java` or `java .\scripts\GenerateSampleTexture.java` after selecting the modern JDK. NPC/block sources must then be deliberately updated with the desired embedded PNGs; exporting otherwise restores their existing source images. The sample and egg icons are direct generated item art, not Blockbench projects.
 
@@ -59,6 +71,7 @@ For deliberate seed resets, run `java .\scripts\GenerateNpcTextures.java`, `java
 
 - Compare both humans front/back/sides in daylight and torchlight, including head turns, walking and melee swings. Survivor cap/pack and Rifleman helmet/vest must read as different silhouettes. Check every face for transparency, stretched UVs and missing-texture patterns.
 - Test a harmless vanilla held item without changing NPC defaults: `/item replace entity @e[type=standandhold:army_rifleman,sort=nearest,limit=1] weapon.mainhand with minecraft:stick`. It should follow the hand through movement; this is a disposable visual test, not a new equipment system.
+- The scripted client additionally follows a Rifleman carrying, walking into range, aiming, firing, hurt, dying and holding a fallback item. It reloads resources and captures the player-held Launcher and creative inventory. Judge transition timing and feel separately in the isolated normal client.
 - Check the three placed blocks' front/top/sides and inventory forms, both eggs and tissue sample. Building models remain lightweight full cubes, not finished furniture.
 - Check all menus at default and large GUI scale, in a window that leaves at least 300x230 GUI pixels. Exercise ready/running/paused/blocked/completed lab states; selection must not auto-start. A globally completed target shows a full bar without modifying saved local work. Shortened fields expose full text on hover; button tooltips explain transfer batches and actions.
 - Use a disposable datapack with an 80-character research title and large balances to visually stress hover text. Automated checks also cover 80/500-character words, Unicode boundaries and long-limit labels, but do not substitute for resource-pack/font/scale visual tests. A definition reload requires reopening a menu.

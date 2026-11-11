@@ -63,13 +63,52 @@ function AddGroup($node, $parent, $parentOrigin, $cubes, $seen, $names, $atlas) 
     $lines.Add("        PartDefinition $($node.name) = $parent.addOrReplaceChild(`"$($node.name)`", $builder, PartPose.offset($dx, $dy, $dz));")
     foreach ($child in $node.children) { if ($child -isnot [string]) { AddGroup $child $node.name $node.origin $cubes $seen $names $atlas } }
 }
+function ExportLauncher($model, $id) {
+    if ($model.meta.model_format -ne 'java_block' -or $model.resolution.width -ne 16 -or $model.resolution.height -ne 16 -or
+        $model.textures.Count -ne 1 -or $model.textures[0].name -ne "$id.png" -or
+        $model.elements.Count -lt 1 -or $model.elements.Count -gt 8) { throw 'Launcher requires one 16px atlas and at most eight boxes.' }
+    $ids = @($model.elements | ForEach-Object { $_.uuid })
+    if ($model.outliner.Count -ne $ids.Count -or @($ids | Select-Object -Unique).Count -ne $ids.Count -or
+        ($model.outliner -join ',') -ne ($ids -join ',')) { throw 'Launcher boxes must be ordered directly in the root outliner.' }
+    $elements = @()
+    foreach ($cube in $model.elements) {
+        if ($cube.type -ne 'cube' -or $cube.export -eq $false -or $cube.box_uv -or $cube.from.Count -ne 3 -or $cube.to.Count -ne 3 -or
+            [double]$cube.inflate -ne 0 -or @($cube.rotation | Where-Object { $null -ne $_ -and $_ -ne 0 }).Count -gt 0) { throw 'Unsupported launcher cube.' }
+        for ($axis = 0; $axis -lt 3; $axis++) {
+            if ($cube.from[$axis] -lt 0 -or $cube.to[$axis] -gt 16 -or $cube.from[$axis] -ge $cube.to[$axis]) { throw 'Launcher box outside 0..16.' }
+        }
+        $faces = [ordered]@{}
+        foreach ($face in @('north','east','south','west','up','down')) {
+            $entry = $cube.faces.$face
+            if ($null -eq $entry.texture -or $entry.texture -ne 0 -or [double]$entry.rotation -ne 0 -or $entry.uv.Count -ne 4 -or
+                $entry.uv[0] -ge $entry.uv[2] -or $entry.uv[1] -ge $entry.uv[3] -or
+                @($entry.uv | Where-Object { $_ -lt 0 -or $_ -gt 16 }).Count -gt 0) { throw 'Launcher faces need bounded atlas-0 UVs.' }
+            $faces[$face] = [ordered]@{ uv=$entry.uv; texture='#0' }
+        }
+        $elements += [ordered]@{ from=$cube.from; to=$cube.to; faces=$faces }
+    }
+    $display = [ordered]@{}
+    foreach ($view in @('gui','ground','fixed','firstperson_righthand','firstperson_lefthand','thirdperson_righthand','thirdperson_lefthand')) {
+        $transform = $model.display.$view
+        if ($transform.rotation.Count -ne 3 -or $transform.translation.Count -ne 3 -or $transform.scale.Count -ne 3 -or
+            @($transform.rotation | Where-Object { [Math]::Abs($_) -gt 180 }).Count -gt 0 -or
+            @($transform.translation | Where-Object { [Math]::Abs($_) -gt 8 }).Count -gt 0 -or
+            @($transform.scale | Where-Object { $_ -lt 0.1 -or $_ -gt 1.5 }).Count -gt 0) { throw "Invalid launcher display: $view" }
+        $display[$view] = [ordered]@{ rotation=$transform.rotation; translation=$transform.translation; scale=$transform.scale }
+    }
+    $item = [ordered]@{ textures=[ordered]@{ particle='#0'; '0'="standandhold:item/$id" }; display=$display; elements=$elements }
+    EmitText (Join-Path $root "src/main/resources/assets/standandhold/models/item/$id.json") (($item | ConvertTo-Json -Depth 16 -Compress) + "`n")
+    ReadTexture $model.textures[0] $id 'item'
+}
 $models = @(Get-ChildItem (Join-Path $root 'art/blockbench') -Filter '*.bbmodel' | Sort-Object Name)
 if ($models.Count -eq 0) { throw 'No editable art sources found.' }
 foreach ($file in $models) {
     $id = $file.BaseName
-    if ($id -notin @('survivor_defender','army_rifleman','heavy_soldier','elite_soldier','field_command_post','research_lab','supply_crate')) { throw "Unknown source id: $id" }
+    if ($id -notin @('survivor_defender','army_rifleman','heavy_soldier','elite_soldier','field_command_post','research_lab','supply_crate','prototype_launcher')) { throw "Unknown source id: $id" }
     $model = Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8 | ConvertFrom-Json
-    if ($model.meta.model_format -eq 'modded_entity') {
+    if ($id -eq 'prototype_launcher') {
+        ExportLauncher $model $id
+    } elseif ($model.meta.model_format -eq 'modded_entity') {
         if ($model.elements.Count -gt 64 -or $model.textures.Count -ne 1 -or $model.resolution.width -ne 64 -or $model.resolution.height -ne 64) { throw 'Humanoid source must have <=64 cubes and one 64x64 texture.' }
         if ($model.textures[0].name -ne "$id.png") { throw 'Humanoid texture name must match its model id.' }
         foreach ($name in @('head','body','right_arm','left_arm','right_leg','left_leg')) {

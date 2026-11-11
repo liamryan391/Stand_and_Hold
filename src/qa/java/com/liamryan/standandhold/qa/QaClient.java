@@ -2,6 +2,7 @@ package com.liamryan.standandhold.qa;
 
 import com.liamryan.standandhold.client.BuildingScreen;
 import com.liamryan.standandhold.common.building.*;
+import com.liamryan.standandhold.common.equipment.EquipmentRegistry;
 import com.liamryan.standandhold.common.foundation.FoundationResources;
 import com.liamryan.standandhold.common.npc.NpcRegistry;
 import com.liamryan.standandhold.common.npc.DefenderCapacity;
@@ -25,6 +26,7 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.CameraType;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -33,6 +35,9 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.WorldDataConfiguration;
@@ -94,6 +99,8 @@ public final class QaClient {
     private int tierView;
     private int yardView;
     private int deckView;
+    private UUID motionNpc, motionTarget;
+    private CompletableFuture<Void> motionReload;
     private java.util.List<ExpansionOperation.Change> deckChanges;
     private UUID dutyNpc;
     private boolean dutyArrived;
@@ -130,6 +137,7 @@ public final class QaClient {
             mc.options.onboardAccessibility = false;
             if (previousPhase != phase) { previousPhase = phase; phaseTicks = 0; }
             if (++phaseTicks > 200 && phase == 4) { throw new IllegalStateException("Expected real menu did not open: " + views.get(view).name()); }
+            if (phase >= 115 && phase <= 133 && phaseTicks > 240) { throw new IllegalStateException("Motion fixture timed out in phase " + phase); }
             if (serverAction != null) {
                 if (!serverAction.isDone()) { return; }
                 serverAction.join(); serverAction = null; settle = 0;
@@ -502,7 +510,7 @@ public final class QaClient {
                     }
                     capture(mc, TIER_VIEWS.get(tierView), 56);
                 }
-                case 56 -> { tierView++; phase = tierView == TIER_VIEWS.size() ? 8 : 54; settle = 0; }
+                case 56 -> { tierView++; phase = tierView == TIER_VIEWS.size() ? 115 : 54; settle = 0; }
                 case 57 -> {
                     if (++settle >= 10) {
                         if (!(mc.gui.screen() instanceof net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen)) { throw new IllegalStateException("Tier egg inventory did not render"); }
@@ -692,6 +700,108 @@ public final class QaClient {
                     if (!(mc.player.containerMenu instanceof BuildingMenu menu) || menu.number(BuildingMenu.DUTY_MODE) != 0 || menu.number(BuildingMenu.WATCH_STATUS) != 0 || settle < 15) { return; }
                     capture(mc, "duties-guard-reset-large", 54);
                 }
+                case 115 -> {
+                    mc.gui.setScreen(null);
+                    if (!mc.gui.hud.isHidden()) { mc.gui.hud.toggle(); }
+                    mc.options.guiScale().set(2); mc.resizeGui();
+                    phase = 116; onServer(mc, () -> motionScene(mc));
+                }
+                case 116 -> {
+                    var npc = motionActor(mc);
+                    if (settle++ < 25 || npc == null || !mc.levelRenderer.isSectionCompiledAndVisible(npc.blockPosition(), 0)) { return; }
+                    if (npc.launcherAim(1) != 0 || npc.launcherKick(0) != 0) { throw new IllegalStateException("Carry scene has an unexpected aim/shot cue"); }
+                    capture(mc, "motion-rifleman-carry", 117);
+                }
+                case 117 -> {
+                    phase = 118; onServer(mc, () -> {
+                        var level = mc.getSingleplayerServer().overworld();
+                        var zombie = EntityTypes.ZOMBIE.create(level, EntitySpawnReason.COMMAND);
+                        zombie.setNoAi(true); zombie.snapTo(123.5, 64, 6.5, 90, 0); level.addFreshEntity(zombie);
+                        motionTarget = zombie.getUUID();
+                    });
+                }
+                case 118 -> {
+                    var npc = motionActor(mc);
+                    if (npc != null && npc.getX() > 110 && npc.walkAnimation.speed() > .15F && npc.launcherAim(1) < .5F) {
+                        capture(mc, "motion-rifleman-walk", 119);
+                    }
+                }
+                case 119 -> {
+                    var npc = motionActor(mc);
+                    if (npc != null && npc.launcherAim(1) >= .9F) { capture(mc, "motion-rifleman-aim", 120); }
+                }
+                case 120 -> {
+                    var npc = motionActor(mc);
+                    if (npc != null && npc.launcherKick(0) > .2F) { capture(mc, "motion-rifleman-shot", 121); }
+                }
+                case 121 -> {
+                    phase = 122; onServer(mc, () -> {
+                        var level = mc.getSingleplayerServer().overworld();
+                        var target = level.getEntity(motionTarget);
+                        if (target != null) { target.discard(); }
+                        var npc = (HumanNpc) level.getEntity(motionNpc);
+                        if (!npc.hurtServer(level, level.damageSources().generic(), 3)) { throw new IllegalStateException("Damage pose fixture refused"); }
+                    });
+                }
+                case 122 -> {
+                    var npc = motionActor(mc);
+                    if (npc != null && npc.hurtTime > 0 && npc.isAlive()) { capture(mc, "motion-rifleman-hurt", 123); }
+                }
+                case 123 -> {
+                    phase = 124; onServer(mc, () -> {
+                        var npc = (HumanNpc) mc.getSingleplayerServer().overworld().getEntity(motionNpc);
+                        npc.setItemSlot(EquipmentSlot.MAINHAND, Items.STICK.getDefaultInstance());
+                    });
+                }
+                case 124 -> {
+                    var npc = motionActor(mc);
+                    if (npc != null && npc.hurtTime == 0 && npc.getMainHandItem().is(Items.STICK)
+                            && npc.launcherAim(1) == 0 && npc.launcherKick(0) == 0) {
+                        capture(mc, "motion-rifleman-fallback", 125);
+                    }
+                }
+                case 125 -> {
+                    phase = 133; onServer(mc, () -> {
+                        var level = mc.getSingleplayerServer().overworld();
+                        var npc = (HumanNpc) level.getEntity(motionNpc);
+                        npc.setItemSlot(EquipmentSlot.MAINHAND, EquipmentRegistry.PROTOTYPE.get().getDefaultInstance());
+                    });
+                }
+                case 133 -> {
+                    var npc = motionActor(mc);
+                    if (npc == null || !npc.getMainHandItem().is(EquipmentRegistry.PROTOTYPE.get())) { return; }
+                    phase = 126; onServer(mc, () -> {
+                        var level = mc.getSingleplayerServer().overworld();
+                        level.getEntity(motionNpc).kill(level);
+                    });
+                }
+                case 126 -> {
+                    var npc = motionActor(mc);
+                    if (npc != null && npc.deathTime >= 6 && npc.getMainHandItem().is(EquipmentRegistry.PROTOTYPE.get())) {
+                        capture(mc, "motion-rifleman-death", 127);
+                    }
+                }
+                case 127 -> { motionReload = mc.reloadResourcePacks(); phase = 128; settle = 0; }
+                case 128 -> {
+                    if (!motionReload.isDone() || mc.gui.overlay() != null) { return; }
+                    motionReload.join();
+                    if (mc.gui.hud.isHidden()) { mc.gui.hud.toggle(); }
+                    if (settle++ >= 20 && mc.player.getMainHandItem().is(EquipmentRegistry.PROTOTYPE.get())) {
+                        capture(mc, "motion-launcher-first-person-reloaded", 129);
+                    }
+                }
+                case 129 -> { mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT); phase = 130; settle = 0; }
+                case 130 -> { if (++settle >= 15) { capture(mc, "motion-launcher-third-person", 131); } }
+                case 131 -> {
+                    mc.options.setCameraType(CameraType.FIRST_PERSON);
+                    if (mc.gui.hud.isHidden()) { mc.gui.hud.toggle(); }
+                    mc.gui.setScreen(new net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen(
+                            mc.player, mc.player.connection.enabledFeatures(), mc.options.operatorItemsTab().get()));
+                    phase = 132; settle = 0;
+                }
+                case 132 -> {
+                    if (++settle >= 10) { capture(mc, "motion-launcher-inventory", 8); }
+                }
                 case 8 -> {
                     if (mc.gui.hud.isHidden()) { mc.gui.hud.toggle(); }
                     mc.gui.setScreen(null);
@@ -707,6 +817,34 @@ public final class QaClient {
         }
     }
     private static ServerPlayer player(Minecraft mc) { return Objects.requireNonNull(mc.getSingleplayerServer().getPlayerList().getPlayer(mc.player.getUUID())); }
+    private HumanNpc motionActor(Minecraft mc) {
+        for (var entity : mc.level.entitiesForRendering()) {
+            if (entity instanceof HumanNpc npc && npc.getUUID().equals(motionNpc)) { return npc; }
+        }
+        return null;
+    }
+    private void motionScene(Minecraft mc) {
+        var level = mc.getSingleplayerServer().overworld(); var player = player(mc);
+        for (var pos : BlockPos.betweenClosed(102, 63, 0, 127, 63, 16)) {
+            level.setBlockAndUpdate(pos, Blocks.STONE_BRICKS.defaultBlockState());
+        }
+        level.clockManager().setTotalTicks(level.dimensionType().defaultClock().orElseThrow(), 18000);
+        for (var pos : List.of(new BlockPos(109, 64, 8), new BlockPos(114, 64, 7), new BlockPos(120, 64, 8))) {
+            level.setBlockAndUpdate(pos, Blocks.TORCH.defaultBlockState());
+        }
+        var data = HumanWorldData.get(level.getServer());
+        var catalog = FoundationResources.get(level.getServer());
+        HumanPointManager.setStage(level.getServer(), HumanStage.LOCAL_ARMY_RESPONSE);
+        data.setSupplies(100);
+        ResearchManager.complete(data, catalog, HumanProgressionConfig.thresholds(), "standandhold:parasite_samples");
+        ResearchManager.complete(data, catalog, HumanProgressionConfig.thresholds(), "standandhold:field_communications");
+        var npc = NpcRegistry.ARMY.get().create(level, EntitySpawnReason.COMMAND);
+        npc.snapTo(109.5, 64, 6.5, 0, 0);
+        npc.setItemSlot(EquipmentSlot.MAINHAND, EquipmentRegistry.PROTOTYPE.get().getDefaultInstance());
+        level.addFreshEntity(npc); motionNpc = npc.getUUID();
+        player.getInventory().setItem(player.getInventory().getSelectedSlot(), EquipmentRegistry.PROTOTYPE.get().getDefaultInstance());
+        player.connection.teleport(111.5, 64, 10.8, 157, 7);
+    }
     private void checkDeckUnchanged(Minecraft mc) {
         var level=mc.getSingleplayerServer().overworld(); var post=tile(level,growthPost);
         if (!deckPostBefore.equals(post.saveWithFullMetadata(level.registryAccess()))

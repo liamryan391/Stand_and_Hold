@@ -14,9 +14,13 @@ import com.liamryan.standandhold.common.equipment.PrototypeBolt;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -44,6 +48,10 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
+    private static final EntityDataAccessor<Boolean> LAUNCHER_AIM =
+            SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.BOOLEAN);
+    private static final byte LAUNCHER_SHOT = 100;
+    private static final int SHOT_POSE_TICKS = 5;
     private String commandPost = "";
     private long nextPrototypeShot;
     private boolean issuedBlade;
@@ -51,6 +59,8 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
     private long patrolUntil;
     private int localWaypoint;
     private LocalDutyGoal localDuty;
+    private float previousAim, aim;
+    private int shotPoseTicks;
 
     public HumanNpc(EntityType<? extends HumanNpc> type, Level level) {
         super(type, level);
@@ -58,6 +68,27 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         if (!level.isClientSide()) { applyStats(true); }
     }
     public HumanTier tier() { return NpcRegistry.tier(getType()); }
+    @Override protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(LAUNCHER_AIM, false);
+    }
+    public boolean launcherAiming() { return isAlive() && entityData.get(LAUNCHER_AIM); }
+    public float launcherAim(float partialTick) { return Mth.lerp(partialTick, previousAim, aim); }
+    public float launcherKick(float partialTick) {
+        return Math.clamp((shotPoseTicks - partialTick) / SHOT_POSE_TICKS, 0, 1);
+    }
+    @Override public void handleEntityEvent(byte event) {
+        if (event == LAUNCHER_SHOT) { shotPoseTicks = SHOT_POSE_TICKS; }
+        else { super.handleEntityEvent(event); }
+    }
+    @Override public void tick() {
+        super.tick();
+        if (level().isClientSide() && tier() == HumanTier.ARMY_RIFLEMAN) {
+            previousAim = aim;
+            aim = Mth.approach(aim, launcherAiming() ? 1 : 0, 0.25F);
+            if (shotPoseTicks > 0) { shotPoseTicks--; }
+        }
+    }
     @Override public boolean requiresCustomPersistence() { return true; }
     public static AttributeSupplier.Builder attributes(HumanTier tier) {
         return createMobAttributes().add(Attributes.MAX_HEALTH, tier.health).add(Attributes.MOVEMENT_SPEED, tier.speed)
@@ -174,6 +205,7 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         bolt.shoot(target.getX() - bolt.getX(), target.getEyeY() - bolt.getY(), target.getZ() - bolt.getZ(), EquipmentConfig.value(EquipmentConfig.SPEED).floatValue(), 0);
         if (server.addFreshEntity(bolt)) {
             nextPrototypeShot = server.getGameTime() + EquipmentConfig.value(EquipmentConfig.NPC_INTERVAL);
+            if (tier() == HumanTier.ARMY_RIFLEMAN) { server.broadcastEntityEvent(this, LAUNCHER_SHOT); }
             server.playSound(null, getX(), getY(), getZ(), SoundEvents.SNOWBALL_THROW, SoundSource.NEUTRAL, 0.4F, 1.1F);
         }
     }
@@ -182,6 +214,20 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         PrototypeGoal(HumanNpc npc) { super(npc, 1.0, 10, 12); this.npc = npc; }
         @Override public boolean canUse() { return npc.rangedReady() && super.canUse(); }
         @Override public boolean canContinueToUse() { return canUse(); }
+        @Override public void tick() {
+            super.tick();
+            if (npc.tier() == HumanTier.ARMY_RIFLEMAN) {
+                var target = npc.getTarget();
+                // Reuse the running goal's cached sight check. Synched data sends only changes.
+                double distance = target == null ? 0 : npc.distanceToSqr(target);
+                npc.entityData.set(LAUNCHER_AIM, target != null && distance > 9 && distance <= 144
+                        && npc.getSensing().hasLineOfSight(target));
+            }
+        }
+        @Override public void stop() {
+            super.stop();
+            if (npc.tier() == HumanTier.ARMY_RIFLEMAN) { npc.entityData.set(LAUNCHER_AIM, false); }
+        }
     }
     private static final class ThreatTarget extends NearestAttackableTargetGoal<LivingEntity> {
         private long nextSearch;

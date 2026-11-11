@@ -1,0 +1,27 @@
+{
+  "meta": {"format_version":"4.12","model_format":"java_block","box_uv":false},
+  "name":"Prototype Launcher",
+  "credit":"Original Stand and Hold pulse-tool art",
+  "resolution":{"width":16,"height":16},
+  "elements":[
+    {"name":"Pulse housing","type":"cube","uuid":"ef2cf4c2-69a9-44ab-99fa-000000000001","from":[5,7,3],"to":[11,12,12],"box_uv":false,"faces":{"north":{"uv":[0,4,4,8],"texture":0},"east":{"uv":[0,0,4,4],"texture":0},"south":{"uv":[0,0,4,4],"texture":0},"west":{"uv":[0,0,4,4],"texture":0},"up":{"uv":[4,0,8,4],"texture":0},"down":{"uv":[0,4,4,8],"texture":0}}},
+    {"name":"Ceramic upper shell","type":"cube","uuid":"ef2cf4c2-69a9-44ab-99fa-000000000002","from":[5.5,12,4],"to":[10.5,13,11.5],"box_uv":false,"faces":{"north":{"uv":[4,0,8,4],"texture":0},"east":{"uv":[4,0,8,4],"texture":0},"south":{"uv":[4,0,8,4],"texture":0},"west":{"uv":[4,0,8,4],"texture":0},"up":{"uv":[12,4,16,8],"texture":0},"down":{"uv":[4,0,8,4],"texture":0}}},
+    {"name":"Teal emitter shroud","type":"cube","uuid":"ef2cf4c2-69a9-44ab-99fa-000000000003","from":[5.5,7.5,1],"to":[10.5,11.5,3],"box_uv":false,"faces":{"north":{"uv":[8,0,12,4],"texture":0},"east":{"uv":[8,0,12,4],"texture":0},"south":{"uv":[8,0,12,4],"texture":0},"west":{"uv":[8,0,12,4],"texture":0},"up":{"uv":[8,0,12,4],"texture":0},"down":{"uv":[8,4,12,8],"texture":0}}},
+    {"name":"Sealed emitter lens","type":"cube","uuid":"ef2cf4c2-69a9-44ab-99fa-000000000004","from":[6.25,8.25,0.75],"to":[9.75,10.75,1],"box_uv":false,"faces":{"north":{"uv":[12,0,16,4],"texture":0},"east":{"uv":[8,0,12,4],"texture":0},"south":{"uv":[0,4,4,8],"texture":0},"west":{"uv":[8,0,12,4],"texture":0},"up":{"uv":[8,0,12,4],"texture":0},"down":{"uv":[8,0,12,4],"texture":0}}},
+    {"name":"Rear cap","type":"cube","uuid":"ef2cf4c2-69a9-44ab-99fa-000000000005","from":[5.75,7.5,12],"to":[10.25,11.5,14.5],"box_uv":false,"faces":{"north":{"uv":[0,0,4,4],"texture":0},"east":{"uv":[8,4,12,8],"texture":0},"south":{"uv":[0,4,4,8],"texture":0},"west":{"uv":[8,4,12,8],"texture":0},"up":{"uv":[4,0,8,4],"texture":0},"down":{"uv":[0,4,4,8],"texture":0}}},
+    {"name":"Carry grip","type":"cube","uuid":"ef2cf4c2-69a9-44ab-99fa-000000000006","from":[7,3.75,8],"to":[9.5,7,11],"box_uv":false,"faces":{"north":{"uv":[0,4,4,8],"texture":0},"east":{"uv":[0,4,4,8],"texture":0},"south":{"uv":[0,0,4,4],"texture":0},"west":{"uv":[0,4,4,8],"texture":0},"up":{"uv":[0,0,4,4],"texture":0},"down":{"uv":[8,4,12,8],"texture":0}}},
+    {"name":"Left charge strip","type":"cube","uuid":"ef2cf4c2-69a9-44ab-99fa-000000000007","from":[4.75,8.25,4.5],"to":[5,10.25,9.5],"box_uv":false,"faces":{"north":{"uv":[4,4,8,8],"texture":0},"east":{"uv":[0,0,4,4],"texture":0},"south":{"uv":[4,4,8,8],"texture":0},"west":{"uv":[12,0,16,4],"texture":0},"up":{"uv":[8,0,12,4],"texture":0},"down":{"uv":[8,0,12,4],"texture":0}}},
+    {"name":"Right charge strip","type":"cube","uuid":"ef2cf4c2-69a9-44ab-99fa-000000000008","from":[11,8.25,4.5],"to":[11.25,10.25,9.5],"box_uv":false,"faces":{"north":{"uv":[4,4,8,8],"texture":0},"east":{"uv":[12,0,16,4],"texture":0},"south":{"uv":[4,4,8,8],"texture":0},"west":{"uv":[0,0,4,4],"texture":0},"up":{"uv":[8,0,12,4],"texture":0},"down":{"uv":[8,0,12,4],"texture":0}}}
+  ],
+  "outliner":["ef2cf4c2-69a9-44ab-99fa-000000000001","ef2cf4c2-69a9-44ab-99fa-000000000002","ef2cf4c2-69a9-44ab-99fa-000000000003","ef2cf4c2-69a9-44ab-99fa-000000000004","ef2cf4c2-69a9-44ab-99fa-000000000005","ef2cf4c2-69a9-44ab-99fa-000000000006","ef2cf4c2-69a9-44ab-99fa-000000000007","ef2cf4c2-69a9-44ab-99fa-000000000008"],
+  "display":{
+    "gui":{"rotation":[26,137,0],"translation":[0,0,0],"scale":[1.05,1.05,1.05]},
+    "ground":{"rotation":[0,0,0],"translation":[0,2,0],"scale":[0.6,0.6,0.6]},
+    "fixed":{"rotation":[0,90,0],"translation":[0,0,0],"scale":[0.9,0.9,0.9]},
+    "firstperson_righthand":{"rotation":[0,24,0],"translation":[0,1,-2.5],"scale":[0.66,0.66,0.66]},
+    "firstperson_lefthand":{"rotation":[0,24,0],"translation":[0,1,-2.5],"scale":[0.66,0.66,0.66]},
+    "thirdperson_righthand":{"rotation":[0,0,0],"translation":[0,2,-1.4],"scale":[0.9,0.9,0.9]},
+    "thirdperson_lefthand":{"rotation":[0,0,0],"translation":[0,2,-1.4],"scale":[0.9,0.9,0.9]}
+  },
+  "textures":[{"name":"prototype_launcher.png","id":"0","uuid":"5943d044-5ad7-4024-9d92-ad0bb2aa3eee","mode":"bitmap","source":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAADG0lEQVR4AQEQA+/8ADlDSjlDSjlDSjE7QmJ0dmJ0dmJ0dlpsbjJ1dDJ1dDJ1dCptbI7pzo7pzo7pzobhxgAvOUAvOUAvOUAnMThYamxYamxYamxQYmQoa2ooa2ooa2ogY2KE38SE38SE38R817wALzlALzlALzlAJzE4WGpsWGpsWGpsUGJkKGtqKGtqKGtqIGNihN/EhN/EhN/EfNe8ACgyOSgyOSgyOSAqMVFjZVFjZVFjZUlbXSFkYyFkYyFkYxlcW33YvX3YvX3YvXXQtQAkKzMkKzMkKzMcIyumekqmekqmekqeckJIWl9IWl9IWl9AUle9yLu9yLu9yLu1wLMAGiEpGiEpGiEpEhkhnHBAnHBAnHBAlGg4PlBVPlBVPlBVNkhNs76xs76xs76xq7apABohKRohKRohKRIZIZxwQJxwQJxwQJRoOD5QVT5QVT5QVTZITbO+sbO+sbO+sau2qQATGiITGiITGiILEhqVaTmVaTmVaTmNYTE3SU43SU43SU4vQUast6qst6qst6qkr6IAOUNKOUNKOUNKMTtCYnR2YnR2YnR2WmxuMnV0MnV0MnV0Km1sjunOjunOjunOhuHGAC85QC85QC85QCcxOFhqbFhqbFhqbFBiZChraihraihraiBjYoTfxITfxITfxHzXvAAvOUAvOUAvOUAnMThYamxYamxYamxQYmQoa2ooa2ooa2ogY2KE38SE38SE38R817wAKDI5KDI5KDI5ICoxUWNlUWNlUWNlSVtdIWRjIWRjIWRjGVxbfdi9fdi9fdi9ddC1ACQrMyQrMyQrMxwjK6Z6SqZ6SqZ6Sp5yQkhaX0haX0haX0BSV73Iu73Iu73Iu7XAswAaISkaISkaISkSGSGccECccECccECUaDg+UFU+UFU+UFU2SE2zvrGzvrGzvrGrtqkAGiEpGiEpGiEpEhkhnHBAnHBAnHBAlGg4PlBVPlBVPlBVNkhNs76xs76xs76xq7apABMaIhMaIhMaIgsSGpVpOZVpOZVpOY1hMTdJTjdJTjdJTi9BRqy3qqy3qqy3qqSvog1LMjAdPco7AAAAAElFTkSuQmCC"}]
+}

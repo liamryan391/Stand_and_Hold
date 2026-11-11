@@ -19,7 +19,7 @@ import javax.imageio.ImageIO;
 final class ArtChecks {
     private static int assertions;
     static void run() throws Exception {
-        sources(); textBounds();
+        sources(); launcher(); textBounds();
         System.out.println("Art checks passed: " + assertions + " assertions.");
     }
     private static void sources() throws Exception {
@@ -67,6 +67,31 @@ final class ArtChecks {
         }
         var lang = JsonParser.parseString(Files.readString(root.resolve("lang/en_us.json"))).getAsJsonObject();
         for (int i = 0; i <= 10; i++) { check(lang.has("gui.standandhold.status." + i), "translated GUI status " + i); }
+    }
+    private static void launcher() throws Exception {
+        var root = Path.of("src/main/resources/assets/standandhold");
+        var source = JsonParser.parseString(Files.readString(Path.of("art/blockbench/prototype_launcher.bbmodel"))).getAsJsonObject();
+        var model = JsonParser.parseString(Files.readString(root.resolve("models/item/prototype_launcher.json"))).getAsJsonObject();
+        check(source.get("credit").getAsString().contains("Original"), "launcher has original editable source");
+        var textures = source.getAsJsonArray("textures");
+        check(textures.size() == 1, "one launcher atlas");
+        String data = textures.get(0).getAsJsonObject().get("source").getAsString();
+        check(data.startsWith("data:image/png;base64,"), "launcher atlas embedded");
+        byte[] bytes = Base64.getDecoder().decode(data.substring(data.indexOf(',') + 1));
+        var atlas = ImageIO.read(new ByteArrayInputStream(bytes));
+        check(atlas != null && atlas.getWidth() == 16 && atlas.getHeight() == 16 && opaque(atlas, 0, 0, 16, 16), "opaque launcher atlas");
+        check(Arrays.equals(bytes, Files.readAllBytes(root.resolve("textures/item/prototype_launcher.png"))), "launcher texture export exact");
+        check(model.getAsJsonObject("display").equals(source.getAsJsonObject("display")), "held, menu and ground transforms match source");
+        var authored = source.getAsJsonArray("elements"); var exported = model.getAsJsonArray("elements");
+        check(authored.size() == 8 && exported.size() == authored.size(), "bounded original launcher geometry");
+        for (int i = 0; i < authored.size(); i++) {
+            var box = authored.get(i).getAsJsonObject(); var output = exported.get(i).getAsJsonObject();
+            check(box.get("from").equals(output.get("from")) && box.get("to").equals(output.get("to")), "launcher box preserved");
+            for (String side : List.of("north", "east", "south", "west", "up", "down")) {
+                var face = output.getAsJsonObject("faces").getAsJsonObject(side);
+                check(face.get("texture").getAsString().equals("#0") && face.get("uv").equals(box.getAsJsonObject("faces").getAsJsonObject(side).get("uv")), "launcher face preserved");
+            }
+        }
     }
     private static int size(JsonObject cube, int axis) {
         double n = cube.getAsJsonArray("to").get(axis).getAsDouble() - cube.getAsJsonArray("from").get(axis).getAsDouble();

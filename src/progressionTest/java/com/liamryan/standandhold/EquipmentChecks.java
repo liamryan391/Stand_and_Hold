@@ -92,9 +92,10 @@ final class EquipmentChecks {
             var clientItem = json(assets.resolve("items/" + id + ".json"));
             check(clientItem.getAsJsonObject("model").get("model").getAsString().equals("standandhold:item/" + id), "item points to its own model");
             var model = json(assets.resolve("models/item/" + id + ".json"));
-            check(model.getAsJsonObject("textures").get("layer0").getAsString().equals("standandhold:item/" + id), "model points to own texture");
+            boolean launcher = id.equals("prototype_launcher");
+            check(model.getAsJsonObject("textures").get(launcher ? "0" : "layer0").getAsString().equals("standandhold:item/" + id), "model points to own texture");
             var image = ImageIO.read(assets.resolve("textures/item/" + id + ".png").toFile());
-            check(image.getWidth() == 16 && image.getHeight() == 16 && image.getRGB(0, 0) >>> 24 == 0, "original 16px cutout icon");
+            check(image.getWidth() == 16 && image.getHeight() == 16 && image.getRGB(0, 0) >>> 24 == (launcher ? 255 : 0), "original 16px model atlas or cutout icon");
             boolean visible = false;
             for (int y = 0; y < 16; y++) { for (int x = 0; x < 16; x++) { visible |= image.getRGB(x, y) >>> 24 != 0; } }
             check(visible, "item icon nonblank");

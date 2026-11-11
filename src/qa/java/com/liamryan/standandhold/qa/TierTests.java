@@ -2,6 +2,7 @@ package com.liamryan.standandhold.qa;
 
 import com.liamryan.standandhold.common.building.*;
 import com.liamryan.standandhold.common.equipment.EquipmentRegistry;
+import com.liamryan.standandhold.common.equipment.PrototypeBolt;
 import com.liamryan.standandhold.common.foundation.FoundationResources;
 import com.liamryan.standandhold.common.npc.*;
 import com.liamryan.standandhold.common.progression.*;
@@ -18,6 +19,7 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 
 final class TierTests {
@@ -32,6 +34,8 @@ final class TierTests {
         tests.put("tier_mixed_shared_caps", TierTests::caps);
         tests.put("tier_kit_retention", TierTests::retention);
         tests.put("tier_elite_ranged_bolt", TierTests::ranged);
+        tests.put("rifleman_motion_visibility", TierTests::riflemanMotion);
+        tests.put("rifleman_cooldown_and_friendly_guard", TierTests::riflemanCooldown);
         for (var tier : List.of(HumanTier.HEAVY_SOLDIER, HumanTier.ELITE_SOLDIER)) {
             tests.put("tier_" + tier.id + "_zombie", h -> combat(h, tier, EntityTypes.ZOMBIE));
             tests.put("tier_" + tier.id + "_skeleton", h -> combat(h, tier, EntityTypes.SKELETON));
@@ -206,6 +210,57 @@ final class TierTests {
                     new AABB(h.absolutePos(HOME)).inflate(16)).isEmpty();
             h.assertTrue(sawBolt[0] && zombie.getHealth() < health && npc.distanceToSqr(zombie) > 9,
                     "Elite autonomously fires actual damaging bolts, not only melee");
+        });
+    }
+    private static void riflemanMotion(GameTestHelper h) {
+        QaWorld.begin(h);
+        var npc = h.spawn(NpcRegistry.ARMY.get(), HOME);
+        npc.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0);
+        npc.setItemSlot(EquipmentSlot.MAINHAND, EquipmentRegistry.PROTOTYPE.get().getDefaultInstance());
+        var zombie = h.spawn(EntityTypes.ZOMBIE, HOME.offset(8, 0, 0));
+        zombie.setNoAi(true);
+        float health = zombie.getHealth();
+        h.runAfterDelay(25, () -> {
+            h.assertTrue(!npc.launcherAiming() && zombie.getHealth() == health, "Held launcher alone does not aim or fire through locked gate");
+            unlock(h);
+            h.startSequence().thenWaitUntil(() -> {
+                h.assertTrue(npc.launcherAiming() && zombie.getHealth() < health, "Actual ranged goal aims and damages at range");
+            }).thenExecute(() -> sightWall(h, true)).thenIdle(16).thenExecute(() -> {
+                h.assertFalse(npc.launcherAiming(), "Blocked sight lowers aim during ongoing pursuit");
+                sightWall(h, false);
+            }).thenWaitUntil(() -> h.assertTrue(npc.launcherAiming(), "Clear sight restores aim")).thenExecute(() -> stage(h, 0))
+                    .thenIdle(10).thenExecute(() -> {
+                        h.assertTrue(!npc.launcherAiming() && npc.getMainHandItem().is(EquipmentRegistry.PROTOTYPE.get()),
+                                "Stage drop stops aiming without deleting retained gear");
+                    }).thenSucceed();
+        });
+    }
+    private static void sightWall(GameTestHelper h, boolean blocked) {
+        for (int z = -1; z <= 1; z++) {
+            for (int y = 0; y < 3; y++) { h.setBlock(HOME.offset(3, y, z), blocked ? Blocks.STONE : Blocks.AIR); }
+        }
+    }
+    private static void riflemanCooldown(GameTestHelper h) {
+        QaWorld.begin(h); unlock(h);
+        var npc = h.spawn(NpcRegistry.ARMY.get(), HOME);
+        npc.setNoAi(true);
+        npc.setItemSlot(EquipmentSlot.MAINHAND, EquipmentRegistry.PROTOTYPE.get().getDefaultInstance());
+        var zombie = h.spawn(EntityTypes.ZOMBIE, HOME.offset(8, 0, 0));
+        zombie.setNoAi(true);
+        var cow = h.spawn(EntityTypes.COW, HOME.offset(0, 0, 8));
+        cow.setNoAi(true);
+        npc.setTarget(zombie);
+        var arena = new AABB(h.absolutePos(HOME)).inflate(16);
+        npc.performRangedAttack(zombie, 1);
+        npc.performRangedAttack(zombie, 1);
+        h.assertTrue(h.getLevel().getEntitiesOfClass(PrototypeBolt.class, arena).size() == 1, "Immediate repeat still produces exactly one bolt");
+        h.runAfterDelay(EquipmentConfig.value(EquipmentConfig.NPC_INTERVAL) + 1, () -> {
+            h.assertTrue(h.getLevel().getEntitiesOfClass(PrototypeBolt.class, arena).isEmpty(), "First bolt has resolved");
+            npc.performRangedAttack(cow, 1);
+            h.assertTrue(h.getLevel().getEntitiesOfClass(PrototypeBolt.class, arena).isEmpty(), "Friendly target cannot spawn a bolt");
+            npc.performRangedAttack(zombie, 1);
+            h.assertTrue(h.getLevel().getEntitiesOfClass(PrototypeBolt.class, arena).size() == 1, "Allowed shot after cooldown");
+            h.succeed();
         });
     }
 }
