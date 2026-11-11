@@ -10,7 +10,7 @@ function Refuses([scriptblock]$action) {
     try { & $action | Out-Null } catch { $refused = $true }
     Assert $refused 'Expected preparation to refuse before overwriting anything.'
 }
-Assert ($manifest.minecraft -eq '26.3' -and $manifest.neoForge -eq '26.3.0.57-beta') 'Exact platform pins retained.'
+Assert ($manifest.minecraft -eq '26.3' -and $manifest.neoForge -eq '26.3.0.102') 'Exact platform pins retained.'
 Assert ([IO.Path]::GetFileName($result.ClientPack).Contains($id)) 'Each pack filename must identify its fresh session.'
 Assert ($manifest.artifactSHA256 -eq (Get-FileHash -LiteralPath (Join-Path $result.ServerDirectory 'mods/standandhold-0.1.0-alpha.1.jar') -Algorithm SHA256).Hash.ToLowerInvariant()) 'Normal server jar checksum matches.'
 Assert (-not (Test-Path -LiteralPath (Join-Path $result.ServerDirectory 'eula.txt'))) 'Preparation must not write an EULA.'

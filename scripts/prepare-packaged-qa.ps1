@@ -11,7 +11,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
 $pins = Get-Content -LiteralPath (Join-Path $repo 'gradle.properties') -Raw | ConvertFrom-StringData
-if ($pins.minecraft_version -ne '26.3' -or $pins.neo_version -ne '26.3.0.57-beta' -or $pins.mod_version -ne '0.1.0-alpha.1') {
+if ($pins.minecraft_version -ne '26.3' -or $pins.neo_version -ne '26.3.0.102' -or $pins.mod_version -ne '0.1.0-alpha.1') {
     throw 'This M22 helper needs review if the approved Minecraft, NeoForge or mod version changes; no fallback is selected.'
 }
 if (-not $Artifact) { $Artifact = Join-Path $repo "build/libs/standandhold-$($pins.mod_version).jar" }
