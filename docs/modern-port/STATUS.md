@@ -13,7 +13,7 @@ Updated: 2026-11-11
 - Exact trial jar passed two installed production server launches: progression, research and Main Base stock persisted, with clean stops.
 
 ## Risks And Decisions
-- Packaged launcher client import/launch pending. No real multiplayer or external coexistence/removal proof on this pin.
+- Packaged launcher profile imported with the verified normal jar. First launch and world reload pending. No real multiplayer or external coexistence/removal proof on this pin.
 - [M30 screening](compatibility.md#m30-artifact-screening-2026-11-11): trial meets the newer artifacts' declared loader minimum. That is not runtime evidence; exact test-artifact approval is still required.
 - Back up specialist saves; older builds do not understand the new entity IDs or Division roster marker. No downgrade or migration to legacy worlds.
 - Runtime libraries/test mods, pins and fresh EULA prompts retain approval boundaries. Preserve `1.12`, alpha tag, M22 fixture, worlds/configs and original code/art.

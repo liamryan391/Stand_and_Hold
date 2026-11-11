@@ -6,7 +6,7 @@ For the isolated `codex/m30-neoforge-102-spike` worktree only, the pack helper
 and manifest require `26.3.0.102` instead of the main pin. Verify the trial
 version against that worktree's new manifest and never reuse the historical
 M22 profile or world. The trial passed the production server restart below;
-the prepared launcher pack has not been imported or launched.
+the launcher import was verified, but the first client launch is pending.
 
 ## Prepare A Fresh Session
 
@@ -77,4 +77,6 @@ Non-blocking startup diagnostics included Windows performance-counter/optional e
 
 In isolated session `m22-neo102-3991097f`, Liam authorized acceptance for this server. Only its existing `server/eula.txt` changed; the pack helper and other installations were untouched. The normal jar matched manifest SHA256 `c370f5b190c32a7e5570e5d620a2d172de65fd7b335d44ecbe902a2c945d4c9b`. Two Java 25 JVMs using the installed `user_jvm_args.txt` and NeoForge `win_args.txt` logged `DEDICATED_SERVER in PROD` (FML 12.0.12), loaded only Minecraft, NeoForge and Stand and Hold, reached `Done`, and exited 0 after `save-all flush` and `stop`.
 
-`server-prod-write.log` and `server-prod-read.log` show 160 points/Stage 1, 27 global supplies and completed Initial Sample Analysis after restart. Repeating research did not award or spend anything. The dormant Main Base post at `(8,-60,7)`, v1 layout marker, and Crate at `(13,-60,3)` with 5 local supplies persisted. The temporary chunk ticket was removed before the final save. The separate Modrinth import is staged, not completed. No external mod or multiplayer evidence is claimed.
+`server-prod-write.log` and `server-prod-read.log` show 160 points/Stage 1, 27 global supplies and completed Initial Sample Analysis after restart. Repeating research did not award or spend anything. The dormant Main Base post at `(8,-60,7)`, v1 layout marker, and Crate at `(13,-60,3)` with 5 local supplies persisted. The temporary chunk ticket was removed before the final save.
+
+Modrinth lists the imported `Stand and Hold m22-neo102-3991097f` profile as never played. Its local session marker matches the manifest; `Get-FileHash -Algorithm SHA256` confirms its only mod is the exact normal jar tested above. The pack index pins Minecraft 26.3 and NeoForge 26.3.0.102. This is import evidence only, not client launch, world entry or reload proof. No external mod or multiplayer evidence is claimed.

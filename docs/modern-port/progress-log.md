@@ -455,3 +455,7 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - `server-prod-write.log` and `server-prod-read.log` retain research, Stage 1/160 points, 27 global supplies and unchanged v1 Main Base/5-supply crate after restart. Removed the temporary chunk ticket.
 - Exact normal-jar-only launcher pack selected for manual import review; no launcher world entry, multiplayer, external mod install or coexistence/removal test. Next milestone in STATUS.md.
 - Docs only; no code, pin or main branch changes.
+
+## 2026-11-11 - M30 Launcher Import Check
+- Modrinth lists the new m22-neo102-3991097f profile. Verified the local marker, pack index pins and the sole normal jar's SHA-256 against the trial manifest.
+- First Play was handed to Liam. Client launch/world/reload unverified; no threat artifact installed or run. Docs only; next milestone in STATUS.md.
