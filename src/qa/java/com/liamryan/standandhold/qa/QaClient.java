@@ -843,7 +843,9 @@ public final class QaClient {
                         if (expected == BuildingKind.COMMAND_POST && (menu.number(BuildingMenu.LEVEL) != 1
                                 || menu.number(BuildingMenu.DEPLOYMENT_STATUS) != (mainBaseView == 3 ? 2 : 0)
                                 || menu.number(BuildingMenu.GENERATION_POINTS) != (mainBaseView == 3 ? 0 : com.liamryan.standandhold.config.BuildingConfig.POINTS.get()))) {
-                            throw new IllegalStateException("Main Base activation data did not sync");
+                            throw new IllegalStateException("Main Base activation data did not sync for " + MAIN_BASE_VIEWS.get(mainBaseView)
+                                    + ": level=" + menu.number(BuildingMenu.LEVEL) + ", deployment=" + menu.number(BuildingMenu.DEPLOYMENT_STATUS)
+                                    + ", generation=" + menu.number(BuildingMenu.GENERATION_POINTS));
                         }
                         if (expected == BuildingKind.LAB && (menu.number(BuildingMenu.LOCAL) != 0 || menu.number(BuildingMenu.STATUS) != 6)
                                 || expected == BuildingKind.CRATE && menu.number(BuildingMenu.LOCAL) != com.liamryan.standandhold.config.StructureConfig.MAIN_BASE_SUPPLIES.get()) {
@@ -900,6 +902,7 @@ public final class QaClient {
             case 1 -> actor.connection.teleport(c.getX()+.5, c.getY(), c.getZ()+4.5, 180, 3);
             case 2 -> actor.connection.teleport(c.getX()+.5, c.getY()+2, c.getZ()+12.5, 180, 12);
             default -> {
+                NpcConfig.DEPLOY.set(true); // Earlier growth views deliberately disable automatic recruitment.
                 HumanPointManager.setStage(level.getServer(), mainBaseView == 3 ? HumanStage.SURVIVORS : HumanStage.SPECIAL_PARASITE_DIVISION);
                 var pos = mainBaseView <= 4 ? p : mainBaseView == 5 ? p.offset(-4,0,-3) : p.offset(5,0,-4);
                 var tile = tile(level, pos);
