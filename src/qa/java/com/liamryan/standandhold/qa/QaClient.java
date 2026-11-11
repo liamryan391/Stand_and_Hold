@@ -99,6 +99,8 @@ public final class QaClient {
     private int tierView;
     private int yardView;
     private int deckView;
+    private BlockPos mainBasePost;
+    private int mainBaseView;
     private UUID motionNpc, motionTarget;
     private CompletableFuture<Void> motionReload;
     private java.util.List<ExpansionOperation.Change> deckChanges;
@@ -108,6 +110,8 @@ public final class QaClient {
     private static final List<String> DECK_VIEWS = List.of("deck-built-overhead", "deck-built-entrance", "deck-built-stairs", "deck-built-upper-view");
     private static final List<String> TIER_VIEWS = List.of("tiers-front", "tiers-back", "heavy-side", "elite-side", "tiers-torchlight",
             "tier-eggs", "heavy-front", "elite-front", "super-elite-front", "special-division-front", "specialists-back", "specialists-torchlight");
+    private static final List<String> MAIN_BASE_VIEWS = List.of("mainbase-overhead", "mainbase-interior", "mainbase-night",
+            "mainbase-dormant-large", "mainbase-active", "mainbase-lab-large", "mainbase-crate");
     private boolean previewReply, previewBlockedReply;
     private boolean deckReply, deckBlockedReply;
     private net.minecraft.nbt.CompoundTag deckPostBefore, deckHumanBefore;
@@ -801,7 +805,69 @@ public final class QaClient {
                     phase = 132; settle = 0;
                 }
                 case 132 -> {
-                    if (++settle >= 10) { capture(mc, "motion-launcher-inventory", 8); }
+                    if (++settle >= 10) { capture(mc, "motion-launcher-inventory", 134); }
+                }
+                case 134 -> {
+                    mc.gui.setScreen(null); phase = 135;
+                    onServer(mc, () -> {
+                        var actor = player(mc); actor.closeContainer();
+                        actor.connection.teleport(152.5, -57, 18.5, 180, 10);
+                    });
+                }
+                case 135 -> {
+                    if (++settle > 300) { throw new IllegalStateException("Main Base fixture chunk did not load"); }
+                    if (!mc.level.hasChunk(9, 0) || settle < 30) { return; }
+                    phase = 136;
+                    onServer(mc, () -> {
+                        var level = mc.getSingleplayerServer().overworld();
+                        com.liamryan.standandhold.config.StructureConfig.MAIN_BASE_RADIUS.set(6);
+                        var result = StructurePlacement.place(level, StructureKind.MAIN_BASE, 9, 0);
+                        if (!result.success()) { throw new IllegalStateException("QA Main Base placement: " + result.message()); }
+                        mainBasePost = result.commandPost();
+                        if (!tile(level, mainBasePost).mainBaseLayoutLabel().equals("inhabited layout v1")) { throw new IllegalStateException("Missing base provenance"); }
+                    });
+                }
+                case 136 -> {
+                    mc.gui.hud.getChat().clearMessages(true);
+                    if (mainBaseView < 3 && !mc.gui.hud.isHidden() || mainBaseView >= 3 && mc.gui.hud.isHidden()) { mc.gui.hud.toggle(); }
+                    mc.options.guiScale().set(mainBaseView == 3 || mainBaseView == 5 ? 3 : 2); mc.resizeGui();
+                    phase = 137;
+                    onServer(mc, () -> mainBaseScene(mc));
+                }
+                case 137 -> {
+                    if (++settle > 220) { throw new IllegalStateException("Main Base scene did not render: " + MAIN_BASE_VIEWS.get(mainBaseView)); }
+                    if (settle < 30 || !mc.levelRenderer.isSectionCompiledAndVisible(mainBasePost, 0)) { return; }
+                    if (mainBaseView >= 3) {
+                        var expected = mainBaseView <= 4 ? BuildingKind.COMMAND_POST : mainBaseView == 5 ? BuildingKind.LAB : BuildingKind.CRATE;
+                        if (!(mc.gui.screen() instanceof BuildingScreen) || !(mc.player.containerMenu instanceof BuildingMenu menu) || menu.kind() != expected) { return; }
+                        if (expected == BuildingKind.COMMAND_POST && (menu.number(BuildingMenu.LEVEL) != 1
+                                || menu.number(BuildingMenu.DEPLOYMENT_STATUS) != (mainBaseView == 3 ? 2 : 0)
+                                || menu.number(BuildingMenu.GENERATION_POINTS) != (mainBaseView == 3 ? 0 : com.liamryan.standandhold.config.BuildingConfig.POINTS.get()))) {
+                            throw new IllegalStateException("Main Base activation data did not sync");
+                        }
+                        if (expected == BuildingKind.LAB && (menu.number(BuildingMenu.LOCAL) != 0 || menu.number(BuildingMenu.STATUS) != 6)
+                                || expected == BuildingKind.CRATE && menu.number(BuildingMenu.LOCAL) != com.liamryan.standandhold.config.StructureConfig.MAIN_BASE_SUPPLIES.get()) {
+                            throw new IllegalStateException("Generated Lab/Crate menu data did not sync");
+                        }
+                    }
+                    capture(mc, MAIN_BASE_VIEWS.get(mainBaseView), 138);
+                }
+                case 138 -> {
+                    phase = 139;
+                    onServer(mc, () -> player(mc).closeContainer());
+                }
+                case 139 -> {
+                    if (++settle > 200) { throw new IllegalStateException("Main Base menu close did not sync"); }
+                    if (mc.player.containerMenu != mc.player.inventoryMenu || mc.gui.screen() instanceof BuildingScreen) { return; }
+                    mainBaseView++; phase = mainBaseView < MAIN_BASE_VIEWS.size() ? 136 : 140; settle = 0;
+                }
+                case 140 -> {
+                    phase = 8;
+                    onServer(mc, () -> {
+                        var p = mainBasePost; var actor = player(mc);
+                        actor.getAbilities().flying = false; actor.onUpdateAbilities();
+                        actor.connection.teleport(p.getX()+.5, p.getY(), p.getZ()+5.5, 180, 0);
+                    });
                 }
                 case 8 -> {
                     if (mc.gui.hud.isHidden()) { mc.gui.hud.toggle(); }
@@ -823,6 +889,24 @@ public final class QaClient {
             if (entity instanceof HumanNpc npc && npc.getUUID().equals(motionNpc)) { return npc; }
         }
         return null;
+    }
+    private void mainBaseScene(Minecraft mc) {
+        var level = mc.getSingleplayerServer().overworld(); var actor = player(mc);
+        var p = mainBasePost; var c = p.south();
+        level.clockManager().setTotalTicks(level.dimensionType().defaultClock().orElseThrow(), mainBaseView == 2 ? 18000 : 6000);
+        actor.getAbilities().flying = true; actor.onUpdateAbilities();
+        switch (mainBaseView) {
+            case 0 -> actor.connection.teleport(c.getX()+.5, c.getY()+15, c.getZ()+13.5, 180, 47);
+            case 1 -> actor.connection.teleport(c.getX()+.5, c.getY(), c.getZ()+4.5, 180, 3);
+            case 2 -> actor.connection.teleport(c.getX()+.5, c.getY()+2, c.getZ()+12.5, 180, 12);
+            default -> {
+                HumanPointManager.setStage(level.getServer(), mainBaseView == 3 ? HumanStage.SURVIVORS : HumanStage.SPECIAL_PARASITE_DIVISION);
+                var pos = mainBaseView <= 4 ? p : mainBaseView == 5 ? p.offset(-4,0,-3) : p.offset(5,0,-4);
+                var tile = tile(level, pos);
+                actor.connection.teleport(pos.getX()+.5, pos.getY(), pos.getZ()+2.5, 180, 14);
+                actor.openMenu(tile, tile::writeMenuData);
+            }
+        }
     }
     private void motionScene(Minecraft mc) {
         var level = mc.getSingleplayerServer().overworld(); var player = player(mc);

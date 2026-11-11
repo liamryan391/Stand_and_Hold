@@ -75,7 +75,7 @@ public final class StructurePlacement {
                     }
                 }
             }
-            if (kind == StructureKind.MAIN_BASE) { post.initializeMainBase(); }
+            if (kind == StructureKind.MAIN_BASE) { post.initializeInhabitedMainBase(); }
             if (data != null) {
                 if (kind == StructureKind.MAIN_BASE) { data.registerMainBase(position); } else { data.registerCommandPost(position); }
             }
@@ -110,6 +110,9 @@ public final class StructurePlacement {
             case FLOOR -> Blocks.STONE_BRICKS.defaultBlockState();
             case WALL -> Blocks.COBBLESTONE.defaultBlockState();
             case ROOF -> Blocks.SMOOTH_STONE_SLAB.defaultBlockState();
+            case PATH -> Blocks.POLISHED_ANDESITE.defaultBlockState();
+            case BASE_WALL -> Blocks.STONE_BRICKS.defaultBlockState();
+            case BASE_ROOF -> Blocks.POLISHED_DEEPSLATE_SLAB.defaultBlockState();
             case LIGHT -> Blocks.TORCH.defaultBlockState();
             case COMMAND_POST -> BuildingRegistry.COMMAND_POST.get().defaultBlockState();
             case LAB -> BuildingRegistry.LAB.get().defaultBlockState();

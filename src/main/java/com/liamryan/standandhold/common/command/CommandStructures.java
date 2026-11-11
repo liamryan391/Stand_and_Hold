@@ -1,5 +1,6 @@
 package com.liamryan.standandhold.common.command;
 
+import com.liamryan.standandhold.common.building.BuildingBlockEntity;
 import com.liamryan.standandhold.common.building.BuildingPosition;
 import com.liamryan.standandhold.common.building.BuildingPositions;
 import com.liamryan.standandhold.common.foundation.FoundationResources;
@@ -158,8 +159,10 @@ final class CommandStructures {
             for (var pos : positions) {
                 boolean loaded = pos.dimension().equals(source.getLevel().dimension().identifier()) && source.getLevel().hasChunkAt(pos.pos());
                 boolean active = data.isMainBase(pos) && stage >= StructureConfig.ACTIVATION_STAGE.get();
+                String inspection = loaded && source.getLevel().getBlockEntity(pos.pos()) instanceof BuildingBlockEntity post && post.isMainBase()
+                        ? " [loaded; " + post.mainBaseLayoutLabel() + "]" : " [not inspected/unloaded]";
                 source.sendSuccess(() -> Component.literal(pos.key() + (active ? " [stage eligible]" : " [dormant]")
-                        + (loaded ? " [loaded]" : " [not inspected/unloaded]")), false);
+                        + inspection), false);
             }
             return positions.size();
         } catch (IllegalArgumentException | IllegalStateException exception) { throw ERROR.create(exception.getMessage()); }

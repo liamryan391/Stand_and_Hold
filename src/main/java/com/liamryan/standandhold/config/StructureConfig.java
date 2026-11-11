@@ -17,13 +17,13 @@ public final class StructureConfig {
             .defineInRange("checkpointChance", 2, 1, 10000);
     public static final ModConfigSpec.IntValue CHECKPOINT_RADIUS = B.comment("Checkpoint radius in blocks: footprint is 2r+1 (default 9x9). Always remains inside one chunk.")
             .defineInRange("checkpointRadius", 4, 3, 5);
-    public static final ModConfigSpec.BooleanValue MAIN_BASES = B.comment("Generate rare Main Base foundations in new chunks. Main Base candidates take priority over checkpoints in the same chunk.")
+    public static final ModConfigSpec.BooleanValue MAIN_BASES = B.comment("Generate rare inhabited Main Bases in new chunks. Main Base candidates take priority over checkpoints in the same chunk. Existing bases are not retrofitted.")
             .define("mainBasesEnabled", true);
     public static final ModConfigSpec.IntValue MAIN_BASE_SPACING = B.comment("Main Base candidate-region size in chunks; same deterministic/no-retry policy as checkpoints.")
             .defineInRange("mainBaseSpacingChunks", 64, 1, 256);
     public static final ModConfigSpec.IntValue MAIN_BASE_CHANCE = B.comment("Main Base candidate attempt probability: 1 in N, then strict terrain checks.")
             .defineInRange("mainBaseChance", 4, 1, 10000);
-    public static final ModConfigSpec.IntValue MAIN_BASE_RADIUS = B.comment("Main Base foundation radius: footprint 11x11 or 13x13, within one chunk.")
+    public static final ModConfigSpec.IntValue MAIN_BASE_RADIUS = B.comment("New Main Base footprint radius: 11x11 or 13x13 within one chunk. Both include all four zones.")
             .defineInRange("mainBaseRadius", 6, 5, 6);
     public static final ModConfigSpec.IntValue ACTIVATION_STAGE = B.comment("Stage needed for Main Base COMMAND POST generation/deployment. Rechecked at existing building intervals; lowering the human stage makes it dormant again. Lab/crate menus remain usable.")
             .defineInRange("mainBaseActivationStage", 5, 0, 6);

@@ -17,7 +17,7 @@ import net.minecraft.resources.Identifier;
 final class StructureChecks {
     private static int assertions;
     static void run() throws Exception {
-        candidates(); layoutsAndTerrain(); registry(); cleanup();
+        candidates(); layoutsAndTerrain(); mainBaseRoutes(); registry(); cleanup();
         System.out.println("Structure checks passed: " + assertions + " assertions.");
     }
     private static void candidates() {
@@ -82,6 +82,38 @@ final class StructureChecks {
         expect(() -> StructurePlan.plan(StructureKind.MAIN_BASE, 0, 0, 7, 2, -64, 319, new Terrain()));
     }
     private static StructurePlan plan(StructurePlan.Terrain terrain) { return StructurePlan.plan(StructureKind.CHECKPOINT, 0, 0, 4, 2, -64, 319, terrain); }
+    private static void mainBaseRoutes() {
+        for (int radius : new int[]{5, 6}) {
+            var plan = StructurePlan.plan(StructureKind.MAIN_BASE, 0, 0, radius, 2, -64, 319, new Terrain());
+            var cells = new java.util.HashMap<BlockPos, StructurePlan.Material>();
+            plan.cells().forEach(c -> cells.put(c.pos(), c.material()));
+            BlockPos center = plan.commandPost().south();
+            for (int z = 0; z <= radius; z++) {
+                for (int x = -1; x <= 1; x++) {
+                    BlockPos lane = center.offset(x, 0, z);
+                    check(cells.get(lane.below()) == StructurePlan.Material.PATH
+                            && cells.get(lane) == StructurePlan.Material.AIR
+                            && cells.get(lane.above()) == StructurePlan.Material.AIR, "three-wide uninterrupted entrance and lane");
+                }
+            }
+            var pending = new java.util.ArrayDeque<BlockPos>();
+            var reached = new HashSet<BlockPos>();
+            pending.add(center.south(radius));
+            while (!pending.isEmpty()) {
+                var pos = pending.removeFirst();
+                if (cells.get(pos) != StructurePlan.Material.AIR || cells.get(pos.above()) != StructurePlan.Material.AIR
+                        || Math.abs(pos.getX() - 8) >= radius && pos.getZ() != 8 + radius || !reached.add(pos)) { continue; }
+                for (var direction : net.minecraft.core.Direction.Plane.HORIZONTAL) { pending.add(pos.relative(direction)); }
+            }
+            for (var zone : java.util.List.of(StructurePlan.Material.COMMAND_POST, StructurePlan.Material.LAB, StructurePlan.Material.CRATE)) {
+                var tile = plan.cells().stream().filter(c -> c.material() == zone).findFirst().orElseThrow().pos();
+                check(reached.contains(tile.south()) && cells.get(tile.above(3)) == StructurePlan.Material.BASE_ROOF, "covered building has walkable front: " + zone);
+            }
+            check(reached.stream().anyMatch(pos -> cells.get(pos.below()) == StructurePlan.Material.BARRACKS_MARKER), "barracks reachable without jumping");
+            check(plan.cells().stream().allMatch(cell -> Math.abs(cell.pos().getX() - 8) <= radius && Math.abs(cell.pos().getZ() - 8) <= radius
+                    && cell.pos().getY() >= 64 && cell.pos().getY() <= 69), "new furnishings never exceed preflight envelope");
+        }
+    }
     private static void registry() throws Exception {
         var post = BuildingPosition.parse("minecraft:overworld@8,65,7").orElseThrow();
         var data = new HumanWorldData();

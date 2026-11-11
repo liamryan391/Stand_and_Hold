@@ -24,6 +24,7 @@ import com.mojang.serialization.Dynamic;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -51,6 +52,8 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
     private boolean reportedFailure;
     private boolean mainBase;
     private int mainBaseNotices;
+    private static final int INHABITED_BASE_LAYOUT = 1;
+    private Dynamic<?> retainedMainBaseLayout;
     private Dynamic<?> retainedSite;
     private long siteEpoch;
     private long operationCacheEpoch = -1;
@@ -188,6 +191,18 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
     }
     public boolean isMainBase() { return mainBase && kind() == BuildingKind.COMMAND_POST; }
     public void initializeMainBase() { requireWritable(); if (!mainBase) { mainBase = true; setChanged(); } }
+    public void initializeInhabitedMainBase() {
+        if (kind() != BuildingKind.COMMAND_POST || isMainBase() || retainedMainBaseLayout != null) {
+            throw new IllegalStateException("Main Base layout can only initialize a new command anchor.");
+        }
+        initializeMainBase();
+        retainedMainBaseLayout = new Dynamic<>(NbtOps.INSTANCE, IntTag.valueOf(INHABITED_BASE_LAYOUT));
+    }
+    public String mainBaseLayoutLabel() {
+        if (retainedMainBaseLayout == null) { return "unversioned foundation"; }
+        return retainedMainBaseLayout.convert(NbtOps.INSTANCE).getValue() instanceof IntTag revision
+                && revision.intValue() == INHABITED_BASE_LAYOUT ? "inhabited layout v1" : "unknown layout (retained)";
+    }
     public boolean claimMainBaseNotice(boolean active) {
         requireWritable();
         if (!isMainBase()) { return false; }
@@ -219,6 +234,7 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         output.putInt("building_version", schema);
         output.putBoolean("main_base", mainBase);
         output.putInt("main_base_notices", mainBaseNotices);
+        if (retainedMainBaseLayout != null) { output.store("main_base_layout", Codec.PASSTHROUGH, retainedMainBaseLayout); }
         if (!dutySupported && retainedDuty != null) { output.store("duties", Codec.PASSTHROUGH, retainedDuty); }
         else if (kind() == BuildingKind.COMMAND_POST || retainedDuty != null) {
             var saved = retainedDuty != null && retainedDuty.convert(NbtOps.INSTANCE).getValue() instanceof CompoundTag old ? old.copy() : new CompoundTag();
@@ -247,6 +263,7 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         schema = input.getIntOr("building_version", 1);
         mainBase = input.getBooleanOr("main_base", false);
         mainBaseNotices = Math.clamp(input.getIntOr("main_base_notices", 0), 0, 3);
+        retainedMainBaseLayout = input.read("main_base_layout", Codec.PASSTHROUGH).orElse(null);
         retainedDuty = input.read("duties", Codec.PASSTHROUGH).orElse(null);
         duty = com.liamryan.standandhold.common.npc.DefenderDuty.DEFAULT; dutySupported = true;
         if (retainedDuty != null) {
@@ -372,7 +389,9 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
     private void reportOnce(RuntimeException exception) {
         if (!reportedFailure) { LogUtils.getLogger().debug("Building at {} paused: {}", worldPosition, exception.getMessage()); reportedFailure = true; }
     }
-    @Override public Component getDisplayName() { return Component.translatable("block.standandhold." + kind().id()); }
+    @Override public Component getDisplayName() {
+        return Component.translatable(isMainBase() ? "gui.standandhold.main_base_command" : "block.standandhold." + kind().id());
+    }
     @Override public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
         return new BuildingMenu(id, inventory, this, FoundationResources.get(player.level().getServer()));
     }

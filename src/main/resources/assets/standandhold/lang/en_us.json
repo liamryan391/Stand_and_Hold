@@ -93,6 +93,7 @@
   "gui.standandhold.upgrade_points": "Requires %s human points (not spent)",
   "gui.standandhold.work": "Work: %s / %s | Left: %s | %ss/step",
   "gui.standandhold.research_cost": "Cost: %s supplies, %s samples  |  Stage %s",
+  "gui.standandhold.main_base_command": "Main Base Command",
   "message.standandhold.main_base_active": "Main Base command active.",
   "message.standandhold.main_base_dormant": "Main Base command dormant: requires human stage %s. Lab/crate remain usable.",
   "gui.standandhold.level.1": "Field Camp",

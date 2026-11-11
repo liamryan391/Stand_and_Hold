@@ -10,7 +10,8 @@ import net.minecraft.util.RandomSource;
 public record StructurePlan(BlockPos commandPost, List<Cell> cells) {
     public static final int CLEARANCE = 5;
     public StructurePlan { commandPost = commandPost.immutable(); cells = List.copyOf(cells); }
-    public enum Material { AIR, FLOOR, WALL, ROOF, LIGHT, COMMAND_POST, LAB, CRATE, COMMAND_MARKER, RESEARCH_MARKER, BARRACKS_MARKER, SUPPLY_MARKER }
+    public enum Material { AIR, FLOOR, WALL, ROOF, LIGHT, COMMAND_POST, LAB, CRATE,
+        PATH, BASE_WALL, BASE_ROOF, COMMAND_MARKER, RESEARCH_MARKER, BARRACKS_MARKER, SUPPLY_MARKER }
     public record Cell(BlockPos pos, Material material) { }
     public interface Terrain {
         int surface(int x, int z);
@@ -65,12 +66,16 @@ public record StructurePlan(BlockPos commandPost, List<Cell> cells) {
             }
         }
         BlockPos origin = new BlockPos(cx, high + 1, cz);
+        BlockPos command = origin.north();
+        if (kind == StructureKind.MAIN_BASE) {
+            MainBaseLayout.furnish(cells, origin, radius);
+            return finish(command, cells);
+        }
         for (int z = -radius; z <= radius; z++) {
             for (int x = -radius; x <= radius; x++) {
                 if (Math.abs(x) != radius && Math.abs(z) != radius) { continue; }
                 if (z == radius && Math.abs(x) <= 1) { continue; } // Three-wide south entrance.
                 cells.put(origin.offset(x, 0, z), Material.WALL);
-                if (kind == StructureKind.MAIN_BASE) { cells.put(origin.offset(x, 1, z), Material.WALL); }
             }
         }
         // A protected command nook; open sides preserve visibility and walking routes.
@@ -80,7 +85,6 @@ public record StructurePlan(BlockPos commandPost, List<Cell> cells) {
         for (int x : new int[]{-1, 1}) {
             for (int y = 0; y < 3; y++) { cells.put(origin.offset(x, y, -2), Material.WALL); }
         }
-        BlockPos command = origin.offset(0, 0, -1);
         cells.put(command, Material.COMMAND_POST);
         cells.put(origin.offset(radius - 1, 0, -radius + 1), Material.CRATE);
         for (int x : new int[]{-radius + 1, radius - 1}) {
@@ -90,13 +94,10 @@ public record StructurePlan(BlockPos commandPost, List<Cell> cells) {
             }
         }
         cells.put(origin.offset(-radius + 2, 0, -radius + 2), Material.LAB);
-        if (kind == StructureKind.MAIN_BASE) {
-            cells.put(origin.offset(0, -1, -1), Material.COMMAND_MARKER);
-            cells.put(origin.offset(-radius + 2, -1, -radius + 2), Material.RESEARCH_MARKER);
-            cells.put(origin.offset(-radius + 2, -1, radius - 2), Material.BARRACKS_MARKER);
-            cells.put(origin.offset(radius - 1, -1, -radius + 1), Material.SUPPLY_MARKER);
-            for (int x = -radius + 2; x <= -radius + 4; x++) { cells.put(origin.offset(x, 0, radius - 2), Material.ROOF); }
-        }
+        return finish(command, cells);
+    }
+
+    private static StructurePlan finish(BlockPos command, Map<BlockPos, Material> cells) {
         return new StructurePlan(command, cells.entrySet().stream().map(e -> new Cell(e.getKey(), e.getValue())).toList());
     }
 }
