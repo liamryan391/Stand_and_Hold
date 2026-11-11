@@ -5,8 +5,8 @@ This procedure tests the **normal jar outside Gradle**, not the separate QA mod.
 For the isolated `codex/m30-neoforge-102-spike` worktree only, the pack helper
 and manifest require `26.3.0.102` instead of the main pin. Verify the trial
 version against that worktree's new manifest and never reuse the historical
-M22 profile or world. The trial has not reached production `Done` or launcher
-world entry; successful pack preparation does not establish either.
+M22 profile or world. The trial passed the production server restart below;
+the prepared launcher pack has not been imported or launched.
 
 ## Prepare A Fresh Session
 
@@ -28,7 +28,7 @@ The generated `.mrpack` contains only its format index, a session marker and our
 ## Client Profile
 
 1. In an existing launcher, import the private pack as a **new** instance; confirm its unique name and a new game directory. Never import over a valued profile. Inspect any trust warning personally; do not disable warnings. The pack uses the official [Modrinth format](https://support.modrinth.com/en/articles/8802351-modrinth-modpack-format-mrpack).
-2. Confirm Minecraft **26.3**, NeoForge **26.3.0.57-beta**, Java **25**, exactly one `standandhold-0.1.0-alpha.1.jar` in `mods/`, and no QA/test mod. Compare the imported jar's SHA256 with the manifest using `Get-FileHash -Algorithm SHA256`. Do not copy account files, development configs, saves or EULA flags.
+2. Confirm Minecraft **26.3**, the exact NeoForge pin in the session manifest (**26.3.0.57-beta** on main, **26.3.0.102** for the isolated trial), Java **25**, exactly one `standandhold-0.1.0-alpha.1.jar` in `mods/`, and no QA/test mod. Compare the imported jar's SHA256 with the manifest using `Get-FileHash -Algorithm SHA256`. Do not copy account files, development configs, saves or EULA flags.
 3. Launch using the normal launcher. Account/authentication and security prompts belong to Liam. Do not bypass login, update the launcher to hide a failure, or inspect credentials. The [official NeoForge client guide](https://docs.neoforged.net/user/docs/client/) also describes separate client profiles/installations.
 4. Inspect Mods for Stand and Hold 0.1.0-alpha.1. Enter a new Creative Superflat world with commands enabled. Run `/standandhold guide` and `status`; generate one checkpoint on clear grass. Open its Command Post, Lab and Crate. Check sample and defender assets, funded Lab Start/Pause/completion and one real zombie kill/drop/defender interaction. Operator fixture grants are technical smoke tests, not an earned playthrough.
 5. Save/quit, reopen **the same** world, and confirm progression, research, storage and registration. Capture F2 views of Mods, guide, the three menus, site and defenders, and inspect the PNGs. Fully quit normally; retain logs/screenshots/world. Record actual outcomes rather than inferring success from an import or source QA run.
@@ -53,7 +53,7 @@ try {
 
 Only install once in that fresh server directory. For subsequent launches, select Java 25, enter the recorded server directory and run `run.bat nogui` without reinstalling. Keep `server-ip=127.0.0.1`, port `25586`, `online-mode=true`, and only the normal jar in `mods/`. The private console fixture sets `pause-when-empty-seconds=-1` so loaded blocks keep ticking without a player; this is not a mod gameplay default. Do not connect real players or expose this fixture to the network. Retain platform installation logs.
 
-**By default, stop at the EULA request and hand it to Liam.** Do not copy an accepted file from another instance, use an acceptance property/flag, or interpret past development-server success as consent. The setup helper never writes acceptance. M22's one explicitly delegated acceptance is recorded below, not a reusable auto-accept policy. An EULA refusal is not Done/server proof.
+**By default, stop at the EULA request and hand it to Liam.** Do not copy an accepted file from another instance, use an acceptance property/flag, or interpret past development-server success as consent. The setup helper never writes acceptance. Explicitly delegated acceptances below apply only to their named fixtures, not a reusable auto-accept policy. An EULA refusal is not Done/server proof.
 
 After acceptance, reach `Done` within a bounded startup wait (normally allow up to 3 minutes). Through its console, record `standandhold status`, add 150 points, check Stage 1, add a small supply balance and create a loaded Command Post/Lab/Crate fixture with explicit coordinates. Allow loaded ticks for queued NeoForge block initialization before inspecting registration; freezing or vanilla empty-server pausing can otherwise delay it. Inspect building NBT through vanilla `data get block`. Save with `save-all flush`, then `stop`, observe clean exit, and restart the same world in a new JVM. Recheck points/stage/supplies and unchanged building storage/target/registration. Temporary fixture-only `forceload` tickets may keep these few chunks loaded; remove them before final stop. Never add production chunk-loading logic for the test. A missing Done, refused command, crash or timeout is a failed/blocked check, not a pass.
 
@@ -72,3 +72,9 @@ On 2026-11-02, the first M22 session was `m22-20261102-143650-32816cbd`. Its 409
 - **Screenshots:** all ten original PNGs under `%APPDATA%/ModrinthApp/profiles/standandhold-packaged-qa/screenshots/` were opened and reviewed: `2026-11-02_15.32.00.png` (menu), `15.32.51` (Mods), `15.38.24` (site/Survivor), `15.42.14` (paused Lab), `15.45.15` (Crate), `15.47.47` (stored samples), `15.49.41` (post/cap), `15.51.35` (completed Lab), `15.54.12` (completed after reload) and `15.56.19` (reloaded site). The shortened names use the same date prefix and `.png`. The two attempted transient chat captures show the world after chat faded, not standalone guide/data evidence; logs retain their text. Vanilla's first-use tutorial overlapped part of the small-window header initially and disappeared on reload; mod body text, controls and original textures were readable.
 
 Non-blocking startup diagnostics included Windows performance-counter/optional epoll messages and one unknown-passenger warning on client reload. Both production starts reached Done and normal client entry/reload completed; no OS settings, loader pins or mod behaviour were changed to suppress diagnostics. No real multi-client session, new earned-loop completion, external threat combination, other launcher/OS or public-release approval is inferred from this baseline.
+
+## NeoForge 26.3.0.102 Trial Evidence
+
+In isolated session `m22-neo102-3991097f`, Liam authorized acceptance for this server. Only its existing `server/eula.txt` changed; the pack helper and other installations were untouched. The normal jar matched manifest SHA256 `c370f5b190c32a7e5570e5d620a2d172de65fd7b335d44ecbe902a2c945d4c9b`. Two Java 25 JVMs using the installed `user_jvm_args.txt` and NeoForge `win_args.txt` logged `DEDICATED_SERVER in PROD` (FML 12.0.12), loaded only Minecraft, NeoForge and Stand and Hold, reached `Done`, and exited 0 after `save-all flush` and `stop`.
+
+`server-prod-write.log` and `server-prod-read.log` show 160 points/Stage 1, 27 global supplies and completed Initial Sample Analysis after restart. Repeating research did not award or spend anything. The dormant Main Base post at `(8,-60,7)`, v1 layout marker, and Crate at `(13,-60,3)` with 5 local supplies persisted. The temporary chunk ticket was removed before the final save. The separate Modrinth import is staged, not completed. No external mod or multiplayer evidence is claimed.

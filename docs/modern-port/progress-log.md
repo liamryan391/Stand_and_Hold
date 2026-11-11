@@ -449,3 +449,9 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Prior-pin write / candidate read passed (qa-92e52caf). First copied fixture was already mutated by its previous read-phase export; retained the failure and seeded a fresh write-only save without weakening assertions.
 - `runQaClient` passed (94 captures); opened 8a4a22b4 guide-large, mainbase-overhead, mainbase-dormant-large, mainbase-lab-large and special-division-front. Exact jar-only DEV server reached Done, checked Stage 1, placed a base, saved and stopped.
 - Pack/export checks and official SHA-256-verified server install passed. Jar SHA-256 c370f5b190c32a7e5570e5d620a2d172de65fd7b335d44ecbe902a2c945d4c9b. Private m22-neo102-3991097f production launch stopped at eula=false; no acceptance, launcher import or external-mod run.
+
+## 2026-11-11 - M30 Installed Server Baseline
+- Liam authorized the EULA for m22-neo102-3991097f only. Ran the installed Java 25 server with `@user_jvm_args.txt` and NeoForge `win_args.txt` twice. Both reached production Done; `save-all flush` and `stop` exited 0.
+- `server-prod-write.log` and `server-prod-read.log` retain research, Stage 1/160 points, 27 global supplies and unchanged v1 Main Base/5-supply crate after restart. Removed the temporary chunk ticket.
+- Exact normal-jar-only launcher pack selected for manual import review; no launcher world entry, multiplayer, external mod install or coexistence/removal test. Next milestone in STATUS.md.
+- Docs only; no code, pin or main branch changes.

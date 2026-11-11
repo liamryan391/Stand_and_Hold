@@ -10,13 +10,14 @@ Updated: 2026-11-11
 - Trial clean build (34,620 logic assertions), all 168 GameTests, two-JVM restart, and fresh prior-pin save read passed.
 - Trial qaClient passed (94 captures); reviewed guide, Main Base, Lab and specialist views (8a4a22b4 prefix).
 - Exact trial jar reached Done in dedicated DEV, verified progression and Main Base placement, saved and stopped. Art/pack preparation and Windows CI 43035903118 passed.
+- Exact trial jar passed two installed production server launches: progression, research and Main Base stock persisted, with clean stops.
 
 ## Risks And Decisions
-- Checksum-verified production server installed but stopped before Done at its fresh EULA. Prepared launcher pack not imported/launched. No production runtime, real multiplayer or external coexistence/removal proof on this pin.
+- Packaged launcher client import/launch pending. No real multiplayer or external coexistence/removal proof on this pin.
 - [M30 screening](compatibility.md#m30-artifact-screening-2026-11-11): trial meets the newer artifacts' declared loader minimum. That is not runtime evidence; exact test-artifact approval is still required.
 - Back up specialist saves; older builds do not understand the new entity IDs or Division roster marker. No downgrade or migration to legacy worlds.
 - Runtime libraries/test mods, pins and fresh EULA prompts retain approval boundaries. Preserve `1.12`, alpha tag, M22 fixture, worlds/configs and original code/art.
 - Growth remains bounded; no power-loss/claim-mod guarantee or automatic repair. Independent beta/public release approval remains separate.
 
 ## Next Milestone
-`Continue: M30 steps 30.1-30.4 (finish isolated production baseline and, with exact artifact approval, one threat coexistence/removal trial or explicit deferral) on codex/m30-neoforge-102-spike.`
+`Continue: M30 steps 30.1-30.4 (finish the packaged client baseline, then test exact approved Undead Nights 2.2.7 or record explicit deferral) on codex/m30-neoforge-102-spike.`
