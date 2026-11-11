@@ -33,7 +33,38 @@ M11's external gameplay/modded-world removal gate was explicitly deferred by Lia
 5. Follow the play sheet for about 15 loaded minutes. Record familiarity, startup/menu/world/reload, real sample acquisition, supply order, explicit lab Start/Pause, one defence, unit counts, repeated warnings and command dependence.
 6. Retain `latest.log`, crash reports, profiler output and original screenshots/clip. On the pinned target, `/debug stop` emits its elapsed/tick/TPS summary to chat/log; it does not itself create a profile-results file. Preserve that summary. Singleplayer pause time can affect its wall-time average, so run a separate unpaused controlled sample before performance claims. This describes a local integrated server, not real multiplayer or long-session scaling. Record failures and tests not run without promoting them to passes.
 
-The 2026-11-02 [M22 packaged baseline](packaged-testing.md#observed-normal-jar-proof) observed normal-jar Modrinth client entry/reload and production server Done/save/stop/restart on the exact pins. It used isolated operator fixtures and retained checksums/logs/screenshots; it does not replace earned Survival, real multiplayer or external-mod QA, and does not publish this candidate.
+The [26.3.0.102 packaged baseline](packaged-testing.md) observed normal-jar Modrinth world entry/reload and production dedicated server save/restart. The M31 rebuild and that installed trial jar have identical archive entries except CRLF/LF line endings in four model JSON files. The installed trial does not prove a fresh launcher install of every rebuild. The older M22 install used the beta pin.
+
+## M31 Integration Fixtures
+
+Run `pwsh -NoProfile -File .\scripts\test-integration-load.ps1` from the repo with the configured Java 25 JDK. The script makes a fresh `run/integration/m31-.../server` with 2 GiB max heap, Normal Superflat, a fixed 4-by-4 loaded chunk grid, no natural mobs and no client. It compares 0/1/2/4 Level-1 checkpoints within the same shared quota area at Stage 2, 65 seconds of warm-up plus five tick queries spaced 5 seconds apart per scenario. Each nonzero scenario attempts one ordinary Stand and Hold raid during sampling. Deployment intervals and all caps stay at their shipped values. The fixture saves native tick output, console counts/reservations and a JFR recording; this is a bounded local smoke test, not a latency/load ceiling for a production server.
+
+Predeclared budgets: each reported mean tick time at most 25 ms, at least four of five reported p95 values at most 35 ms in each scenario, and no defender cap breach (3 reservations per post, 8 loaded defenders within the shared area) or raid cap breach (4 reservations per post, 8 loaded hostiles in range). Record p99 as reported by the game, not inferred from a mean. No packets are expected in the zero-client benchmark; measure network separately. Report actual counts, not assumed saturation.
+
+`pwsh -NoProfile -File .\scripts\test-integration-load.ps1 -PrepareNetwork` prepares a separate private loopback-only offline-auth fixture for distinct development client seats. In each shell select the JDK and Gradle user home as in [Building](building.md), then use `runIntegrationServer -PintegrationId=<session>` and `runIntegrationClient -PintegrationId=<session> -PintegrationSeat=A` (or `B`). Both clients connect to `127.0.0.1:25579`; never use these settings for a shared server. Two actual client JVMs can prove local wire behavior, not authenticated launcher accounts, remote latency or broad multiplayer support.
+
+### Observed Load And Network Results
+
+Windows 11 Pro build 26300, Ryzen 7 9800X3D, 61.6 GiB RAM, Temurin 25.0.4+7, 2 GiB server heap. Session `m31-51e4f3f5055f` met the predeclared budgets. Timings below are the worst *reported* values across five 100-tick windows per scenario; counts are at the end of each window group, not continuous high-water marks. Each nonzero scenario spawned a two-zombie wave; no zombies or raid reservations remained at its final readback.
+
+| Posts | Loaded defenders | Defender reservations by post | Max mean / p95 / p99 (ms) |
+| --- | --- | --- | --- |
+| 0 | 0 | None | 0.2 / 0.2 / 7.5 |
+| 1 | 2 | 2 | 0.8 / 1.7 / 11.1 |
+| 2 | 5 | 3 / 2 | 0.5 / 0.8 / 7.6 |
+| 4 | 8 | 3 / 3 / 1 / 1 | 0.4 / 0.8 / 1.9 |
+
+`test-integration-load.ps1 -ReviewSession m31-51e4f3f5055f` checked all results. Raw log and JFR are under `run/integration/<session>/server/`; native recording reported zero network packets for the zero-client benchmark. Early harness attempts failed before measuring (working-directory guard, then Windows log-sharing); neither is included in these samples.
+
+Separate session `m31-11e7cd9b0c9f` used two rendered, non-operator clients with real loopback connections. Both opened one Crate: one 10-supply import moved stock 2 to 12 and the other open screen synchronized and refused a second import. The Lab ran once and spent its 10 local supplies; both seats saw completion. The post upgraded once for 20 local supplies; Patrol persisted. One support call spent 10 global supplies, and the other seat received an insufficient-supplies refusal. Operator setup grants are not earned-loop evidence. Native GameTests cover stale/competing transactions separately; these two live clicks were sequential, not a simultaneous packet race.
+
+Seat A went to the Nether and returned across the Overworld chunk edge; Seat B died and respawned. Both rejoined after a dedicated JVM restart. Stage 2, zero global supplies, both completed research entries, Level 2, Patrol, five reservations, Crate 12, Lab work 12, and raid/reinforcement counters survived. The 713-second JFR reported 33,687 sent packets / 9,217,194 bytes and 24,187 received / 66,256 bytes, including chunk traffic; this is not a latency measurement. Logs and the private, operator-triggered 26-second `m31-defence.mp4` are in the session directory. The recording shows a real two-raider wave and defender response, not a staged render or an earned-playthrough claim.
+
+### Candidate Verification And Review
+
+- Java 25 `clean build`, 168 required `runGameTestServer` cases, `test-restart.ps1` (session `qa-782bc4f5`), `runQaClient` (94 captures) and `test-packaged-qa.ps1` passed. Normal jar SHA-256 on this checkout: `b85549498b7266f0f7e5d4f902742abf03862c3d74fc35cbc9d719f9df8c8140`. Metadata requires Minecraft 26.3 and NeoForge `[26.3.0.102,26.4)`; no QA classes, bundled jar or external mod content was found.
+- Reviewed the 1280x720 `checkpoint-with-lab`, `yard-overhead`, `deck-built-overhead` and `lab-completed-large` PNGs with prefix `3bd4aeef-8bc1-43b8-a330-77a20b416041-` in `run/qa-client/screenshots/`. These are in-world QA fixture views, including the Level-2-to-Level-3 before/after pair. Reviewed Seat B's network captures `2026-11-11_19.34.45.png`, `19.36.55` and `19.37.48`, and frames from the unedited defence clip. The first-use vanilla tutorial toast overlapped the edge of a compact menu; ordinary QA captures were clear.
+- The [maintainer earned-loop review](showcase-loop.md#m31-maintainer-review) is not yet observed for this candidate. A fresh disposable profile is separate from the operator fixture, with only generation isolation and experimental growth enabled. No authenticated remote session, fresh install of this rebuild, public distribution, or new tag is claimed.
 
 ## Release-Note Draft
 

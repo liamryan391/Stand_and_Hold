@@ -28,6 +28,12 @@ The gamerules isolate the test from random vanilla spawning and daylight burning
 
 Use only an ordinary Creative melee weapon and zombie eggs for the sample step. **Do not use Creative samples, `/give` samples, `addpoints`, `setstage`, `supplies add`, research completion or mission progress/completion commands** to bypass the loop. Enemy kills by defenders do not give the default player-only reward.
 
+### M31 Maintainer Review
+
+For a separate empty profile, run `runShowcaseClient -PintegrationId=m31-<12 hex digits>` with a fresh session ID. The M31 handoff fixture has natural Stand and Hold site generation off to isolate the single checkpoint, and `expansionEnabled=true` in that profile only so earned growth can be tried. No resource balance, recruitment cap or build default changes. A fresh checkpoint starts with the ordinary 2 local Crate supplies.
+
+Use the same earned play sheet below. Once research and Stage 1 are earned, move two 10-supply batches into the post and buy Level 2, then try **Growth > Expand** on the clear flat site and **Duties > Patrol**. Growth is a separate opt-in action; it does not spend supplies again. Judge whether the reward, patrol and first defence feel useful and whether any step is unclear or slow. The load fixture, menu transactions, restart and recorded operator raid are already technical evidence, not a substitute for this playthrough.
+
 Start `/debug start` once the world is ready if available; finish with `/debug stop` before leaving. This is a local integrated-server sample, not a hardware-independent benchmark. Spend about 15 real loaded minutes, with no `/tick sprint`; note menu pauses and time away from the post.
 
 ## Play Sheet
