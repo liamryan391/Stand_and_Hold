@@ -106,7 +106,8 @@ public final class QaClient {
     private boolean dutyArrived;
     private static final List<String> YARD_VIEWS = List.of("yard-overhead", "yard-entrance", "yard-watch-deck", "yard-watch-view");
     private static final List<String> DECK_VIEWS = List.of("deck-built-overhead", "deck-built-entrance", "deck-built-stairs", "deck-built-upper-view");
-    private static final List<String> TIER_VIEWS = List.of("tiers-front", "tiers-back", "heavy-side", "elite-side", "tiers-torchlight", "tier-eggs", "heavy-front", "elite-front");
+    private static final List<String> TIER_VIEWS = List.of("tiers-front", "tiers-back", "heavy-side", "elite-side", "tiers-torchlight",
+            "tier-eggs", "heavy-front", "elite-front", "super-elite-front", "special-division-front", "specialists-back", "specialists-torchlight");
     private boolean previewReply, previewBlockedReply;
     private boolean deckReply, deckBlockedReply;
     private net.minecraft.nbt.CompoundTag deckPostBefore, deckHumanBefore;
@@ -918,19 +919,26 @@ public final class QaClient {
             player.getInventory().setItem(1,NpcRegistry.ARMY_EGG.get().getDefaultInstance());
             player.getInventory().setItem(2,NpcRegistry.HEAVY_EGG.get().getDefaultInstance());
             player.getInventory().setItem(3,NpcRegistry.ELITE_EGG.get().getDefaultInstance());
+            player.getInventory().setItem(4,NpcRegistry.SUPER_ELITE_EGG.get().getDefaultInstance());
+            player.getInventory().setItem(5,NpcRegistry.SPECIAL_DIVISION_EGG.get().getDefaultInstance());
         }
-        level.clockManager().setTotalTicks(level.dimensionType().defaultClock().orElseThrow(), view == 4 ? 18000 : 6000);
-        if (view == 4) {
-            for (int x : new int[]{83,87,91,95}) { level.setBlockAndUpdate(new BlockPos(x,64,10), Blocks.TORCH.defaultBlockState()); }
+        boolean night = view == 4 || view == 11;
+        level.clockManager().setTotalTicks(level.dimensionType().defaultClock().orElseThrow(), night ? 18000 : 6000);
+        if (night) {
+            for (int x : new int[]{83,87,91,95,98,100}) { level.setBlockAndUpdate(new BlockPos(x,64,10), Blocks.TORCH.defaultBlockState()); }
         }
         player.getAbilities().flying=true; player.onUpdateAbilities();
         switch(view) {
-            case 1 -> player.connection.teleport(89,65,0.5,0,6);
+            case 1 -> player.connection.teleport(92,65,-3.5,0,5);
             case 2 -> player.connection.teleport(86.5,65,11.5,-126.87F,5);
             case 3 -> player.connection.teleport(98,65,11.5,123.69F,5);
             case 6 -> player.connection.teleport(90.5,65,13.5,180,6);
             case 7 -> player.connection.teleport(93.5,65,13.5,180,6);
-            default -> player.connection.teleport(89,65,18.5,180,6);
+            case 8 -> player.connection.teleport(95,65,12.5,-159.44F,6);
+            case 9 -> player.connection.teleport(101,65,12.5,159.44F,6);
+            case 10 -> player.connection.teleport(98,65,3.5,0,5);
+            case 11 -> player.connection.teleport(98,65,13.5,180,5);
+            default -> player.connection.teleport(92,65,20.5,180,5);
         }
     }
     private static void open(Minecraft mc, View view) {

@@ -162,7 +162,7 @@ final class RestartFixture {
         receipt.setProperty("preview", preview(level));
         RestartExpansionFixture.seed(level, receipt);
         RestartGrowthFixture.seed(level, receipt);
-        RestartTierFixture.seed(level, receipt);
+        RestartTierFixture.seed(level, BASE, receipt);
         RestartYardFixture.seed(level, receipt);
         RestartDutyFixture.seed(level, receipt);
         RestartStorageFixture.seed(level, BASE, receipt);
@@ -206,7 +206,7 @@ final class RestartFixture {
         NpcConfig.POST_CAP.set(16);
         RestartExpansionFixture.verify(level, receipt);
         RestartGrowthFixture.verify(level, receipt);
-        RestartTierFixture.verify(level, receipt);
+        RestartTierFixture.verify(level, BASE, receipt);
         RestartYardFixture.verify(level, receipt);
         RestartDutyFixture.verify(level, receipt);
         RestartStorageFixture.verify(level, receipt);

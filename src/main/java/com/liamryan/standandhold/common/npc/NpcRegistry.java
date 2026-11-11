@@ -19,10 +19,14 @@ public final class NpcRegistry {
     public static final DeferredHolder<EntityType<?>, EntityType<HumanNpc>> ARMY = type(HumanTier.ARMY_RIFLEMAN);
     public static final DeferredHolder<EntityType<?>, EntityType<HumanNpc>> HEAVY = type(HumanTier.HEAVY_SOLDIER);
     public static final DeferredHolder<EntityType<?>, EntityType<HumanNpc>> ELITE = type(HumanTier.ELITE_SOLDIER);
+    public static final DeferredHolder<EntityType<?>, EntityType<HumanNpc>> SUPER_ELITE = type(HumanTier.SUPER_ELITE);
+    public static final DeferredHolder<EntityType<?>, EntityType<HumanNpc>> SPECIAL_DIVISION = type(HumanTier.SPECIAL_DIVISION);
     public static final DeferredItem<SpawnEggItem> SURVIVOR_EGG = egg(HumanTier.SURVIVOR_DEFENDER, SURVIVOR);
     public static final DeferredItem<SpawnEggItem> ARMY_EGG = egg(HumanTier.ARMY_RIFLEMAN, ARMY);
     public static final DeferredItem<SpawnEggItem> HEAVY_EGG = egg(HumanTier.HEAVY_SOLDIER, HEAVY);
     public static final DeferredItem<SpawnEggItem> ELITE_EGG = egg(HumanTier.ELITE_SOLDIER, ELITE);
+    public static final DeferredItem<SpawnEggItem> SUPER_ELITE_EGG = egg(HumanTier.SUPER_ELITE, SUPER_ELITE);
+    public static final DeferredItem<SpawnEggItem> SPECIAL_DIVISION_EGG = egg(HumanTier.SPECIAL_DIVISION, SPECIAL_DIVISION);
     private NpcRegistry() { }
     public static EntityType<HumanNpc> entityType(HumanTier tier) {
         return switch (tier) {
@@ -30,6 +34,8 @@ public final class NpcRegistry {
             case ARMY_RIFLEMAN -> ARMY.get();
             case HEAVY_SOLDIER -> HEAVY.get();
             case ELITE_SOLDIER -> ELITE.get();
+            case SUPER_ELITE -> SUPER_ELITE.get();
+            case SPECIAL_DIVISION -> SPECIAL_DIVISION.get();
         };
     }
     public static HumanTier tier(EntityType<?> type) {
@@ -42,7 +48,8 @@ public final class NpcRegistry {
                 .build(ResourceKey.create(Registries.ENTITY_TYPE, id)));
     }
     private static DeferredItem<SpawnEggItem> egg(HumanTier tier, DeferredHolder<EntityType<?>, EntityType<HumanNpc>> type) {
-        return ITEMS.registerItem(tier.id + "_spawn_egg", properties -> new SpawnEggItem(properties.spawnEgg(type.get())));
+        return ITEMS.registerItem(tier.id + "_spawn_egg", properties -> tier.advanced()
+                ? new SpecialistEgg(properties.spawnEgg(type.get())) : new SpawnEggItem(properties.spawnEgg(type.get())));
     }
     public static void register(IEventBus bus) {
         ENTITIES.register(bus); ITEMS.register(bus); bus.addListener(NpcRegistry::attributes);

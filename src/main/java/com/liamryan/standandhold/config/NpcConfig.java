@@ -19,11 +19,12 @@ public final class NpcConfig {
                     .defineInRange("damage", tier.damage, 0, 2048);
             speed = B.comment("Movement speed for newly spawned/reloaded NPCs.").defineInRange("speed", tier.speed, 0.05, 0.6);
             armor = B.comment("Intrinsic armor points; no equipment drops.").defineInRange("armor", tier.armor, 0, 30);
-            stage = B.comment("Minimum stage for automatic deployment only. Creative test eggs and admin /summon bypass it.")
+            stage = B.comment("Minimum stage for all recruitment paths. Creative test eggs and admin /summon bypass recruitment.")
                     .defineInRange("requiredStage", tier.stage, 0, 6);
-            research = tier == HumanTier.HEAVY_SOLDIER || tier == HumanTier.ELITE_SOLDIER
+            research = tier.stage >= 2
                     ? B.comment("Required completed research for every deployment path; eggs/summons bypass recruitment only. Empty, malformed, absent or removed IDs lock this tier; lower eligible tiers remain available.")
-                            .define("requiredResearch", "standandhold:field_communications") : null;
+                            .define("requiredResearch", tier == HumanTier.SPECIAL_DIVISION
+                                    ? "standandhold:special_division_training" : "standandhold:field_communications") : null;
             B.pop();
         }
     }
@@ -31,6 +32,10 @@ public final class NpcConfig {
     public static final Stats ARMY = new Stats(HumanTier.ARMY_RIFLEMAN);
     public static final Stats HEAVY = new Stats(HumanTier.HEAVY_SOLDIER);
     public static final Stats ELITE = new Stats(HumanTier.ELITE_SOLDIER);
+    public static final Stats SUPER_ELITE = new Stats(HumanTier.SUPER_ELITE);
+    public static final Stats SPECIAL_DIVISION = new Stats(HumanTier.SPECIAL_DIVISION);
+    public static final ModConfigSpec.BooleanValue DIVISION_DEPLOY = B.comment("Allow at most one reserved Special Division operative per active Main Base, inside the existing defender caps. Unloaded operatives still reserve the slot.")
+            .define("specialDivisionDeploymentEnabled", true);
     public static final ModConfigSpec.BooleanValue HOSTILE_TARGETS = B.comment("Human defenders also target vanilla Enemy-marked hostile mobs, not only configured infection/test IDs. Does not grant kill rewards or samples to those mobs. Normally neutral Enemy types such as Endermen are included; disable to use mappings only.")
             .define("targetHostileMobs", true);
     public static final ModConfigSpec.BooleanValue DEPLOY = B.comment("Loaded command posts may deploy one defender per interval. No natural biome spawning or offline catch-up.")
@@ -62,6 +67,8 @@ public final class NpcConfig {
             case ARMY_RIFLEMAN -> ARMY;
             case HEAVY_SOLDIER -> HEAVY;
             case ELITE_SOLDIER -> ELITE;
+            case SUPER_ELITE -> SUPER_ELITE;
+            case SPECIAL_DIVISION -> SPECIAL_DIVISION;
         };
     }
     public static int capacity(int level) { return DefenderCapacity.effective(level, POST_LEVELS.get(), POST_CAP.get(), AREA_CAP.get()); }

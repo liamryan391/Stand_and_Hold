@@ -57,6 +57,7 @@ final class WorldTests {
         tests.putAll(ExpansionTests.cases());
         tests.putAll(GrowthTests.cases());
         tests.putAll(TierTests.cases());
+        tests.putAll(SpecialistTests.cases());
         tests.putAll(YardTests.cases());
         tests.putAll(DutyTests.cases());
         tests.putAll(StorageTests.cases());

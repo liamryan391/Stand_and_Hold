@@ -53,7 +53,7 @@ final class NpcChecks {
         expect(() -> HumanTier.unlocked(7, 0, 1));
         for (int stage = 0; stage <= 6; stage++) {
             final int current = stage;
-            for (int mask = 0; mask < 16; mask++) {
+            for (int mask = 0; mask < (1 << HumanTier.values().length); mask++) {
                 final int gates = mask;
                 HumanTier expected = null;
                 for (HumanTier tier : HumanTier.values()) {
@@ -70,6 +70,9 @@ final class NpcChecks {
         check(HumanTier.HEAVY_SOLDIER.health > HumanTier.ELITE_SOLDIER.health
                 && HumanTier.HEAVY_SOLDIER.armor > HumanTier.ELITE_SOLDIER.armor
                 && HumanTier.HEAVY_SOLDIER.speed < HumanTier.ELITE_SOLDIER.speed, "heavy tank versus mobile elite contract");
+        check(HumanTier.SUPER_ELITE.usesBlade() && HumanTier.SUPER_ELITE.armor > HumanTier.HEAVY_SOLDIER.armor
+                && HumanTier.SPECIAL_DIVISION.usesPrototype() && HumanTier.SPECIAL_DIVISION.speed > HumanTier.SUPER_ELITE.speed,
+                "specialists have distinct existing-kit roles");
         check(HumanTier.hasRoom(2, 3, 7, 8), "last available quota");
         check(!HumanTier.hasRoom(3, 3, 0, 8), "post cap enforced");
         check(!HumanTier.hasRoom(0, 3, 8, 8), "overlapping post/egg area cap enforced");
@@ -109,6 +112,7 @@ final class NpcChecks {
         expect(() -> data.defenderCount("bad position"));
         var missing = encode(data); missing.remove("defenders"); var missingLedger = decode(missing);
         expect(() -> missingLedger.defenderCount(key));
+        divisionRoster();
         check(HumanTier.ARMY_RIFLEMAN.health > HumanTier.SURVIVOR_DEFENDER.health
                 && HumanTier.ARMY_RIFLEMAN.damage > HumanTier.SURVIVOR_DEFENDER.damage, "distinct default tier stats");
         for (HumanTier tier : HumanTier.values()) {
@@ -131,6 +135,29 @@ final class NpcChecks {
             }
         }
         System.out.println("NPC checks passed: " + assertions + " assertions.");
+    }
+    private static void divisionRoster() {
+        var data = new HumanWorldData();
+        var base = BuildingPosition.parse("minecraft:overworld@8,64,8").orElseThrow();
+        var key = base.key();
+        var first = UUID.randomUUID(); var second = UUID.randomUUID(); var regular = UUID.randomUUID();
+        data.registerCommandPost(base);
+        check(!data.reserveDefender(key, first, 3, true), "ordinary posts cannot reserve a Division slot");
+        data.registerMainBase(base);
+        check(data.reserveDefender(key, regular, 2) && data.reserveDefender(key, first, 2, true), "Division uses a normal slot");
+        var encoded = encode(data);
+        check(encoded.getCompoundOrEmpty("defenders").getCompoundOrEmpty(key).getBooleanOr(regular.toString(), false), "existing ordinary reservation encoding preserved");
+        var restored = decode(encoded);
+        check(restored.defenderCount(key) == 2 && restored.hasDivisionDefender(key), "unloaded Division reservation survives codec");
+        restored.setDirty(false);
+        check(!restored.reserveDefender(key, second, 3, true) && !restored.isDirty(), "no second specialist even with room");
+        var malformed = encoded.copy();
+        malformed.getCompoundOrEmpty("defenders").getCompoundOrEmpty(key).putByte(second.toString(), (byte) 2);
+        var blocked = decode(malformed);
+        expect(() -> blocked.hasDivisionDefender(key));
+        check(encode(blocked).get("defenders").equals(malformed.get("defenders")), "ambiguous multiple specialists retained, never reset");
+        restored.releaseDefender(key, first);
+        check(!restored.hasDivisionDefender(key) && restored.reserveDefender(key, second, 2, true), "confirmed removal frees exactly one specialist slot");
     }
     private static CompoundTag encode(HumanWorldData data) { return (CompoundTag) HumanWorldData.CODEC.encodeStart(NbtOps.INSTANCE, data).getOrThrow(); }
     private static HumanWorldData decode(CompoundTag tag) { return HumanWorldData.CODEC.parse(NbtOps.INSTANCE, tag).getOrThrow(); }

@@ -6,6 +6,11 @@ import javax.imageio.ImageIO;
 /** Original seed uniforms: classic body UVs plus an explicit accessory region, not player-skin UVs. */
 class GenerateNpcTextures {
     public static void main(String[] args) throws Exception {
+        if (args.length == 1 && args[0].equals("specialist-eggs")) {
+            egg("super_elite", 0xff725543, 0xff35343c, 0xffe0a36a);
+            egg("special_division_operative", 0xffc6c9af, 0xff265452, 0xff73caa4);
+            return;
+        }
         make("survivor_defender", 0xff77494b, 0xff414c46, 0xffad794c, 0xffd7a481);
         if (args.length == 0 || !args[0].equals("survivor-only")) {
             make("army_rifleman", 0xff397b7d, 0xff354953, 0xffb9c5a3, 0xffbd896e);
@@ -69,6 +74,10 @@ class GenerateNpcTextures {
         }
         write(body, "entity/" + id + ".png");
 
+        egg(id, uniform, trousers, trim);
+        System.out.println("Generated original " + id + " seed atlas (64x64) and test egg (16x16)");
+    }
+    private static void egg(String id, int uniform, int trousers, int trim) throws Exception {
         BufferedImage egg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
         for (int y = 1; y < 15; y++) {
             int half = y < 4 ? 2 : y < 7 ? 4 : y < 12 ? 5 : 3;
@@ -77,7 +86,6 @@ class GenerateNpcTextures {
             }
         }
         write(egg, "item/" + id + "_spawn_egg.png");
-        System.out.println("Generated original " + id + " seed atlas (64x64) and test egg (16x16)");
     }
     private static void box(BufferedImage image, int u, int v, int w, int h, int d, int color) {
         rect(image, u + d, v, w * 2, d, color);

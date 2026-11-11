@@ -104,7 +104,7 @@ $models = @(Get-ChildItem (Join-Path $root 'art/blockbench') -Filter '*.bbmodel'
 if ($models.Count -eq 0) { throw 'No editable art sources found.' }
 foreach ($file in $models) {
     $id = $file.BaseName
-    if ($id -notin @('survivor_defender','army_rifleman','heavy_soldier','elite_soldier','field_command_post','research_lab','supply_crate','prototype_launcher')) { throw "Unknown source id: $id" }
+    if ($id -notin @('survivor_defender','army_rifleman','heavy_soldier','elite_soldier','super_elite','special_division_operative','field_command_post','research_lab','supply_crate','prototype_launcher')) { throw "Unknown source id: $id" }
     $model = Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8 | ConvertFrom-Json
     if ($id -eq 'prototype_launcher') {
         ExportLauncher $model $id

@@ -48,6 +48,32 @@ public final class HumanNpcMeshes {
         PartDefinition left_leg = root.addOrReplaceChild("left_leg", CubeListBuilder.create().texOffs(0, 16).mirror(true).addBox(-2F, 0F, -2F, 4F, 12F, 4F).mirror(false), PartPose.offset(1.9F, 12F, 0F));
         return LayerDefinition.create(mesh, 64, 64);
     }
+    // Source SHA-256: b424d23fc5af7ac1af4aee1fe0ac25faee91407b58a429684b66abaf947f61ed
+    public static LayerDefinition special_division_operative() {
+        MeshDefinition mesh = new MeshDefinition();
+        PartDefinition root = mesh.getRoot();
+        PartDefinition head = root.addOrReplaceChild("head", CubeListBuilder.create().texOffs(0, 0).mirror(false).addBox(-4F, -8F, -4F, 8F, 8F, 8F).mirror(false).texOffs(0, 32).mirror(false).addBox(-4.5F, -9.5F, -4.5F, 9F, 4F, 9F).mirror(false).texOffs(40, 32).mirror(false).addBox(3.5F, -7F, -5.5F, 3F, 2F, 1F).mirror(false), PartPose.offset(0F, 0F, 0F));
+        PartDefinition hat = head.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.offset(0F, 0F, 0F));
+        PartDefinition body = root.addOrReplaceChild("body", CubeListBuilder.create().texOffs(16, 16).mirror(false).addBox(-4F, 0F, -2F, 8F, 12F, 4F).mirror(false).texOffs(0, 46).mirror(false).addBox(-4.5F, 1.5F, -2.5F, 9F, 8F, 5F).mirror(false).texOffs(40, 45).mirror(false).addBox(-2F, 2F, 2F, 4F, 8F, 3F).mirror(false), PartPose.offset(0F, 0F, 0F));
+        PartDefinition right_arm = root.addOrReplaceChild("right_arm", CubeListBuilder.create().texOffs(40, 16).mirror(false).addBox(-3F, -2F, -2F, 4F, 12F, 4F).mirror(false), PartPose.offset(-5F, 2F, 0F));
+        PartDefinition left_arm = root.addOrReplaceChild("left_arm", CubeListBuilder.create().texOffs(40, 16).mirror(true).addBox(-1F, -2F, -2F, 4F, 12F, 4F).mirror(false), PartPose.offset(5F, 2F, 0F));
+        PartDefinition right_leg = root.addOrReplaceChild("right_leg", CubeListBuilder.create().texOffs(0, 16).mirror(false).addBox(-2F, 0F, -2F, 4F, 12F, 4F).mirror(false), PartPose.offset(-1.9F, 12F, 0F));
+        PartDefinition left_leg = root.addOrReplaceChild("left_leg", CubeListBuilder.create().texOffs(0, 16).mirror(true).addBox(-2F, 0F, -2F, 4F, 12F, 4F).mirror(false), PartPose.offset(1.9F, 12F, 0F));
+        return LayerDefinition.create(mesh, 64, 64);
+    }
+    // Source SHA-256: eada9e7ea562ad6c295810de5c63c4e0b3e65e7ea74200f7012a81e1652bd897
+    public static LayerDefinition super_elite() {
+        MeshDefinition mesh = new MeshDefinition();
+        PartDefinition root = mesh.getRoot();
+        PartDefinition head = root.addOrReplaceChild("head", CubeListBuilder.create().texOffs(0, 0).mirror(false).addBox(-4F, -8F, -4F, 8F, 8F, 8F).mirror(false).texOffs(0, 32).mirror(false).addBox(-5F, -9F, -5F, 10F, 4F, 10F).mirror(false).texOffs(40, 32).mirror(false).addBox(-4.5F, -6F, -6F, 9F, 1F, 1F).mirror(false), PartPose.offset(0F, 0F, 0F));
+        PartDefinition hat = head.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.offset(0F, 0F, 0F));
+        PartDefinition body = root.addOrReplaceChild("body", CubeListBuilder.create().texOffs(16, 16).mirror(false).addBox(-4F, 0F, -2F, 8F, 12F, 4F).mirror(false).texOffs(0, 47).mirror(false).addBox(-5F, 1F, -3F, 10F, 10F, 6F).mirror(false), PartPose.offset(0F, 0F, 0F));
+        PartDefinition right_arm = root.addOrReplaceChild("right_arm", CubeListBuilder.create().texOffs(40, 16).mirror(false).addBox(-3F, -2F, -2F, 4F, 12F, 4F).mirror(false).texOffs(40, 35).mirror(false).addBox(-3.5F, -1.5F, -2.5F, 5F, 4F, 5F).mirror(false), PartPose.offset(-5F, 2F, 0F));
+        PartDefinition left_arm = root.addOrReplaceChild("left_arm", CubeListBuilder.create().texOffs(40, 16).mirror(true).addBox(-1F, -2F, -2F, 4F, 12F, 4F).mirror(false).texOffs(40, 35).mirror(false).addBox(-1.5F, -1.5F, -2.5F, 5F, 4F, 5F).mirror(false), PartPose.offset(5F, 2F, 0F));
+        PartDefinition right_leg = root.addOrReplaceChild("right_leg", CubeListBuilder.create().texOffs(0, 16).mirror(false).addBox(-2F, 0F, -2F, 4F, 12F, 4F).mirror(false), PartPose.offset(-1.9F, 12F, 0F));
+        PartDefinition left_leg = root.addOrReplaceChild("left_leg", CubeListBuilder.create().texOffs(0, 16).mirror(true).addBox(-2F, 0F, -2F, 4F, 12F, 4F).mirror(false), PartPose.offset(1.9F, 12F, 0F));
+        return LayerDefinition.create(mesh, 64, 64);
+    }
     // Source SHA-256: 4e24a3165256f11815a7492b55838327872696cdab29531b6800b44e6f06acb9
     public static LayerDefinition survivor_defender() {
         MeshDefinition mesh = new MeshDefinition();

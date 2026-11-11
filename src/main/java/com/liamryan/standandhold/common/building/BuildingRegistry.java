@@ -37,6 +37,8 @@ public final class BuildingRegistry {
                 output.accept(NpcRegistry.ARMY_EGG.get());
                 output.accept(NpcRegistry.HEAVY_EGG.get());
                 output.accept(NpcRegistry.ELITE_EGG.get());
+                output.accept(NpcRegistry.SUPER_ELITE_EGG.get());
+                output.accept(NpcRegistry.SPECIAL_DIVISION_EGG.get());
                 com.liamryan.standandhold.common.equipment.EquipmentRegistry.creativeItems(output::accept);
             }).build());
     private BuildingRegistry() { }

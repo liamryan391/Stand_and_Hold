@@ -30,6 +30,7 @@ public final class HumanWorldData extends SavedData {
     public static final SavedDataType<HumanWorldData> TYPE = new SavedDataType<>(
             Identifier.fromNamespaceAndPath(StandAndHoldConstants.MOD_ID, "human_progression"), HumanWorldData::new, CODEC);
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final byte REGULAR_DEFENDER = 1, DIVISION_DEFENDER = 2;
 
     private int dataVersion = CURRENT_VERSION;
     private long points;
@@ -98,8 +99,13 @@ public final class HumanWorldData extends SavedData {
         Tag raw = defenders.get(key);
         if (raw == null) { return new CompoundTag(); }
         if (!(raw instanceof CompoundTag roster) || roster.size() > 16) { throw new IllegalStateException("Malformed defender roster."); }
+        boolean division = false;
         for (String id : roster.keySet()) {
-            if (!UUID.fromString(id).toString().equals(id) || !savedFlag(roster, id)) { throw new IllegalStateException("Malformed defender reservation."); }
+            if (!UUID.fromString(id).toString().equals(id) || !(roster.get(id) instanceof ByteTag kind)
+                    || kind.byteValue() != REGULAR_DEFENDER && (kind.byteValue() != DIVISION_DEFENDER || division)) {
+                throw new IllegalStateException("Malformed defender reservation.");
+            }
+            division |= kind.byteValue() == DIVISION_DEFENDER;
         }
         return roster;
     }
@@ -146,17 +152,25 @@ public final class HumanWorldData extends SavedData {
     }
     public int defenderCount(String key) { return defenderRoster(key).size(); }
     public boolean hasDefender(String key, UUID id) { return defenderRoster(key).contains(id.toString()); }
+    public boolean hasDivisionDefender(String key) { return hasDivisionReservation(defenderRoster(key)); }
+    private static boolean hasDivisionReservation(CompoundTag roster) {
+        return roster.keySet().stream().anyMatch(id -> roster.getByteOr(id, (byte) 0) == DIVISION_DEFENDER);
+    }
     public java.util.Set<UUID> defenderIds(String key) {
         return defenderRoster(key).keySet().stream().map(UUID::fromString).collect(java.util.stream.Collectors.toUnmodifiableSet());
     }
     public boolean reserveDefender(String key, UUID id, int limit) {
+        return reserveDefender(key, id, limit, false);
+    }
+    public boolean reserveDefender(String key, UUID id, int limit, boolean division) {
         requirePostRegistry();
         if (limit < 0 || limit > 16) { throw new IllegalArgumentException("Invalid defender limit."); }
         if (!commandPosts.contains(key)) { throw new IllegalStateException("Command post is not registered."); }
         CompoundTag roster = defenderRoster(key).copy();
-        if (roster.contains(id.toString()) || roster.size() >= limit) { return false; }
+        if (roster.contains(id.toString()) || roster.size() >= limit
+                || division && (!isMainBase(BuildingPosition.parse(key).orElseThrow()) || hasDivisionReservation(roster))) { return false; }
         if (!defenders.contains(key) && defenders.size() >= 4096) { throw new IllegalStateException("Defender ledger full."); }
-        roster.putBoolean(id.toString(), true);
+        roster.putByte(id.toString(), division ? DIVISION_DEFENDER : REGULAR_DEFENDER);
         defenders.put(key, roster);
         setDirty();
         return true;

@@ -31,9 +31,12 @@ final class TierTests {
         tests.put("tier_configured_stats", TierTests::configuredStats);
         tests.put("tier_heavy_deployment_paths", h -> paths(h, HumanTier.HEAVY_SOLDIER));
         tests.put("tier_elite_deployment_paths", h -> paths(h, HumanTier.ELITE_SOLDIER));
+        tests.put("tier_super_elite_deployment_paths", h -> paths(h, HumanTier.SUPER_ELITE));
         tests.put("tier_mixed_shared_caps", TierTests::caps);
         tests.put("tier_kit_retention", TierTests::retention);
         tests.put("tier_elite_ranged_bolt", TierTests::ranged);
+        tests.put("tier_division_ranged_bolt", h -> ranged(h, HumanTier.SPECIAL_DIVISION));
+        tests.put("tier_super_elite_melee", h -> combat(h, HumanTier.SUPER_ELITE, EntityTypes.ZOMBIE));
         tests.put("rifleman_motion_visibility", TierTests::riflemanMotion);
         tests.put("rifleman_cooldown_and_friendly_guard", TierTests::riflemanCooldown);
         for (var tier : List.of(HumanTier.HEAVY_SOLDIER, HumanTier.ELITE_SOLDIER)) {
@@ -44,9 +47,9 @@ final class TierTests {
         tests.put("tier_protect_civilians", TierTests::protect);
         return tests;
     }
-    private static HumanWorldData data(GameTestHelper h) { return HumanWorldData.get(h.getLevel().getServer()); }
-    private static void stage(GameTestHelper h, int stage) { HumanPointManager.setStage(h.getLevel().getServer(), HumanStage.fromLevel(stage)); }
-    private static void unlock(GameTestHelper h) {
+    static HumanWorldData data(GameTestHelper h) { return HumanWorldData.get(h.getLevel().getServer()); }
+    static void stage(GameTestHelper h, int stage) { HumanPointManager.setStage(h.getLevel().getServer(), HumanStage.fromLevel(stage)); }
+    static void unlock(GameTestHelper h) {
         data(h).setSupplies(200); stage(h, 1);
         var catalog = FoundationResources.get(h.getLevel().getServer());
         ResearchManager.complete(data(h), catalog, HumanProgressionConfig.thresholds(), "standandhold:parasite_samples");
@@ -62,10 +65,11 @@ final class TierTests {
         unlock(h);
         for (int s = 0; s <= 6; s++) {
             stage(h, s);
-            var expected = HumanTier.values()[Math.min(s, 3)];
+            var expected = HumanTier.values()[Math.min(s, 4)];
             h.assertTrue(DefenderDeployment.eligibleTier(h.getLevel()) == expected, "Exact boundary for " + expected);
         }
         String heavy = NpcConfig.HEAVY.research.get(), elite = NpcConfig.ELITE.research.get(); int eliteStage = NpcConfig.ELITE.stage.get();
+        stage(h, 3);
         try {
             for (String invalid : List.of("", "NOT AN ID", "missing:removed_research")) {
                 NpcConfig.ELITE.research.set(invalid);
@@ -199,8 +203,11 @@ final class TierTests {
         });
     }
     private static void ranged(GameTestHelper h) {
-        QaWorld.begin(h); unlock(h); stage(h, 3);
-        var npc = h.spawn(NpcRegistry.ELITE.get(), HOME);
+        ranged(h, HumanTier.ELITE_SOLDIER);
+    }
+    private static void ranged(GameTestHelper h, HumanTier tier) {
+        QaWorld.begin(h); unlock(h); stage(h, tier.stage);
+        var npc = h.spawn(NpcRegistry.entityType(tier), HOME);
         // Isolate ranged damage from melee while keeping the real acquisition/ranged goals ticking.
         npc.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0);
         var zombie = h.spawn(EntityTypes.ZOMBIE, HOME.offset(8, 0, 0)); zombie.setNoAi(true); zombie.setPersistenceRequired();
@@ -209,7 +216,7 @@ final class TierTests {
             sawBolt[0] |= !h.getLevel().getEntitiesOfClass(com.liamryan.standandhold.common.equipment.PrototypeBolt.class,
                     new AABB(h.absolutePos(HOME)).inflate(16)).isEmpty();
             h.assertTrue(sawBolt[0] && zombie.getHealth() < health && npc.distanceToSqr(zombie) > 9,
-                    "Elite autonomously fires actual damaging bolts, not only melee");
+                    tier + " autonomously fires actual damaging bolts, not only melee");
         });
     }
     private static void riflemanMotion(GameTestHelper h) {

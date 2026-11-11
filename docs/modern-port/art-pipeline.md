@@ -10,12 +10,14 @@ Stand and Hold depicts a practical human resistance, not a copy of an existing g
 | Army Rifleman | Rounded-off block helmet, broad protective vest | Teal uniform/helmet, graphite vest, ivory double marks; not just a recoloured Survivor |
 | Heavy Soldier | Deeper helmet, broad vest and shoulder plates | Olive/charcoal, amber bars; slower armoured melee role |
 | Elite Soldier | Short helmet/visor and compact pack | Blue-grey uniform, mint marks; mobile shared-launcher role |
+| Super Elite | Broad shoulder plates, heavy chest and helmet brow | Charcoal armour, brass chevron; blade role |
+| Special Parasite Division Operative | Asymmetric helmet scanner and compact rear pod | Ivory and teal shell; mobile launcher role |
 | Command Post | Rugged radio/map cabinet | Olive shell, dark screen, green route marks, warm controls |
 | Research Lab | Clean specimen workstation | Cool white shell, cyan window, contained magenta tissue, yellow caution pixels |
 | Supply Crate | Reinforced utility container | Neutral metal, yellow straps, clear latch; no random camouflage |
 | Tissue Sample | Sealed specimen pouch | Light seal, teal containment, magenta tissue; transparent outside the silhouette |
 
-Only the four implemented NPC tiers receive models. Later tiers need their own silhouettes when implemented. Visual accessories do not themselves add stats, inventories or equipment drops; role stats/equipment are server-controlled separately.
+All six implemented NPC tiers have their own models. Visual accessories do not themselves add stats, inventories or equipment drops; role stats/equipment are server-controlled separately.
 
 Keep full base body faces opaque. Do not apply a 64x64 player skin to the old 64x32 UV layout: these are original box-UV models with an explicitly declared atlas. Reuse the classic body rectangles in the top half, reserving the lower half for accessories. Faces, hands and boots must remain readable in daylight and torchlight. Accessories must follow their body part through walking, head turning and melee animation, without changing hitboxes.
 
@@ -27,7 +29,7 @@ Author-published Modrinth metadata returned exact Minecraft 26.3/NeoForge releas
 
 M8 uses the pinned platform's `HumanoidModel` animation with original exported geometry. Walking, head look and melee movement need no external library or animation controller. Blockbench animation clips are **not** automatically executed by these models. The [official format guide](https://blockbench.net/wiki/blockbench/formats/) distinguishes model export from runtime animation support. A later clip-driven requirement must pass the dependency policy and Liam's approval first; do not install both libraries or change toolchain pins to follow an art tutorial.
 
-### Rifleman Motion
+### Launcher Motion
 
 M27 keeps the existing Rifleman rig and adds a native carry-to-aim blend over four
 client ticks. The running server ranged goal reports aim only for a visible target in
@@ -37,6 +39,7 @@ No camera effect, animation packets on failed shots, saved pose fields, new firi
 rules or extra runtime library. Walking legs, head look and vanilla swing/swim/death
 remain native. Non-launcher equipment and the other roles retain their old pose path;
 an occupied off hand falls back to the vanilla item pose. Aim is not an off-cooldown cue.
+The Division operative reuses the same carry, aim and shot motion, with its own rig accents and unchanged firing rules.
 
 ## Sources And Export
 
@@ -54,7 +57,7 @@ $env:GRADLE_USER_HOME = Join-Path (Get-Location).Path '.gradle-home\modern'
 .\gradlew.bat clean build --no-daemon --stacktrace
 ```
 
-The first command writes generated `HumanNpcMeshes.java`, the four entity PNGs, utility block JSON/PNGs, and the Launcher model/atlas. `-Check` writes nothing and fails on stale output; Windows CI runs it before the clean build. The build checks source hashes, embedded/runtime PNG equality, dimensions, opaque body/accessory UV faces, face assignments, Launcher transforms and bounded GUI text. Keep sources and generated outputs in the same commit. The exporter runs from any working directory, without Java, plugins or an installed Blockbench.
+The first command writes generated `HumanNpcMeshes.java`, the six entity PNGs, utility block JSON/PNGs, and the Launcher model/atlas. `-Check` writes nothing and fails on stale output; Windows CI runs it before the clean build. The build checks source hashes, embedded/runtime PNG equality, dimensions, opaque body/accessory UV faces, face assignments, Launcher transforms and bounded GUI text. Keep sources and generated outputs in the same commit. The exporter runs from any working directory, without Java, plugins or an installed Blockbench.
 
 ### Editing Contract
 

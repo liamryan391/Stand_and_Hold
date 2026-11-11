@@ -33,17 +33,19 @@ public final class HumanNpcRenderer extends HumanoidMobRenderer<HumanNpc, HumanN
             case ARMY_RIFLEMAN -> HumanNpcMeshes.army_rifleman();
             case HEAVY_SOLDIER -> HumanNpcMeshes.heavy_soldier();
             case ELITE_SOLDIER -> HumanNpcMeshes.elite_soldier();
+            case SUPER_ELITE -> HumanNpcMeshes.super_elite();
+            case SPECIAL_DIVISION -> HumanNpcMeshes.special_division_operative();
         };
     }
     @Override public State createRenderState() { return new State(); }
     @Override protected HumanoidModel.ArmPose getArmPose(HumanNpc mob, HumanoidArm arm) {
         return mob.getMainHandItem().is(EquipmentRegistry.PROTOTYPE.get()) && arm == mob.getMainArm()
-                ? mob.tier() == HumanTier.ARMY_RIFLEMAN ? HumanoidModel.ArmPose.ITEM : HumanoidModel.ArmPose.CROSSBOW_HOLD
+                ? mob.tier().usesLauncherMotion() ? HumanoidModel.ArmPose.ITEM : HumanoidModel.ArmPose.CROSSBOW_HOLD
                 : super.getArmPose(mob, arm);
     }
     @Override public void extractRenderState(HumanNpc mob, State state, float partialTick) {
         super.extractRenderState(mob, state, partialTick);
-        state.launcherMotion = mob.tier() == HumanTier.ARMY_RIFLEMAN && mob.isAlive()
+        state.launcherMotion = mob.tier().usesLauncherMotion() && mob.isAlive()
                 && mob.getMainHandItem().is(EquipmentRegistry.PROTOTYPE.get()) && mob.getOffhandItem().isEmpty();
         state.launcherAim = state.launcherMotion ? mob.launcherAim(partialTick) : 0;
         state.launcherKick = state.launcherMotion ? mob.launcherKick(partialTick) : 0;

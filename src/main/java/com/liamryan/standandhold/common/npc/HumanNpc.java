@@ -23,6 +23,8 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.PathfinderMob;
@@ -44,6 +46,8 @@ import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
@@ -83,11 +87,19 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
     }
     @Override public void tick() {
         super.tick();
-        if (level().isClientSide() && tier() == HumanTier.ARMY_RIFLEMAN) {
+        if (level().isClientSide() && tier().usesLauncherMotion()) {
             previousAim = aim;
             aim = Mth.approach(aim, launcherAiming() ? 1 : 0, 0.25F);
             if (shotPoseTicks > 0) { shotPoseTicks--; }
         }
+    }
+    @Override public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty,
+            EntitySpawnReason reason, SpawnGroupData group) {
+        if (tier().advanced() && (reason == EntitySpawnReason.DISPENSER || EntitySpawnReason.isSpawner(reason))) {
+            setSpawnCancelled(true);
+            return group;
+        }
+        return super.finalizeSpawn(level, difficulty, reason, group);
     }
     @Override public boolean requiresCustomPersistence() { return true; }
     public static AttributeSupplier.Builder attributes(HumanTier tier) {
@@ -205,7 +217,7 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         bolt.shoot(target.getX() - bolt.getX(), target.getEyeY() - bolt.getY(), target.getZ() - bolt.getZ(), EquipmentConfig.value(EquipmentConfig.SPEED).floatValue(), 0);
         if (server.addFreshEntity(bolt)) {
             nextPrototypeShot = server.getGameTime() + EquipmentConfig.value(EquipmentConfig.NPC_INTERVAL);
-            if (tier() == HumanTier.ARMY_RIFLEMAN) { server.broadcastEntityEvent(this, LAUNCHER_SHOT); }
+            if (tier().usesLauncherMotion()) { server.broadcastEntityEvent(this, LAUNCHER_SHOT); }
             server.playSound(null, getX(), getY(), getZ(), SoundEvents.SNOWBALL_THROW, SoundSource.NEUTRAL, 0.4F, 1.1F);
         }
     }
@@ -216,7 +228,7 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         @Override public boolean canContinueToUse() { return canUse(); }
         @Override public void tick() {
             super.tick();
-            if (npc.tier() == HumanTier.ARMY_RIFLEMAN) {
+            if (npc.tier().usesLauncherMotion()) {
                 var target = npc.getTarget();
                 // Reuse the running goal's cached sight check. Synched data sends only changes.
                 double distance = target == null ? 0 : npc.distanceToSqr(target);
@@ -226,7 +238,7 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         }
         @Override public void stop() {
             super.stop();
-            if (npc.tier() == HumanTier.ARMY_RIFLEMAN) { npc.entityData.set(LAUNCHER_AIM, false); }
+            if (npc.tier().usesLauncherMotion()) { npc.entityData.set(LAUNCHER_AIM, false); }
         }
     }
     private static final class ThreatTarget extends NearestAttackableTargetGoal<LivingEntity> {
