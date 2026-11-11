@@ -1,6 +1,6 @@
 # Isolated Packaged Testing
 
-This procedure tests the **normal jar outside Gradle**, not the separate QA mod. Use fresh modern worlds only. Minecraft 26.3, NeoForge 26.3.0.57-beta and Java 25 remain pinned; no extra mod is required. The identically named historical Forge 1.12.2 release is not this artifact.
+This procedure tests the **normal jar outside Gradle**, not the separate QA mod. Use fresh modern worlds only. Minecraft 26.3, NeoForge 26.3.0.102 and Java 25 are pinned; no extra mod is required. The identically named historical Forge 1.12.2 release is not this artifact. The older M22 profile used 26.3.0.57-beta and must not be reused for the promoted pin. See the [exact 26.3.0.102 production baseline](https://github.com/liamryan391/Stand_and_Hold/blob/98ede74dd440f655e8d3e1e898d2e2c70f6d1c9d/docs/modern-port/packaged-testing.md#neoforge-2630102-trial-evidence).
 
 ## Prepare A Fresh Session
 
@@ -22,7 +22,7 @@ The generated `.mrpack` contains only its format index, a session marker and our
 ## Client Profile
 
 1. In an existing launcher, import the private pack as a **new** instance; confirm its unique name and a new game directory. Never import over a valued profile. Inspect any trust warning personally; do not disable warnings. The pack uses the official [Modrinth format](https://support.modrinth.com/en/articles/8802351-modrinth-modpack-format-mrpack).
-2. Confirm Minecraft **26.3**, NeoForge **26.3.0.57-beta**, Java **25**, exactly one `standandhold-0.1.0-alpha.1.jar` in `mods/`, and no QA/test mod. Compare the imported jar's SHA256 with the manifest using `Get-FileHash -Algorithm SHA256`. Do not copy account files, development configs, saves or EULA flags.
+2. Confirm Minecraft **26.3**, NeoForge **26.3.0.102**, Java **25**, exactly one `standandhold-0.1.0-alpha.1.jar` in `mods/`, and no QA/test mod. Compare the imported jar's SHA256 with the manifest using `Get-FileHash -Algorithm SHA256`. Do not copy account files, development configs, saves or EULA flags.
 3. Launch using the normal launcher. Account/authentication and security prompts belong to Liam. Do not bypass login, update the launcher to hide a failure, or inspect credentials. The [official NeoForge client guide](https://docs.neoforged.net/user/docs/client/) also describes separate client profiles/installations.
 4. Inspect Mods for Stand and Hold 0.1.0-alpha.1. Enter a new Creative Superflat world with commands enabled. Run `/standandhold guide` and `status`; generate one checkpoint on clear grass. Open its Command Post, Lab and Crate. Check sample and defender assets, funded Lab Start/Pause/completion and one real zombie kill/drop/defender interaction. Operator fixture grants are technical smoke tests, not an earned playthrough.
 5. Save/quit, reopen **the same** world, and confirm progression, research, storage and registration. Capture F2 views of Mods, guide, the three menus, site and defenders, and inspect the PNGs. Fully quit normally; retain logs/screenshots/world. Record actual outcomes rather than inferring success from an import or source QA run.

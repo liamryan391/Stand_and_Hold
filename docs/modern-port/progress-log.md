@@ -447,3 +447,7 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Retained NeoForge 26.3.0.57-beta for the standalone M31 baseline. The 26.3.0.102 loader trial and exact Undead Nights 2.2.7 combination remain isolated; no production pin or dependency changed.
 - Linked trial packaged client/server, gameplay and backed-up removal results, 168 GameTests and Windows CI 43079580782. Natural horde load, packaged external installs, infection and real multiplayer are not claimed.
 - `git diff --check` passed for this docs-only closeout. No local build or in-game rerun. Next milestone in STATUS.md.
+
+## 2026-11-11 - M31 Loader Promotion And Integration
+- Liam approved the exact 26.3.0.102 loader after the M30 trial. Updated the pin, package guards and active guidance; all other pins, saves and dependency policy unchanged.
+- Java 25 `clean build --no-daemon --stacktrace` and `test-packaged-qa.ps1` passed. Compared the normal jar to the packaged trial: only four JSON entries differed, solely by CRLF/LF line endings.

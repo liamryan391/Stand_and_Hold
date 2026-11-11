@@ -1,6 +1,6 @@
 # Selected Modern Toolchain
 
-Decision: Phase M0, step 0.3.3, verified 2026-10-07.
+Decision: Phase M0, step 0.3.3, verified 2026-10-07. Liam approved promoting the M30-verified loader at M31 entry on 2026-11-11.
 
 These are the exact pins for the modern scaffold. The preserved `1.12` branch uses its separate Java 8 toolchain. Live build/launch results belong in [STATUS.md](STATUS.md), not this version reference.
 
@@ -9,7 +9,7 @@ These are the exact pins for the modern scaffold. The preserved `1.12` branch us
 | Component | Selected version | Evidence |
 | --- | --- | --- |
 | Minecraft Java Edition | `26.3`, metadata range `[26.3]` | [Mojang release manifest](https://piston-meta.mojang.com/mc/game/version_manifest_v2.json), released 2026-09-15; per-version metadata requires Java 25 |
-| NeoForge | `26.3.0.57-beta` | [Published loader POM](https://maven.neoforged.net/releases/net/neoforged/neoforge/26.3.0.57-beta/neoforge-26.3.0.57-beta.pom) |
+| NeoForge | `26.3.0.102` | [Published loader POM](https://maven.neoforged.net/releases/net/neoforged/neoforge/26.3.0.102/neoforge-26.3.0.102.pom), [verified M30 CI](https://github.com/liamryan391/Stand_and_Hold/actions/runs/43079580782) |
 | Java language, compiler, and build runtime | `25`; baseline Eclipse Temurin **`25.0.4+7`**, 64-bit HotSpot | Installed `java --version`, `javac --version`, and JDK `release` metadata checked locally |
 | Gradle wrapper | `9.2.1`, binary distribution | [Pinned official MDK wrapper](https://github.com/NeoForgeMDKs/MDK-26.3-ModDevGradle/blob/4dacaffe4d5395c675a824beac2d1961b7d03bdb/gradle/wrapper/gradle-wrapper.properties) |
 | Build plugin | `net.neoforged.moddev` **`2.0.148`** | [Pinned official MDK build](https://github.com/NeoForgeMDKs/MDK-26.3-ModDevGradle/blob/4dacaffe4d5395c675a824beac2d1961b7d03bdb/build.gradle) |
@@ -29,8 +29,7 @@ The checksum endpoint was checked; the Gradle archive has not been downloaded or
 ## Rationale And Limits
 
 - 26.3 meets the latest-release preference. It has official MDKs and matching optional animation/AI/threat artifacts documented in [Ecosystem Compatibility](ecosystem-compatibility.md).
-- NeoForge remains **beta** on this track. Accept that risk for the initial scaffold, not as a promise of stable APIs or a release-ready modpack.
-- Deliberately use published loader `26.3.0.57-beta` instead of the template's older `26.3.0.52-beta`. Keep the template's Gradle and plugin versions. The inspected library manifests allow the selected loader, but only M1 build/client/server testing can prove the actual combination.
+- The scaffold started on `26.3.0.57-beta`. The promoted non-beta `26.3.0.102` is the exact tested candidate, not a moving latest selection or a guarantee of broad compatibility. Minecraft, Java, Gradle and the build plugin are unchanged.
 - ModDevGradle fits a single-target project; there is no need for a multi-version build or Fabric layer now.
 - No third-party animation/AI library or threat mod becomes a dependency in this step. No legacy gameplay files, version numbers, Gradle settings, or CI configuration are changed.
 - Keep Minecraft 26.2 / NeoForge 26.2.0.88 as the nearest non-beta-loader fallback. Step 0.3.4 records the [fallback decision procedure and IDE/run commands](building.md). Do not switch targets automatically after a download/network error.

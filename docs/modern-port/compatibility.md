@@ -1,6 +1,6 @@
 # Optional Threat Compatibility
 
-Artifact metadata and isolated runtime checks on 2026-10-22 target Minecraft 26.3, NeoForge 26.3.0.57-beta and Java 25. **Contagion 2.1.1 fails initialization with this pinned loader on both client and server. Do not install this combination for play.** The dated [M0 ecosystem review](ecosystem-compatibility.md) establishes only historical metadata, not runtime support.
+Historical M11 runtime checks on 2026-10-22 used Minecraft 26.3, NeoForge 26.3.0.57-beta and Java 25. **Contagion 2.1.1 failed initialization on that loader on both client and server.** No Contagion build has been verified on the promoted pin. The dated [M0 ecosystem review](ecosystem-compatibility.md) establishes only historical metadata, not runtime support.
 
 ## Boundary
 
@@ -40,11 +40,11 @@ was added. Undead Nights would test horde coexistence, not infection mechanics.
 
 ## M30 Closeout
 
-**Keep NeoForge 26.3.0.102 trial-only.** Main and the M31 standalone integration baseline stay on Minecraft 26.3 / NeoForge 26.3.0.57-beta. An optional mod is not a prerequisite for that baseline; keeping its loader fixed makes M31's load and multiplayer results easier to compare. No pin, runtime dependency, default mapping or save format changes were merged from the trial.
+M30 closed with NeoForge 26.3.0.102 trial-only. At M31 entry Liam approved promoting that exact loader. The M31 standalone baseline uses Minecraft 26.3 / NeoForge 26.3.0.102 with no optional mod; no runtime dependency, default mapping or save format changed.
 
 The [isolated trial record](https://github.com/liamryan391/Stand_and_Hold/blob/98ede74dd440f655e8d3e1e898d2e2c70f6d1c9d/docs/modern-port/compatibility.md#isolated-undead-nights-227-result) documents the limited pass with [Undead Nights 2.2.7, file 9436494](https://www.curseforge.com/minecraft/mc-mods/undead-nights/files/9436494): matched artifact checksums, client/server registry-ID kill/drop mapping, defenders and bounded Stand and Hold events, and removal from backed-up disposable save copies. The trial loader also passed the [standalone packaged client and server checks](https://github.com/liamryan391/Stand_and_Hold/blob/98ede74dd440f655e8d3e1e898d2e2c70f6d1c9d/docs/modern-port/packaged-testing.md#neoforge-2630102-trial-evidence), prior-pin save read, all 168 GameTests and [Windows CI](https://github.com/liamryan391/Stand_and_Hold/actions/runs/43079580782).
 
-Do not install that combination on the beta pin. The trial is not proof of natural Horde Night load, third-party block breaking, real multiplayer, packaged external installs or infection gameplay. A future promotion should be an explicitly approved, separate loader-only change compared against the standalone integration baseline, with build, client/server, packaged and backed-up save checks rerun on the exact proposed pin. Contagion remains unverified on 26.3.0.102.
+Do not install that combination on the previous beta pin. The bounded result does not prove natural Horde Night load, third-party block breaking, real multiplayer, packaged external installs or infection gameplay. Contagion remains unverified on 26.3.0.102.
 
 ## Historical M11 Candidates
 

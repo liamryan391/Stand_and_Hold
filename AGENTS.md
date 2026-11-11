@@ -21,7 +21,7 @@ Do not read the whole `docs/` folder or the legacy root README at the start of a
 
 ## Toolchain (pinned — see docs/modern-port/toolchain.md)
 
-Minecraft 26.3 · NeoForge 26.3.0.57-beta · Java 25 · Gradle 9.2.1 · ModDevGradle 2.0.148.
+Minecraft 26.3 · NeoForge 26.3.0.102 · Java 25 · Gradle 9.2.1 · ModDevGradle 2.0.148.
 Windows / PowerShell. Before any modern Gradle command, in the same shell:
 
 ```powershell

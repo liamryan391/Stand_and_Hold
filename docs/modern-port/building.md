@@ -47,7 +47,7 @@ Get-ChildItem .\build\libs\*.jar | Select-Object Name, Length, LastWriteTime
 
 Use `build/libs/standandhold-0.1.0-alpha.1.jar`, not a sources/javadoc jar.
 Inspect its `META-INF/neoforge.mods.toml`: Stand and Hold, `standandhold`, version
-`0.1.0-alpha.1`, Minecraft `[26.3]`, and NeoForge `[26.3.0.57-beta,26.4)`.
+`0.1.0-alpha.1`, Minecraft `[26.3]`, and NeoForge `[26.3.0.102,26.4)`.
 The version/filename is intentionally retained; legacy jars with the same filename are **not** compatible.
 Version is expanded from `gradle.properties`, not duplicated in Java constants.
 No MDK demo blocks/items are registered. The local config is

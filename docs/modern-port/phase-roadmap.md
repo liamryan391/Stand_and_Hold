@@ -620,7 +620,7 @@ Scope: one threat/horde artifact first, not a large modpack or new infection mec
 
 Exit gate: the selected optional combination has observed client/server/gameplay/removal-boundary evidence, or an explicit deferred/unsupported disposition approved by Liam. Stand and Hold still launches and plays alone.
 
-[Disposition](compatibility.md#m30-closeout): the exact Undead Nights combination passed limited checks on the isolated loader trial. It stays unsupported on the standalone pin used for integration; no loader promotion or external dependency was merged.
+[Disposition](compatibility.md#m30-closeout): the exact Undead Nights combination passed limited checks on the isolated loader trial. Liam later approved the tested loader for M31 entry; the integration baseline is still standalone and no external dependency was added.
 
 ## Phase M31 - Integrated Alpha Candidate
 

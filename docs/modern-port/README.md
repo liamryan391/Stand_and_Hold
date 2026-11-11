@@ -7,7 +7,7 @@ This folder is the planning memory for moving Stand and Hold from the Forge 1.12
 - Preserve the Forge 1.12.2 version on the `1.12` branch.
 - Use `main` for the modern rewrite once the scaffold phase starts.
 - Primary loader: NeoForge.
-- Selected target: Minecraft 26.3 / NeoForge 26.3.0.57-beta, Java 25 (local baseline Temurin 25.0.4+7), Gradle 9.2.1, and ModDevGradle 2.0.148. See [Selected Modern Toolchain](toolchain.md). These pins are not yet build-tested.
+- Selected target: Minecraft 26.3 / NeoForge 26.3.0.102, Java 25 (local baseline Temurin 25.0.4+7), Gradle 9.2.1, and ModDevGradle 2.0.148. See [Selected Modern Toolchain](toolchain.md).
 - Closest non-beta-loader alternative: Minecraft 26.2. Matching animation/AI libraries, Undead Nights, and Contagion are verified for both primary candidates. Minecraft 1.21.1 is the verified alternative for Spore.
 - Future track: Fabric after the NeoForge version has a stable gameplay foundation.
 - M1 scope: minimal NeoForge scaffold, logger/config shell, build/CI support, and launch verification. No gameplay or additional runtime libraries; no legacy world/config migration. See the accepted [foundation policy](foundation-scope.md).

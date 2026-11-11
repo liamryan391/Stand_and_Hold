@@ -7,14 +7,14 @@ Prepared for controlled testing, **not published or tagged as a modern release**
 | Component | Required target |
 | --- | --- |
 | Minecraft | 26.3 |
-| NeoForge | 26.3.0.57-beta (beta-loader risk accepted for this foundation) |
+| NeoForge | 26.3.0.102 |
 | Java runtime | 25, 64-bit |
 | Local build | Pinned wrapper Gradle 9.2.1 / ModDevGradle 2.0.148 |
 | Normal artifact | `build/libs/standandhold-0.1.0-alpha.1.jar` |
 | Extra required mod/library | None |
-| External test mods | None for the showcase. Tested Contagion 2.1.1 is unsupported on this loader. |
+| External test mods | None for the candidate baseline. See the separate limited Undead Nights result in [Compatibility](compatibility.md). |
 
-Use [Building](building.md) for the pinned Java selector/wrapper, and inspect `META-INF/neoforge.mods.toml`: mod ID `standandhold`, version `0.1.0-alpha.1`, Minecraft `[26.3]`, NeoForge `[26.3.0.57-beta,26.4)`. Do not use a sources jar or the legacy GitHub release. Installer/profile instructions follow the selected loader's official documentation linked in the toolchain/build guides; do not substitute a moving latest loader.
+Use [Building](building.md) for the pinned Java selector/wrapper, and inspect `META-INF/neoforge.mods.toml`: mod ID `standandhold`, version `0.1.0-alpha.1`, Minecraft `[26.3]`, NeoForge `[26.3.0.102,26.4)`. Do not use a sources jar or the legacy GitHub release. Installer/profile instructions follow the selected loader's official documentation linked in the toolchain/build guides; do not substitute a moving latest loader.
 
 Use [Isolated Packaged Testing](packaged-testing.md) for checksum manifests, fresh launcher/server profiles, EULA boundaries and observed installation outcomes. A GitHub Actions build artifact is separate from a published mod release. Source history identifies its implementation; no new tag is created by preparation.
 
@@ -37,6 +37,6 @@ The 2026-11-02 [M22 packaged baseline](packaged-testing.md#observed-normal-jar-p
 
 ## Release-Note Draft
 
-Stand and Hold's modern technical foundation has a small guided alpha loop: sample recovery, a field command/lab setup, funded research, human defenders and an outpost attack, with saved world/building progress. Defaults remain testing-focused. The NeoForge loader is beta, art/structures/weapons are still simple, and infrastructure/mission starts in the demonstration are operator-assisted. No complete Survival campaign, verified external infection support, vehicle system, cross-loader build or broad multiplayer readiness is promised.
+Stand and Hold's modern technical foundation has a small guided alpha loop: sample recovery, a field command/lab setup, funded research, human defenders and an outpost attack, with saved world/building progress. Defaults remain testing-focused. Art, structures and weapons are still simple, and infrastructure/mission starts in the demonstration are operator-assisted. No complete Survival campaign, verified external infection support, vehicle system, cross-loader build or broad multiplayer readiness is promised.
 
 Actual publishing requires a separate approval, release/version/tag decision, checked artifact, supported-combination statement and release checklist. The preserved `1.12` branch and `v0.1.0-alpha.1` tag must not be moved or reused.

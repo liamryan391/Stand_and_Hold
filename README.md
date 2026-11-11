@@ -39,7 +39,7 @@ The modern scaffold uses these selected pins:
 | Component | Selected version |
 | --- | --- |
 | Minecraft | `26.3` |
-| NeoForge | `26.3.0.57-beta` |
+| NeoForge | `26.3.0.102` |
 | Java | `25`; local baseline Temurin `25.0.4+7`, 64-bit |
 | Gradle wrapper | `9.2.1` |
 | ModDevGradle | `2.0.148` |

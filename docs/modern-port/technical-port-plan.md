@@ -35,7 +35,7 @@ Workflow, approval boundaries, and evidence rules are in [AGENTS.md](../../AGENT
 Selected target for M1:
 
 - Loader: NeoForge.
-- Minecraft: 26.3 / NeoForge 26.3.0.57-beta. Beta risk is accepted for the scaffold, with actual build/runtime proof still required.
+- Scaffold target was Minecraft 26.3 / NeoForge 26.3.0.57-beta. See the current approved pins in [Selected Modern Toolchain](toolchain.md).
 - Java: 25, local baseline Temurin 25.0.4+7. Gradle: 9.2.1. ModDevGradle: 2.0.148. MDK Foojay resolver: 1.0.0.
 
 Fallback target:
