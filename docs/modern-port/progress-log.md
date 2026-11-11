@@ -421,3 +421,11 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - `test-restart.ps1` passed both JVMs (qa-de4c8c25). Exact normal jar-only `runServer` in a disposable loopback DEV profile reached Done, answered status, summoned a Rifleman and stopped cleanly. Art export and packaged preparation passed; no EULA edited.
 - Final `runQaClient` passed (2m20s, 83 captures); 10 motion/held/inventory PNGs and three tier regressions reviewed (27219c98 prefix). Corrected capture timing to wait for a real stride and the reload overlay to disappear; held view made smaller. No fresh production installation, multiplayer or external-mod pass claimed.
 - Windows CI 42938656507 passed all build/native/restart/artifact steps. Final clean build matched the dedicated-tested jar (SHA256 a13e810471bbe0a956de95477465cde263ffaed4b57aa05737f6ac3f1af8d833). Docs-only closeout and integration; private review-world copy reserved for subjective motion/visibility. Next milestone in STATUS.md.
+
+## 2026-11-11 - M28 Specialist Tiers And Agent Handoff
+- Added handoff.md for Codex/Claude first-run QA, alternating branch ownership, and a future human-mediated review experiment; no model API integrated.
+- Super Elite melee and Special Division ranged roles have configurable gates and original models/eggs. All three recruitment paths share caps and one saved Division slot per active Main Base; no new budget, dependency or pin.
+- `clean build --no-daemon --stacktrace` passed (34,571 assertions); `runGameTestServer --no-parallel` passed all 161 required tests. `test-restart.ps1` passed both JVMs (qa-947d13ce), preserving mixed types, health, home, gear and reservations.
+- `runQaClient` passed (87 captures); opened f5032356-prefix super-elite-front, special-division-front, specialists-back, specialists-torchlight, tier-eggs and tiers-front. Ten-model export and packaged preparation passed.
+- Exact normal jar (SHA256 dbf0b202a97e83d15a4d527c4f76665da5e6e2934d5bd38d3bc1747af15badf4) had correct metadata and no QA/authoring files; dedicated DEV run reached Done, summoned both roles and stopped.
+- Windows CI 42943525114 passed all required steps before docs closeout. No fresh production install, multiplayer or external-threat proof. Specialist motion/feel is a separate isolated review; next milestone in STATUS.md.

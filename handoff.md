@@ -13,8 +13,11 @@ milestone and branch. Use Git and observed test reports to resolve stale notes.
   bounded defender deployments, patrols, raids, support call-ins, and saved state.
 - Checkpoints and Main Bases, guarded opt-in checkpoint growth through the
   Level-3 deck, refusal/recovery receipts and loaded-only checks.
-- Native human NPC rigs, original editable art, the Prototype Launcher and
-  Rifleman carry/aim/shot presentation. See [art pipeline](docs/modern-port/art-pipeline.md).
+- Six human NPC tiers with original editable rigs, a shared Blade/Launcher
+  equipment foundation, and native carry/aim/shot presentation. Super Elites
+  are armoured melee defenders; Division operatives are mobile ranged
+  specialists capped at one reservation per eligible Main Base.
+  See [human NPCs](docs/modern-port/human-npcs.md) and the [art pipeline](docs/modern-port/art-pipeline.md).
 - Optional threat rules use tags/registry IDs; vanilla zombies are the baseline.
   Do not infer external-mod support from a listing or an old build.
 
@@ -73,9 +76,9 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\export-art.ps1
 Use the numbered roadmap and STATUS to assign ownership. A useful split is one
 agent owning a bounded implementation milestone while the other reviews saved
 state, server authority, and test gaps, then swap for the following milestone.
-The remaining alpha lanes are specialist recruitment, a new Main Base layout,
-one approved optional threat combination or explicit deferral, and the integrated
-alpha candidate. Beyond that gate, propose one original bounded slice at a time
+Roadmap 2 connects specialist recruitment, an inhabited Main Base layout,
+optional threat coexistence or explicit deferral, and an integrated alpha
+candidate. Beyond that gate, propose one original bounded slice at a time
 from Deferred Expansion Admission. Fabric, dependencies and release decisions
 remain separate approvals.
 
