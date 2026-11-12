@@ -2,7 +2,7 @@ package com.liamryan.standandhold.common.equipment;
 
 import com.liamryan.standandhold.config.EquipmentConfig;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
+import com.liamryan.standandhold.common.sound.StandAndHoldSounds;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -22,7 +22,7 @@ public final class PrototypeLauncherItem extends EquipmentItem {
         if (!server.addFreshEntity(bolt)) { return InteractionResult.FAIL; }
         player.getCooldowns().addCooldown(stack, EquipmentConfig.value(EquipmentConfig.COOLDOWN));
         stack.hurtAndBreak(1, player, hand);
-        server.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SNOWBALL_THROW, SoundSource.PLAYERS, 0.45F, 1.3F);
+        server.playSound(null, player.getX(), player.getY(), player.getZ(), StandAndHoldSounds.LAUNCHER_FIRE.get(), SoundSource.PLAYERS, 0.6F, 1.0F);
         return InteractionResult.SUCCESS;
     }
 }

@@ -496,3 +496,13 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Codex: a same-priority listener could still cancel after a LOWEST listener saved the reward. Registration and order sync now run in the `onPlace` callback NeoForge calls only for accepted item placements; `setPlacedBy` only marks the tile. The QA cancel guard runs at LOWEST from the later-loading QA mod.
 - CI caught `preview_worldgen_boundary`: the first version created tiles on lookup in `onPlace`. Fixed with a non-creating lookup gated on the item-placement marker. Windows CI 43268709270: 178/178 GameTests, two-JVM restart passed.
 - Liam chose to play M32 later; M33 starts on a branch stacked on M32 with its own PR.
+
+## 2026-11-12 - M33 Army Look And Sound I (Claude)
+- Branch `claude/m33-army-look-sound`, stacked on M32. Soldiers pick one of 12 appearance variants and a render-only build from their UUID: skin tone, eyes, hair, facial hair or scar, headgear pattern, rank stripes and wear. A pure-JDK generator derives the 72 atlases from the Blockbench exports; no saved data, packets or hitbox change. Packs moved to M38 (need geometry).
+- Three original synthesised sounds replace vanilla stand-ins: soldier gear on steps, launcher fire and cycle (player and soldiers), Command Post radio (client ambience). Mono 44.1 kHz Vorbis with subtitles; generator `scripts/generate-sounds.py`.
+- Added `ArtChecks` variant checks, `SoundChecks` (decoded with Minecraft's own Vorbis decoder), GameTests `presentation_sounds_registered` and `presentation_launcher_sound`, and four QA client lineup captures. No pins, dependencies or library; D5 experiment not started.
+- Evidence: Windows CI 43275994632 on `a66ffe3`: 180/180 GameTests, 1,533 art and 62 sound assertions, two-JVM restart. QA client on Liam's PC (separate worktree under `.local/claude/wt`, so the shared checkout was not switched): 103 captures. The first close-up showed a moustache reading as an open mouth and overlapping arms; fixed with a goatee and 1.35-block spacing, then re-captured.
+
+## 2026-11-12 - M32 On Main, M33 Reviewed, D5 Approved (Claude)
+- Liam merged PR #4 (M32) into `main`. Codex confirmed the cancelled-placement fix and independently passed M33 on Windows (clean build, 180/180 GameTests, restart, 103 captures, nine clips decoded) with no blocker. PR #5 merged into the M32 branch rather than `main`, so a follow-up PR carries M33 to `main` after Liam's play check.
+- Liam approved D5. The experiment uses GeckoLib 5.5.7, still the newest 26.3 release on its source repository today, on `claude/m33-d5-geckolib`.

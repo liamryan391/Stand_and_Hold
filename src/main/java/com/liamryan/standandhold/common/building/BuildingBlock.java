@@ -104,6 +104,13 @@ public final class BuildingBlock extends BaseEntityBlock {
         }
         return InteractionResult.SUCCESS;
     }
+    /** Client-only ambience: occasional garbled radio traffic at a Command Post. No server work, packets or saved state. */
+    @Override public void animateTick(BlockState state, Level level, BlockPos pos, net.minecraft.util.RandomSource random) {
+        if (kind == BuildingKind.COMMAND_POST && random.nextInt(20) == 0) {
+            level.playLocalSound(pos, com.liamryan.standandhold.common.sound.StandAndHoldSounds.POST_RADIO.get(), net.minecraft.sounds.SoundSource.BLOCKS,
+                    0.35F, 0.95F + random.nextFloat() * 0.1F, false);
+        }
+    }
     @Override public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         return level.isClientSide() || kind == BuildingKind.CRATE ? null
                 : createTickerHelper(type, BuildingRegistry.ENTITY.get(), BuildingBlockEntity::tick);

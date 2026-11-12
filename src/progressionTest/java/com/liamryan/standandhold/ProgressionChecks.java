@@ -28,6 +28,7 @@ public final class ProgressionChecks {
         YardChecks.run();
         LevelThreeChecks.run();
         ArtChecks.run();
+        SoundChecks.run();
         EquipmentChecks.run();
         ResponseChecks.run();
         CompatibilityChecks.run();

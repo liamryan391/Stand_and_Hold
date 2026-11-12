@@ -32,6 +32,14 @@ tasks.register('progressionTest', JavaExec) {
 tasks.named('check').configure {
     dependsOn tasks.named('progressionTest')
 }
+tasks.register('generateNpcVariants', JavaExec) {
+    group = 'art'
+    description = 'Regenerates soldier appearance variants from the exported soldier atlases (run after editing a soldier in Blockbench).'
+    dependsOn tasks.named('progressionTestClasses')
+    classpath = sourceSets.progressionTest.runtimeClasspath
+    mainClass = 'com.liamryan.standandhold.NpcVariantArt'
+    args file('src/main/resources/assets/standandhold/textures/entity').absolutePath
+}
 
 tasks.named('wrapper', Wrapper).configure {
     gradleVersion = '9.2.1'

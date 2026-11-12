@@ -4,6 +4,12 @@
 
 Modern port work uses one phase branch at a time, merged into `main` after verification. No modern release, version bump, or retag is announced by this entry. The source/build version remains `0.1.0-alpha.1`; observed verification results are recorded in [STATUS.md](docs/modern-port/STATUS.md).
 
+### Army Look And Sound I (M33, unmerged work branch stacked on M32)
+
+- Soldiers no longer look identical: each picks one of 12 appearance variants (skin tone, eyes, hair, facial hair or scar, headgear pattern, rank stripes, wear) and a slightly different build from its UUID. Render-only; stats, hitboxes, AI and saves are unchanged.
+- Added original synthesised sounds with subtitles: soldier gear on steps, launcher fire and cycle for players and soldiers (replacing the snowball throw), and occasional radio chatter at Command Posts.
+- Added variant and sound logic checks, two GameTests and four soldier lineup captures.
+
 ### Earned Survival Start (M32, unmerged work branch)
 
 - Added Field Command Post and Research Lab crafting recipes (unlocked by iron) and a 96-block player-placement spacing rule; generated sites and admin placement are unaffected.
