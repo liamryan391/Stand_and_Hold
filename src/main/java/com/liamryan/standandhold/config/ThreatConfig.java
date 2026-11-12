@@ -38,10 +38,14 @@ public final class ThreatConfig {
     private ThreatConfig() { }
     public static ThreatRules rules() { return resolved.rules(); }
     public static ThreatPresets.Resolved resolved() { return resolved; }
+    /** Re-resolve from the current in-memory values: config loads/reloads and restored QA overrides. */
+    public static ThreatPresets.Resolved refresh() {
+        resolved = ThreatPresets.resolve(MAPPINGS.get(), PRESETS.get(), OptionalThreatCompat::installedVersion);
+        return resolved;
+    }
     public static void onConfig(ModConfigEvent event) {
         if (event.getConfig().getSpec() != SPEC || event instanceof ModConfigEvent.Unloading) { return; }
-        var next = ThreatPresets.resolve(MAPPINGS.get(), PRESETS.get(), OptionalThreatCompat::installedVersion);
-        resolved = next;
+        var next = refresh();
         LogUtils.getLogger().info("Stand and Hold threat config: presets {}, {} resolved rules.", next.active(), next.rules().rules().size());
         for (String issue : next.rules().issues()) { LogUtils.getLogger().warn("Stand and Hold threat config: {}", issue); }
     }

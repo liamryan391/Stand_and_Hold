@@ -38,7 +38,14 @@ final class GuideChecks {
         MissionManager.start(partial, catalog, thresholds, "recover_parasite_samples");
         MissionManager.observeSamples(partial, catalog, thresholds, 2);
         check(readOnly(partial, catalog, thresholds, false).contains("2/3"), "actual stored partial progress shown without refreshing it");
-        check(readOnly(new HumanWorldData(), catalog, thresholds, false).contains("Ask an operator"), "non-operator gets accurate start restriction");
+        check(readOnly(new HumanWorldData(), catalog, thresholds, false).contains("Starts on its own"), "non-operator told the onboarding order starts itself");
+        var waiting = new HumanWorldData();
+        for (Mission mission : catalog.missions().values()) {
+            if (mission.autoStart()) { MissionManager.start(waiting, catalog, thresholds, mission.id()); MissionManager.advance(waiting, catalog, thresholds, mission.id(), mission.target()); }
+        }
+        String operatorOnly = readOnly(waiting, catalog, thresholds, false);
+        check(operatorOnly.contains("Defend the Outpost") && operatorOnly.contains("An operator starts shared order"), "non-auto order still names its operator start restriction");
+        check(!operatorOnly.contains("Start: /"), "non-operator never sees a restricted start command");
         check(!String.join("\n", CommandGuide.help(false)).contains("QA/operator:"), "restricted command help separated by access");
         check(String.join("\n", CommandGuide.help(true)).contains("mission start <id>"), "operator QA entry points documented");
         var suggested = CommandGuide.component("Start: /standandhold mission start standandhold:recover_parasite_samples").getStyle().getClickEvent();
