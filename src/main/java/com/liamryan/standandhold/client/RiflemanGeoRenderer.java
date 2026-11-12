@@ -18,7 +18,9 @@ import net.minecraft.resources.Identifier;
  * native renderer ({@link HumanNpcRenderer}); geometry comes from the Blockbench source via
  * {@code scripts/export-geckolib-rifleman.py}. Client-only; registered only when the experiment renderer is selected.
  */
-public final class RiflemanGeoRenderer extends GeoEntityRenderer<HumanNpc, LivingEntityRenderState> {
+public final class RiflemanGeoRenderer extends GeoEntityRenderer<HumanNpc, RiflemanGeoRenderer.State> {
+    /** Declares GeckoLib's state interface directly, so compiling needs no interface injection; GeckoLib's runtime methods still apply. */
+    public static final class State extends LivingEntityRenderState implements GeoRenderState { }
     static final DataTicket<Integer> VARIANT = DataTicket.create("standandhold_variant", Integer.class);
     static final DataTicket<Float> BUILD_WIDTH = DataTicket.create("standandhold_build_width", Float.class);
     static final DataTicket<Float> BUILD_HEIGHT = DataTicket.create("standandhold_build_height", Float.class);
@@ -28,16 +30,16 @@ public final class RiflemanGeoRenderer extends GeoEntityRenderer<HumanNpc, Livin
         shadowRadius = 0.5F;
         withRenderLayer(new ItemInHandGeoLayer<>(context, this));
     }
-    @Override public void addRenderData(HumanNpc npc, Void ignored, LivingEntityRenderState state, float partialTick) {
-        GeoRenderState geo = (GeoRenderState) state;
-        geo.addGeckolibData(VARIANT, NpcVariants.index(npc.getUUID()));
-        geo.addGeckolibData(BUILD_WIDTH, NpcVariants.width(npc.getUUID()));
-        geo.addGeckolibData(BUILD_HEIGHT, NpcVariants.height(npc.getUUID()));
+    @Override public State createRenderState(HumanNpc npc, Void ignored) { return new State(); }
+    @Override public void addRenderData(HumanNpc npc, Void ignored, State state, float partialTick) {
+        state.addGeckolibData(VARIANT, NpcVariants.index(npc.getUUID()));
+        state.addGeckolibData(BUILD_WIDTH, NpcVariants.width(npc.getUUID()));
+        state.addGeckolibData(BUILD_HEIGHT, NpcVariants.height(npc.getUUID()));
     }
     /** Render-only build variation, as on the native rig; the hitbox is unchanged. */
-    @Override public void scaleModelForRender(RenderPassInfo<LivingEntityRenderState> info, float widthScale, float heightScale) {
-        GeoRenderState geo = (GeoRenderState) info.renderState();
-        super.scaleModelForRender(info, widthScale * geo.getOrDefaultGeckolibData(BUILD_WIDTH, 1F), heightScale * geo.getOrDefaultGeckolibData(BUILD_HEIGHT, 1F));
+    @Override public void scaleModelForRender(RenderPassInfo<State> info, float widthScale, float heightScale) {
+        State state = info.renderState();
+        super.scaleModelForRender(info, widthScale * state.getOrDefaultGeckolibData(BUILD_WIDTH, 1F), heightScale * state.getOrDefaultGeckolibData(BUILD_HEIGHT, 1F));
     }
 
     private static final class Model extends GeoModel<HumanNpc> {
