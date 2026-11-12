@@ -55,7 +55,8 @@ final class NpcVariantArt {
         for (int x = 24; x < 32; x++) { paintOver(out, x, 10, hair, newSkin, newShade); }
         switch (random.nextInt(6)) {
             case 1 -> { for (int x : new int[] {9, 10, 13, 14}) { paintOver(out, x, 10, hair, newSkin, newShade); } }
-            case 2 -> { for (int x = 10; x <= 13; x++) { paintOver(out, x, 13, hair, newSkin, newShade); } }
+            // A small chin goatee; a full-width moustache read as an open mouth in the close-up capture.
+            case 2 -> { for (int x = 11; x <= 12; x++) { paintOver(out, x, 15, hair, newSkin, newShade); } }
             case 3 -> {
                 for (int x = 9; x <= 14; x++) { paintOver(out, x, 15, hair, newSkin, newShade); }
                 for (int[] p : new int[][] {{9, 14}, {10, 14}, {14, 14}, {8, 13}, {8, 14}, {15, 13}, {15, 14}}) { paintOver(out, p[0], p[1], hair, newSkin, newShade); }

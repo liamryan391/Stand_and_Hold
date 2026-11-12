@@ -1008,7 +1008,7 @@ public final class QaClient {
         level.clockManager().setTotalTicks(level.dimensionType().defaultClock().orElseThrow(), night ? 18000 : 6000);
         for (int x = 100; x <= 126; x++) { level.setBlockAndUpdate(new BlockPos(x, 64, 31), night && x % 3 == 0 ? Blocks.TORCH.defaultBlockState() : Blocks.AIR.defaultBlockState()); }
         int count = close ? 4 : 12;
-        double spacing = close ? 1.0 : 1.5, start = VARIANT_ROW.getX() + 0.5 - spacing * (count - 1) / 2;
+        double spacing = close ? 1.35 : 1.5, start = VARIANT_ROW.getX() + 0.5 - spacing * (count - 1) / 2;
         for (int i = 0; i < count; i++) {
             HumanTier tier = variantView == 1 ? HumanTier.values()[i / 2] : HumanTier.ARMY_RIFLEMAN;
             int index = switch (variantView) { case 1 -> (i * 5 + 1) % NpcVariants.COUNT; case 2 -> 1 + i * 3; default -> i; };
@@ -1021,7 +1021,7 @@ public final class QaClient {
             variantNpcs.put(id, index);
         }
         player.getAbilities().flying = true; player.onUpdateAbilities();
-        if (close) { player.connection.teleport(VARIANT_ROW.getX() + 0.5, 64.1, VARIANT_ROW.getZ() + 3.6, 180, 4); }
+        if (close) { player.connection.teleport(VARIANT_ROW.getX() + 0.5, 64.1, VARIANT_ROW.getZ() + 4.3, 180, 4); }
         else { player.connection.teleport(VARIANT_ROW.getX() + 0.5, 65.5, VARIANT_ROW.getZ() + 11.5, 180, 9); }
     }
     private void checkDeckUnchanged(Minecraft mc) {
