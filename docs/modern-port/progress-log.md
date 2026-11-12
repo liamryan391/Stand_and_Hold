@@ -468,3 +468,10 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Verified Codex's advisory input against code. Added: post-stacking farm once recipes exist, silent mission completions, zombie-only default rewards, Level-2 upgrade as the real Stage-1 payoff. Chose auto-start over a menu Accept button.
 - `git diff --check` passed. Docs only; no gameplay, pins, dependencies, legacy branch/tag, saves, release or tag changed. No build or game run: the cloud workspace cannot reach Gradle or NeoForge Maven.
 - Next: Codex review and Liam's decisions D1-D4, then M32 per STATUS.md.
+
+## 2026-11-12 - M32 First Earned Outpost (Claude)
+- Liam approved D1-D4. Added Post/Lab recipes, 96-block player post spacing, self-starting onboarding orders via `MissionManager.sync`, Orders tab, upgrade hint and default `vanilla_undead`.
+- On Liam's PC (new `.local/claude` runner): `clean build` passed incl. 50 onboarding assertions; `runGameTestServer` 175/175; two-JVM restart passed; `runQaClient` 99 captures, Orders and tab views opened and judged.
+- First runs exposed two GameTest timing issues (block entities register next tick) and a QA scene that skipped the post-load sync; fixed in the harness, gameplay unchanged. Windows CI 43142386768 green.
+- Measured before terrain checks: 15/9/12 checkpoint candidates within 512 blocks for three seeds; terrain pass rate not measured.
+- Not done: cheats-off earned run, Codex review, merge. No pins, dependencies, release, tag or legacy refs changed.
