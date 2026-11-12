@@ -8,7 +8,7 @@ Updated: 2026-11-12
 - NeoForge-first; Fabric M14 14.4-14.5 deferred. Pins: MC 26.3 / NeoForge 26.3.0.102 / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
 
 ## Verified
-- M32 on Liam's PC: clean build, 175 GameTests, two-JVM restart, 99 QA captures (Orders views and tabs reviewed). After the review fixes, Windows CI 43257273965: 177/177 GameTests, restart passed.
+- M32 on Liam's PC: clean build, 175 GameTests, two-JVM restart, 99 QA captures (Orders views and tabs reviewed). After both Codex reviews, Windows CI 43263085596 (and PR run 43263099381): 178/178 GameTests, restart passed.
 - M31 baseline: [isolated loader trial](compatibility.md#m30-closeout), packaged standalone client/server and [0/1/2/4-post load and two loopback clients](alpha-test-candidate.md#m31-integration-fixtures).
 
 ## Risks And Decisions

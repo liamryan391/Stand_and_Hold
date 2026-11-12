@@ -486,3 +486,8 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Took Codex's roadmap advice: M33 starts with native variants and original sounds, the animation library is a separate test-gated experiment; M34 moves ahead if Stage 1 has nothing to do; promoting an outpost is the reliable HQ path with the bunker optional; "active HQ" defined as usable; M36/M37 pass with vanilla mobs only.
 - Liam adopted GitHub pull requests: milestones reach `main` through a PR reviewed by the other agent and merged by Liam. Handoff, AGENTS and STATUS updated; the M32 merge is paused only for Liam's playthrough.
 - `git diff --check` passed. Docs only; no code, pins, dependencies or release changed.
+
+## 2026-11-12 - M32 PR #4 Review Fix (Claude)
+- Codex's PR review: a placement cancelled through NeoForge's place event could keep the Establish receipt and rewards. Registration and order sync moved from `setPlacedBy` to a lowest-priority accepted-placement listener.
+- New GameTest `onboarding_cancelled_placement_no_reward`. Windows CI 43263085596 and PR run 43263099381: build, 55 onboarding assertions, 178/178 GameTests, two-JVM restart passed. No local rerun; no UI change.
+- PR #4 stays draft for Codex's re-review and Liam's cheats-off run.
