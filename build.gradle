@@ -47,6 +47,18 @@ tasks.named('wrapper', Wrapper).configure {
     distributionSha256Sum = '72f44c9f8ebcb1af43838f45ee5c4aa9c5444898b3468ab3f4af7b6076c5bc3f'
 }
 
+// M33 D5 experiment: GeckoLib (MIT) from its official Maven, restricted to its own group.
+repositories {
+    maven {
+        url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+        content { includeGroup 'com.geckolib' }
+    }
+}
+dependencies {
+    implementation "com.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
+}
+def qaNativeRifleman = providers.gradleProperty('qaNativeRifleman').orElse('false').get()
+
 def integrationId = providers.gradleProperty('integrationId').orElse('missing').get()
 def integrationSeat = providers.gradleProperty('integrationSeat').orElse('missing').get()
 def validIntegrationId = integrationId ==~ /m31-[a-f0-9]{12}/
@@ -122,6 +134,8 @@ neoForge {
             sourceSet = sourceSets.qa
             loadedMods = [neoForge.mods.standandhold, neoForge.mods.standandhold_qa]
             systemProperty 'standandhold.qa.client', 'true'
+            // D5 comparison runs: -PqaNativeRifleman=true renders the Rifleman with the native rig instead of GeckoLib.
+            systemProperty 'standandhold.nativeRifleman', qaNativeRifleman
             programArgument '--width'
             programArgument '1280'
             programArgument '--height'

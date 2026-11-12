@@ -51,7 +51,13 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
+public final class HumanNpc extends PathfinderMob implements RangedAttackMob, com.geckolib.animatable.GeoEntity {
+    // M33 D5 experiment: GeckoLib animation state (client-side use only; the Army Rifleman renderer reads it).
+    private final com.geckolib.animatable.instance.AnimatableInstanceCache geoCache = com.geckolib.util.GeckoLibUtil.createInstanceCache(this);
+    @Override public void registerControllers(com.geckolib.animatable.manager.AnimatableManager.ControllerRegistrar controllers) {
+        RiflemanAnimation.register(controllers);
+    }
+    @Override public com.geckolib.animatable.instance.AnimatableInstanceCache getAnimatableInstanceCache() { return geoCache; }
     private static final EntityDataAccessor<Boolean> LAUNCHER_AIM =
             SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.BOOLEAN);
     private static final byte LAUNCHER_SHOT = 100;
@@ -82,7 +88,10 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         return Math.clamp((shotPoseTicks - partialTick) / SHOT_POSE_TICKS, 0, 1);
     }
     @Override public void handleEntityEvent(byte event) {
-        if (event == LAUNCHER_SHOT) { shotPoseTicks = SHOT_POSE_TICKS; }
+        if (event == LAUNCHER_SHOT) {
+            shotPoseTicks = SHOT_POSE_TICKS;
+            if (level().isClientSide() && tier() == HumanTier.ARMY_RIFLEMAN) { triggerAnim(RiflemanAnimation.ACTION, RiflemanAnimation.FIRE); }
+        }
         else { super.handleEntityEvent(event); }
     }
     @Override public void tick() {
