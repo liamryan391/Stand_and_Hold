@@ -26,6 +26,7 @@ public final class QaMod {
     static { WorldTests.cases().forEach((name, test) -> FUNCTIONS.register(name, () -> test)); }
     public QaMod(IEventBus bus) {
         FUNCTIONS.register(bus); bus.addListener(QaMod::tests);
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(OnboardingTests::cancelGuard);
         if (System.getProperty("standandhold.qa.phase") != null) {
             net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(RestartFixture::tick);
         }

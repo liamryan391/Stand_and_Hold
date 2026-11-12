@@ -10,8 +10,8 @@ Modern port work uses one phase branch at a time, merged into `main` after verif
 - The five onboarding missions now start themselves (`auto_start` catalog flag) and progress from kills, pickups, login, building use and menu actions. Starts/completions are announced once; operator mission commands are unchanged.
 - Added a Command Post Orders tab with the current shared order, blocked reason, recovery step and reward, and an upgrade hint when a post is full.
 - New configs credit husks, drowned and zombie villagers through the `vanilla_undead` preset.
-- Codex review fixes: posts register at placement (no same-tick spacing gap); stale loaded records neither block placement nor grant post credit; start hints go to the acting player.
-- Added onboarding logic checks, nine GameTests, a restart check and five Orders captures.
+- Codex review fixes: posts register once NeoForge accepts the placement (no same-tick spacing gap, no reward from a cancelled placement); stale loaded records neither block placement nor grant post credit; start hints go to the acting player.
+- Added onboarding logic checks, ten GameTests, a restart check and five Orders captures.
 
 ### Automated QA And Bounded Support
 

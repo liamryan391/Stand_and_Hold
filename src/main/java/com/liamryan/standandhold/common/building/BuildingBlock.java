@@ -10,9 +10,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.event.level.BlockEvent;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -48,14 +47,17 @@ public final class BuildingBlock extends BaseEntityBlock {
         }
         return super.getStateForPlacement(context);
     }
-    /** Registers a placed post in the same call, so a second placement in the same tick sees it; also credits the placer. */
-    @Override public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity by, ItemStack stack) {
-        super.setPlacedBy(level, pos, state, by, stack);
-        if (kind != BuildingKind.COMMAND_POST || !(level instanceof ServerLevel server)
-                || !(level.getBlockEntity(pos) instanceof BuildingBlockEntity post) || post.isMainBase()) { return; }
+    /**
+     * Registers and credits a placed post only after NeoForge accepts the placement (lowest priority, never for a
+     * cancelled event): {@code setPlacedBy} runs earlier, while a cancellable place event can still roll the block back.
+     * Still inside the same item use, so a second placement in the same tick sees the registration.
+     */
+    public static void placed(BlockEvent.EntityPlaceEvent event) {
+        if (!(event.getLevel() instanceof ServerLevel server) || !event.getPlacedBlock().is(BuildingRegistry.COMMAND_POST.get())
+                || !(server.getBlockEntity(event.getPos()) instanceof BuildingBlockEntity post) || post.isMainBase()) { return; }
         try {
-            HumanWorldData.get(server.getServer()).registerCommandPost(new BuildingPosition(server.dimension().identifier(), pos));
-            MissionNotices.sync(server.getServer(), by instanceof ServerPlayer player ? player : null, MissionNotices.NOT_OBSERVED, false);
+            HumanWorldData.get(server.getServer()).registerCommandPost(new BuildingPosition(server.dimension().identifier(), event.getPos()));
+            MissionNotices.sync(server.getServer(), event.getEntity() instanceof ServerPlayer player ? player : null, MissionNotices.NOT_OBSERVED, false);
         } catch (IllegalArgumentException | IllegalStateException exception) {
             LogUtils.getLogger().debug("Placed Command Post registration deferred to load: {}", exception.getMessage());
         }

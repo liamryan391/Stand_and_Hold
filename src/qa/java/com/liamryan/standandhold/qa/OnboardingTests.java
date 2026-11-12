@@ -52,6 +52,7 @@ final class OnboardingTests {
         tests.put("onboarding_orders_menu_states", OnboardingTests::menu);
         tests.put("onboarding_spacing_same_tick", OnboardingTests::sameTick);
         tests.put("onboarding_stale_post_records", OnboardingTests::staleRecords);
+        tests.put("onboarding_cancelled_placement_no_reward", OnboardingTests::cancelledPlacement);
         return tests;
     }
 
@@ -192,6 +193,39 @@ final class OnboardingTests {
             h.assertTrue(data(h).mission("standandhold:establish_field_command").map(s -> s.completed()).orElse(false)
                     && player.count("Order complete: Establish Field Command") == 1, "the real placed post earns Establish once");
             h.succeed();
+        });
+    }
+
+    /** Test-only stand-in for a claim/protection mod: refuses Command Post placement while set. Never set outside a test. */
+    static volatile boolean cancelPostPlacement;
+    static void cancelGuard(net.neoforged.neoforge.event.level.BlockEvent.EntityPlaceEvent event) {
+        if (cancelPostPlacement && event.getPlacedBlock().is(BuildingRegistry.COMMAND_POST.get())) { event.setCanceled(true); }
+    }
+
+    /** A placement refused by the built-in NeoForge place event must register, credit and announce nothing. */
+    private static void cancelledPlacement(GameTestHelper h) {
+        QaWorld.begin(h);
+        var player = player(h, HOME.offset(3, 0, 0));
+        h.runAfterDelay(2, () -> {
+            carry(player, 3); SampleEvents.observe(player);
+            h.assertTrue(data(h).mission(RECOVER).map(s -> s.completed()).orElse(false) && data(h).points() == 25 && data(h).supplies() == 10,
+                    "sample recovery complete; Establish is eligible");
+            try {
+                cancelPostPlacement = true;
+                h.assertFalse(placePost(h, player, HOME), "a cancelled placement leaves no post");
+            } finally { cancelPostPlacement = false; }
+            h.assertTrue(player.getMainHandItem().getCount() == 4, "the item is retained");
+            h.assertTrue(data(h).commandPostKeys().isEmpty(), "no registration");
+            h.assertTrue(data(h).mission("standandhold:establish_field_command").map(s -> !s.completed()).orElse(false)
+                    && data(h).points() == 25 && data(h).supplies() == 10, "no completion receipt and no reward");
+            h.assertTrue(player.count("Order complete: Establish Field Command") == 0, "no completion notice");
+            h.assertTrue(placePost(h, player, HOME), "the same placement is accepted when nothing cancels it");
+            h.assertTrue(data(h).commandPostKeys().size() == 1 && player.count("Order complete: Establish Field Command") == 1
+                    && data(h).points() == 75 && data(h).supplies() == 20, "it registers and rewards once (Establish, then Stockpile)");
+            h.runAfterDelay(2, () -> {
+                h.assertTrue(data(h).commandPostKeys().size() == 1 && data(h).points() == 75, "loading the post adds nothing");
+                h.succeed();
+            });
         });
     }
 
