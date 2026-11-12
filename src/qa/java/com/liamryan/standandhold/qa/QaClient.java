@@ -1112,9 +1112,13 @@ public final class QaClient {
         server.getDataStorage().set(HumanWorldData.TYPE, new HumanWorldData());
         var data = HumanWorldData.get(server); var catalog = FoundationResources.get(server); var thresholds = HumanProgressionConfig.thresholds();
         var home = new BuildingPosition(level.dimension().identifier(), POST);
+        // open() registers the post directly, so sync here as the real post-load hook would.
         switch (state) {
-            case "orders-stockpile" -> { MissionManager.sync(data, catalog, thresholds, 3); data.setSupplies(0); } // imported early, before a post existed
-            case "orders-research" -> MissionManager.sync(data, catalog, thresholds, 3);
+            case "orders-samples" -> { data.registerCommandPost(home); MissionManager.sync(data, catalog, thresholds, 0); }
+            case "orders-stockpile" -> { // imported early, before a post existed
+                MissionManager.sync(data, catalog, thresholds, 3); data.setSupplies(0); data.registerCommandPost(home); MissionManager.sync(data, catalog, thresholds, -1);
+            }
+            case "orders-research" -> { MissionManager.sync(data, catalog, thresholds, 3); data.registerCommandPost(home); MissionManager.sync(data, catalog, thresholds, -1); }
             case "orders-stage" -> {
                 MissionManager.sync(data, catalog, thresholds, 3); data.registerCommandPost(home); MissionManager.sync(data, catalog, thresholds, -1);
                 ResearchManager.complete(data, catalog, thresholds, "standandhold:parasite_samples"); MissionManager.sync(data, catalog, thresholds, -1);
