@@ -54,19 +54,24 @@ public final class BuildingBlock extends BaseEntityBlock {
      */
     @Override public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity by, ItemStack stack) {
         super.setPlacedBy(level, pos, state, by, stack);
-        if (kind == BuildingKind.COMMAND_POST && !level.isClientSide() && by instanceof ServerPlayer player
-                && level.getBlockEntity(pos) instanceof BuildingBlockEntity post) { post.rememberPlacer(player.getUUID()); }
+        if (kind == BuildingKind.COMMAND_POST && !level.isClientSide() && level.getBlockEntity(pos) instanceof BuildingBlockEntity post) {
+            post.markItemPlacement(by instanceof ServerPlayer player ? player.getUUID() : null);
+        }
     }
     /**
      * NeoForge calls onPlace for an item placement only in its accepted-snapshot branch, after every place-event listener,
-     * still inside the same item use (so a second placement in the same tick sees the registration). Ordinary setBlock
-     * calls onPlace before the block entity exists, so generated/admin/test placement keeps registering on load.
+     * still inside the same item use (so a second placement in the same tick sees the registration). Only a block
+     * entity marked by setPlacedBy qualifies, looked up without creating one, so generated, admin and test placement
+     * (and worldgen) keep registering on load.
      */
     @Override protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
         if (kind != BuildingKind.COMMAND_POST || oldState.is(this) || !(level instanceof ServerLevel server)
-                || !(level.getBlockEntity(pos) instanceof BuildingBlockEntity post) || post.isMainBase()) { return; }
-        var placer = post.takePlacer().map(id -> server.getServer().getPlayerList().getPlayer(id)).orElse(null);
+                || !(server.getChunkAt(pos).getBlockEntity(pos, net.minecraft.world.level.chunk.LevelChunk.EntityCreationType.CHECK) instanceof BuildingBlockEntity post)
+                || post.isMainBase()) { return; }
+        var placement = post.takeItemPlacement();
+        if (placement.isEmpty()) { return; }
+        var placer = placement.get().map(id -> server.getServer().getPlayerList().getPlayer(id)).orElse(null);
         try {
             HumanWorldData.get(server.getServer()).registerCommandPost(new BuildingPosition(server.dimension().identifier(), pos));
             MissionNotices.sync(server.getServer(), placer, MissionNotices.NOT_OBSERVED, false);
