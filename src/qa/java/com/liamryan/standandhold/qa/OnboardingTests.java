@@ -202,7 +202,7 @@ final class OnboardingTests {
         if (cancelPostPlacement && event.getPlacedBlock().is(BuildingRegistry.COMMAND_POST.get())) { event.setCanceled(true); }
     }
 
-    /** A placement refused by the built-in NeoForge place event must register, credit and announce nothing. */
+    /** A placement refused late (LOWEST priority, after every other listener) must register, credit and announce nothing. */
     private static void cancelledPlacement(GameTestHelper h) {
         QaWorld.begin(h);
         var player = player(h, HOME.offset(3, 0, 0));
@@ -222,6 +222,7 @@ final class OnboardingTests {
             h.assertTrue(placePost(h, player, HOME), "the same placement is accepted when nothing cancels it");
             h.assertTrue(data(h).commandPostKeys().size() == 1 && player.count("Order complete: Establish Field Command") == 1
                     && data(h).points() == 75 && data(h).supplies() == 20, "it registers and rewards once (Establish, then Stockpile)");
+            h.assertTrue(player.count("New order: Complete First Research") == 1, "the placer receives the next order's instructions");
             h.runAfterDelay(2, () -> {
                 h.assertTrue(data(h).commandPostKeys().size() == 1 && data(h).points() == 75, "loading the post adds nothing");
                 h.succeed();

@@ -50,6 +50,7 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
     private boolean malformed;
     private boolean removalHandled;
     private boolean reportedFailure;
+    private java.util.UUID placer; // Transient: who placed this block, until NeoForge accepts the placement. Never saved.
     private boolean mainBase;
     private int mainBaseNotices;
     private static final int INHABITED_BASE_LAYOUT = 1;
@@ -71,6 +72,8 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
 
     public BuildingBlockEntity(BlockPos pos, BlockState block) { super(BuildingRegistry.ENTITY.get(), pos, block); }
     public BuildingKind kind() { return ((BuildingBlock) getBlockState().getBlock()).kind(); }
+    void rememberPlacer(java.util.UUID player) { placer = player; }
+    java.util.Optional<java.util.UUID> takePlacer() { var taken = java.util.Optional.ofNullable(placer); placer = null; return taken; }
     public BuildingState state() { return state; }
     public int supplyCapacity() { return BuildingConfig.capacity(kind(), state.level()); }
     public com.liamryan.standandhold.common.npc.DefenderDuty duty() { return duty; }

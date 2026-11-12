@@ -10,8 +10,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.event.level.BlockEvent;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -48,16 +49,27 @@ public final class BuildingBlock extends BaseEntityBlock {
         return super.getStateForPlacement(context);
     }
     /**
-     * Registers and credits a placed post only after NeoForge accepts the placement (lowest priority, never for a
-     * cancelled event): {@code setPlacedBy} runs earlier, while a cancellable place event can still roll the block back.
-     * Still inside the same item use, so a second placement in the same tick sees the registration.
+     * Item placement runs inside NeoForge's snapshot capture: {@code setPlacedBy} fires before the cancellable place
+     * event, so it only remembers the placer (transient, nothing durable). Registration and rewards wait for onPlace.
      */
-    public static void placed(BlockEvent.EntityPlaceEvent event) {
-        if (!(event.getLevel() instanceof ServerLevel server) || !event.getPlacedBlock().is(BuildingRegistry.COMMAND_POST.get())
-                || !(server.getBlockEntity(event.getPos()) instanceof BuildingBlockEntity post) || post.isMainBase()) { return; }
+    @Override public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity by, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, by, stack);
+        if (kind == BuildingKind.COMMAND_POST && !level.isClientSide() && by instanceof ServerPlayer player
+                && level.getBlockEntity(pos) instanceof BuildingBlockEntity post) { post.rememberPlacer(player.getUUID()); }
+    }
+    /**
+     * NeoForge calls onPlace for an item placement only in its accepted-snapshot branch, after every place-event listener,
+     * still inside the same item use (so a second placement in the same tick sees the registration). Ordinary setBlock
+     * calls onPlace before the block entity exists, so generated/admin/test placement keeps registering on load.
+     */
+    @Override protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        if (kind != BuildingKind.COMMAND_POST || oldState.is(this) || !(level instanceof ServerLevel server)
+                || !(level.getBlockEntity(pos) instanceof BuildingBlockEntity post) || post.isMainBase()) { return; }
+        var placer = post.takePlacer().map(id -> server.getServer().getPlayerList().getPlayer(id)).orElse(null);
         try {
-            HumanWorldData.get(server.getServer()).registerCommandPost(new BuildingPosition(server.dimension().identifier(), event.getPos()));
-            MissionNotices.sync(server.getServer(), event.getEntity() instanceof ServerPlayer player ? player : null, MissionNotices.NOT_OBSERVED, false);
+            HumanWorldData.get(server.getServer()).registerCommandPost(new BuildingPosition(server.dimension().identifier(), pos));
+            MissionNotices.sync(server.getServer(), placer, MissionNotices.NOT_OBSERVED, false);
         } catch (IllegalArgumentException | IllegalStateException exception) {
             LogUtils.getLogger().debug("Placed Command Post registration deferred to load: {}", exception.getMessage());
         }
