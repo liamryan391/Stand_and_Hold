@@ -11,6 +11,7 @@ import com.liamryan.standandhold.common.npc.DefenderDuty;
 import com.liamryan.standandhold.common.npc.HumanNpc;
 import com.liamryan.standandhold.config.NpcConfig;
 import com.liamryan.standandhold.common.research.ResearchManager;
+import com.liamryan.standandhold.common.mission.MissionManager;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.progression.HumanStage;
 import com.liamryan.standandhold.common.threat.ThreatResponse;
@@ -85,7 +86,14 @@ public final class QaClient {
             new View("storage-flat-large", BuildingKind.COMMAND_POST, "storage-flat", 3),
             new View("storage-maximum-large", BuildingKind.COMMAND_POST, "storage-max", 3),
             new View("storage-long-balances-large", BuildingKind.COMMAND_POST, "storage-long", 3),
-            new View("storage-upgrade-ready", BuildingKind.COMMAND_POST, "storage-upgrade", 2));
+            new View("storage-upgrade-ready", BuildingKind.COMMAND_POST, "storage-upgrade", 2),
+            new View("orders-samples", BuildingKind.COMMAND_POST, "orders-samples", 2),
+            new View("orders-stockpile-large", BuildingKind.COMMAND_POST, "orders-stockpile", 3),
+            new View("orders-research", BuildingKind.COMMAND_POST, "orders-research", 2),
+            new View("orders-stage-large", BuildingKind.COMMAND_POST, "orders-stage", 3),
+            new View("orders-waiting-large", BuildingKind.COMMAND_POST, "orders-waiting", 3));
+    private boolean ordersPressed;
+    private static net.minecraft.nbt.Tag ordersBackup;
     private final String id = System.getProperty("standandhold.qa.id", UUID.randomUUID().toString());
     private final long deadline = System.nanoTime() + 300_000_000_000L;
     private CompletableFuture<Void> serverAction;
@@ -208,6 +216,26 @@ public final class QaClient {
                             if (menu.number(BuildingMenu.STATUS) == 0 || menu.number(BuildingMenu.STATUS) == 1) { throw new IllegalStateException("Blocked research not synced"); }
                         } else if (menu.number(BuildingMenu.STATUS) != expected) { throw new IllegalStateException("Research state did not sync: " + next.state()); }
                     }
+                    if (next.state().startsWith("orders-")) {
+                        if (!ordersPressed) {
+                            String expected = switch (next.state()) {
+                                case "orders-samples" -> "standandhold:recover_parasite_samples";
+                                case "orders-stockpile" -> "standandhold:stockpile_supplies";
+                                case "orders-research" -> "standandhold:complete_first_research";
+                                case "orders-stage" -> "standandhold:early_army_response";
+                                default -> "standandhold:defend_outpost";
+                            };
+                            long state = next.state().equals("orders-waiting") ? BuildingMenu.ORDER_WAITING : BuildingMenu.ORDER_ACTIVE;
+                            if (menu.order() == null || !menu.order().id().equals(expected) || menu.number(BuildingMenu.ORDER_STATE) != state
+                                    || next.state().equals("orders-stockpile") && (menu.number(BuildingMenu.GLOBAL) != 10 || menu.number(BuildingMenu.ORDER_PROGRESS) != 10)
+                                    || next.state().equals("orders-stage") && menu.number(BuildingMenu.ORDER_NEED) != HumanProgressionConfig.thresholds()[1]) {
+                                throw new IllegalStateException("Orders view did not sync: " + next.state() + " order=" + (menu.order() == null ? "none" : menu.order().id())
+                                        + " state=" + menu.number(BuildingMenu.ORDER_STATE) + " global=" + menu.number(BuildingMenu.GLOBAL));
+                            }
+                            press(mc, "gui.standandhold.tab_orders"); ordersPressed = true; settle = 12; return;
+                        }
+                        ordersPressed = false;
+                    }
                     capture(mc, next.name(), next.state().equals("storage-upgrade") ? 82 : next.state().equals("storage-over") ? 84 : 5);
                 }
                 case 5 -> {
@@ -215,6 +243,7 @@ public final class QaClient {
                     onServer(mc, () -> {
                         player(mc).closeContainer();
                         if (reset) { resetPost(mc.getSingleplayerServer().overworld()); }
+                        if (views.get(view).state().startsWith("orders-") && view == views.size() - 1) { restoreOrders(mc.getSingleplayerServer()); }
                         if (views.get(view).state().startsWith("storage-")) {
                             var data = HumanWorldData.get(mc.getSingleplayerServer()); data.setSupplies(113); data.setProgression(10, com.liamryan.standandhold.common.progression.HumanStage.SURVIVORS);
                         }
@@ -1033,6 +1062,7 @@ public final class QaClient {
         player.closeContainer();
         var pos = switch (view.kind()) { case COMMAND_POST -> POST; case LAB -> LAB; case CRATE -> CRATE; };
         var building = tile(level, pos);
+        if (view.state().startsWith("orders-")) { ordersScene(level, view.state()); }
         if (view.kind() == BuildingKind.COMMAND_POST) {
             var data = HumanWorldData.get(level.getServer());
             var home = new BuildingPosition(level.dimension().identifier(), POST);
@@ -1072,6 +1102,35 @@ public final class QaClient {
         }
         player.connection.teleport(pos.getX() + 1.5, pos.getY(), pos.getZ() + 2.5, 180, 12);
         player.openMenu(building, building::writeMenuData);
+    }
+    /** Deterministic order states on a fresh world-progress record; the earlier QA progress is restored afterwards. */
+    private static void ordersScene(ServerLevel level, String state) {
+        var server = level.getServer();
+        // The post is re-placed by open(): empty it first so its removal credits nothing to the fresh progress record.
+        if (level.getBlockEntity(POST) instanceof BuildingBlockEntity old) { old.change(BuildingState.EMPTY); }
+        if (ordersBackup == null) { ordersBackup = HumanWorldData.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, HumanWorldData.get(server)).getOrThrow(); }
+        server.getDataStorage().set(HumanWorldData.TYPE, new HumanWorldData());
+        var data = HumanWorldData.get(server); var catalog = FoundationResources.get(server); var thresholds = HumanProgressionConfig.thresholds();
+        var home = new BuildingPosition(level.dimension().identifier(), POST);
+        switch (state) {
+            case "orders-stockpile" -> { MissionManager.sync(data, catalog, thresholds, 3); data.setSupplies(0); } // imported early, before a post existed
+            case "orders-research" -> MissionManager.sync(data, catalog, thresholds, 3);
+            case "orders-stage" -> {
+                MissionManager.sync(data, catalog, thresholds, 3); data.registerCommandPost(home); MissionManager.sync(data, catalog, thresholds, -1);
+                ResearchManager.complete(data, catalog, thresholds, "standandhold:parasite_samples"); MissionManager.sync(data, catalog, thresholds, -1);
+            }
+            case "orders-waiting" -> {
+                for (var mission : catalog.missions().values()) {
+                    if (!mission.autoStart()) { continue; }
+                    MissionManager.start(data, catalog, thresholds, mission.id()); MissionManager.advance(data, catalog, thresholds, mission.id(), mission.target());
+                }
+            }
+            default -> { }
+        }
+    }
+    private static void restoreOrders(net.minecraft.server.MinecraftServer server) {
+        server.getDataStorage().set(HumanWorldData.TYPE, HumanWorldData.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE, ordersBackup).getOrThrow());
+        ordersBackup = null;
     }
     private static void resetPost(ServerLevel level) {
         com.liamryan.standandhold.config.BuildingConfig.LEVEL_STORAGE.set(false);
