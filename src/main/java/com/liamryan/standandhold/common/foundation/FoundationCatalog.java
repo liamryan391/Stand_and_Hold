@@ -89,7 +89,7 @@ public final class FoundationCatalog {
             JsonObject entry = object(value);
             missions.add(new Mission(text(entry, "id", null), text(entry, "title", null),
                     Mission.Objective.parse(text(entry, "objective", null)), integer(entry, "target", 1),
-                    text(entry, "subject", ""), strings(entry, "prerequisites"), reward(entry)));
+                    text(entry, "subject", ""), strings(entry, "prerequisites"), reward(entry), bool(entry, "auto_start", false)));
         }
         return new FoundationCatalog(research, missions);
     }
@@ -151,6 +151,13 @@ public final class FoundationCatalog {
             throw new IllegalArgumentException("Expected text: " + key);
         }
         return value.getAsString();
+    }
+
+    private static boolean bool(JsonObject object, String key, boolean fallback) {
+        if (!object.has(key)) { return fallback; }
+        JsonElement value = object.get(key);
+        if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isBoolean()) { throw new IllegalArgumentException("Expected true/false: " + key); }
+        return value.getAsBoolean();
     }
 
     private static long number(JsonObject object, String key, long fallback) {

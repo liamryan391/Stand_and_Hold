@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": "#minecraft:planks",
+    "I": "minecraft:iron_ingot",
+    "C": "minecraft:copper_ingot"
+  },
+  "pattern": [
+    "PIP",
+    "ICI",
+    "PIP"
+  ],
+  "result": {
+    "id": "standandhold:field_command_post"
+  }
+}

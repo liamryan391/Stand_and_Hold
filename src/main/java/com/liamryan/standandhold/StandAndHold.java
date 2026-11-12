@@ -62,6 +62,7 @@ public final class StandAndHold {
         NeoForge.EVENT_BUS.addListener(EquipmentEvents::damage);
         NeoForge.EVENT_BUS.addListener(EquipmentEvents::attributes);
         NeoForge.EVENT_BUS.addListener(SampleEvents::onPickup);
+        NeoForge.EVENT_BUS.addListener(com.liamryan.standandhold.common.mission.MissionNotices::login);
         NeoForge.EVENT_BUS.addListener(FoundationResources::register);
         NeoForge.EVENT_BUS.addListener(CommandStandAndHold::onRegister);
         NeoForge.EVENT_BUS.addListener(com.liamryan.standandhold.common.structure.OutpostExpansion::logout);

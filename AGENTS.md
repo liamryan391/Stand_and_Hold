@@ -14,9 +14,10 @@ Do not read the whole `docs/` folder or the legacy root README at the start of a
 ## Branches and things you must never touch
 
 - `1.12` branch and tag `v0.1.0-alpha.1`: preserved legacy. Never commit to, rebase, delete or force-push them.
-- One work branch per phase, cut from `main`: `codex/m<N>-<short-name>` (e.g. `codex/m2-progression`).
-  Merge into `main` when the phase exit gate passes with observed evidence and CI is green, then start
-  the next phase's branch from the updated `main` in the same session.
+- One work branch per phase, cut from `main`: `<agent>/m<N>-<short-name>` (`codex/` or `claude/`, e.g. `codex/m2-progression`). Ownership and review: [handoff.md](handoff.md).
+  Reach `main` only through a pull request, docs-only changes included (see [handoff.md](handoff.md#pull-requests)): open it when the
+  exit gate's automated evidence is green, the other agent reviews it, and Liam merges (or tells the writer
+  to). Then start the next phase's branch from the updated `main`.
 - Never force-push, rewrite published history, or delete untracked/ignored user files (worlds, `.local/`, run dirs).
 
 ## Toolchain (pinned — see docs/modern-port/toolchain.md)

@@ -50,6 +50,8 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
     private boolean malformed;
     private boolean removalHandled;
     private boolean reportedFailure;
+    // Transient item-placement marker (and placer, if a player) until NeoForge accepts the placement. Never saved.
+    private java.util.Optional<java.util.UUID> itemPlacement;
     private boolean mainBase;
     private int mainBaseNotices;
     private static final int INHABITED_BASE_LAYOUT = 1;
@@ -71,6 +73,10 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
 
     public BuildingBlockEntity(BlockPos pos, BlockState block) { super(BuildingRegistry.ENTITY.get(), pos, block); }
     public BuildingKind kind() { return ((BuildingBlock) getBlockState().getBlock()).kind(); }
+    void markItemPlacement(java.util.UUID player) { itemPlacement = java.util.Optional.ofNullable(player); }
+    java.util.Optional<java.util.Optional<java.util.UUID>> takeItemPlacement() {
+        var taken = java.util.Optional.ofNullable(itemPlacement); itemPlacement = null; return taken;
+    }
     public BuildingState state() { return state; }
     public int supplyCapacity() { return BuildingConfig.capacity(kind(), state.level()); }
     public com.liamryan.standandhold.common.npc.DefenderDuty duty() { return duty; }
@@ -383,8 +389,9 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         } catch (IllegalArgumentException | IllegalStateException exception) { building.reportOnce(exception); }
     }
 
+    /** Building ticks/registration have no acting player: order starts/completions are broadcast once, progress is silent. */
     static void refreshMissions(ServerLevel server, HumanWorldData data) {
-        MissionManager.refresh(data, FoundationResources.get(server.getServer()), HumanProgressionConfig.thresholds());
+        com.liamryan.standandhold.common.mission.MissionNotices.sync(server.getServer(), null, com.liamryan.standandhold.common.mission.MissionNotices.NOT_OBSERVED, false);
     }
     private void reportOnce(RuntimeException exception) {
         if (!reportedFailure) { LogUtils.getLogger().debug("Building at {} paused: {}", worldPosition, exception.getMessage()); reportedFailure = true; }
@@ -403,6 +410,12 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         for (var entry : entries) {
             buffer.writeUtf(entry.id(), 128); buffer.writeUtf(entry.title(), 80);
             buffer.writeVarLong(entry.supplyCost()); buffer.writeVarInt(entry.sampleCost()); buffer.writeVarInt(entry.requiredStage());
+        }
+        var orders = BuildingMenu.orders(FoundationResources.get(level.getServer()));
+        buffer.writeVarInt(orders.size());
+        for (var order : orders) {
+            buffer.writeUtf(order.id(), 128); buffer.writeUtf(order.title(), 80); buffer.writeVarInt(order.objective()); buffer.writeVarInt(order.target());
+            buffer.writeVarLong(order.points()); buffer.writeVarLong(order.supplies()); buffer.writeVarInt(order.research());
         }
     }
 }

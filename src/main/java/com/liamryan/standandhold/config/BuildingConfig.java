@@ -20,6 +20,8 @@ public final class BuildingConfig {
             .define("levelledCommandPostStorage", false);
     public static final ModConfigSpec.ConfigValue<List<? extends Number>> STORAGE_LEVELS = B.comment("Command Post capacities at local levels 1-5 when levelledCommandPostStorage is true. Exactly five non-decreasing whole numbers, 1-1000000. Labs/crates retain supplyCapacity. Invalid in-memory profiles fall back to the flat cap.")
             .define("commandPostSupplyCapacities", BuildingStorage.DEFAULT_LEVELS, BuildingStorage::validProfile);
+    public static final ModConfigSpec.IntValue POST_SPACING = B.comment("Minimum horizontal blocks between a player-placed Command Post and any registered post or Main Base in the same dimension. Stops crafted posts being stacked into a point/supply farm. Generated sites and admin placement are not checked. 0 disables.")
+            .defineInRange("minimumCommandPostSpacing", 96, 0, 1024);
     public static final ModConfigSpec.IntValue TRANSFER = B.comment("Fixed GUI batch size for global/local supply transfers; insufficient balance/capacity rejects the whole transfer.")
             .defineInRange("transferBatch", 10, 1, 10000);
     public static final ModConfigSpec.IntValue LAB_INTERVAL = B.comment("Loaded ticks per lab work unit. Blocked labs do not consume costs or gain work.")

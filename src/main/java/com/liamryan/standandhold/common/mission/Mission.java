@@ -5,8 +5,12 @@ import com.liamryan.standandhold.common.foundation.FoundationReward;
 import java.util.List;
 import java.util.Locale;
 
+/** {@code autoStart}: a catalog-flagged onboarding order that starts itself once its prerequisites are complete. */
 public record Mission(String id, String title, Objective objective, int target, String subject,
-                      List<String> prerequisites, FoundationReward reward) {
+                      List<String> prerequisites, FoundationReward reward, boolean autoStart) {
+    public Mission(String id, String title, Objective objective, int target, String subject, List<String> prerequisites, FoundationReward reward) {
+        this(id, title, objective, target, subject, prerequisites, reward, false);
+    }
     public Mission {
         FoundationCatalog.requireId(id);
         FoundationCatalog.requireTitle(title);

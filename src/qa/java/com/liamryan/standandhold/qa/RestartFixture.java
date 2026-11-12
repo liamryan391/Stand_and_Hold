@@ -3,6 +3,7 @@ package com.liamryan.standandhold.qa;
 import com.liamryan.standandhold.common.building.*;
 import com.liamryan.standandhold.common.foundation.FoundationResources;
 import com.liamryan.standandhold.common.mission.MissionManager;
+import com.liamryan.standandhold.common.mission.MissionNotices;
 import com.liamryan.standandhold.common.npc.*;
 import com.liamryan.standandhold.common.progression.*;
 import com.liamryan.standandhold.common.research.ResearchManager;
@@ -174,6 +175,9 @@ final class RestartFixture {
         check(data.points() == 42 && data.stage() == HumanStage.SURVIVORS && data.supplies() == 110, "Global progression/supply balances including once-only support debit");
         check(data.isResearchComplete("standandhold:parasite_samples"), "Research receipt");
         check(data.mission("standandhold:recover_parasite_samples").orElseThrow().progress() == 2, "Partial mission");
+        check(MissionManager.sync(data, FoundationResources.get(server), HumanProgressionConfig.thresholds(), MissionNotices.NOT_OBSERVED).isEmpty()
+                && data.points() == 42 && data.supplies() == 110 && data.mission("standandhold:recover_parasite_samples").orElseThrow().progress() == 2,
+                "Auto-start order sync after a real restart repeats no start, progress or reward");
         check(data.isMainBase(new BuildingPosition(level.dimension().identifier(), BASE)) && data.commandPostKeys().size() == 22, "All twenty previous sites and two additional Main Base sites");
         var checkpoint = BlockPos.of(Long.parseLong(receipt.getProperty("checkpoint")));
         check(data.commandPostKeys().contains(new BuildingPosition(level.dimension().identifier(), checkpoint).key()), "Generated checkpoint registration survived");

@@ -26,6 +26,8 @@ public final class QaMod {
     static { WorldTests.cases().forEach((name, test) -> FUNCTIONS.register(name, () -> test)); }
     public QaMod(IEventBus bus) {
         FUNCTIONS.register(bus); bus.addListener(QaMod::tests);
+        // LOWEST and registered by this later-loading QA mod: models another mod refusing placement after every other listener.
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(net.neoforged.bus.api.EventPriority.LOWEST, OnboardingTests::cancelGuard);
         if (System.getProperty("standandhold.qa.phase") != null) {
             net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(RestartFixture::tick);
         }

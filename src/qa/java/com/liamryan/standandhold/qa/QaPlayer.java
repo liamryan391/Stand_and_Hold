@@ -41,6 +41,7 @@ final class QaPlayer extends ServerPlayer {
         return received.stream().filter(c -> c.getContents() instanceof TranslatableContents text && text.getKey().equals(key)).count();
     }
     boolean received(String text) { return received.stream().anyMatch(c -> c.getString().contains(text)); }
+    long count(String text) { return received.stream().filter(c -> c.getString().contains(text)).count(); }
     String suggestedCommand(String prefix) {
         for (var message : received.reversed()) {
             if (message.getStyle().getClickEvent() instanceof net.minecraft.network.chat.ClickEvent.SuggestCommand suggestion && suggestion.command().startsWith(prefix)) { return suggestion.command(); }

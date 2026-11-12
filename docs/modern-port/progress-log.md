@@ -462,3 +462,37 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 ## 2026-11-12 - M31 Maintainer Feedback
 - Liam reported that everything worked as intended. Reviewed the isolated checkpoint/guide/save log; it does not show a complete grant-free playthrough, so 31.3 stays unchecked.
 - Confirmed Windows CI 43128346307 on the internal baseline; `git diff --check` passed for this docs-only update. No gameplay or pin changes, new local build, release or tag. Next planning milestone in STATUS.md.
+
+## 2026-11-12 - Roadmap 3 Draft (Claude)
+- Drafted Roadmap 3 in the phase roadmap: M32 First Earned Outpost (recipes, post spacing, auto-started onboarding, Orders view, ordinary undead rewards) with exit gates; M33-M36 provisional.
+- Verified Codex's advisory input against code. Added: post-stacking farm once recipes exist, silent mission completions, zombie-only default rewards, Level-2 upgrade as the real Stage-1 payoff. Chose auto-start over a menu Accept button.
+- `git diff --check` passed. Docs only; no gameplay, pins, dependencies, legacy branch/tag, saves, release or tag changed. No build or game run: the cloud workspace cannot reach Gradle or NeoForge Maven.
+- Next: Codex review and Liam's decisions D1-D4, then M32 per STATUS.md.
+
+## 2026-11-12 - M32 First Earned Outpost (Claude)
+- Liam approved D1-D4. Added Post/Lab recipes, 96-block player post spacing, self-starting onboarding orders via `MissionManager.sync`, Orders tab, upgrade hint and default `vanilla_undead`.
+- On Liam's PC (new `.local/claude` runner): `clean build` passed incl. 50 onboarding assertions; `runGameTestServer` 175/175; two-JVM restart passed; `runQaClient` 99 captures, Orders and tab views opened and judged.
+- First runs exposed two GameTest timing issues (block entities register next tick) and a QA scene that skipped the post-load sync; fixed in the harness, gameplay unchanged. Windows CI 43142386768 green.
+- Measured before terrain checks: 15/9/12 checkpoint candidates within 512 blocks for three seeds; terrain pass rate not measured.
+- Not done: cheats-off earned run, Codex review, merge. No pins, dependencies, release, tag or legacy refs changed.
+
+## 2026-11-12 - M32 Review Fixes And Roadmaps 4-7 (Claude)
+- Codex reviewed `ac02f0d`. Fixed: posts register at placement (same-tick spacing gap); loaded stale records neither block placement nor grant Establish credit, unloaded records stay conservative; start hints go to the acting player, completions stay one server line.
+- Added two GameTests and five logic assertions. Windows CI 43257273965: build, 55 onboarding assertions, 177/177 GameTests, two-JVM restart passed. No local rerun; QA captures unchanged (no UI change).
+- Liam made Claude the roadmap owner. Roadmap 3 now runs M32-M37 (look/sound, defence, Phase 0 world and HQ site, HQ intelligence, candidate); Roadmaps 4-7 place divisions, facilities, arsenal, vehicles, missiles, jets and Fabric. Handoff, AGENTS branch naming and a CLAUDE.md entry file updated.
+- Not done: Liam's earned run, D5-D6, merge. No pins, dependencies, release or legacy refs changed.
+
+## 2026-11-12 - Roadmap 3 Tightening And PR Workflow (Claude)
+- Took Codex's roadmap advice: M33 starts with native variants and original sounds, the animation library is a separate test-gated experiment; M34 moves ahead if Stage 1 has nothing to do; promoting an outpost is the reliable HQ path with the bunker optional; "active HQ" defined as usable; M36/M37 pass with vanilla mobs only.
+- Liam adopted GitHub pull requests: milestones reach `main` through a PR reviewed by the other agent and merged by Liam. Handoff, AGENTS and STATUS updated; the M32 merge is paused only for Liam's playthrough.
+- `git diff --check` passed. Docs only; no code, pins, dependencies or release changed.
+
+## 2026-11-12 - M32 PR #4 Review Fix (Claude)
+- Codex's PR review: a placement cancelled through NeoForge's place event could keep the Establish receipt and rewards. Registration and order sync moved from `setPlacedBy` to a lowest-priority accepted-placement listener.
+- New GameTest `onboarding_cancelled_placement_no_reward`. Windows CI 43263085596 and PR run 43263099381: build, 55 onboarding assertions, 178/178 GameTests, two-JVM restart passed. No local rerun; no UI change.
+- PR #4 stays draft for Codex's re-review and Liam's cheats-off run.
+
+## 2026-11-12 - M32 PR #4 Re-review Fix (Claude)
+- Codex: a same-priority listener could still cancel after a LOWEST listener saved the reward. Registration and order sync now run in the `onPlace` callback NeoForge calls only for accepted item placements; `setPlacedBy` only marks the tile. The QA cancel guard runs at LOWEST from the later-loading QA mod.
+- CI caught `preview_worldgen_boundary`: the first version created tiles on lookup in `onPlace`. Fixed with a non-creating lookup gated on the item-placement marker. Windows CI 43268709270: 178/178 GameTests, two-JVM restart passed.
+- Liam chose to play M32 later; M33 starts on a branch stacked on M32 with its own PR.

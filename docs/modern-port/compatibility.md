@@ -84,7 +84,7 @@ Use the [dependency policy](foundation-scope.md) for admission and [STATUS.md](S
 
 ## Opt-In Presets And Diagnostics
 
-`config/standandhold-threats.toml` keeps the original manual zombie test rule and no presets by default. To test the generic tag instead, in a disposable instance:
+New configs keep the original manual zombie rule and, from M32, enable `presets = ["vanilla_undead"]` so husks, drowned and zombie villagers also count in ordinary Survival. The manual exact zombie rule still wins, so a zombie is credited once. An existing `config/standandhold-threats.toml` keeps its saved values; set `presets = []` to return to zombie-only rewards, or test the generic tag alone in a disposable instance:
 
 ```toml
 requirePlayerKill = true
@@ -97,7 +97,7 @@ presets = ["vanilla_undead"]
 | `vanilla_undead` | `#standandhold:vanilla_undead` | Original tag containing `minecraft:zombie`, `minecraft:husk`, `minecraft:drowned`, `minecraft:zombie_villager`; IDs checked against the pinned Minecraft `EntityTypeIds`/`EntityTypes` sources. No external mod needed. |
 | `contagion_2_1_1` | `#standandhold:test_threats` | **Reproduction candidate only, not supported play.** Requires loaded `contagion` with exact version `2.1.1-NeoForge-mc26.3`. The shipped tag contains only `minecraft:zombie`; this jar fails before the game can use the rule on our pins. |
 
-Both presets use the existing test reward (5 points, 35% chance of one sample); neither changes defaults, adds an infection mechanic, requires a dependency or identifies infected players. The exact Contagion jar's zombie mixin annotation targets vanilla `Zombie`; its loot metadata also references the vanilla zombie loot table. Registry IDs were cross-checked with the pinned game, not invented from the mod title. No external implementation or asset was copied.
+Both presets use the existing test reward (5 points, 35% chance of one sample); neither adds an infection mechanic, requires a dependency or identifies infected players. The exact Contagion jar's zombie mixin annotation targets vanilla `Zombie`; its loot metadata also references the vanilla zombie loot table. Registry IDs were cross-checked with the pinned game, not invented from the mod title. No external implementation or asset was copied.
 
 Manual mappings precede preset mappings. Exact IDs beat tags; otherwise the first matching tag wins, with no stacking. Duplicate selectors keep the first entry. At most 16 preset selections and 256 combined entries are processed; full manual lists leave no room for presets. Unknown names, absent mods and untested versions are skipped with config-load warnings. Mod-list changes require a process restart. Custom datapacks can extend tags, but their extra members are not verified by these shipped presets.
 

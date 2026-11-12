@@ -21,8 +21,9 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
     private Button start;
     private Button deposit;
     private Button withdraw;
-    private Button expand, previewDeck, manual, automatic, statusTab, growthTab, dutyTab, guard, patrol;
+    private Button expand, previewDeck, manual, automatic, statusTab, growthTab, dutyTab, ordersTab, guard, patrol;
     private boolean growthView;
+    private boolean ordersView;
     private boolean dutyView;
     private boolean sampleMode;
     private int mouseX, mouseY;
@@ -47,12 +48,15 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
             previewDeck.setTooltip(Tooltip.create(Component.translatable("gui.standandhold.tip.preview_deck")));
             manual = button("growth_manual", 102, 177, 90, GROWTH_MANUAL);
             automatic = button("growth_automatic", 202, 177, 90, GROWTH_AUTOMATIC);
-            statusTab = addRenderableWidget(Button.builder(Component.translatable("gui.standandhold.tab_status"), b -> { growthView = false; dutyView = false; updateGrowth(); })
-                    .bounds(leftPos + 145, topPos + 3, 45, 16).build());
-            growthTab = addRenderableWidget(Button.builder(Component.translatable("gui.standandhold.tab_growth"), b -> { growthView = true; dutyView = false; updateGrowth(); })
-                    .bounds(leftPos + 194, topPos + 3, 45, 16).build());
-            dutyTab = addRenderableWidget(Button.builder(Component.translatable("gui.standandhold.tab_duties"), b -> { growthView = false; dutyView = true; updateGrowth(); })
-                    .bounds(leftPos + 243, topPos + 3, 49, 16).build());
+            ordersTab = addRenderableWidget(Button.builder(Component.translatable("gui.standandhold.tab_orders"), b -> view(false, false, true))
+                    .bounds(leftPos + 115, topPos + 3, 42, 16).build());
+            ordersTab.setTooltip(Tooltip.create(Component.translatable("gui.standandhold.tip.tab_orders")));
+            statusTab = addRenderableWidget(Button.builder(Component.translatable("gui.standandhold.tab_status"), b -> view(false, false, false))
+                    .bounds(leftPos + 160, topPos + 3, 42, 16).build());
+            growthTab = addRenderableWidget(Button.builder(Component.translatable("gui.standandhold.tab_growth"), b -> view(true, false, false))
+                    .bounds(leftPos + 205, topPos + 3, 42, 16).build());
+            dutyTab = addRenderableWidget(Button.builder(Component.translatable("gui.standandhold.tab_duties"), b -> view(false, true, false))
+                    .bounds(leftPos + 250, topPos + 3, 42, 16).build());
             guard = button("duty_guard", 8, 177, 136, DUTY_GUARD);
             patrol = button("duty_patrol", 156, 177, 136, DUTY_PATROL);
             updateGrowth();
@@ -63,6 +67,7 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
             pause = button("pause", 202, 177, 90, PAUSE);
         }
     }
+    private void view(boolean growth, boolean duty, boolean orders) { growthView = growth; dutyView = duty; ordersView = orders; updateGrowth(); }
     private Button button(String label, int x, int y, int width, int action) {
         var result = addRenderableWidget(Button.builder(Component.translatable("gui.standandhold." + label), button -> {
             send(action);
@@ -88,14 +93,14 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
         boolean valid = menu.number(STATUS) != 7;
         long state = menu.number(GROWTH_STATUS), mode = menu.number(GROWTH_MODE);
         expand.setMessage(Component.translatable(state == OutpostGrowth.TERRAIN || state == OutpostGrowth.ENTITY ? "gui.standandhold.retry_growth" : "gui.standandhold.expand"));
-        upgrade.visible = !growthView && !dutyView;
+        upgrade.visible = !growthView && !dutyView && !ordersView;
         expand.visible = manual.visible = automatic.visible = growthView;
         previewDeck.visible = growthView && menu.number(LAYOUT_REVISION) == 2;
         previewDeck.active = valid && menu.number(LEVEL) >= 3 && state != OutpostGrowth.REVIEW && state != OutpostGrowth.UNSUPPORTED && state != OutpostGrowth.UNAVAILABLE;
         guard.visible = patrol.visible = dutyView;
         guard.active = valid && menu.number(DUTY_MODE) == 1;
         patrol.active = valid && menu.number(DUTY_MODE) == 0;
-        statusTab.active = growthView || dutyView; growthTab.active = !growthView; dutyTab.active = !dutyView;
+        statusTab.active = growthView || dutyView || ordersView; growthTab.active = !growthView; dutyTab.active = !dutyView; ordersTab.active = !ordersView;
         expand.active = valid && (state == OutpostGrowth.READY || state == OutpostGrowth.TERRAIN || state == OutpostGrowth.ENTITY);
         manual.active = valid && mode != 0 && state != OutpostGrowth.UNAVAILABLE;
         automatic.active = valid && mode != 1 && state != OutpostGrowth.UNSUPPORTED && state != OutpostGrowth.UNAVAILABLE
@@ -125,7 +130,7 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
     }
     @Override protected void extractLabels(GuiGraphicsExtractor g, int mx, int my) {
         mouseX = mx; mouseY = my;
-        text(g, title.getString(), 7, menu.kind() == BuildingKind.COMMAND_POST ? 132 : 284, 0xfff0f3f1);
+        text(g, title.getString(), 7, menu.kind() == BuildingKind.COMMAND_POST ? 104 : 284, 0xfff0f3f1);
         line(g, 28, "gui.standandhold.progression", menu.number(POINTS), menu.number(STAGE));
         line(g, 42, "gui.standandhold.global", menu.number(GLOBAL));
         String local = Component.translatable("gui.standandhold.local", menu.number(LOCAL), menu.number(CAPACITY)).getString();
@@ -135,6 +140,7 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
         line(g, 70, "gui.standandhold.samples", menu.number(SAMPLES), menu.number(BATCH));
         if (menu.kind() == BuildingKind.COMMAND_POST) {
             int level = (int) Math.clamp(menu.number(LEVEL), 1, 5);
+            if (ordersView) { orders(g); return; }
             if (dutyView) {
                 line(g, 88, "gui.standandhold.duty_mode", Component.translatable(menu.number(DUTY_MODE) == 1 ? "gui.standandhold.duty_patrol"
                         : menu.number(DUTY_MODE) == 0 ? "gui.standandhold.duty_guard" : "gui.standandhold.status.7"));
@@ -168,7 +174,10 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
             line(g, 88, "gui.standandhold.level", level, Component.translatable("gui.standandhold.level." + level));
             line(g, 99, "gui.standandhold.generation", menu.number(GENERATION_POINTS), menu.number(GENERATION_SUPPLIES), menu.number(GENERATION_INTERVAL) / 20);
             line(g, 110, "gui.standandhold.defenders", menu.number(DEFENDERS), menu.number(DEFENDER_CAP));
-            line(g, 121, "gui.standandhold.deployment", Component.translatable("gui.standandhold.deployment." + menu.number(DEPLOYMENT_STATUS)));
+            long extraSlots = menu.number(NEXT_DEFENDER_CAP) - menu.number(DEFENDER_CAP);
+            line(g, 121, "gui.standandhold.deployment", menu.number(DEPLOYMENT_STATUS) == 4 && level < 5 && extraSlots > 0
+                    ? Component.translatable("gui.standandhold.deployment.4_upgrade", extraSlots)
+                    : Component.translatable("gui.standandhold.deployment." + menu.number(DEPLOYMENT_STATUS)));
             if (level < 5) { line(g, 132, "gui.standandhold.next_storage", menu.number(NEXT_CAPACITY), menu.number(NEXT_CAPACITY) - menu.number(CAPACITY)); }
             else { line(g, 132, "gui.standandhold.final_storage", menu.number(CAPACITY)); }
             tooltip(g, Component.translatable(menu.number(LEVEL_STORAGE) == 1 ? "gui.standandhold.tip.level_storage" : "gui.standandhold.tip.flat_storage").getString(), 132, 284, 10);
@@ -195,6 +204,33 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
             g.fill(9, 165, 9 + progress, 170, menu.number(STATUS) == 1 ? 0xff9db85a : 0xff4caba5);
             g.outline(8, 164, 284, 7, 0xff81918b);
         }
+    }
+    /** World-shared current order: state in words, one next step with the recovery action, and its one-time reward. */
+    private void orders(GuiGraphicsExtractor g) {
+        var order = menu.order();
+        long state = menu.number(ORDER_STATE);
+        if (order == null || state == ORDER_UNAVAILABLE || state == ORDER_ALL_COMPLETE || state == ORDER_NONE) {
+            line(g, 88, "gui.standandhold.order.title_none");
+            wrap(g, Component.translatable("gui.standandhold.order.state." + Math.clamp(state, 0, 4)).getString(), 102);
+            line(g, 156, "gui.standandhold.order.shared");
+            return;
+        }
+        line(g, 88, "gui.standandhold.order.title", order.title());
+        long progress = menu.number(ORDER_PROGRESS), need = menu.number(ORDER_NEED);
+        line(g, 100, state == ORDER_WAITING ? "gui.standandhold.order.state.1" : "gui.standandhold.order.active",
+                Math.min(progress, order.target()), order.target());
+        Component step = switch (order.objective()) {
+            case 0 -> Component.translatable("gui.standandhold.order.samples", order.target(), menu.number(HELD_SAMPLES));
+            case 1 -> Component.translatable("gui.standandhold.order.post");
+            case 2 -> Component.translatable("gui.standandhold.order.stockpile", menu.number(GLOBAL), need, menu.number(BATCH), menu.number(LOCAL));
+            case 3 -> Component.translatable("gui.standandhold.order.research", menu.researchTitle(order.research()), need);
+            case 4 -> Component.translatable("gui.standandhold.order.stage", menu.number(POINTS), need);
+            case 5 -> Component.translatable("gui.standandhold.order.defence", order.target(), progress);
+            default -> Component.translatable("gui.standandhold.order.main_base");
+        };
+        wrap(g, step.getString(), 114);
+        line(g, 140, "gui.standandhold.order.reward", order.points(), order.supplies());
+        line(g, 156, "gui.standandhold.order.shared");
     }
     private void line(GuiGraphicsExtractor g, int y, String key, Object... values) {
         text(g, Component.translatable(key, values).getString(), y, 284, 0xffedf0ed);

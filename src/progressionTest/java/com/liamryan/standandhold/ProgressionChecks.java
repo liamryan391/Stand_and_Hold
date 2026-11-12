@@ -32,6 +32,7 @@ public final class ProgressionChecks {
         ResponseChecks.run();
         CompatibilityChecks.run();
         GuideChecks.run();
+        OnboardingChecks.run();
         com.liamryan.standandhold.common.command.FoundationCommandChecks.run();
         System.out.println("Progression checks passed: " + assertions + " assertions.");
     }
