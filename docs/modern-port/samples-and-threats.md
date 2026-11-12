@@ -2,9 +2,9 @@
 
 ## Defaults And Attribution
 
-Stand and Hold works with no threat mod installed. The only active default is **`minecraft:zombie` as a test entity**: 5 human points and a 35% chance of one Parasite Tissue Sample. Other zombie variants are not implicitly included. No external mod IDs/classes/assets are required or bundled.
+Stand and Hold works with no threat mod installed. New configs credit **`minecraft:zombie`** through the manual rule and husks, drowned and zombie villagers through the default `vanilla_undead` preset: 5 human points and a 35% chance of one Parasite Tissue Sample each, credited once per death. Existing config files keep their saved values. No external mod IDs/classes/assets are required or bundled.
 
-Opt-in presets, precedence, isolated test commands and exact external runtime results are documented in [Optional Threat Compatibility](compatibility.md). The checked Contagion artifact fails on the pinned loader; its reproduction candidate is not supported play. No preset installs a mod or changes the zombie-only default.
+Opt-in presets, precedence, isolated test commands and exact external runtime results are documented in [Optional Threat Compatibility](compatibility.md). The checked Contagion artifact fails on the pinned loader; its reproduction candidate is not supported play. No preset installs a mod.
 
 Default rewards require the fatal damage source's owner to be a server player, including a player-owned projectile. Environmental deaths, unattended falls/burning, NPC kills and console `/kill` do not count by default. `requirePlayerKill = false` allows those deaths too; this is useful for isolated server tests but permits automated farms. [Human NPCs](human-npcs.md) reuse these selectors for targeting, even with zero rewards; players and other humans are excluded independently. No separate human-unit reward attribution is added.
 

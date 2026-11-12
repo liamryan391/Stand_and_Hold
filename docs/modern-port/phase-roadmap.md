@@ -684,7 +684,7 @@ B removes the race and staleness problems instead of testing around them, and th
 
 | Phase / branch | Priority | Prerequisites | Status | Maximum slice |
 | --- | --- | --- | --- | --- |
-| M32 `<writer>/m32-earned-outpost` | P1 | M31 baseline; Liam's D1-D4 | Detailed below | Recipes, spacing, auto-started onboarding, Orders view, ordinary undead rewards, earned-run evidence |
+| M32 `claude/m32-earned-outpost` | P1 | M31 baseline; D1-D4 approved 2026-11-12 | Detailed below | Recipes, spacing, auto-started onboarding, Orders view, ordinary undead rewards, earned-run evidence |
 | M33 `defend-the-post` | P2 | M32 | Provisional | One readable attack warning and `defend_outpost` made observable |
 | M34 `living-world-sites` | P2 | M32, M33 | Provisional | Stage-aware abandoned/damaged/manned checkpoint variants in new chunks |
 | M35 `army-look-and-sound` | P3 | Library decision D5; parallel spike allowed | Provisional | Variant skins/accessories, one unit on an admitted animation library, original sounds |
@@ -694,14 +694,14 @@ Later milestones are ordered by evidence, not by this table. Each must be re-pla
 
 ### Phase M32 - First Earned Outpost
 
-Priority: P1. Prerequisites: M31 internal baseline on `main`, plus Liam's decisions D1-D4. No new dependency, pin, mission ID or world-format migration.
+Priority: P1. Prerequisites: M31 internal baseline on `main`; Liam approved D1-D4 as suggested on 2026-11-12. No new dependency, pin, mission ID or world-format migration.
 
-- [ ] **32.1 Measure before changing.** In a logic check, list checkpoint candidates within 512 blocks of spawn for three fixed seeds. In a server fixture, generate those exact chunks and record how many pass terrain checks. Add a logic check that the default catalog's onboarding rewards and stage thresholds still produce the pacing above, so catalog edits that break it fail loudly. Report the numbers; tune nothing in M32.
+- [ ] **32.1 Measure before changing.** In a logic check, list checkpoint candidates within 512 blocks of spawn for three fixed seeds. Terrain pass rates need real seeds; a superflat GameTest cannot represent them, so they stay unmeasured until a real-seed survey. Add a logic check that the default catalog's onboarding rewards and stage thresholds still produce the pacing above, so catalog edits that break it fail loudly. Report the numbers; tune nothing in M32.
 - [ ] **32.2 Make the Post and Lab obtainable, and bound them.**
   - [ ] **32.2.1 Recipes.** Add two shaped recipes using vanilla items/tags and the existing item IDs, at D1 costs. Add one `inventory_changed` (iron ingot) recipe advancement in the existing format. The Supply Crate stays recipe-free. A crafted post gets no site provenance, crate stock or growth rights.
   - [ ] **32.2.2 Spacing.** A player-placed Command Post is refused with a message giving the distance to the nearest registered post or Main Base in the same dimension when it is within D2 blocks. The block is not consumed. The check runs once, at placement, over the existing bounded registry. Generated sites and admin placement are unaffected. A config of 0 disables it. Labs and crates are not restricted.
-- [ ] **32.3 Run onboarding without an operator.** Add an optional `auto_start` boolean to mission definitions (format stays 1; absent means false; a wrong type fails catalog validation as other fields do). Flag the five early IDs in the default catalog. Inside the existing bounded `MissionManager.refresh`, start each flagged mission in catalog order when its prerequisites are complete and it has no saved state, then evaluate it through the existing start/update path. Observe the opener's carried samples once when a Command Post or Lab menu opens. Deliver each completion once: to the acting player when there is one, otherwise as a server notice like research completion. Progress lines go to the actor only. Leave `defend_outpost`, `establish_main_base` and every operator command unchanged.
-- [ ] **32.4 Show the objective and what blocks it.** Add an Orders view to the existing Command Post screen. It shows the current world-shared objective with its title, progress, a one-line condition and a state in words: Active, Blocked (reason plus the recovery action), Complete, or Unavailable (definitions changed or unreadable: reopen). Required blocked texts:
+- [ ] **32.3 Run onboarding without an operator.** Add an optional `auto_start` boolean to mission definitions (format stays 1; absent means false; a wrong type fails catalog validation as other fields do). Flag the five early IDs in the default catalog. In a new bounded `MissionManager.sync` used by every gameplay refresh path, start each flagged mission in catalog order when its prerequisites are complete and it has no saved state, then evaluate it through the existing start/update path. Observe the player's carried samples once when they open any building or log in. Deliver each start and completion once to everyone online, like research completion. Progress lines go to the actor only. Leave `defend_outpost`, `establish_main_base` and every operator command unchanged.
+- [ ] **32.4 Show the objective and what blocks it.** Add an Orders view to the existing Command Post screen. It shows the current world-shared objective with its title, progress, a one-line condition (the blocked reason plus its recovery action) and a state in words: Active, Waiting for an operator, All complete, or Unavailable (definitions changed or unreadable: reopen). Required condition texts:
   - Samples: "one player carries 3 at once (you: N)".
   - Stockpile: "global X/20; supplies inside buildings do not count; Export 10 from a building holding 10 (this post: L, +1/min)".
   - Research: "Lab: select, Import 10, Start".
@@ -735,6 +735,8 @@ Priority: P1. Prerequisites: M31 internal baseline on `main`, plus Liam's decisi
 5. Play about 5 more minutes. Does anything feel off or annoying?
 
 ### Decisions Before M32 Starts
+
+Approved by Liam on 2026-11-12: D1 suggested costs, D2 96 blocks, D3 enable `vanilla_undead`, D4 the five onboarding missions. D5 stays open for M35.
 
 - **D1 Recipe costs.** Suggested starting point: Post = 4 iron ingots, 1 copper ingot, 4 planks; Lab = 3 glass, 2 iron ingots, 3 stone. No samples, redstone or new components. Adjust after the earned run.
 - **D2 Post spacing.** Suggested 96 blocks: twice the 48-block defender area, so post areas never overlap. Configurable; 0 disables.

@@ -38,6 +38,8 @@ Start `/debug start` once the world is ready if available; finish with `/debug s
 
 ## Play Sheet
 
+Since M32 the five onboarding missions start themselves, so their start commands below now report "already active" and can be skipped. This operator-assisted sheet is not the earned Survival run; see M32 in the [phase roadmap](phase-roadmap.md#phase-m32---first-earned-outpost).
+
 1. Run `/standandhold help`, `/standandhold guide` and `/standandhold status`. Expect 0 points/Stage 0 initially, apart from a loaded Command Post's slow generation. The guide is read-only; it does not start missions, refresh rewards or grant anything. With chat open, its coloured Start line can fill the command; review it and press Enter yourself. No command executes just from reading/clicking the guide.
 2. Start `/standandhold mission start recover_parasite_samples`. Kill spawned **zombies** normally, not with `/kill`. Keep test zombies away from defenders until this step is finished so they do not take the killing blow. Each player-credited death gives 5 points; sample chance is 35%, not guaranteed. Carry 3 samples simultaneously. Expect the mission's once-only +25 points/+10 GLOBAL supplies. Re-picking the same item is not cumulative progress.
 3. Run the guide again. Start `/standandhold mission start establish_field_command`. The already registered checkpoint can satisfy it immediately: +25 points/+10 global supplies. Check `/standandhold commandpost nearest` and open the Command Post menu.

@@ -4,6 +4,14 @@
 
 Modern port work uses one phase branch at a time, merged into `main` after verification. No modern release, version bump, or retag is announced by this entry. The source/build version remains `0.1.0-alpha.1`; observed verification results are recorded in [STATUS.md](docs/modern-port/STATUS.md).
 
+### Earned Survival Start (M32, unmerged work branch)
+
+- Added Field Command Post and Research Lab crafting recipes (unlocked by iron) and a 96-block player-placement spacing rule; generated sites and admin placement are unaffected.
+- The five onboarding missions now start themselves (`auto_start` catalog flag) and progress from kills, pickups, login, building use and menu actions. Starts/completions are announced once; operator mission commands are unchanged.
+- Added a Command Post Orders tab with the current shared order, blocked reason, recovery step and reward, and an upgrade hint when a post is full.
+- New configs credit husks, drowned and zombie villagers through the `vanilla_undead` preset.
+- Added onboarding logic checks, seven GameTests, a restart check and five Orders captures.
+
 ### Automated QA And Bounded Support
 
 - Added isolated native GameTests/CI, two-process dedicated persistence checks and a disposable self-quitting screenshot client. QA code/templates stay outside the normal jar; incomplete/failed results fail verification.
