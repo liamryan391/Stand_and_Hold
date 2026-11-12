@@ -462,3 +462,7 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 ## 2026-11-12 - M31 Maintainer Feedback
 - Liam reported that everything worked as intended. Reviewed the isolated checkpoint/guide/save log; it does not show a complete grant-free playthrough, so 31.3 stays unchecked.
 - Confirmed Windows CI 43128346307 on the internal baseline; `git diff --check` passed for this docs-only update. No gameplay or pin changes, new local build, release or tag. Next planning milestone in STATUS.md.
+
+## 2026-11-12 - Codex Roadmap 3 Advisory Input
+- Prepared a separate Survival onboarding proposal for Claude's independent review, with permission, supply recovery, save/reload and playtest gates. Handoff now points to the active pin sources.
+- `git diff --check` passed for this docs-only proposal. No gameplay, pins, official roadmap, release or tag changed. No local build or game run.

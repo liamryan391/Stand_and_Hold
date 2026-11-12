@@ -28,9 +28,8 @@ milestone and branch. Use Git and observed test reports to resolve stale notes.
    `62bb07b84eb614b5967ef318ccb98aef1f22a5d8` for the preserved branch. Compare
    the assigned branch with its upstream and `origin/main`. Preserve any work
    already in progress; do not reset, rebase or clean another agent's files.
-2. Check the pins in [toolchain](docs/modern-port/toolchain.md). The modern
-   target is Minecraft 26.3, NeoForge 26.3.0.57-beta, Java 25, Gradle 9.2.1 and
-   ModDevGradle 2.0.148. Do not upgrade pins or add a library to fix a setup issue.
+2. Check the active pins in [toolchain](docs/modern-port/toolchain.md) and
+   `gradle.properties`. Do not upgrade pins or add a library to fix a setup issue.
 3. From the repo root, use the Windows PowerShell build/test commands below.
    Run sequentially; stop on a failure and keep its log. The clean build includes
    logic tests. Inspect the jar's `META-INF/neoforge.mods.toml`; do not distribute
@@ -81,6 +80,9 @@ optional threat coexistence or explicit deferral, and an integrated alpha
 candidate. Beyond that gate, propose one original bounded slice at a time
 from Deferred Expansion Admission. Fabric, dependencies and release decisions
 remain separate approvals.
+
+[Codex's Roadmap 3 proposal](docs/modern-port/roadmap-3-codex-proposal.md)
+is advisory input for Claude's independent planning pass, not the official roadmap.
 
 ## Future Experiment: Agent Meeting
 
