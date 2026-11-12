@@ -5,7 +5,10 @@ import com.liamryan.standandhold.common.foundation.FoundationCatalog;
 import com.liamryan.standandhold.common.progression.ProgressionRules;
 import com.liamryan.standandhold.common.world.HumanWorldData;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 public final class MissionManager {
     private MissionManager() { }
@@ -59,6 +62,70 @@ public final class MissionManager {
         MissionState state = new MissionState(next, completed);
         boolean changed = data.saveMission(mission.id(), state, points, ProgressionRules.stageFor(points, thresholds), supplies);
         return new Update(mission, state, changed);
+    }
+
+    public enum Change { STARTED, PROGRESS, COMPLETED, BLOCKED }
+
+    /** One observable result of {@link #sync}. Completion is reported once because the saved receipt changes once. */
+    public record Notice(Change change, Mission mission, MissionState state, String detail) {
+        public String text() {
+            return switch (change) {
+                case STARTED -> "New order: " + mission.title() + " " + state.progress() + "/" + mission.target();
+                case PROGRESS -> "Order progress: " + mission.title() + " " + state.progress() + "/" + mission.target();
+                case COMPLETED -> "Order complete: " + mission.title() + ". Reward: +" + mission.reward().points()
+                        + " human points, +" + mission.reward().supplies() + " supplies.";
+                case BLOCKED -> "Order update blocked: " + mission.id() + " - " + detail;
+            };
+        }
+    }
+
+    /**
+     * Gameplay entry point: catalog-flagged onboarding orders start themselves once their prerequisites are complete,
+     * then every active order is re-evaluated. {@code carried} is the actor's current Tissue Sample count, or -1 when
+     * no inventory was observed. Bounded to one pass per catalog entry; never ticks, scans the world or loads chunks.
+     */
+    public static List<Notice> sync(HumanWorldData data, FoundationCatalog catalog, long[] thresholds, int carried) {
+        if (carried < -1) { throw new IllegalArgumentException("Negative carried sample count."); }
+        data.requireSupportedVersion();
+        List<Notice> notices = new ArrayList<>();
+        Set<String> blocked = new HashSet<>();
+        boolean changed = true;
+        for (int pass = 0; changed && pass <= catalog.missions().size(); pass++) {
+            changed = false;
+            for (Mission mission : catalog.missions().values()) {
+                if (blocked.contains(mission.id())) { continue; }
+                try {
+                    var state = data.mission(mission.id());
+                    if (state.isPresent() && state.get().completed()) { continue; }
+                    boolean starting = state.isEmpty();
+                    if (starting && (!mission.autoStart() || !prerequisitesComplete(data, mission))) { continue; }
+                    long observed = mission.objective() == Mission.Objective.SAMPLE_RECOVERY ? Math.max(0, carried) : observed(data, mission, thresholds);
+                    Update update = update(data, mission, thresholds, observed);
+                    if (!update.changed()) { continue; }
+                    changed = true;
+                    notices.add(new Notice(update.state().completed() ? Change.COMPLETED : starting ? Change.STARTED : Change.PROGRESS,
+                            mission, update.state(), ""));
+                } catch (IllegalArgumentException | IllegalStateException exception) {
+                    blocked.add(mission.id());
+                    notices.add(new Notice(Change.BLOCKED, mission, null, String.valueOf(exception.getMessage())));
+                }
+            }
+        }
+        return List.copyOf(notices);
+    }
+
+    /** The order players should work on: first catalog entry not completed whose prerequisites are complete. Read-only. */
+    public static Optional<Mission> current(HumanWorldData data, FoundationCatalog catalog) {
+        return catalog.missions().values().stream()
+                .filter(mission -> data.mission(mission.id()).filter(MissionState::completed).isEmpty())
+                .filter(mission -> prerequisitesComplete(data, mission)).findFirst();
+    }
+
+    public static boolean prerequisitesComplete(HumanWorldData data, Mission mission) {
+        for (String id : mission.prerequisites()) {
+            if (data.mission(id).filter(MissionState::completed).isEmpty()) { return false; }
+        }
+        return true;
     }
 
     /** Highest actual carried count, never cumulative pickup events: dropping/re-picking cannot farm progress. */

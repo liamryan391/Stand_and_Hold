@@ -383,8 +383,9 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         } catch (IllegalArgumentException | IllegalStateException exception) { building.reportOnce(exception); }
     }
 
+    /** Building ticks/registration have no acting player: order starts/completions are broadcast once, progress is silent. */
     static void refreshMissions(ServerLevel server, HumanWorldData data) {
-        MissionManager.refresh(data, FoundationResources.get(server.getServer()), HumanProgressionConfig.thresholds());
+        com.liamryan.standandhold.common.mission.MissionNotices.sync(server.getServer(), null, com.liamryan.standandhold.common.mission.MissionNotices.NOT_OBSERVED, false);
     }
     private void reportOnce(RuntimeException exception) {
         if (!reportedFailure) { LogUtils.getLogger().debug("Building at {} paused: {}", worldPosition, exception.getMessage()); reportedFailure = true; }
@@ -403,6 +404,12 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         for (var entry : entries) {
             buffer.writeUtf(entry.id(), 128); buffer.writeUtf(entry.title(), 80);
             buffer.writeVarLong(entry.supplyCost()); buffer.writeVarInt(entry.sampleCost()); buffer.writeVarInt(entry.requiredStage());
+        }
+        var orders = BuildingMenu.orders(FoundationResources.get(level.getServer()));
+        buffer.writeVarInt(orders.size());
+        for (var order : orders) {
+            buffer.writeUtf(order.id(), 128); buffer.writeUtf(order.title(), 80); buffer.writeVarInt(order.objective()); buffer.writeVarInt(order.target());
+            buffer.writeVarLong(order.points()); buffer.writeVarLong(order.supplies()); buffer.writeVarInt(order.research());
         }
     }
 }

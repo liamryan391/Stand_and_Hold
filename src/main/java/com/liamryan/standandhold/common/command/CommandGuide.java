@@ -3,6 +3,7 @@ package com.liamryan.standandhold.common.command;
 import com.liamryan.standandhold.common.foundation.FoundationCatalog;
 import com.liamryan.standandhold.common.foundation.FoundationResources;
 import com.liamryan.standandhold.common.mission.Mission;
+import com.liamryan.standandhold.common.mission.MissionManager;
 import com.liamryan.standandhold.common.mission.MissionState;
 import com.liamryan.standandhold.common.progression.ProgressionRules;
 import com.liamryan.standandhold.common.world.HumanWorldData;
@@ -57,7 +58,7 @@ public final class CommandGuide {
             lines.add("QA/operator: mission start <id> | commandpost nearest | event status | compat status");
             lines.add("Outpost tools: /standandhold outpost help (grow/mode and retained diagnostics)");
         }
-        else { lines.add("Mission starts and debug/event commands require an operator; gameplay progress does not."); }
+        else { lines.add("Early orders start on their own; a Command Post's Orders tab shows the next step. Debug/event commands require an operator."); }
         return List.copyOf(lines);
     }
     public static List<String> lines(HumanWorldData data, FoundationCatalog catalog, long[] thresholds, boolean operator) {
@@ -65,8 +66,7 @@ public final class CommandGuide {
         var lines = new ArrayList<String>();
         lines.add("Points " + data.points() + " | Stage " + ProgressionRules.stageFor(data.points(), thresholds).level()
                 + " | Global supplies " + data.supplies());
-        var next = catalog.missions().values().stream().filter(mission -> !complete(data, mission.id()))
-                .filter(mission -> mission.prerequisites().stream().allMatch(id -> complete(data, id))).findFirst();
+        var next = MissionManager.current(data, catalog);
         if (next.isEmpty()) {
             lines.add(catalog.missions().values().stream().allMatch(mission -> complete(data, mission.id()))
                     ? "All missions in the loaded catalog are complete." : "No eligible mission; inspect prerequisites with /standandhold mission list.");
@@ -75,18 +75,23 @@ public final class CommandGuide {
         Mission mission = next.get();
         var state = data.mission(mission.id());
         lines.add(mission.title() + " | " + state.map(value -> value.progress() + "/" + mission.target()).orElse("not started"));
-        if (state.isEmpty()) { lines.add(operator ? "Start: /standandhold mission start " + mission.id() : "Ask an operator to start shared mission " + mission.id() + "."); }
+        if (state.isEmpty()) {
+            lines.add(operator ? "Start: /standandhold mission start " + mission.id()
+                    : mission.autoStart() ? "Starts on its own at the next kill, pickup or Command Post visit."
+                    : "An operator starts shared order " + mission.id() + ".");
+        }
         lines.add(hint(mission, catalog, thresholds));
         lines.add("Reward once: +" + mission.reward().points() + " points, +" + mission.reward().supplies() + " supplies.");
-        lines.add("Read-only. Refresh: /standandhold mission status | /standandhold help");
+        lines.add("Read-only. Details: any Command Post, Orders tab | /standandhold help");
         return List.copyOf(lines);
     }
     private static boolean complete(HumanWorldData data, String id) { return data.mission(id).filter(MissionState::completed).isPresent(); }
-    private static String hint(Mission mission, FoundationCatalog catalog, long[] thresholds) {
+    /** One player-facing next step for an order; requirements come from the loaded catalog/config. */
+    public static String hint(Mission mission, FoundationCatalog catalog, long[] thresholds) {
         return switch (mission.objective()) {
-            case SAMPLE_RECOVERY -> "Carry " + mission.target() + " Tissue Samples at once. Player-kill threats (default: zombies); random drops, not cumulative pickups.";
-            case COMMAND_POST -> "Find/place a Field Command Post. Operator checkpoint generation is QA setup, not Survival acquisition.";
-            case SUPPLY_TOTAL -> "Keep " + mission.target() + " GLOBAL supplies before lab imports. Already spent? Export naturally generated post supplies.";
+            case SAMPLE_RECOVERY -> "Carry " + mission.target() + " Tissue Samples at once. Zombies and other undead you kill can drop them.";
+            case COMMAND_POST -> "Find a checkpoint's Field Command Post, or craft one (see the recipe book).";
+            case SUPPLY_TOTAL -> "Hold " + mission.target() + " GLOBAL supplies. Supplies inside buildings do not count: Export them from a building.";
             case RESEARCH_COMPLETION -> {
                 var entry = catalog.research(mission.subject());
                 yield "Lab: " + entry.title() + " | Stage " + entry.requiredStage() + ", " + entry.supplyCost()

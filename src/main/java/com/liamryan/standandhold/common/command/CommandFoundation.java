@@ -96,7 +96,7 @@ final class CommandFoundation {
             lines.add(changed ? "Research complete: " + entry.title() + ". Spent " + entry.supplyCost() + " supplies. Reward: +"
                     + entry.reward().points() + " human points, +" + entry.reward().supplies() + " supplies."
                     : "Research already complete: " + entry.title() + "; no costs or rewards applied.");
-            lines.addAll(MissionManager.refresh(data(source), catalog, HumanProgressionConfig.thresholds()));
+            lines.addAll(orders(data(source), catalog));
             return lines;
         }, true);
     }
@@ -107,7 +107,7 @@ final class CommandFoundation {
         long balance = spend ? SupplyManager.spend(data, amount) : SupplyManager.add(data, amount);
         List<String> lines = new ArrayList<>();
         lines.add("Global supplies: " + balance);
-        lines.addAll(MissionManager.refresh(data, catalog, HumanProgressionConfig.thresholds()));
+        lines.addAll(orders(data, catalog));
         return lines;
     }
 
@@ -116,7 +116,7 @@ final class CommandFoundation {
             HumanWorldData data = data(source);
             FoundationCatalog catalog = catalog(source);
             List<String> lines = new ArrayList<>();
-            if (refresh) { lines.addAll(MissionManager.refresh(data, catalog, HumanProgressionConfig.thresholds())); }
+            if (refresh) { lines.addAll(orders(data, catalog)); }
             lines.add(activeOnly ? "Active missions (global):" : "Missions (global; start each mission explicitly):");
             int count = 0;
             for (Mission mission : catalog.missions().values()) {
@@ -153,6 +153,11 @@ final class CommandFoundation {
             }
             return lines;
         }, true);
+    }
+
+    /** Commands report order starts/progress/completions in their own output, including catalog-flagged auto-starts. */
+    static List<String> orders(HumanWorldData data, FoundationCatalog catalog) {
+        return MissionManager.sync(data, catalog, HumanProgressionConfig.thresholds(), -1).stream().map(MissionManager.Notice::text).toList();
     }
 
     private static HumanWorldData data(CommandSourceStack source) { return HumanWorldData.get(source.getServer()); }

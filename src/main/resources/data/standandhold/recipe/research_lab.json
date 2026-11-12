@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "minecraft:glass",
+    "I": "minecraft:iron_ingot",
+    "S": "#minecraft:stone_crafting_materials"
+  },
+  "pattern": [
+    "GGG",
+    "I I",
+    "SSS"
+  ],
+  "result": {
+    "id": "standandhold:research_lab"
+  }
+}

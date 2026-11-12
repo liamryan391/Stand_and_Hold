@@ -33,6 +33,7 @@
       "id": "standandhold:recover_parasite_samples",
       "title": "Recover Parasite Samples",
       "objective": "sample_recovery",
+      "auto_start": true,
       "target": 3,
       "reward": {"points": 25, "supplies": 10}
     },
@@ -40,6 +41,7 @@
       "id": "standandhold:establish_field_command",
       "title": "Establish Field Command",
       "objective": "command_post",
+      "auto_start": true,
       "prerequisites": ["standandhold:recover_parasite_samples"],
       "reward": {"points": 25, "supplies": 10}
     },
@@ -47,6 +49,7 @@
       "id": "standandhold:stockpile_supplies",
       "title": "Stockpile Supplies",
       "objective": "supply_total",
+      "auto_start": true,
       "target": 20,
       "prerequisites": ["standandhold:establish_field_command"],
       "reward": {"points": 25}
@@ -55,6 +58,7 @@
       "id": "standandhold:complete_first_research",
       "title": "Complete First Research",
       "objective": "research_completion",
+      "auto_start": true,
       "subject": "standandhold:parasite_samples",
       "prerequisites": ["standandhold:stockpile_supplies"],
       "reward": {"points": 25, "supplies": 10}
@@ -63,6 +67,7 @@
       "id": "standandhold:early_army_response",
       "title": "Reach Local Army Response",
       "objective": "human_stage",
+      "auto_start": true,
       "target": 1,
       "prerequisites": ["standandhold:complete_first_research"],
       "reward": {"points": 25}

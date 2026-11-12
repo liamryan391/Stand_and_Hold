@@ -31,20 +31,26 @@ public final class BuildingMenu extends AbstractContainerMenu {
             GENERATION_SUPPLIES = 13, UPGRADE_POINTS = 14, UPGRADE_SUPPLIES = 15, UPGRADE_SAMPLES = 16,
             UPGRADE_STATUS = 17, BATCH = 18, UPGRADE_RESEARCH = 19, LAB_INTERVAL = 20, HELD_SAMPLES = 21, SAMPLE_ROOM = 22, RUNNING = 23,
             DEFENDERS = 24, DEFENDER_CAP = 25, DEPLOYMENT_STATUS = 26, GROWTH_STATUS = 27, GROWTH_MODE = 28, DUTY_MODE = 29, WATCH_STATUS = 30,
-            NEXT_CAPACITY = 31, LEVEL_STORAGE = 32, LAYOUT_REVISION = 33;
+            NEXT_CAPACITY = 31, LEVEL_STORAGE = 32, LAYOUT_REVISION = 33,
+            ORDER = 34, ORDER_STATE = 35, ORDER_PROGRESS = 36, ORDER_NEED = 37, NEXT_DEFENDER_CAP = 38;
+    /** Orders view states: computed on the server, shown in words by the client. */
+    public static final int ORDER_ACTIVE = 0, ORDER_WAITING = 1, ORDER_ALL_COMPLETE = 2, ORDER_UNAVAILABLE = 3, ORDER_NONE = 4;
     public static final int IMPORT = 0, EXPORT = 1, UPGRADE = 2, PAUSE = 3, NEXT_RESEARCH = 4, DEPOSIT_SAMPLES = 5, TAKE_SAMPLES = 6, TOGGLE_RESEARCH = 7;
     public static final int EXPAND = 8, GROWTH_MANUAL = 9, GROWTH_AUTOMATIC = 10;
     public static final int DUTY_GUARD = 11, DUTY_PATROL = 12;
     public static final int PREVIEW_DECK = 13;
-    private final long[] numbers = new long[34];
+    private final long[] numbers = new long[39];
     private final BlockPos pos;
     private final BuildingKind kind;
     private final List<Option> options;
+    private final List<Order> orders;
     private final BuildingBlockEntity building;
     private final FoundationCatalog catalog;
     private final Player owner;
 
     public record Option(String id, String title, long supplies, int samples, int stage) { }
+    /** Catalog order summary sent with menu data; {@code research} indexes {@link #options} or is -1. */
+    public record Order(String id, String title, int objective, int target, long points, long supplies, int research) { }
     public BuildingMenu(int id, Inventory inventory, RegistryFriendlyByteBuf buffer) {
         super(BuildingRegistry.MENU.get(), id);
         owner = inventory.player;
@@ -55,7 +61,15 @@ public final class BuildingMenu extends AbstractContainerMenu {
         for (int i = 0; i < count; i++) {
             entries.add(new Option(buffer.readUtf(128), buffer.readUtf(80), buffer.readVarLong(), buffer.readVarInt(), buffer.readVarInt()));
         }
-        options = List.copyOf(entries); building = null; catalog = null;
+        options = List.copyOf(entries);
+        int orderCount = buffer.readVarInt();
+        if (orderCount < 0 || orderCount > 64) { throw new IllegalArgumentException("Invalid order menu size."); }
+        List<Order> received = new ArrayList<>();
+        for (int i = 0; i < orderCount; i++) {
+            received.add(new Order(buffer.readUtf(128), buffer.readUtf(80), buffer.readVarInt(), buffer.readVarInt(),
+                    buffer.readVarLong(), buffer.readVarLong(), buffer.readVarInt()));
+        }
+        orders = List.copyOf(received); building = null; catalog = null;
         addSync();
     }
     public BuildingMenu(int id, Inventory inventory, BuildingBlockEntity building, FoundationCatalog catalog) {
@@ -63,6 +77,7 @@ public final class BuildingMenu extends AbstractContainerMenu {
         owner = inventory.player; this.building = building; this.catalog = catalog;
         pos = building.getBlockPos(); kind = building.kind();
         options = catalog.research().values().stream().map(entry -> new Option(entry.id(), entry.title(), entry.supplyCost(), entry.sampleCost(), entry.requiredStage())).toList();
+        orders = orders(catalog);
         updateNumbers(); addSync();
     }
     private void addSync() {
@@ -76,6 +91,40 @@ public final class BuildingMenu extends AbstractContainerMenu {
         });
     }
     public long number(int field) { return numbers[field]; }
+    public Order order() { int index = (int) numbers[ORDER]; return index >= 0 && index < orders.size() ? orders.get(index) : null; }
+    public String researchTitle(int index) { return index >= 0 && index < options.size() ? options.get(index).title() : "?"; }
+    /** Same order and fields as {@link BuildingBlockEntity#writeMenuData}. */
+    public static List<Order> orders(FoundationCatalog catalog) {
+        var research = List.copyOf(catalog.research().keySet());
+        return catalog.missions().values().stream().map(mission -> new Order(mission.id(), mission.title(), mission.objective().ordinal(),
+                mission.target(), mission.reward().points(), mission.reward().supplies(), research.indexOf(mission.subject()))).toList();
+    }
+    private int orderIndex(String id) {
+        for (int i = 0; i < orders.size(); i++) { if (orders.get(i).id().equals(id)) { return i; } }
+        return -1;
+    }
+    private void updateOrder(HumanWorldData data) {
+        numbers[ORDER] = -1; numbers[ORDER_PROGRESS] = 0; numbers[ORDER_NEED] = 0;
+        try {
+            var current = com.liamryan.standandhold.common.mission.MissionManager.current(data, catalog);
+            if (current.isEmpty()) {
+                boolean done = catalog.missions().values().stream().allMatch(mission -> data.mission(mission.id())
+                        .filter(com.liamryan.standandhold.common.mission.MissionState::completed).isPresent());
+                numbers[ORDER_STATE] = done ? ORDER_ALL_COMPLETE : ORDER_NONE;
+                return;
+            }
+            var mission = current.get();
+            var state = data.mission(mission.id());
+            numbers[ORDER] = orderIndex(mission.id());
+            numbers[ORDER_STATE] = state.isPresent() || mission.autoStart() ? ORDER_ACTIVE : ORDER_WAITING;
+            numbers[ORDER_PROGRESS] = state.map(com.liamryan.standandhold.common.mission.MissionState::progress).orElse(0L);
+            numbers[ORDER_NEED] = switch (mission.objective()) {
+                case HUMAN_STAGE -> HumanProgressionConfig.thresholds()[mission.target()];
+                case RESEARCH_COMPLETION -> catalog.research(mission.subject()).supplyCost();
+                default -> mission.target();
+            };
+        } catch (IllegalArgumentException | IllegalStateException exception) { numbers[ORDER] = -1; numbers[ORDER_STATE] = ORDER_UNAVAILABLE; }
+    }
     public BuildingKind kind() { return kind; }
     public boolean hasResearchOptions() { return !options.isEmpty(); }
     public Option target() { int index = (int) numbers[TARGET]; return index >= 0 && index < options.size() ? options.get(index) : null; }
@@ -140,11 +189,14 @@ public final class BuildingMenu extends AbstractContainerMenu {
                 catch (IllegalArgumentException | IllegalStateException unsupported) { /* Ordinary/manual posts still work. */ }
                 numbers[DUTY_MODE] = building.dutySupported() ? building.duty().mode().ordinal() : -1;
                 numbers[WATCH_STATUS] = DefenderDuties.watchStatus(server, building);
+                numbers[NEXT_DEFENDER_CAP] = com.liamryan.standandhold.config.NpcConfig.capacity(Math.min(5, state.level() + 1));
+                updateOrder(data);
             }
         } catch (IllegalArgumentException | IllegalStateException exception) {
             numbers[STATUS] = 7; numbers[UPGRADE_STATUS] = 7; numbers[DEPLOYMENT_STATUS] = 5;
             numbers[GROWTH_STATUS] = OutpostGrowth.UNAVAILABLE;
             numbers[DUTY_MODE] = -1; numbers[WATCH_STATUS] = 4;
+            numbers[ORDER] = -1; numbers[ORDER_STATE] = ORDER_UNAVAILABLE;
         }
     }
     @Override public void broadcastChanges() { updateNumbers(); super.broadcastChanges(); }
@@ -207,7 +259,8 @@ public final class BuildingMenu extends AbstractContainerMenu {
                 }
                 default -> { return false; }
             }
-            BuildingBlockEntity.refreshMissions(server, data);
+            com.liamryan.standandhold.common.mission.MissionNotices.sync(server.getServer(), player instanceof ServerPlayer actor ? actor : null,
+                    com.liamryan.standandhold.common.mission.MissionNotices.NOT_OBSERVED, true);
             return true;
         } catch (IllegalArgumentException | IllegalStateException exception) {
             player.sendSystemMessage(Component.literal(exception.getMessage()));

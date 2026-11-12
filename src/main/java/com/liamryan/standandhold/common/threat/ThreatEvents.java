@@ -1,7 +1,7 @@
 package com.liamryan.standandhold.common.threat;
 
 import com.liamryan.standandhold.common.foundation.FoundationResources;
-import com.liamryan.standandhold.common.mission.MissionManager;
+import com.liamryan.standandhold.common.mission.MissionNotices;
 import com.liamryan.standandhold.common.progression.HumanPointManager;
 import com.liamryan.standandhold.common.sample.SampleItems;
 import com.liamryan.standandhold.common.world.HumanWorldData;
@@ -40,7 +40,8 @@ public final class ThreatEvents {
                 int count = rule.dropCount(level.getRandom().nextDouble());
                 if (count > 0) { event.getDrops().add(new ItemEntity(level, victim.getX(), victim.getY(), victim.getZ(), new ItemStack(SampleItems.TISSUE.get(), count))); }
             }
-            MissionManager.refresh(data, FoundationResources.get(level.getServer()), HumanProgressionConfig.thresholds());
+            MissionNotices.sync(level.getServer(), event.getSource().getEntity() instanceof ServerPlayer killer ? killer : null,
+                    MissionNotices.NOT_OBSERVED, false);
         } catch (IllegalArgumentException | IllegalStateException exception) {
             LogUtils.getLogger().debug("Threat reward skipped/paused for {}: {}", id, exception.getMessage());
         }
