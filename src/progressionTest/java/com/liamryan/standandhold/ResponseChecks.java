@@ -63,6 +63,10 @@ final class ResponseChecks {
         check(ResponseRecord.load(warned.save()).equals(warned) && ResponseRecord.load(response.save()).equals(response), "pending raid survives save/load; none stays none");
         check(warned.timers(5000, 1400).member(id, false).counted(true).pendingRaid() == 2000, "timers, members and counters keep the warning");
         check(!warned.clearPending().hasPending() && warned.clearPending().nextRaid() == warned.nextRaid(), "arrival clears the warning, not the cooldown");
+        var ledger = new ThreatWorldData(); ledger.putResponse(post, warned); ledger.putResponse(post, warned.clearPending());
+        check(!ledger.response(post).hasPending(), "clearing a warning survives the ledger's field-preserving merge");
+        var legacy = response.save(); legacy.remove("pending_raid"); legacy.remove("pending_bearing");
+        check(!ResponseRecord.load(legacy).hasPending(), "records saved before M34 load with no warning");
         expect(() -> response.pending(0, 1)); expect(() -> response.pending(10, 8)); expect(() -> response.pending(10, -1));
         var badBearing = warned.save(); badBearing.putLong("pending_bearing", 9); expect(() -> ResponseRecord.load(badBearing));
         var missingBearing = warned.save(); missingBearing.remove("pending_bearing"); expect(() -> ResponseRecord.load(missingBearing));

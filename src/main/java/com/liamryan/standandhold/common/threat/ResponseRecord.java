@@ -42,7 +42,8 @@ public record ResponseRecord(long nextRaid, long nextReinforcement, long raids, 
         tag.putLong("natural_after", naturalAfter);
         tag.putLong("raids", raids); tag.putLong("reinforcements", reinforcements);
         var members = new CompoundTag(); raiders.forEach(id -> members.putBoolean(id.toString(), true)); tag.put("raiders", members);
-        if (hasPending()) { tag.putLong("pending_raid", pendingRaid); tag.putLong("pending_bearing", bearing); }
+        // Always written: the ledger merges saved tags to keep unknown fields, so an omitted key would resurrect an old warning.
+        tag.putLong("pending_raid", pendingRaid); tag.putLong("pending_bearing", bearing);
         return tag;
     }
     public static ResponseRecord load(CompoundTag tag) {
