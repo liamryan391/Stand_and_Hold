@@ -10,6 +10,7 @@ Updated: 2026-11-12
 
 ## Verified
 - M32 on Liam's PC: clean build, 175 GameTests, two-JVM restart, 99 QA captures (Orders views and tabs reviewed). After Codex's reviews, Windows CI 43268709270: 178/178 GameTests, restart passed.
+- M33 (`a66ffe3`): Windows CI 43275994632 180/180 GameTests, art/sound logic checks, restart; QA client on Liam's PC 103 captures incl. four variant lineups (reviewed).
 - M31 baseline: [isolated loader trial](compatibility.md#m30-closeout), packaged standalone client/server and [0/1/2/4-post load and two loopback clients](alpha-test-candidate.md#m31-integration-fixtures).
 
 ## Risks And Decisions
