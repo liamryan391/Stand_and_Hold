@@ -103,40 +103,47 @@ final class OnboardingTests {
         var player = player(h, HOME.offset(3, 0, 0));
         h.assertTrue(placePost(h, player, HOME), "Survival item placement creates a post");
         h.assertTrue(player.getMainHandItem().getCount() == 3, "exactly one post item consumed");
-        var post = h.getBlockEntity(HOME, BuildingBlockEntity.class);
-        var key = new BuildingPosition(h.getLevel().dimension().identifier(), post.getBlockPos()).key();
-        h.assertTrue(data(h).commandPostKeys().equals(List.of(key)), "crafted post registers exactly once");
-        try { post.site(); h.fail("a crafted post must not receive checkpoint provenance or growth rights"); } catch (IllegalArgumentException expected) { }
-        h.assertTrue(post.state().equals(BuildingState.EMPTY), "no crate stock, refill or starter supplies");
-        post.onLoad();
-        h.assertTrue(data(h).commandPostKeys().size() == 1, "reload does not register it twice");
-        var npc = DefenderDeployment.attempt(h.getLevel(), post);
-        h.assertTrue(npc != null && npc.getType() == NpcRegistry.SURVIVOR.get(), "a crafted post deploys a Survivor at Stage 0");
-        h.succeed();
+        // Block entities placed during a tick load (and register) on the following tick.
+        h.runAfterDelay(2, () -> {
+            var post = h.getBlockEntity(HOME, BuildingBlockEntity.class);
+            var key = new BuildingPosition(h.getLevel().dimension().identifier(), post.getBlockPos()).key();
+            h.assertTrue(data(h).commandPostKeys().equals(List.of(key)), "crafted post registers exactly once");
+            try { post.site(); h.fail("a crafted post must not receive checkpoint provenance or growth rights"); } catch (IllegalArgumentException expected) { }
+            h.assertTrue(post.state().equals(BuildingState.EMPTY), "no crate stock, refill or starter supplies");
+            post.onLoad();
+            h.assertTrue(data(h).commandPostKeys().size() == 1, "reload does not register it twice");
+            var npc = DefenderDeployment.attempt(h.getLevel(), post);
+            h.assertTrue(npc != null && npc.getType() == NpcRegistry.SURVIVOR.get(), "a crafted post deploys a Survivor at Stage 0");
+            h.succeed();
+        });
     }
 
     private static void spacing(GameTestHelper h) {
         QaWorld.begin(h);
         int saved = BuildingConfig.POST_SPACING.get();
-        try {
-            BuildingConfig.POST_SPACING.set(96);
-            post(h, HOME);
-            var player = player(h, HOME.offset(-20, 0, 24));
-            BlockPos target = HOME.offset(-20, 0, 21);
-            h.assertFalse(placePost(h, player, target), "a post 29 blocks from another is refused");
-            h.assertTrue(player.getMainHandItem().getCount() == 4 && player.messages("message.standandhold.post_too_close") == 1,
-                    "refusal keeps the item and explains the distance once");
-            h.assertTrue(data(h).commandPostKeys().size() == 1, "refused placement registers nothing");
-            int chunkX = h.absolutePos(HOME.offset(-16, 0, 0)).getX() >> 4, chunkZ = h.absolutePos(HOME).getZ() >> 4;
-            var generated = StructurePlacement.place(h.getLevel(), StructureKind.CHECKPOINT, chunkX, chunkZ);
-            h.assertTrue(generated.success() && data(h).commandPostKeys().size() == 2, "generated checkpoints are not limited by player spacing: " + generated.message());
-            BuildingConfig.POST_SPACING.set(8);
-            h.assertTrue(placePost(h, player, target), "a configured lower spacing allows the post");
-            BuildingConfig.POST_SPACING.set(0);
-            h.assertTrue(placePost(h, player, HOME.offset(4, 0, 4)), "spacing 0 disables the rule");
-            h.assertTrue(data(h).commandPostKeys().size() == 4, "allowed posts register normally");
-        } finally { BuildingConfig.POST_SPACING.set(saved); }
-        h.succeed();
+        post(h, HOME);
+        var player = player(h, HOME.offset(-20, 0, 24));
+        BlockPos target = HOME.offset(-20, 0, 21);
+        h.runAfterDelay(2, () -> {
+            try {
+                BuildingConfig.POST_SPACING.set(96);
+                h.assertTrue(data(h).commandPostKeys().size() == 1, "the first post is registered before the check");
+                h.assertFalse(placePost(h, player, target), "a post 29 blocks from another is refused");
+                h.assertTrue(player.getMainHandItem().getCount() == 4 && player.messages("message.standandhold.post_too_close") == 1,
+                        "refusal keeps the item and explains the distance once");
+                int chunkX = h.absolutePos(HOME.offset(-16, 0, 0)).getX() >> 4, chunkZ = h.absolutePos(HOME).getZ() >> 4;
+                var generated = StructurePlacement.place(h.getLevel(), StructureKind.CHECKPOINT, chunkX, chunkZ);
+                h.assertTrue(generated.success() && data(h).commandPostKeys().size() == 2, "generated checkpoints are not limited by player spacing: " + generated.message());
+                BuildingConfig.POST_SPACING.set(8);
+                h.assertTrue(placePost(h, player, target), "a configured lower spacing allows the post");
+                BuildingConfig.POST_SPACING.set(0);
+                h.assertTrue(placePost(h, player, HOME.offset(4, 0, 4)), "spacing 0 disables the rule");
+            } finally { BuildingConfig.POST_SPACING.set(saved); }
+            h.runAfterDelay(2, () -> {
+                h.assertTrue(data(h).commandPostKeys().size() == 4, "allowed posts register normally");
+                h.succeed();
+            });
+        });
     }
 
     private static void preCarried(GameTestHelper h) {
