@@ -24,7 +24,7 @@ final class SoundChecks {
         Set<Path> used = new HashSet<>();
         for (var event : EVENTS.entrySet()) {
             var entry = json.getAsJsonObject(event.getKey());
-            check(source.contains("sound(\\"" + event.getKey() + "\\")"), "event registered in code: " + event.getKey());
+            check(source.contains("sound(\"" + event.getKey() + "\")"), "event registered in code: " + event.getKey());
             check(lang.has(entry.get("subtitle").getAsString()), "subtitle translated: " + event.getKey());
             for (var raw : entry.getAsJsonArray("sounds")) {
                 String id = raw.getAsString();
