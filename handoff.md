@@ -28,9 +28,10 @@ milestone and branch. Use Git and observed test reports to resolve stale notes.
    `62bb07b84eb614b5967ef318ccb98aef1f22a5d8` for the preserved branch. Compare
    the assigned branch with its upstream and `origin/main`. Preserve any work
    already in progress; do not reset, rebase or clean another agent's files.
-2. Check the pins in [toolchain](docs/modern-port/toolchain.md). The modern
-   target is Minecraft 26.3, NeoForge 26.3.0.57-beta, Java 25, Gradle 9.2.1 and
-   ModDevGradle 2.0.148. Do not upgrade pins or add a library to fix a setup issue.
+2. Check the active pins in [toolchain](docs/modern-port/toolchain.md) and
+   `gradle.properties` (currently Minecraft 26.3, NeoForge 26.3.0.102, Java 25,
+   Gradle 9.2.1, ModDevGradle 2.0.148). Do not upgrade pins or add a library to
+   fix a setup issue.
 3. From the repo root, use the Windows PowerShell build/test commands below.
    Run sequentially; stop on a failure and keep its log. The clean build includes
    logic tests. Inspect the jar's `META-INF/neoforge.mods.toml`; do not distribute
@@ -56,36 +57,47 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\export-art.ps1
    Fix only the proven defect; do not weaken a test or erase data to get green.
    Record failures, skipped checks and limits separately from observed passes.
 
-## Alternating Ownership
+## Who Owns What
 
-- One writer per milestone branch. Liam assigns the next writer. The other
-  agent can review a specific commit read-only while implementation is underway;
-  use a separate worktree if it needs to run builds. Never share a live run
-  directory, edit the same branch concurrently, or publish a second competing fix.
-- Hand over a pushed branch/commit, observed commands/results and CI link,
-  unresolved decisions, and ignored evidence locations. Put durable evidence in
-  the existing progress log, update STATUS, and point the next agent there.
-  Do not copy credentials, private logs, worlds or local profiles into Git.
-- The receiving agent checks the actual diff and evidence, then takes the
-  agreed milestone. Findings should name a file, reproduction and expected
-  behavior. If the agents disagree on scope or a gate, Liam decides. Do not
-  declare a green merge before the roadmap exit gate and required CI pass.
+Claude and Codex are partners on this project; neither needs the other's
+permission to work. Liam approves scope, numbered decisions, libraries, pins and
+releases, and decides any disagreement.
 
-## Proposed Work Lanes
+- **Roadmaps:** Claude owns Roadmap 3 and the provisional future roadmaps in the
+  [phase roadmap](docs/modern-port/phase-roadmap.md). Codex reviews roadmap
+  changes and may propose alternatives on its own branch, as
+  `codex/roadmap-3-input` did; the writer merges what holds up.
+- **Milestones:** one writer per milestone branch, named
+  `<agent>/m<N>-<short-name>` (`claude/` or `codex/`). Liam assigns the writer;
+  by default the agents alternate. The other agent reviews the pushed commit
+  read-only and reports findings with a file, a reproduction and the expected
+  behaviour. The writer fixes real findings, adds a test for each, and records
+  the review in the progress log. M32 is the worked example: Codex found a
+  same-tick spacing gap and stale-record credit, Claude fixed both with GameTests.
+- **Merging:** the writer merges to `main` when the exit gate has observed
+  evidence and CI is green. Liam's feel check never blocks a technical merge
+  unless he asks for it, as he did for M32.
 
-Use the numbered roadmap and STATUS to assign ownership. A useful split is one
-agent owning a bounded implementation milestone while the other reviews saved
-state, server authority, and test gaps, then swap for the following milestone.
-Roadmap 2 connects specialist recruitment, an inhabited Main Base layout,
-optional threat coexistence or explicit deferral, and an integrated alpha
-candidate. Beyond that gate, propose one original bounded slice at a time
-from Deferred Expansion Admission. Fabric, dependencies and release decisions
-remain separate approvals.
+## Working Folders On Liam's PC
+
+Never share a live run directory. Codex works in
+`C:\Users\liamr\Documents\ChatGPT\Stand and Hold`. Claude works in
+`C:\Users\liamr\Documents\GitHub\Stand_and_Hold`, using a small job runner in
+the ignored `.local/claude/` folder (`start-runner.cmd`) that runs only fixed
+build/test tasks; `play-m32.cmd` there opens a development client for Liam.
+Either agent can also rely on Windows CI, which runs the build, GameTests and
+the two-JVM restart on every push.
+
+## Next Work
+
+STATUS names the active milestone. After M32 merges, Roadmap 3 continues with
+M33-M37, then the provisional Roadmaps 4-7. Fabric, dependencies and release
+decisions remain separate approvals.
 
 ## Future Experiment: Agent Meeting
 
-Separate project, not a mod dependency or an active assignment. Start with a
-human-mediated review: share a commit, the question and redacted evidence; record
+Separate project, not a mod dependency or an active assignment. Today Liam relays
+reviews between the agents, which works. Keep that human-mediated review: share a commit, the question and redacted evidence; record
 each agent's recommendation, disagreement and Liam's decision. Only consider a
 website/API after that workflow proves useful. A small coordinator could hand
 each model the same read-only packet, run a bounded review round and save a

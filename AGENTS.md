@@ -14,7 +14,7 @@ Do not read the whole `docs/` folder or the legacy root README at the start of a
 ## Branches and things you must never touch
 
 - `1.12` branch and tag `v0.1.0-alpha.1`: preserved legacy. Never commit to, rebase, delete or force-push them.
-- One work branch per phase, cut from `main`: `codex/m<N>-<short-name>` (e.g. `codex/m2-progression`).
+- One work branch per phase, cut from `main`: `<agent>/m<N>-<short-name>` (`codex/` or `claude/`, e.g. `codex/m2-progression`). Ownership and review: [handoff.md](handoff.md).
   Merge into `main` when the phase exit gate passes with observed evidence and CI is green, then start
   the next phase's branch from the updated `main` in the same session.
 - Never force-push, rewrite published history, or delete untracked/ignored user files (worlds, `.local/`, run dirs).

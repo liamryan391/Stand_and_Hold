@@ -2,13 +2,13 @@
 Updated: 2026-11-12
 
 ## Position
-- M32 First Earned Outpost is implemented on `claude/m32-earned-outpost` (Claude writer; D1-D4 approved 2026-11-12). Not merged: Liam's earned run and Codex review are outstanding.
-- Roadmap 3 is in the [phase roadmap](phase-roadmap.md#roadmap-3---earned-survival-start-then-a-living-army); M33-M36 stay provisional. M31 remains the internal QA baseline on `main`.
-- The root handoff.md is the Codex/Claude entry point. STATUS remains authoritative; alternate implementation ownership and review.
+- M32 First Earned Outpost is implemented on `claude/m32-earned-outpost` (Claude writer) and Codex's review findings are fixed. Not merged: Liam asked to play it first.
+- Claude owns [Roadmap 3](phase-roadmap.md#roadmap-3---earned-survival-start-then-a-living-army) (M33-M37 provisional) and the [future roadmaps 4-7](phase-roadmap.md#future-roadmaps-provisional). M31 remains the internal QA baseline on `main`.
+- handoff.md sets ownership, review and working folders; STATUS remains authoritative.
 - NeoForge-first; Fabric M14 14.4-14.5 deferred. Pins: MC 26.3 / NeoForge 26.3.0.102 / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
 
 ## Verified
-- M32 on Liam's PC: Java 25 clean build with logic checks, 175 GameTests (168 existing + 7 onboarding), two-JVM restart, 99 QA captures with the five Orders views and changed tabs reviewed; Windows CI 43142386768 green.
+- M32 on Liam's PC: clean build, 175 GameTests, two-JVM restart, 99 QA captures (Orders views and tabs reviewed). After the review fixes, Windows CI 43257273965: 177/177 GameTests, restart passed.
 - M31 baseline: [isolated loader trial](compatibility.md#m30-closeout), packaged standalone client/server and [0/1/2/4-post load and two loopback clients](alpha-test-candidate.md#m31-integration-fixtures).
 
 ## Risks And Decisions
@@ -19,5 +19,5 @@ Updated: 2026-11-12
 - Growth remains bounded; no power-loss/claim-mod guarantee or automatic repair. Independent beta/public release approval remains separate.
 
 ## Next Milestone
-Blocked on Liam: one cheats-off Survival earned run of the M32 branch (checklist in the [roadmap](phase-roadmap.md#phase-m32---first-earned-outpost)) and Codex's review of `claude/m32-earned-outpost`. Then:
-`Continue: M32 step 32.6 closeout (fix earned-run findings, merge to main after green CI), then plan M33 (defend the post).`
+Blocked on Liam: one cheats-off Survival earned run of the M32 branch (checklist in the [roadmap](phase-roadmap.md#phase-m32---first-earned-outpost)) and decisions D5-D6. Then:
+`Continue: M32 step 32.6 closeout (fix earned-run findings, merge to main after green CI), then M33 army look and sound.`

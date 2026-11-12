@@ -475,3 +475,9 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - First runs exposed two GameTest timing issues (block entities register next tick) and a QA scene that skipped the post-load sync; fixed in the harness, gameplay unchanged. Windows CI 43142386768 green.
 - Measured before terrain checks: 15/9/12 checkpoint candidates within 512 blocks for three seeds; terrain pass rate not measured.
 - Not done: cheats-off earned run, Codex review, merge. No pins, dependencies, release, tag or legacy refs changed.
+
+## 2026-11-12 - M32 Review Fixes And Roadmaps 4-7 (Claude)
+- Codex reviewed `ac02f0d`. Fixed: posts register at placement (same-tick spacing gap); loaded stale records neither block placement nor grant Establish credit, unloaded records stay conservative; start hints go to the acting player, completions stay one server line.
+- Added two GameTests and five logic assertions. Windows CI 43257273965: build, 55 onboarding assertions, 177/177 GameTests, two-JVM restart passed. No local rerun; QA captures unchanged (no UI change).
+- Liam made Claude the roadmap owner. Roadmap 3 now runs M32-M37 (look/sound, defence, Phase 0 world and HQ site, HQ intelligence, candidate); Roadmaps 4-7 place divisions, facilities, arsenal, vehicles, missiles, jets and Fabric. Handoff, AGENTS branch naming and a CLAUDE.md entry file updated.
+- Not done: Liam's earned run, D5-D6, merge. No pins, dependencies, release or legacy refs changed.
