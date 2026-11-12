@@ -225,7 +225,10 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
             case 2 -> Component.translatable("gui.standandhold.order.stockpile", menu.number(GLOBAL), need, menu.number(BATCH), menu.number(LOCAL));
             case 3 -> Component.translatable("gui.standandhold.order.research", menu.researchTitle(order.research()), need);
             case 4 -> Component.translatable("gui.standandhold.order.stage", menu.number(POINTS), need);
-            case 5 -> Component.translatable("gui.standandhold.order.defence", order.target(), progress);
+            case 5 -> menu.number(RAID_ETA) >= 0
+                    ? Component.translatable("gui.standandhold.order.raid_incoming", Component.translatable("direction.standandhold." + Math.clamp(menu.number(RAID_BEARING), 0, 7)),
+                            (menu.number(RAID_ETA) + 19) / 20)
+                    : Component.translatable("gui.standandhold.order.defence_threat", menu.number(THREAT), menu.number(THREAT_NEED));
             default -> Component.translatable("gui.standandhold.order.main_base");
         };
         wrap(g, step.getString(), 114);

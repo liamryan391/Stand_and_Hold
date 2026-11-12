@@ -93,6 +93,8 @@ public final class QaClient {
             new View("orders-stockpile-large", BuildingKind.COMMAND_POST, "orders-stockpile", 3),
             new View("orders-research", BuildingKind.COMMAND_POST, "orders-research", 2),
             new View("orders-stage-large", BuildingKind.COMMAND_POST, "orders-stage", 3),
+            new View("orders-defence", BuildingKind.COMMAND_POST, "orders-defence", 2),
+            new View("orders-raid-incoming-large", BuildingKind.COMMAND_POST, "orders-raid", 3),
             new View("orders-waiting-large", BuildingKind.COMMAND_POST, "orders-waiting", 3));
     private boolean ordersPressed;
     private static net.minecraft.nbt.Tag ordersBackup;
@@ -225,7 +227,8 @@ public final class QaClient {
                                 case "orders-stockpile" -> "standandhold:stockpile_supplies";
                                 case "orders-research" -> "standandhold:complete_first_research";
                                 case "orders-stage" -> "standandhold:early_army_response";
-                                default -> "standandhold:defend_outpost";
+                                case "orders-defence", "orders-raid" -> "standandhold:defend_outpost";
+                                default -> "standandhold:establish_main_base";
                             };
                             long state = next.state().equals("orders-waiting") ? BuildingMenu.ORDER_WAITING : BuildingMenu.ORDER_ACTIVE;
                             if (menu.order() == null || !menu.order().id().equals(expected) || menu.number(BuildingMenu.ORDER_STATE) != state
@@ -1174,6 +1177,8 @@ public final class QaClient {
         server.getDataStorage().set(HumanWorldData.TYPE, new HumanWorldData());
         var data = HumanWorldData.get(server); var catalog = FoundationResources.get(server); var thresholds = HumanProgressionConfig.thresholds();
         var home = new BuildingPosition(level.dimension().identifier(), POST);
+        var staged = com.liamryan.standandhold.common.threat.ThreatWorldData.get(server); // M34: only the raid view stages a warning
+        if (staged.response(home.key()) != null) { staged.putResponse(home.key(), staged.response(home.key()).clearPending()); }
         // open() registers the post directly, so sync here as the real post-load hook would.
         switch (state) {
             case "orders-samples" -> { data.registerCommandPost(home); MissionManager.sync(data, catalog, thresholds, 0); }
@@ -1185,6 +1190,19 @@ public final class QaClient {
                 MissionManager.sync(data, catalog, thresholds, 3); data.registerCommandPost(home); MissionManager.sync(data, catalog, thresholds, -1);
                 ResearchManager.complete(data, catalog, thresholds, "standandhold:parasite_samples"); MissionManager.sync(data, catalog, thresholds, -1);
             }
+            case "orders-defence", "orders-raid" -> { // M34: Stage 1 reached, the defence order starts itself
+                for (var mission : catalog.missions().values()) {
+                    if (!mission.autoStart() || mission.objective() == com.liamryan.standandhold.common.mission.Mission.Objective.OUTPOST_DEFENCE) { continue; }
+                    MissionManager.start(data, catalog, thresholds, mission.id()); MissionManager.advance(data, catalog, thresholds, mission.id(), mission.target());
+                }
+                data.registerCommandPost(home); MissionManager.sync(data, catalog, thresholds, -1);
+                var threat = com.liamryan.standandhold.common.threat.ThreatWorldData.get(server);
+                long now = level.getGameTime();
+                var record = java.util.Optional.ofNullable(threat.response(home.key())).orElse(com.liamryan.standandhold.common.threat.ResponseRecord.initial(now, 0));
+                // Staged display only: restoreOrders clears it, so no QA wave ever arrives.
+                threat.putResponse(home.key(), state.equals("orders-raid") ? record.pending(now + 600, 3) : record.clearPending());
+                com.liamryan.standandhold.common.threat.ThreatResponse.observe(level, POST, 6, true, true, false, false);
+            }
             case "orders-waiting" -> {
                 for (var mission : catalog.missions().values()) {
                     if (!mission.autoStart()) { continue; }
@@ -1195,6 +1213,9 @@ public final class QaClient {
         }
     }
     private static void restoreOrders(net.minecraft.server.MinecraftServer server) {
+        var threat = com.liamryan.standandhold.common.threat.ThreatWorldData.get(server);
+        String postKey = new BuildingPosition(server.overworld().dimension().identifier(), POST).key();
+        if (threat.response(postKey) != null) { threat.putResponse(postKey, threat.response(postKey).clearPending()); }
         server.getDataStorage().set(HumanWorldData.TYPE, HumanWorldData.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE, ordersBackup).getOrThrow());
         ordersBackup = null;
     }

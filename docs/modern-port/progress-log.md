@@ -506,3 +506,8 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 ## 2026-11-12 - M32 On Main, M33 Reviewed, D5 Approved (Claude)
 - Liam merged PR #4 (M32) into `main`. Codex confirmed the cancelled-placement fix and independently passed M33 on Windows (clean build, 180/180 GameTests, restart, 103 captures, nine clips decoded) with no blocker. PR #5 merged into the M32 branch rather than `main`, so a follow-up PR carries M33 to `main` after Liam's play check.
 - Liam approved D5. The experiment uses GeckoLib 5.5.7, still the newest 26.3 release on its source repository today, on `claude/m33-d5-geckolib`.
+
+## 2026-11-12 - M34 Defend The Post (Claude)
+- Branch `claude/m34-defend-the-post`, stacked on M33. Re-planned against the code: raids, cooldowns, reservations and arrival warnings already existed, but there was no warning before contact and no player route to the defence order.
+- Natural raids are now radioed in about 30 s ahead (`raidWarningTicks`) with the direction; the wave arrives from that side, or stands down with backoff if nobody is near. The warning is saved in two optional response-record fields. Operator raids stay immediate.
+- `defend_outpost` auto-starts at Stage 1; the Orders view shows local threat against the raid line, or the incoming raid. Tests updated for six auto-started orders; new logic checks, three GameTests and two Orders captures. Measured: 5 credited kills reach the raid line; then a raid averages about 300 s (87% within 10 min).

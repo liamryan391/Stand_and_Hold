@@ -691,7 +691,7 @@ B removes the race and staleness problems instead of testing around them, and th
 | --- | --- | --- | --- | --- |
 | M32 `claude/m32-earned-outpost` | P1 | M31 baseline; D1-D4 approved 2026-11-12 | On `main` (PR #4); earned run outstanding | Recipes, spacing, auto-started onboarding, Orders view, ordinary undead rewards |
 | M33 `claude/m33-army-look-sound` | P2 | M32; D5 approved 2026-11-12 for 33.4 | Codex reviewed (no blocker); PR to `main` after Liam's play check; 33.4 experiment in progress | Native per-soldier variants and a first original sound set; the animation library is a separate, test-gated experiment (D5) |
-| M34 `<agent>/m34-defend-the-post` | P2 | M32 | Provisional | One readable attack warning; `defend_outpost` observable in ordinary play |
+| M34 `claude/m34-defend-the-post` | P2 | M32 (branch stacked on M33) | Implemented; review and play check outstanding | One readable attack warning; `defend_outpost` observable in ordinary play |
 | M35 `<agent>/m35-phase-zero-world` | P2 | M32, M34; D6 | Provisional | Promote an outpost to the world's HQ; stage-aware abandoned/damaged/manned sites and survivor camps; optional ruined-bunker discovery |
 | M36 `<agent>/m36-hq-intelligence` | P2 | M35 | Provisional | Usable HQ: threat profile from vanilla mobs, recommended research started at the HQ, reinforcement dispatch; no autonomous spending |
 | M37 `<agent>/m37-roadmap3-candidate` | P1 | M32-M36 | Provisional | Earned playthrough from spawn to an active HQ with no external mods, packaged install, bounded load; internal candidate 2 |
@@ -759,6 +759,27 @@ Priority: P2. Prerequisites: M32 (the branch is stacked on `claude/m32-earned-ou
 | Variants read well at distance, close up, across tiers and by torchlight; the client resolves the expected variant for each fixture UUID | `runQaClient` captures `variants-riflemen-day`, `variants-tiers-day`, `variants-closeup`, `variants-torchlight` |
 | It looks and sounds right in play | Liam's look-and-listen check |
 
+### Phase M34 - Defend The Post
+
+Priority: P2. Prerequisites: M32; the branch is stacked on M33 and merges after it. Re-planned against the code: natural raids, saved cooldowns, raider reservations, the area cap and arrival warnings already exist. What was missing was a warning *before* contact and any player-facing route to the defence order. No new mission ID, raid size, spawn rule, director or saved-data schema version. The response record gains two optional fields that older builds ignore.
+
+- [x] **34.1 Measure.** Logic check: with defaults, 5 credited kills near a post reach the raid line. Once eligible, a raid comes after about 300 s on average (87% within 10 minutes). Tune after the earned run, not before.
+- [x] **34.2 One readable warning before contact.** A natural raid is radioed in first: a "Field radio" message to every non-spectator within 64 blocks names the post, the compass direction and the seconds to contact (default 30 s, `raidWarningTicks`; 0 restores immediate raids), with the post's radio sound. The warning reserves the raid cooldown and saves the arrival tick and direction, so it survives restart and can never stack a second wave. At arrival the wave comes from the announced side (8 tries in that 60-degree arc, then the old ring). If nobody is within 64 blocks or the world is Peaceful, the wave stands down with the short backoff. Operator debug raids stay immediate. `event status` shows the warned raid.
+- [x] **34.3 Put the defence order in ordinary play.** `defend_outpost` gets `auto_start`, so it starts on its own when Stage 1 completes the onboarding chain. Its Orders line shows the local threat against the raid line ("Kill threats near this post; stay within 64 blocks"). While a raid is warned, it shows the direction and seconds to contact instead. `establish_main_base` stays operator-started.
+- [ ] **34.4 Prove it, then Liam's check.** Automated evidence below on CI and the QA client; then in Survival, Liam kills a few zombies near his post at night after Stage 1 and judges whether the warning gives time to get ready.
+
+**Exit gate (observable):**
+
+| Claim | Proof |
+| --- | --- |
+| Warning fields save, load, validate and survive timers; legacy records load with none; spawn offsets stay on the announced side; default pacing keeps raids observable | `ResponseChecks` |
+| Six orders auto-start in order; Stage 1 starts the defence order unpaid; the Waiting state now belongs to the Main Base order | `OnboardingChecks`, `GuideChecks`, `onboarding_orders_menu_states` |
+| Warn, then arrive on the next check from the warned side, once; no second wave while warned; a raid with nobody near stands down with backoff | GameTests `defence_warned_raid_arrives`, `defence_warned_raid_needs_witness` |
+| The defence order runs with no operator and the menu shows threat and incoming raids | GameTest `defence_order_runs_itself`; QA captures `orders-defence`, `orders-raid-incoming-large` |
+| The warning feels useful in play | Liam's check |
+
+**Non-goals:** No new raid types, sizes, mobs or spawn rules; no global director; no change to cooldown lengths, thresholds or rewards; no off-screen or unloaded raids.
+
 ### Decisions Before M32 Starts
 
 Approved by Liam on 2026-11-12: D1 suggested costs, D2 96 blocks, D3 enable `vanilla_undead`, D4 the five onboarding missions. D5 approved later the same day (GeckoLib experiment). D6 stays open.
@@ -782,7 +803,7 @@ Each one becomes active only when the stated evidence justifies it, after re-che
   3. Separate experiment on its own branch (D5): re-author the Army Rifleman in Blockbench with walk, aim, fire, reload, hurt and death keyframes on one admitted library, and measure it against the native rig. M33 does not wait for it; it merges later only when its tests pass and Liam approves the motion.
 
   Other mods are reference for ideas and proportions only; no copied geometry, textures, animations or sounds. *Exit evidence:* QA captures of variants at several distances and lighting, sound playback in a GameTest or client check, and Liam's look-and-listen check.
-- **M34 Defend the post (P2).** One readable warning before a raid reaches a post; `defend_outpost` joins the Orders view and becomes observable in ordinary play. Reuses raid reservations, support costs and cooldowns; no new global director. *Moves forward if* the earned run reports "after Stage 1 nothing happened" or "never saw a real attack".
+- **M34 Defend the post (P2).** *Implemented; see [Phase M34](#phase-m34---defend-the-post).* One readable warning before a raid reaches a post; `defend_outpost` joins the Orders view and becomes observable in ordinary play. Reuses raid reservations, support costs and cooldowns; no new global director. *Moves forward if* the earned run reports "after Stage 1 nothing happened" or "never saw a real attack".
 - **M35 Phase 0 world and the HQ (P2).** The world starts scattered, as Liam described. First, the reliable HQ path: the **Establish HQ** order promotes an existing Command Post (D6). Then new chunks generate checkpoints that are **abandoned, damaged or manned** by world stage (mostly abandoned at Phase 0; manned sites become more common as humanity's stage rises) and small **survivor camps** with Survivor-class defenders. New Main Bases generate ruined or dormant until humanity's research and stage earn an active one. The ruined Command Bunker is an optional discovery route. Deterministic per chunk, bounded, original layouts; existing sites are not retrofitted and no chunk is force-loaded.
 - **M36 HQ intelligence v1 (P2).** The HQ becomes the usable "beating heart" defined above. It keeps a bounded per-world ledger of credited kills by threat category. Vanilla mobs fill every category it needs on their own (undead, arthropods, explosive, ranged, illagers, other hostile), so the standalone game passes; external infection, alien and horror mods map into the same categories through tags later (M43). The HQ recommends research that counters what the world actually faces; v1 never spends on its own.
 - **M37 Roadmap 3 candidate (P1).** Earned cheats-off playthrough from spawn to an active HQ **with no external mods installed**, fresh packaged install, bounded multi-post load with the new art, and fixes for demonstrated defects. Internal candidate 2; no public release without a separate decision.

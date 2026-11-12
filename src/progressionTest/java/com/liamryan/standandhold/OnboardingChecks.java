@@ -45,7 +45,8 @@ final class OnboardingChecks {
     private static void definitions(FoundationCatalog catalog) {
         var flagged = catalog.missions().values().stream().filter(Mission::autoStart).map(Mission::id).toList();
         check(flagged.equals(List.of("standandhold:recover_parasite_samples", "standandhold:establish_field_command", "standandhold:stockpile_supplies",
-                "standandhold:complete_first_research", "standandhold:early_army_response")), "exactly the five onboarding orders auto-start, in order");
+                "standandhold:complete_first_research", "standandhold:early_army_response", "standandhold:defend_outpost")),
+                "the five onboarding orders and (M34) the defence order auto-start, in order");
         String base = "{\"format\":1,\"missions\":[{\"id\":\"pack:a\",\"title\":\"A\",\"objective\":\"supply_total\"";
         check(!FoundationCatalog.parse(base + "}]}").mission("pack:a").autoStart(), "absent flag means operator-started");
         check(FoundationCatalog.parse(base + ",\"auto_start\":true}]}").mission("pack:a").autoStart(), "explicit flag parsed");
@@ -69,7 +70,7 @@ final class OnboardingChecks {
         check(MissionManager.sync(data, catalog, THRESHOLDS, 1).isEmpty() && data.mission("standandhold:recover_parasite_samples").orElseThrow().progress() == 2,
                 "dropping samples never lowers recorded progress");
         check(data.mission("standandhold:defend_outpost").isEmpty() && data.mission("standandhold:establish_field_command").isEmpty(),
-                "later orders wait for prerequisites; operator-only orders never auto-start");
+                "later orders wait for their prerequisites");
         check(MissionManager.current(data, catalog).orElseThrow().id().equals("standandhold:recover_parasite_samples"), "current order is the active one");
     }
 
@@ -137,8 +138,8 @@ final class OnboardingChecks {
         check(notices.stream().filter(n -> n.change() == Change.COMPLETED).map(n -> n.mission().id()).toList()
                 .equals(List.of("standandhold:complete_first_research", "standandhold:early_army_response")), "first research and Stage 1 complete without an operator");
         check(data.points() == 175 && ProgressionRules.stageFor(data.points(), THRESHOLDS).level() == 1, "eight credited kills plus earned rewards reach Stage 1");
-        check(data.mission("standandhold:defend_outpost").isEmpty() && MissionManager.current(data, catalog).orElseThrow().id().equals("standandhold:defend_outpost"),
-                "the defence order is next but stays operator-started in M32");
+        check(data.mission("standandhold:defend_outpost").filter(state -> !state.completed() && state.progress() == 0).isPresent()
+                && MissionManager.current(data, catalog).orElseThrow().id().equals("standandhold:defend_outpost"), "M34: the defence order starts on its own at Stage 1, unpaid");
         var reloaded = FoundationChecks.decode(FoundationChecks.encode(data));
         long points = reloaded.points(), supplies = reloaded.supplies();
         check(MissionManager.sync(reloaded, catalog, THRESHOLDS, 3).isEmpty() && reloaded.points() == points && reloaded.supplies() == supplies,
@@ -198,7 +199,8 @@ final class OnboardingChecks {
     /** 32.1 measurement and pacing guard. Prints numbers for the roadmap; fails only if the default path stops being earnable. */
     private static void pacing(FoundationCatalog catalog) {
         var zombie = ThreatRules.parse(ThreatRules.DEFAULTS).match("minecraft:zombie", ignored -> false).orElseThrow();
-        long rewards = catalog.missions().values().stream().filter(Mission::autoStart).filter(m -> m.objective() != Mission.Objective.HUMAN_STAGE)
+        long rewards = catalog.missions().values().stream().filter(Mission::autoStart)
+                .filter(m -> m.objective() != Mission.Objective.HUMAN_STAGE && m.objective() != Mission.Objective.OUTPOST_DEFENCE)
                 .mapToLong(m -> m.reward().points()).sum() + catalog.research("parasite_samples").reward().points();
         long killsForStage = Math.max(0, (THRESHOLDS[1] - rewards + zombie.points() - 1) / zombie.points());
         double killsForSamples = catalog.mission("recover_parasite_samples").target() / (zombie.chance() * zombie.samples());

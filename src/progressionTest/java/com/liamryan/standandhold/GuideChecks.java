@@ -44,7 +44,7 @@ final class GuideChecks {
             if (mission.autoStart()) { MissionManager.start(waiting, catalog, thresholds, mission.id()); MissionManager.advance(waiting, catalog, thresholds, mission.id(), mission.target()); }
         }
         String operatorOnly = readOnly(waiting, catalog, thresholds, false);
-        check(operatorOnly.contains("Defend the Outpost") && operatorOnly.contains("An operator starts shared order"), "non-auto order still names its operator start restriction");
+        check(operatorOnly.contains("Find a Main Base Foundation") && operatorOnly.contains("An operator starts shared order"), "non-auto order still names its operator start restriction");
         check(!operatorOnly.contains("Start: /"), "non-operator never sees a restricted start command");
         check(!String.join("\n", CommandGuide.help(false)).contains("QA/operator:"), "restricted command help separated by access");
         check(String.join("\n", CommandGuide.help(true)).contains("mission start <id>"), "operator QA entry points documented");

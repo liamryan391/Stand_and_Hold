@@ -4,6 +4,12 @@
 
 Modern port work uses one phase branch at a time, merged into `main` after verification. No modern release, version bump, or retag is announced by this entry. The source/build version remains `0.1.0-alpha.1`; observed verification results are recorded in [STATUS.md](docs/modern-port/STATUS.md).
 
+### Defend The Post (M34, unmerged work branch stacked on M33)
+
+- Natural raids are radioed in first: nearby players hear the post's radio and get the direction and about 30 seconds of warning before contact. The wave then arrives from that side. If nobody is near the post when it is due, it stands down. Operator debug raids are unchanged.
+- "Defend the Outpost" now starts on its own at Stage 1. The Orders view shows the local threat against the raid line, or the incoming raid's direction and countdown.
+- New server config `raidWarningTicks` (default 600; 0 restores immediate natural raids). Existing config files gain it with the default.
+
 ### Army Look And Sound I (M33, unmerged work branch stacked on M32)
 
 - Soldiers no longer look identical: each picks one of 12 appearance variants (skin tone, eyes, hair, facial hair or scar, headgear pattern, rank stripes, wear) and a slightly different build from its UUID. Render-only; stats, hitboxes, AI and saves are unchanged.
