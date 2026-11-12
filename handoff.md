@@ -74,8 +74,9 @@ releases, and decides any disagreement.
 
 ## Pull Requests
 
-Every milestone reaches `main` through a GitHub pull request; nobody pushes to
-`main` directly.
+Every change reaches `main` through a GitHub pull request, including docs-only
+fixes; nobody pushes to `main` directly. Small docs PRs still get a review
+comment, but it can be short.
 
 1. **Open:** the writer opens a PR from its milestone branch once the
    automated part of the exit gate is green. The description lists what
