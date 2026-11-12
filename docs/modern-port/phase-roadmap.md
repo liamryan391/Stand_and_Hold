@@ -635,7 +635,7 @@ Scope: integrate and assess the built slices, fix demonstrated defects and prepa
 
 Exit gate: observed regression, install, persistence and bounded session/load evidence; remaining gaps are explicit rather than promoted to supported claims. Record supplied alpha feedback or its explicit deferral without blocking the technical merge on a feel check. A public multiplayer/stable/beta or earned-playthrough claim cannot be made without its corresponding evidence and release approval.
 
-See the [M31 fixture record](alpha-test-candidate.md#m31-integration-fixtures) for bounded load and actual two-client loopback results. Authenticated remote multiplayer and Liam's new earned-loop feel review are distinct checks.
+The internal closeout recorded positive maintainer feedback without claiming a completed 31.3 playthrough. The full grant-free run remains unchecked and does not block internal QA. See the [M31 fixture record](alpha-test-candidate.md#m31-integration-fixtures) for the observed two-client loopback, load and playtest evidence. Authenticated remote multiplayer remains a separate check.
 
 ## Deferred Expansion Admission
 

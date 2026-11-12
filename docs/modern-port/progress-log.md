@@ -458,3 +458,7 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 ## 2026-11-11 - M31 Internal Candidate Disposition
 - Kept the verified NeoForge build for internal QA only. Confirmed Windows CI 43092501245 on the merged candidate; the isolated earned-loop world saved and exited cleanly.
 - `git diff --check` passed for the documentation update. No gameplay or pin changes; no repeat of the local build or GameTests. Liam's earned-loop feedback remains outstanding; see STATUS.md.
+
+## 2026-11-12 - M31 Maintainer Feedback
+- Liam reported that everything worked as intended. Reviewed the isolated checkpoint/guide/save log; it does not show a complete grant-free playthrough, so 31.3 stays unchecked.
+- Confirmed Windows CI 43128346307 on the internal baseline; `git diff --check` passed for this docs-only update. No gameplay or pin changes, new local build, release or tag. Next planning milestone in STATUS.md.
