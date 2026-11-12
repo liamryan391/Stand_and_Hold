@@ -43,7 +43,7 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.monster.Enemy;
-import net.minecraft.sounds.SoundEvents;
+import com.liamryan.standandhold.common.sound.StandAndHoldSounds;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -205,6 +205,11 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         if (level() instanceof ServerLevel server && (reason.shouldDestroy() || reason == RemovalReason.CHANGED_DIMENSION)) { releasePost(server); }
         super.onRemoval(reason);
     }
+    /** Webbing and buckles on roughly every other step; same server step cadence as vanilla, quieter than the step. */
+    @Override protected void playStepSound(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState block) {
+        super.playStepSound(pos, block);
+        if (!isSilent() && getRandom().nextBoolean()) { playSound(StandAndHoldSounds.NPC_GEAR.get(), 0.22F, 0.9F + getRandom().nextFloat() * 0.2F); }
+    }
     private boolean rangedReady() {
         return level() instanceof ServerLevel server && tier().usesPrototype() && EquipmentConfig.value(EquipmentConfig.NPC_ENABLED)
                 && getMainHandItem().is(EquipmentRegistry.PROTOTYPE.get()) && EquipmentAccess.allowed(server, EquipmentKind.PROTOTYPE)
@@ -218,7 +223,7 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob {
         if (server.addFreshEntity(bolt)) {
             nextPrototypeShot = server.getGameTime() + EquipmentConfig.value(EquipmentConfig.NPC_INTERVAL);
             if (tier().usesLauncherMotion()) { server.broadcastEntityEvent(this, LAUNCHER_SHOT); }
-            server.playSound(null, getX(), getY(), getZ(), SoundEvents.SNOWBALL_THROW, SoundSource.NEUTRAL, 0.4F, 1.1F);
+            server.playSound(null, getX(), getY(), getZ(), StandAndHoldSounds.LAUNCHER_FIRE.get(), SoundSource.NEUTRAL, 0.6F, 0.95F + getRandom().nextFloat() * 0.1F);
         }
     }
     private static final class PrototypeGoal extends RangedAttackGoal {

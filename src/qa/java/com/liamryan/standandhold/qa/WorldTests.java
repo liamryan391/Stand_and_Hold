@@ -65,6 +65,7 @@ final class WorldTests {
         tests.putAll(DeckPreviewTests.cases());
         tests.putAll(DeckGrowthTests.cases());
         tests.putAll(OnboardingTests.cases());
+        tests.putAll(PresentationTests.cases());
         return tests;
     }
     private static HumanWorldData data(GameTestHelper h) { return HumanWorldData.get(h.getLevel().getServer()); }

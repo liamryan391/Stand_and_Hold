@@ -93,6 +93,8 @@ The [art pipeline](art-pipeline.md) holds editable original Blockbench projects 
 
 Heavy adds an olive/charcoal uniform, amber markings, deeper helmet, broad vest and arm-following shoulder plates. Elite has a blue-grey uniform, mint markings, a short helmet/visor and compact torso-following pack. Super Elite has charcoal armour, brass accents, broad shoulders and a plated chest. Division has an ivory/teal shell, asymmetric scanner and rear pod, and shares the Rifleman's native launcher motion. All four use original editable `.bbmodel` sources. The normal exporter and CI `-Check` validate all ten original source models.
 
+Since M33 every soldier also gets one of 12 UUID-derived appearance variants and a slightly different render-only build (see [Soldier Variants](art-pipeline.md#soldier-variants-m33)). It changes nothing about stats, hitboxes or AI. Soldier steps add a quiet gear rattle, launchers use an original launch-and-cycle sound, and Command Posts play occasional client-side radio chatter.
+
 For a disposable operator test, add 30 supplies, set stage 1, complete `parasite_samples` and `field_communications`, then set stage 2/3 before a normal deployment/event/paid call-in. All commands begin `/standandhold`; see the existing support/event docs for cooldowns. These are grants for technical QA, not earned-loop evidence. Existing explicit population ceilings remain authoritative, and a full lower-tier roster is not replaced just because a higher tier unlocks.
 
 ## Manual QA

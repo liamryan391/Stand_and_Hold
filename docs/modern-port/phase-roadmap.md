@@ -690,7 +690,7 @@ B removes the race and staleness problems instead of testing around them, and th
 | Phase / branch | Priority | Prerequisites | Status | Maximum slice |
 | --- | --- | --- | --- | --- |
 | M32 `claude/m32-earned-outpost` | P1 | M31 baseline; D1-D4 approved 2026-11-12 | Implemented; Codex review fixed; earned run outstanding | Recipes, spacing, auto-started onboarding, Orders view, ordinary undead rewards |
-| M33 `<agent>/m33-army-look-sound` | P2 | M32 merged | Provisional | Native per-soldier variants and a first original sound set; the animation library is a separate, test-gated experiment (D5) |
+| M33 `claude/m33-army-look-sound` | P2 | M32 (branch stacked on it; merges after M32) | Implemented; review and look-and-listen outstanding | Native per-soldier variants and a first original sound set; the animation library is a separate, test-gated experiment (D5) |
 | M34 `<agent>/m34-defend-the-post` | P2 | M32 | Provisional | One readable attack warning; `defend_outpost` observable in ordinary play |
 | M35 `<agent>/m35-phase-zero-world` | P2 | M32, M34; D6 | Provisional | Promote an outpost to the world's HQ; stage-aware abandoned/damaged/manned sites and survivor camps; optional ruined-bunker discovery |
 | M36 `<agent>/m36-hq-intelligence` | P2 | M35 | Provisional | Usable HQ: threat profile from vanilla mobs, recommended research started at the HQ, reinforcement dispatch; no autonomous spending |
@@ -740,6 +740,25 @@ Priority: P1. Prerequisites: M31 internal baseline on `main`; Liam approved D1-D
 4. Was there any stretch of waiting with nothing useful to do, especially for supplies?
 5. Play about 5 more minutes. Does anything feel off or annoying?
 
+### Phase M33 - Army Look And Sound I
+
+Priority: P2. Prerequisites: M32 (the branch is stacked on `claude/m32-earned-outpost` and merges after it). No new dependency, pin, saved data, packet, entity ID or AI change. Started early on Liam's choice to play M32 later.
+
+- [x] **33.1 Per-soldier variants on the existing rigs.** Each soldier picks one of 12 appearance variants and a render-only build (height 0.95-1.05, width 0.96-1.04) from its entity UUID, so every client agrees with no saved data or packets and hitboxes, reach and AI are unchanged. Variant 0 is the authored atlas; 1-11 vary skin tone (six tones), eye colour, hair at the sideburns and hairline, facial hair or scars, a headgear pattern (plain, blotch or band), 0-3 rank stripes and boot wear. A pure-JDK generator (`gradlew generateNpcVariants`) derives all 72 atlases from the Blockbench exports and only repaints pixels that are already opaque, so silhouettes and cutouts never change. *Packs need geometry per tier and move to M38 with the unit art rollout.*
+- [x] **33.2 One original sound set.** Three sound events replace the vanilla stand-ins: `npc.gear` (webbing and buckles on about every other soldier step), `launcher.fire` (launch thump, air release and the mechanism cycling; player and soldier launchers) and `post.radio` (garbled radio traffic, client-only ambience at a Command Post, about once a minute nearby). Every sample is synthesised by `scripts/generate-sounds.py` from sine partials, filtered noise and formant pulses: mono 44.1 kHz Vorbis, subtitled, no recordings or other mods' audio.
+- [ ] **33.3 Prove it, then Liam's look-and-listen check.** Automated evidence below on CI, then Liam plays a few minutes near a post with a squad. *Automated evidence passed 2026-11-12: Windows CI 43275994632 (180/180 GameTests, 1,533 art and 62 sound assertions, restart) and a 103-capture QA client run on Liam's PC. The first close-up showed a full-width moustache reading as an open mouth and overlapping arms; fixed with a goatee and wider spacing. Look-and-listen outstanding.*
+- [ ] **33.4 Separate animation experiment (D5).** Not started; needs Liam's D5 decision. M33 does not wait for it.
+
+**Exit gate (observable):**
+
+| Claim | Proof |
+| --- | --- |
+| The shipped atlases are exactly what the generator makes from the current exports; alpha is unchanged; every tier's 12 variants differ; UUIDs spread evenly over the 12 variants (12,000 samples, each 800-1,200); build scales stay in bounds | `ArtChecks` in `progressionTest` |
+| `sounds.json` declares exactly the registered events; every file exists, decodes with Minecraft's own Vorbis decoder, is mono 44.1 kHz, audible, unclipped and within its duration range; every subtitle is translated; no unreferenced sound ships | `SoundChecks` in `progressionTest` |
+| The events are registered; a survival player firing the launcher makes the server play `launcher.fire`, not the old snowball throw | GameTests `presentation_sounds_registered`, `presentation_launcher_sound` |
+| Variants read well at distance, close up, across tiers and by torchlight; the client resolves the expected variant for each fixture UUID | `runQaClient` captures `variants-riflemen-day`, `variants-tiers-day`, `variants-closeup`, `variants-torchlight` |
+| It looks and sounds right in play | Liam's look-and-listen check |
+
 ### Decisions Before M32 Starts
 
 Approved by Liam on 2026-11-12: D1 suggested costs, D2 96 blocks, D3 enable `vanilla_undead`, D4 the five onboarding missions. D5 and D6 stay open.
@@ -757,7 +776,7 @@ Approved by Liam on 2026-11-12: D1 suggested costs, D2 96 blocks, D3 enable `van
 
 Each one becomes active only when the stated evidence justifies it, after re-checking the code.
 
-- **M33 Army look and sound I (P2).** Justified now by Liam's feedback that soldiers look basic and repetitive.
+- **M33 Army look and sound I (P2).** Justified now by Liam's feedback that soldiers look basic and repetitive. *Steps 1-2 implemented; see [Phase M33](#phase-m33---army-look-and-sound-i).*
   1. Native per-soldier variants from the entity UUID: faces, skin tones, headgear, packs and insignia on the existing rigs. No saved data, no library.
   2. One original sound set: footsteps on gear, radio chatter at posts, launcher fire and reload.
   3. Separate experiment on its own branch (D5): re-author the Army Rifleman in Blockbench with walk, aim, fire, reload, hurt and death keyframes on one admitted library, and measure it against the native rig. M33 does not wait for it; it merges later only when its tests pass and Liam approves the motion.

@@ -70,11 +70,26 @@ The first command writes generated `HumanNpcMeshes.java`, the six entity PNGs, u
 
 For deliberate seed resets, run `java .\scripts\GenerateNpcTextures.java`, `java .\scripts\GenerateBuildingTextures.java` or `java .\scripts\GenerateSampleTexture.java` after selecting the modern JDK. NPC/block sources must then be deliberately updated with the desired embedded PNGs; exporting otherwise restores their existing source images. The sample and egg icons are direct generated item art, not Blockbench projects.
 
+### Soldier Variants (M33)
+
+Each exported soldier atlas is the source of 12 appearance variants in `textures/entity/variants/<tier>_<n>.png`. Variant 0 is the atlas unchanged; the others are derived by `src/progressionTest/.../NpcVariantArt.java`, which only repaints pixels that are already opaque: skin tone, eyes, hair at the sideburns and hairline, facial hair or a scar, a headgear pattern, 0-3 rank stripes and boot wear. The renderer picks a variant and a render-only build from the entity UUID (`NpcVariants`), so nothing is saved or synced and hitboxes do not change. After editing a soldier in Blockbench, export, then run:
+
+```powershell
+.\gradlew.bat generateNpcVariants --no-daemon
+```
+
+and commit the regenerated PNGs with the source. `ArtChecks` regenerates every variant in memory and fails if a shipped file differs, if alpha changed, or if any two variants of a tier are identical. To change the variety itself (tones, patterns), edit the generator, not the PNGs.
+
+### Sounds (M33)
+
+`assets/standandhold/sounds/` holds only original procedurally synthesised samples: soldier gear, launcher fire and cycle, and Command Post radio. Regenerate with `python scripts/generate-sounds.py` (numpy, scipy and ffmpeg with libvorbis); the recipes are seeded, so a re-run reproduces the same sounds unless a recipe changes. Files must be mono 44.1 kHz Vorbis so Minecraft can position them. `SoundChecks` decodes every file with Minecraft's own decoder and checks format, length, level, subtitles and that nothing unreferenced ships. Never add recorded, sampled or other mods' audio.
+
 ### Visual QA
 
 - Compare both humans front/back/sides in daylight and torchlight, including head turns, walking and melee swings. Survivor cap/pack and Rifleman helmet/vest must read as different silhouettes. Check every face for transparency, stretched UVs and missing-texture patterns.
 - Test a harmless vanilla held item without changing NPC defaults: `/item replace entity @e[type=standandhold:army_rifleman,sort=nearest,limit=1] weapon.mainhand with minecraft:stick`. It should follow the hand through movement; this is a disposable visual test, not a new equipment system.
 - The scripted client additionally follows a Rifleman carrying, walking into range, aiming, firing, hurt, dying and holding a fallback item. It reloads resources and captures the player-held Launcher and creative inventory. Judge transition timing and feel separately in the isolated normal client.
+- The scripted client captures soldier variant lineups: twelve Riflemen by day, two variants of every tier, four faces close up, and the Rifleman row by torchlight. Judge skin tones in torchlight and whether variants still read as one army.
 - Check the three placed blocks' front/top/sides and inventory forms, both eggs and tissue sample. Building models remain lightweight full cubes, not finished furniture.
 - Check all menus at default and large GUI scale, in a window that leaves at least 300x230 GUI pixels. Exercise ready/running/paused/blocked/completed lab states; selection must not auto-start. A globally completed target shows a full bar without modifying saved local work. Shortened fields expose full text on hover; button tooltips explain transfer batches and actions.
 - Use a disposable datapack with an 80-character research title and large balances to visually stress hover text. Automated checks also cover 80/500-character words, Unicode boundaries and long-limit labels, but do not substitute for resource-pack/font/scale visual tests. A definition reload requires reopening a menu.

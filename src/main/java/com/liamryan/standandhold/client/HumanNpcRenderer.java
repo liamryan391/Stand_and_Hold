@@ -4,6 +4,7 @@ import com.liamryan.standandhold.StandAndHoldConstants;
 import com.liamryan.standandhold.common.equipment.EquipmentRegistry;
 import com.liamryan.standandhold.common.npc.HumanNpc;
 import com.liamryan.standandhold.common.npc.HumanTier;
+import com.liamryan.standandhold.common.npc.NpcVariants;
 import net.minecraft.client.model.AnimationUtils;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -20,12 +21,16 @@ public final class HumanNpcRenderer extends HumanoidMobRenderer<HumanNpc, HumanN
     public static final class State extends HumanoidRenderState {
         boolean launcherMotion;
         float launcherAim, launcherKick;
+        int variant;
+        float variantHeight = 1, variantWidth = 1;
     }
     public static ModelLayerLocation layerId(HumanTier tier) { return new ModelLayerLocation(Identifier.fromNamespaceAndPath(StandAndHoldConstants.MOD_ID, "human_" + tier.id), "main"); }
-    private final Identifier texture;
+    private final Identifier[] textures = new Identifier[NpcVariants.COUNT];
     public HumanNpcRenderer(EntityRendererProvider.Context context, HumanTier tier) {
         super(context, new MotionModel(context.bakeLayer(layerId(tier))), 0.5F);
-        texture = Identifier.fromNamespaceAndPath(StandAndHoldConstants.MOD_ID, "textures/entity/" + tier.id + ".png");
+        for (int i = 0; i < textures.length; i++) {
+            textures[i] = Identifier.fromNamespaceAndPath(StandAndHoldConstants.MOD_ID, "textures/entity/variants/" + tier.id + "_" + i + ".png");
+        }
     }
     public static LayerDefinition layer(HumanTier tier) {
         return switch (tier) {
@@ -49,8 +54,15 @@ public final class HumanNpcRenderer extends HumanoidMobRenderer<HumanNpc, HumanN
                 && mob.getMainHandItem().is(EquipmentRegistry.PROTOTYPE.get()) && mob.getOffhandItem().isEmpty();
         state.launcherAim = state.launcherMotion ? mob.launcherAim(partialTick) : 0;
         state.launcherKick = state.launcherMotion ? mob.launcherKick(partialTick) : 0;
+        state.variant = NpcVariants.index(mob.getUUID());
+        state.variantHeight = NpcVariants.height(mob.getUUID());
+        state.variantWidth = NpcVariants.width(mob.getUUID());
     }
-    @Override public Identifier getTextureLocation(State state) { return texture; }
+    @Override public Identifier getTextureLocation(State state) { return textures[Math.floorMod(state.variant, textures.length)]; }
+    /** Render-only build variation around the feet; the hitbox is unchanged. */
+    @Override protected void scale(State state, com.mojang.blaze3d.vertex.PoseStack poseStack) {
+        poseStack.scale(state.variantWidth, state.variantHeight, state.variantWidth);
+    }
 
     private static final class MotionModel extends HumanoidModel<State> {
         MotionModel(ModelPart root) { super(root); }
