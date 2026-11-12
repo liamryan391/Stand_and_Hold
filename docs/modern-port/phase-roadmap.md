@@ -689,8 +689,8 @@ B removes the race and staleness problems instead of testing around them, and th
 
 | Phase / branch | Priority | Prerequisites | Status | Maximum slice |
 | --- | --- | --- | --- | --- |
-| M32 `claude/m32-earned-outpost` | P1 | M31 baseline; D1-D4 approved 2026-11-12 | Implemented; Codex review fixed; earned run outstanding | Recipes, spacing, auto-started onboarding, Orders view, ordinary undead rewards |
-| M33 `claude/m33-army-look-sound` | P2 | M32 (branch stacked on it; merges after M32) | Implemented; review and look-and-listen outstanding | Native per-soldier variants and a first original sound set; the animation library is a separate, test-gated experiment (D5) |
+| M32 `claude/m32-earned-outpost` | P1 | M31 baseline; D1-D4 approved 2026-11-12 | On `main` (PR #4); earned run outstanding | Recipes, spacing, auto-started onboarding, Orders view, ordinary undead rewards |
+| M33 `claude/m33-army-look-sound` | P2 | M32; D5 approved 2026-11-12 for 33.4 | Codex reviewed (no blocker); PR to `main` after Liam's play check; 33.4 experiment in progress | Native per-soldier variants and a first original sound set; the animation library is a separate, test-gated experiment (D5) |
 | M34 `<agent>/m34-defend-the-post` | P2 | M32 | Provisional | One readable attack warning; `defend_outpost` observable in ordinary play |
 | M35 `<agent>/m35-phase-zero-world` | P2 | M32, M34; D6 | Provisional | Promote an outpost to the world's HQ; stage-aware abandoned/damaged/manned sites and survivor camps; optional ruined-bunker discovery |
 | M36 `<agent>/m36-hq-intelligence` | P2 | M35 | Provisional | Usable HQ: threat profile from vanilla mobs, recommended research started at the HQ, reinforcement dispatch; no autonomous spending |
@@ -747,7 +747,7 @@ Priority: P2. Prerequisites: M32 (the branch is stacked on `claude/m32-earned-ou
 - [x] **33.1 Per-soldier variants on the existing rigs.** Each soldier picks one of 12 appearance variants and a render-only build (height 0.95-1.05, width 0.96-1.04) from its entity UUID, so every client agrees with no saved data or packets and hitboxes, reach and AI are unchanged. Variant 0 is the authored atlas; 1-11 vary skin tone (six tones), eye colour, hair at the sideburns and hairline, facial hair or scars, a headgear pattern (plain, blotch or band), 0-3 rank stripes and boot wear. A pure-JDK generator (`gradlew generateNpcVariants`) derives all 72 atlases from the Blockbench exports and only repaints pixels that are already opaque, so silhouettes and cutouts never change. *Packs need geometry per tier and move to M38 with the unit art rollout.*
 - [x] **33.2 One original sound set.** Three sound events replace the vanilla stand-ins: `npc.gear` (webbing and buckles on about every other soldier step), `launcher.fire` (launch thump, air release and the mechanism cycling; player and soldier launchers) and `post.radio` (garbled radio traffic, client-only ambience at a Command Post, about once a minute nearby). Every sample is synthesised by `scripts/generate-sounds.py` from sine partials, filtered noise and formant pulses: mono 44.1 kHz Vorbis, subtitled, no recordings or other mods' audio.
 - [ ] **33.3 Prove it, then Liam's look-and-listen check.** Automated evidence below on CI, then Liam plays a few minutes near a post with a squad. *Automated evidence passed 2026-11-12: Windows CI 43275994632 (180/180 GameTests, 1,533 art and 62 sound assertions, restart) and a 103-capture QA client run on Liam's PC. The first close-up showed a full-width moustache reading as an open mouth and overlapping arms; fixed with a goatee and wider spacing. Look-and-listen outstanding.*
-- [ ] **33.4 Separate animation experiment (D5).** Not started; needs Liam's D5 decision. M33 does not wait for it.
+- [ ] **33.4 Separate animation experiment (D5).** Approved by Liam on 2026-11-12 with the recommended library, GeckoLib 5.5.7 (MIT; latest release for 26.3, re-checked on its source repository the same day). Branch `claude/m33-d5-geckolib`. Only the Army Rifleman uses it; every other tier keeps the native rig. It merges only when the D5 gate passes and Liam approves the motion. M33 does not wait for it.
 
 **Exit gate (observable):**
 
@@ -761,7 +761,7 @@ Priority: P2. Prerequisites: M32 (the branch is stacked on `claude/m32-earned-ou
 
 ### Decisions Before M32 Starts
 
-Approved by Liam on 2026-11-12: D1 suggested costs, D2 96 blocks, D3 enable `vanilla_undead`, D4 the five onboarding missions. D5 and D6 stay open.
+Approved by Liam on 2026-11-12: D1 suggested costs, D2 96 blocks, D3 enable `vanilla_undead`, D4 the five onboarding missions. D5 approved later the same day (GeckoLib experiment). D6 stays open.
 
 - **D1 Recipe costs.** Suggested starting point: Post = 4 iron ingots, 1 copper ingot, 4 planks; Lab = 3 glass, 2 iron ingots, 3 stone. No samples, redstone or new components. Adjust after the earned run.
 - **D2 Post spacing.** Suggested 96 blocks: twice the 48-block defender area, so post areas never overlap. Configurable; 0 disables.
