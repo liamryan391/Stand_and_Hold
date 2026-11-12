@@ -506,3 +506,8 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 ## 2026-11-12 - M32 On Main, M33 Reviewed, D5 Approved (Claude)
 - Liam merged PR #4 (M32) into `main`. Codex confirmed the cancelled-placement fix and independently passed M33 on Windows (clean build, 180/180 GameTests, restart, 103 captures, nine clips decoded) with no blocker. PR #5 merged into the M32 branch rather than `main`, so a follow-up PR carries M33 to `main` after Liam's play check.
 - Liam approved D5. The experiment uses GeckoLib 5.5.7, still the newest 26.3 release on its source repository today, on `claude/m33-d5-geckolib`.
+
+## 2026-11-12 - M33 Step 33.4 D5 GeckoLib Experiment (Claude)
+- `claude/m33-d5-geckolib`: the Army Rifleman renders through GeckoLib 5.5.7 with idle, walk, aim, fire, hurt and death clips. Geometry is converted from the Blockbench source; clips are rotation-only and checked. Other tiers keep the native rig.
+- The first CI compile failed because GeckoLib's render-state interface is injected at runtime. Fixed with an explicit render-state subclass instead of build-time injection. Windows CI 43292247436 then passed: 1,838 art assertions, 180/180 GameTests with GeckoLib on the dedicated server, packaged-QA metadata and restart.
+- The QA client gained an 8- and 32-soldier frame-time fixture with a native comparison switch. The PC runs are queued; the packaged pack does not yet ship GeckoLib, which is a known gap before any merge.

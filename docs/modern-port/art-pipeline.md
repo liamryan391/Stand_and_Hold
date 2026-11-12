@@ -84,6 +84,16 @@ and commit the regenerated PNGs with the source. `ArtChecks` regenerates every v
 
 `assets/standandhold/sounds/` holds only original procedurally synthesised samples: soldier gear, launcher fire and cycle, and Command Post radio. Regenerate with `python scripts/generate-sounds.py` (numpy, scipy and ffmpeg with libvorbis); the recipes are seeded, so a re-run reproduces the same sounds unless a recipe changes. Files must be mono 44.1 kHz Vorbis so Minecraft can position them. `SoundChecks` decodes every file with Minecraft's own decoder and checks format, length, level, subtitles and that nothing unreferenced ships. Never add recorded, sampled or other mods' audio.
 
+### GeckoLib Experiment (D5, M33 step 33.4)
+
+On `claude/m33-d5-geckolib` only, the Army Rifleman renders through GeckoLib 5.5.7 (MIT, required dependency on that branch). Every other tier keeps the native rig. Sources:
+
+- Geometry: `assets/standandhold/geckolib/models/entity/army_rifleman.geo.json`, generated from `art/blockbench/army_rifleman.bbmodel` by `python scripts/export-geckolib-rifleman.py`. It copies cubes, pivots and UVs and adds the empty `RightHandItem`/`LeftHandItem` bones that GeckoLib uses for held items. Edit the `.bbmodel`, never the generated file; `ArtChecks` fails on drift.
+- Clips: `assets/standandhold/geckolib/animations/entity/army_rifleman.animation.json` (Bedrock animation format, editable in Blockbench with the GeckoLib plugin): `idle`, `walk` (leg swing locked to real movement through `query.limb_swing`), `aim`, `fire` (kick plus the support-hand cycle that lines up with the sound), `hurt` and `death`. Rotation only, so proportions never change. `ArtChecks` rejects unknown bones, keyframes past a clip's length and any Molang outside a short allow-list.
+- Logic: `RiflemanAnimation` picks clips from state the client already has (movement, the synced aim flag, the launcher-shot event, hurt, death). Nothing new is saved or sent. Variants and the render-only build apply as on the native rig.
+
+The QA client's `perf-riflemen-8` and `perf-riflemen-32` fixtures report mean frame time with an uncapped frame rate; run once normally and once with `-PqaNativeRifleman=true` to compare against the native rig on the same machine.
+
 ### Visual QA
 
 - Compare both humans front/back/sides in daylight and torchlight, including head turns, walking and melee swings. Survivor cap/pack and Rifleman helmet/vest must read as different silhouettes. Check every face for transparency, stretched UVs and missing-texture patterns.
