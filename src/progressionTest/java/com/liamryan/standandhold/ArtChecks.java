@@ -19,10 +19,68 @@ import javax.imageio.ImageIO;
 final class ArtChecks {
     private static int assertions;
     static void run() throws Exception {
-        sources(); launcher(); textBounds(); variants();
+        sources(); launcher(); textBounds(); variants(); geckoRifleman();
         System.out.println("Art checks passed: " + assertions + " assertions.");
     }
     /** M33: shipped soldier variants must match a fresh derivation from the exported atlases, keep every opaque pixel and differ. */
+    /** M33 D5: GeckoLib geometry mirrors the Blockbench source exactly, and every clip uses known bones and queries. */
+    private static void geckoRifleman() throws Exception {
+        Path geckolib = Path.of("src/main/resources/assets/standandhold/geckolib");
+        var source = JsonParser.parseString(Files.readString(Path.of("art/blockbench/army_rifleman.bbmodel"))).getAsJsonObject();
+        var geo = JsonParser.parseString(Files.readString(geckolib.resolve("models/entity/army_rifleman.geo.json"))).getAsJsonObject()
+                .getAsJsonArray("minecraft:geometry").get(0).getAsJsonObject();
+        check(geo.getAsJsonObject("description").get("texture_width").getAsInt() == 64, "GeckoLib rifleman uses the 64x64 atlas");
+        java.util.Map<String, com.google.gson.JsonObject> bones = new java.util.HashMap<>();
+        for (var bone : geo.getAsJsonArray("bones")) { bones.put(bone.getAsJsonObject().get("name").getAsString(), bone.getAsJsonObject()); }
+        java.util.Map<String, com.google.gson.JsonObject> elements = new java.util.HashMap<>();
+        for (var element : source.getAsJsonArray("elements")) { elements.put(element.getAsJsonObject().get("uuid").getAsString(), element.getAsJsonObject()); }
+        java.util.ArrayDeque<com.google.gson.JsonObject> groups = new java.util.ArrayDeque<>();
+        source.getAsJsonArray("outliner").forEach(group -> groups.add(group.getAsJsonObject()));
+        int sourceCubes = 0, geoCubes = 0;
+        while (!groups.isEmpty()) {
+            var group = groups.pop(); String name = group.get("name").getAsString(); var bone = bones.get(name);
+            check(bone != null && bone.getAsJsonArray("pivot").equals(group.getAsJsonArray("origin")), "GeckoLib bone and pivot match the source: " + name);
+            var cubes = bone.has("cubes") ? bone.getAsJsonArray("cubes") : new com.google.gson.JsonArray();
+            int index = 0;
+            for (var child : group.getAsJsonArray("children")) {
+                if (child.isJsonObject()) { groups.add(child.getAsJsonObject()); continue; }
+                var element = elements.get(child.getAsString()); var cube = cubes.get(index++).getAsJsonObject(); sourceCubes++;
+                var from = element.getAsJsonArray("from"); var to = element.getAsJsonArray("to");
+                for (int axis = 0; axis < 3; axis++) {
+                    check(cube.getAsJsonArray("origin").get(axis).getAsDouble() == from.get(axis).getAsDouble()
+                            && cube.getAsJsonArray("size").get(axis).getAsDouble() == to.get(axis).getAsDouble() - from.get(axis).getAsDouble(), "cube shape copied: " + name);
+                }
+                check(cube.getAsJsonArray("uv").equals(element.getAsJsonArray("uv_offset")), "cube UV copied: " + name);
+                check((cube.has("mirror") && cube.get("mirror").getAsBoolean()) == (element.has("mirror_uv") && element.get("mirror_uv").getAsBoolean()), "cube mirror copied: " + name);
+            }
+            check(index == cubes.size(), "no extra cubes in bone " + name); geoCubes += cubes.size();
+        }
+        check(sourceCubes == geoCubes && sourceCubes > 0, "every source cube is exported once");
+        check("right_arm".equals(bones.get("RightHandItem").get("parent").getAsString()) && "left_arm".equals(bones.get("LeftHandItem").get("parent").getAsString()),
+                "held-item bones ride the arms");
+        var clips = JsonParser.parseString(Files.readString(geckolib.resolve("animations/entity/army_rifleman.animation.json"))).getAsJsonObject().getAsJsonObject("animations");
+        String controller = Files.readString(Path.of("src/main/java/com/liamryan/standandhold/common/npc/RiflemanAnimation.java"));
+        var allowed = java.util.regex.Pattern.compile("(query\\.(head_x_rotation|head_y_rotation|limb_swing_amount|limb_swing|anim_time)|math\\.(sin|cos)|[-+*/(). 0-9])*");
+        for (String clip : java.util.List.of("idle", "walk", "aim", "fire", "hurt", "death")) {
+            check(clips.has(clip) && controller.contains('"' + clip + '"'), "clip exists and is used: " + clip);
+            var animation = clips.getAsJsonObject(clip); double length = animation.get("animation_length").getAsDouble();
+            for (var bone : animation.getAsJsonObject("bones").entrySet()) {
+                check(bones.containsKey(bone.getKey()), "clip " + clip + " animates a real bone: " + bone.getKey());
+                for (var channel : bone.getValue().getAsJsonObject().entrySet()) {
+                    check(channel.getKey().equals("rotation"), "rotation-only clips keep the rig's proportions: " + clip);
+                    java.util.List<com.google.gson.JsonElement> vectors = new java.util.ArrayList<>();
+                    if (channel.getValue().isJsonArray()) { vectors.add(channel.getValue()); }
+                    else { for (var frame : channel.getValue().getAsJsonObject().entrySet()) {
+                        check(Double.parseDouble(frame.getKey()) <= length + 1e-9, "keyframe inside the clip: " + clip);
+                        vectors.add(frame.getValue().getAsJsonObject().get("vector"));
+                    } }
+                    for (var vector : vectors) { for (var value : vector.getAsJsonArray()) {
+                        check(value.getAsJsonPrimitive().isNumber() || allowed.matcher(value.getAsString()).matches(), "known Molang only in " + clip + ": " + value);
+                    } }
+                }
+            }
+        }
+    }
     private static void variants() throws Exception {
         Path entity = Path.of("src/main/resources/assets/standandhold/textures/entity");
         check(NpcVariantArt.COUNT == com.liamryan.standandhold.common.npc.NpcVariants.COUNT, "generator and renderer agree on the variant count");

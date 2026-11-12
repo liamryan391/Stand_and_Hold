@@ -18,8 +18,11 @@ public final class StandAndHoldClient {
         bus.addListener(StandAndHoldClient::layers);
     }
     private static void renderers(EntityRenderersEvent.RegisterRenderers event) {
+        // M33 D5 experiment: the Army Rifleman uses GeckoLib keyframes unless the native rig is selected for a comparison run.
+        boolean nativeRifleman = Boolean.getBoolean("standandhold.nativeRifleman");
         for (HumanTier tier : HumanTier.values()) {
-            event.registerEntityRenderer(NpcRegistry.entityType(tier), context -> new HumanNpcRenderer(context, tier));
+            if (tier == HumanTier.ARMY_RIFLEMAN && !nativeRifleman) { event.registerEntityRenderer(NpcRegistry.entityType(tier), RiflemanGeoRenderer::new); }
+            else { event.registerEntityRenderer(NpcRegistry.entityType(tier), context -> new HumanNpcRenderer(context, tier)); }
         }
         event.registerEntityRenderer(com.liamryan.standandhold.common.equipment.EquipmentRegistry.PROJECTILE.get(), context -> new net.minecraft.client.renderer.entity.ThrownItemRenderer<>(context, 0.6F, true));
     }
