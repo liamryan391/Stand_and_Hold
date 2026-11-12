@@ -1,6 +1,6 @@
 # Modern Port Phase Roadmap
 
-This is the single phase roadmap for the NeoForge rewrite: foundation work M0-M21 and Roadmap 2 M22-M31. Existing identifiers stay stable; larger work is split prospectively, not renamed or silently added to a completed phase.
+This is the single phase roadmap for the NeoForge rewrite: foundation work M0-M21, Roadmap 2 M22-M31 and the Roadmap 3 draft from M32. Existing identifiers stay stable; larger work is split prospectively, not renamed or silently added to a completed phase.
 
 ## How To Track Work
 
@@ -637,9 +637,143 @@ Exit gate: observed regression, install, persistence and bounded session/load ev
 
 The internal closeout recorded positive maintainer feedback without claiming a completed 31.3 playthrough. The full grant-free run remains unchecked and does not block internal QA. See the [M31 fixture record](alpha-test-candidate.md#m31-integration-fixtures) for the observed two-client loopback, load and playtest evidence. Authenticated remote multiplayer remains a separate check.
 
+## Roadmap 3 - Earned Survival Start, Then A Living Army
+
+Draft for Codex review and Liam's scope approval; nothing here is approved for implementation yet. The product goal is that **a new player in a fresh, cheats-off Survival world reaches a working Command Post, completes first research and sees automatic defenders without an operator, a lucky seed or a wiki**. Only after that path is earned and measured do the larger army ideas (better models, an HQ "brain", variety, facilities, vehicles) start competing for milestones. Roadmap 2's Shared Exit Rules still apply unchanged.
+
+### Verified Starting Point
+
+Checked against `main` at the M31 internal baseline (NeoForge 26.3.0.102). These findings decide the M32 scope.
+
+| Finding | Where | Consequence |
+| --- | --- | --- |
+| No recipe produces a Command Post, Research Lab or Supply Crate; only equipment recipes exist. Natural checkpoints are one deterministic candidate per 12x12-chunk region, 1 in 2, then strict terrain checks with no retry. Their real density is unmeasured. | `data/standandhold/recipe/`, `StructureConfig`, `ResistanceSites` | **The biggest blocker.** Without a found site there is no Survival route to the loop. |
+| Every mission needs `/standandhold mission start`, which is operator-only. The guide tells non-operators to "ask an operator". | `CommandFoundation`, `CommandGuide` | Not a hard stop: research, kill points and Stage 1 work without missions. But non-operators lose 100 of the 150 Stage-1 points, plus 30 supplies and all signposting. |
+| A placed post registers on load, earns +1 point and +1 local supply per loaded minute and deploys at Stage 0. There is no spacing rule, only a 4,096-post registry cap. | `BuildingBlockEntity`, `HumanWorldData` | Recipes alone would let players stack crafted posts as a point and supply farm. M32 needs a spacing rule. |
+| Mission progress from kills, building ticks and research is computed but its messages are discarded. Only sample pickups and research completion reach a player. | `ThreatEvents`, `BuildingBlockEntity.refreshMissions` | Objectives complete silently in ordinary play. |
+| Default rewards map only exact `minecraft:zombie`. Husks, drowned and zombie villagers need the opt-in `vanilla_undead` preset. | `ThreatRules.DEFAULTS`, `ThreatConfig` | A desert or ocean start can be sample-locked. |
+| Level-1 posts hold 3 defenders, and Stage 0 fills them with Survivors. Riflemen (Stage 1) only appear when a slot frees or the post reaches Level 2. Level 2 needs 150 points, Initial Sample Analysis and 20 local supplies. | `DefenderCapacity`, `BuildingConfig` | The visible Stage-1 payoff is the Level-2 upgrade, and the post never says so. |
+| `stockpile_supplies` needs 20 global supplies, pays no supplies and precedes first research. Any building can Export a 10-batch back to global. Breaking a building returns its local stock to global. | `definitions.json`, `BuildingMenu` | Importing early is recoverable at once if unspent. If already spent, it takes about 10 loaded minutes of post generation. |
+| Starting a mission reads 0 for sample recovery; only the operator command then observes the actor's inventory. | `MissionManager.start`, `CommandFoundation.missionChange` | Samples carried before a mission starts need one explicit observation. |
+
+Expected default pacing for the M32 path (to be measured, not promised): about 9 zombie kills for 3 samples (+~45 points). Chain rewards of 25 x 4 plus 10 research points bring Stage 1 to roughly the moment first research completes. Survivors deploy one per loaded minute up to 3. Level 2, and with it the first Riflemen, is about 20-30 loaded minutes after the post is placed.
+
+### Choosing The First Slice
+
+**Blocker 1: getting a post (chosen: A).**
+
+| Option | For | Against |
+| --- | --- | --- |
+| A. Two vanilla crafting recipes (Post, Lab) unlocked through the recipe book | Small, data-driven, works in every world and seed, reuses loot/registration. Found checkpoints stay a richer shortcut. | Loses the "found the army" moment for players who craft first. Opens post stacking unless spacing is added. |
+| B. Guaranteed starter site near world spawn ("Phase 0") | Closest to the long-term vision. | Needs a spawn-area terrain search, which breaks the bounded no-retry worldgen rule. Does nothing for existing worlds. One shared site per multiplayer world. Larger test surface. |
+| C. First-join field kit item | Instant start. | Per-player state on world-shared progression. Rejoin/duplication edge cases. Skips the crafting signpost. |
+
+A wins because it is the only option that is small, works on any seed and is fully testable at logic and GameTest level. B returns as M34 once the earned loop is proven.
+
+**Blocker 2: missions need an operator (chosen: B, disagreeing with Codex's input).**
+
+| Option | For | Against |
+| --- | --- | --- |
+| A. Accept button per offered objective in the Command Post (Codex input) | Explicit consent. Keeps the M3 "start explicitly" model. | The chain starts only after a post exists. Five clicks that each complete instantly. Needs per-ID actions, stale-offer and click-race handling. Accepting Stockpile after an early import still hits the trap. |
+| B. The five onboarding missions auto-activate in catalog order once prerequisites complete (`auto_start` catalog flag) | No client action, so no stale offers or click races. Sample recovery is live from the first credited kill, so the mod introduces itself before a post exists. Stockpile is evaluated the instant Establish pays out. Proof is mostly logic-level. | Changes the explicit-start model for flagged IDs. Existing worlds can pay out on first refresh (internal alpha only, documented). Rewards need a visible notice. |
+| C. Let non-operators run `mission start` | Smallest code change. | Players must discover and type a command. Weak onboarding. |
+
+B removes the race and staleness problems instead of testing around them, and the Orders view gives the visible "moment" that Codex wanted from Accept. Operator start/progress/complete commands stay exactly as they are. A datapack can clear the flag to restore operator-started missions.
+
+### Sequence
+
+| Phase / branch | Priority | Prerequisites | Status | Maximum slice |
+| --- | --- | --- | --- | --- |
+| M32 `<writer>/m32-earned-outpost` | P1 | M31 baseline; Liam's D1-D4 | Detailed below | Recipes, spacing, auto-started onboarding, Orders view, ordinary undead rewards, earned-run evidence |
+| M33 `defend-the-post` | P2 | M32 | Provisional | One readable attack warning and `defend_outpost` made observable |
+| M34 `living-world-sites` | P2 | M32, M33 | Provisional | Stage-aware abandoned/damaged/manned checkpoint variants in new chunks |
+| M35 `army-look-and-sound` | P3 | Library decision D5; parallel spike allowed | Provisional | Variant skins/accessories, one unit on an admitted animation library, original sounds |
+| M36 `army-intelligence` | P2 | M33, M34 | Provisional | HQ threat profile and research recommendation; no autonomous spending |
+
+Later milestones are ordered by evidence, not by this table. Each must be re-planned against the code before it starts. A fresh packaged-install check (P1) is scheduled only when a distribution claim is wanted; it is not part of this sequence.
+
+### Phase M32 - First Earned Outpost
+
+Priority: P1. Prerequisites: M31 internal baseline on `main`, plus Liam's decisions D1-D4. No new dependency, pin, mission ID or world-format migration.
+
+- [ ] **32.1 Measure before changing.** In a logic check, list checkpoint candidates within 512 blocks of spawn for three fixed seeds. In a server fixture, generate those exact chunks and record how many pass terrain checks. Add a logic check that the default catalog's onboarding rewards and stage thresholds still produce the pacing above, so catalog edits that break it fail loudly. Report the numbers; tune nothing in M32.
+- [ ] **32.2 Make the Post and Lab obtainable, and bound them.**
+  - [ ] **32.2.1 Recipes.** Add two shaped recipes using vanilla items/tags and the existing item IDs, at D1 costs. Add one `inventory_changed` (iron ingot) recipe advancement in the existing format. The Supply Crate stays recipe-free. A crafted post gets no site provenance, crate stock or growth rights.
+  - [ ] **32.2.2 Spacing.** A player-placed Command Post is refused with a message giving the distance to the nearest registered post or Main Base in the same dimension when it is within D2 blocks. The block is not consumed. The check runs once, at placement, over the existing bounded registry. Generated sites and admin placement are unaffected. A config of 0 disables it. Labs and crates are not restricted.
+- [ ] **32.3 Run onboarding without an operator.** Add an optional `auto_start` boolean to mission definitions (format stays 1; absent means false; a wrong type fails catalog validation as other fields do). Flag the five early IDs in the default catalog. Inside the existing bounded `MissionManager.refresh`, start each flagged mission in catalog order when its prerequisites are complete and it has no saved state, then evaluate it through the existing start/update path. Observe the opener's carried samples once when a Command Post or Lab menu opens. Deliver each completion once: to the acting player when there is one, otherwise as a server notice like research completion. Progress lines go to the actor only. Leave `defend_outpost`, `establish_main_base` and every operator command unchanged.
+- [ ] **32.4 Show the objective and what blocks it.** Add an Orders view to the existing Command Post screen. It shows the current world-shared objective with its title, progress, a one-line condition and a state in words: Active, Blocked (reason plus the recovery action), Complete, or Unavailable (definitions changed or unreadable: reopen). Required blocked texts:
+  - Samples: "one player carries 3 at once (you: N)".
+  - Stockpile: "global X/20; supplies inside buildings do not count; Export 10 from a building holding 10 (this post: L, +1/min)".
+  - Research: "Lab: select, Import 10, Start".
+  - Stage: "P/150 points; credited kills and loaded posts add points".
+
+  When Stage 1 is reached and the post is full, the deployment line suggests the Level-2 upgrade. The server computes every value; mission titles travel with menu data like research titles. The guide points non-operators to the post instead of an operator. Operator help text is unchanged.
+- [ ] **32.5 Make ordinary undead count.** Per D3, ship `presets = ["vanilla_undead"]` as the default for new configs. Manual entries still precede presets, so a zombie is credited once. Existing config files keep their saved values; say so in the changelog and known issues.
+- [ ] **32.6 Prove it, then hand Liam the earned run.** Complete the evidence below, update existing build/known-issue/guide docs, then give Liam one cheats-off Survival run.
+
+**Systems reused:** `BuildingMenu` validation and sync, `MissionManager` receipts and exactly-once rewards, `SampleEvents` observation, `BuildingTransactions` import/export, the recipe-advancement format, the `vanilla_undead` preset, the QA client, the restart fixture and the packaged-QA scripts.
+
+**Non-goals:** No new missions, rewards, costs or stage thresholds beyond D1-D3. No starter kit, spawn-guaranteed site or checkpoint density change. No raid, defence, growth, duty or tier changes. No per-player progress or claims layer. No models, animation, sounds or library. No change to operator/debug commands. No legacy or world migration, Fabric, release or tag.
+
+**Exit gate (observable):**
+
+| Claim | Proof |
+| --- | --- |
+| Catalog flag parses absent/false/true/malformed; the chain auto-starts in order; each reward is paid once; repeated refresh is idempotent; the early-import path recovers through Export; guide text differs correctly for operators and non-operators | `progressionTest` logic checks (`FoundationChecks`, a mission check set, `GuideChecks`) |
+| Recipes resolve on the pinned target. A crafted post registers once with no provenance and deploys a Survivor at Stage 0. Spacing refuses a close post and leaves generated sites alone. | New GameTests |
+| Pre-carried samples count once on menu open; drop/re-pick adds nothing. Two server players finishing the same objective produce one reward and one completion notice. Husk/drowned credit once; zombie is not doubled. A reloaded catalog shows Unavailable and grants nothing. | New GameTests |
+| Mid-chain state (samples done, Stockpile at 10/20, Lab partly worked) survives a real restart with no repeat reward and no lost progress | `test-restart.ps1` extension (two-JVM) |
+| The Orders view is readable in all four states, the recipe book shows both blocks, and the deployment hint fits | `runQaClient` captures at normal and large GUI scale, opened and judged by the agent |
+| The normal jar contains the recipes and advancement, excludes QA classes and carries correct metadata | `clean build`, packaged-QA script, Windows CI |
+| A real player can earn it | Liam's cheats-off run below. M31's operator-assisted fixtures and grants never count here, and 31.3 stays unchecked unless its own scope is played. |
+
+**Liam's earned run (last, about 45-60 minutes, never blocks the technical merge):** fresh Survival world, cheats off, default config, no wiki.
+1. Note the clock when you first kill a zombie, place the post, see the first Survivor, finish research and reach Stage 1.
+2. Did the first sample message and the post's Orders view tell you what to do next?
+3. Did the recipe costs feel fair for day one?
+4. Was there any stretch of waiting with nothing useful to do, especially for supplies?
+5. Play about 5 more minutes. Does anything feel off or annoying?
+
+### Decisions Before M32 Starts
+
+- **D1 Recipe costs.** Suggested starting point: Post = 4 iron ingots, 1 copper ingot, 4 planks; Lab = 3 glass, 2 iron ingots, 3 stone. No samples, redstone or new components. Adjust after the earned run.
+- **D2 Post spacing.** Suggested 96 blocks: twice the 48-block defender area, so post areas never overlap. Configurable; 0 disables.
+- **D3 Ordinary undead.** Turn on `vanilla_undead` by default for new configs (recommended), or keep zombie-only.
+- **D4 Auto-start scope.** The five onboarding missions (recommended), or all seven. M33 owns the defence mission otherwise.
+- **D5 (for M35, not M32) Animation library.** Keep native `HumanoidModel` animation, or admit one exact-artifact candidate for a spike branch: GeckoLib (5.5.7 recorded for 26.3) or AzureLib (4.0.14 recorded for 26.3). Both are MIT. Pick at most one.
+
+### Provisional Later Milestones
+
+Each one becomes active only when Liam's feedback or measured evidence below justifies it, after re-checking the code.
+
+- **M33 Defend the post (P2).** One readable warning before a raid reaches a post. `defend_outpost` joins the Orders view and becomes observable in ordinary play. Reuses existing raid reservations, support costs and cooldowns; no new global director. *Moves forward if* the earned run reports "after Stage 1 nothing happened" or "never saw a real attack".
+- **M34 Living world sites (P2).** "Phase 0" presence: new-chunk checkpoints generate abandoned, damaged or manned based on world stage, plus small scattered Survivor camps. Deterministic per chunk, bounded, original layouts; existing sites are not retrofitted. A spawn-adjacent guarantee is re-evaluated here. *Moves forward if* players report the world feels empty, or found sites feel identical.
+- **M35 Army look and sound (P3).** Already justified by Liam's feedback that models look basic and repetitive.
+  1. Deterministic per-UUID visual variants (faces, skin tones, accessories, insignia) on the existing rigs. No saved data or library.
+  2. A spike branch that re-authors one unit (Rifleman) in Blockbench with keyframe animation on the D5 library, measured against the native rig for packaging, server-side loading, frame time and how it looks in motion.
+  3. One original sound set (footsteps, radio, launcher).
+
+  Variants and sounds can run in parallel with M33/M34 on a separate branch; the library only merges after approval. Other mods are reference for *ideas* only; no copied geometry, textures, animations or sounds.
+- **M36 Army intelligence (P2).** The HQ "brain", version 1: bounded per-world counters of credited kills by threat category (tags: undead, infection, alien, horror). The Main Base / HQ menu shows the threat profile and recommends the research that counters it. No autonomous spending in v1; a later version may let the HQ auto-queue research or bias the deployment roster when the player opts in. *Moves forward if* two or more threat categories are actually in play and players ask what to research.
+
+**Long-range direction (P3-P4, recorded, not scheduled).** One bounded slice at a time, each through Deferred Expansion Admission:
+- **Facilities:** Barracks for capacity, Field Hospital for healing, Armoury for equipment tiers. Each is a building kind with one tested function.
+- **Weapon roles, one at a time:** grenade, then an anti-infection flamethrower, then a support machine gun. Ammo and reload come later.
+- **Command structure:** squads and divisions with a visible chain of command.
+- **Self-upgrading Main Base:** extends the guarded growth system.
+- **Ground utility vehicle,** then combat vehicles.
+- **Missiles, then an ICBM-class strategic strike:** off by default, with griefing controls.
+- **Aircraft/jets:** last.
+- **An original in-house threat faction,** so the army has something to fight when no infection mod is installed.
+- **Infection-mod integration:** stays tag/registry based. As of this draft, The Flesh That Hates' newest build targets Forge 1.20.1 and Scape and Run: Parasites targets 1.12.2. Neither can run on the 26.3 pin today, so support is designed now and tested only against an exact compatible build later.
+
+### Automated Proof Versus Player Feedback
+
+Automation owns correctness: numbers, exactly-once rewards, permissions, persistence, packaging, text fit and server authority. Liam owns what automation cannot judge: whether the start is understandable without a wiki, whether pacing and costs feel fair, how combat and motion feel, and whether the army looks and sounds right. A dev run, synthetic player or operator fixture is never reported as an earned playthrough. Unrun checks stay unverified.
+
 ## Deferred Expansion Admission
 
-These are prioritised options, not numbered implementation milestones or an extra live roadmap. Scope them prospectively after the relevant alpha evidence; no installation, dependency or large-system approval is implied.
+These are prioritised options, not numbered implementation milestones or an extra live roadmap. Roadmap 3 admits items from here one bounded slice at a time; anything it does not schedule stays deferred. Scope them prospectively after the relevant alpha evidence; no installation, dependency or large-system approval is implied.
 
 - **P2:** Additional Level-4/5 outpost and Main Base growth, a mixed-role recruitment policy, richer supply/research facilities and missions that use the finished duties. Each needs a separate bounded layout/transaction/saved-state contract, not a single full-faction rewrite.
 - **P3:** Carry the proven motion pipeline to other units/armour and improve the prototype's original model/sounds; then scope one ammo/reload or weapon-role experiment at a time. No mass gun catalogue or combat rebalance hidden in art work.

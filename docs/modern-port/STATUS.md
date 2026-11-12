@@ -3,6 +3,7 @@ Updated: 2026-11-12
 
 ## Position
 - M31 internal QA closeout recorded Liam's positive feedback. The NeoForge 26.3.0.102 build stays internal-only.
+- Roadmap 3 is drafted on `claude/roadmap-3-planning` (Claude first pass): M32 First Earned Outpost in detail, M33-M36 provisional. Awaiting Codex review and Liam's scope approval.
 - The root handoff.md is the Codex/Claude entry point. STATUS remains authoritative; alternate implementation ownership and review.
 - NeoForge-first; Fabric M14 14.4-14.5 deferred. Pins: MC 26.3 / NeoForge 26.3.0.102 / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
 
@@ -19,4 +20,5 @@ Updated: 2026-11-12
 - Growth remains bounded; no power-loss/claim-mod guarantee or automatic repair. Independent beta/public release approval remains separate.
 
 ## Next Milestone
-`Continue: Roadmap 3 planning (prioritise Survival onboarding, scope the next NeoForge gameplay slice and define its verification gates; no release or tag).`
+Blocked on review: Codex reviews the Roadmap 3 draft; Liam approves M32 scope and decisions D1-D4 in the [phase roadmap](phase-roadmap.md#decisions-before-m32-starts). Then:
+`Continue: M32 steps 32.1-32.6 (measure, recipes and spacing, auto-started onboarding, Orders view, ordinary undead rewards, verification; no release or tag).`

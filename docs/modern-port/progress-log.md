@@ -462,3 +462,9 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 ## 2026-11-12 - M31 Maintainer Feedback
 - Liam reported that everything worked as intended. Reviewed the isolated checkpoint/guide/save log; it does not show a complete grant-free playthrough, so 31.3 stays unchecked.
 - Confirmed Windows CI 43128346307 on the internal baseline; `git diff --check` passed for this docs-only update. No gameplay or pin changes, new local build, release or tag. Next planning milestone in STATUS.md.
+
+## 2026-11-12 - Roadmap 3 Draft (Claude)
+- Drafted Roadmap 3 in the phase roadmap: M32 First Earned Outpost (recipes, post spacing, auto-started onboarding, Orders view, ordinary undead rewards) with exit gates; M33-M36 provisional.
+- Verified Codex's advisory input against code. Added: post-stacking farm once recipes exist, silent mission completions, zombie-only default rewards, Level-2 upgrade as the real Stage-1 payoff. Chose auto-start over a menu Accept button.
+- `git diff --check` passed. Docs only; no gameplay, pins, dependencies, legacy branch/tag, saves, release or tag changed. No build or game run: the cloud workspace cannot reach Gradle or NeoForge Maven.
+- Next: Codex review and Liam's decisions D1-D4, then M32 per STATUS.md.
