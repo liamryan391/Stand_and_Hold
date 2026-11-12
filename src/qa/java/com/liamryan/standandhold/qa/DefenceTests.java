@@ -66,7 +66,8 @@ final class DefenceTests {
             h.runAfterDelay(1, () -> {
                 ThreatResponse.tick(h.getLevel(), post);
                 var after = ThreatResponse.state(h.getLevel(), post);
-                h.assertTrue(!after.hasPending() && !after.raiders().isEmpty() && after.raids() == 1, "the warned wave arrives on the next post check");
+                h.assertTrue(!after.hasPending() && !after.raiders().isEmpty() && after.raids() == 1, "the warned wave arrives on the next post check: " + after
+                        + " at " + h.getLevel().getGameTime() + ", players " + h.getLevel().players().size() + ", difficulty " + h.getLevel().getDifficulty());
                 var center = h.absolutePos(HOME);
                 for (var mob : raiders(h)) {
                     double bearing = Math.toDegrees(Math.atan2(mob.getX() - (center.getX() + 0.5), -(mob.getZ() - (center.getZ() + 0.5))));
@@ -89,7 +90,8 @@ final class DefenceTests {
             h.runAfterDelay(1, () -> {
                 ThreatResponse.tick(h.getLevel(), post);
                 var after = ThreatResponse.state(h.getLevel(), post); long now = h.getLevel().getGameTime();
-                h.assertTrue(!after.hasPending() && after.raiders().isEmpty() && raiders(h).isEmpty(), "nobody near the post: the wave stands down");
+                h.assertTrue(!after.hasPending() && after.raiders().isEmpty() && raiders(h).isEmpty(), "nobody near the post: the wave stands down: " + after
+                        + " at " + now + ", players " + h.getLevel().players().size() + ", tagged " + raiders(h).size());
                 h.assertTrue(after.nextRaid() <= now + ResponseConfig.BACKOFF.get() && after.nextRaid() > now && after.raids() == 0,
                         "a short saved backoff replaces the cooldown; nothing counted");
                 h.succeed();
