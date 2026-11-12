@@ -134,9 +134,9 @@ public final class ThreatResponse {
         requirePost(level, post);
         if (level.getDifficulty() == Difficulty.PEACEFUL) { return "No raid in Peaceful difficulty."; }
         var data = ThreatWorldData.get(level.getServer()); var response = state(level, post); long now = level.getGameTime();
+        if (response.hasPending()) { return "Raid already incoming in " + Math.max(0, response.pendingRaid() - now) + " ticks."; }
         if (!response.raiders().isEmpty()) { return "Raid already reserved: " + response.raiders().size() + " raiders (unloaded UUIDs still count)."; }
         if (now < response.nextRaid()) { return "Raid cooldown: " + (response.nextRaid() - now) + " ticks."; }
-        if (response.hasPending()) { return "Raid already incoming in " + Math.max(0, response.pendingRaid() - now) + " ticks."; }
         var home = new BuildingPosition(level.dimension().identifier(), post.getBlockPos());
         // Reserve cooldown before side effects; exceptions/partial waves cannot become rapid retries.
         data.putResponse(home.key(), response.timers(ResponseRecord.after(now, ResponseConfig.RAID_COOLDOWN.get()), response.nextReinforcement()));

@@ -40,10 +40,10 @@ final class DefenceTests {
         player.snapTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 180, 0); return player;
     }
     private static void stage(GameTestHelper h, HumanStage stage) { HumanPointManager.setStage(h.getLevel().getServer(), stage); }
-    /** Brings the saved arrival forward so the test need not wait the configured lead; the octant is kept. */
-    private static void arriveSoon(GameTestHelper h, BuildingBlockEntity post, int ticks) {
+    /** Makes the saved arrival due now (test environments may not advance game time); the octant is kept. */
+    private static void arriveNow(GameTestHelper h, BuildingBlockEntity post) {
         var state = ThreatResponse.state(h.getLevel(), post);
-        ThreatWorldData.get(h.getLevel().getServer()).putResponse(key(h, post), state.pending(h.getLevel().getGameTime() + ticks, state.bearing()));
+        ThreatWorldData.get(h.getLevel().getServer()).putResponse(key(h, post), state.pending(Math.max(1, h.getLevel().getGameTime()), state.bearing()));
     }
     private static java.util.List<Mob> raiders(GameTestHelper h) {
         return h.getLevel().getEntitiesOfClass(Mob.class, new AABB(h.absolutePos(HOME)).inflate(20), mob -> mob.entityTags().contains(ThreatResponse.RAID_TAG));
@@ -62,8 +62,8 @@ final class DefenceTests {
                     && ThreatResponse.raid(h.getLevel(), post).startsWith("Raid already incoming"), "no second wave while one is warned");
             var menu = new BuildingMenu(1, player.getInventory(), post, FoundationResources.get(h.getLevel().getServer()));
             h.assertTrue(menu.number(BuildingMenu.RAID_ETA) > 0 && menu.number(BuildingMenu.RAID_BEARING) == warned.bearing(), "the post menu shows the incoming raid");
-            arriveSoon(h, post, 3);
-            h.runAfterDelay(4, () -> {
+            arriveNow(h, post);
+            h.runAfterDelay(1, () -> {
                 ThreatResponse.tick(h.getLevel(), post);
                 var after = ThreatResponse.state(h.getLevel(), post);
                 h.assertTrue(!after.hasPending() && !after.raiders().isEmpty() && after.raids() == 1, "the warned wave arrives on the next post check");
@@ -85,8 +85,8 @@ final class DefenceTests {
         h.runAfterDelay(2, () -> {
             ThreatResponse.warnRaid(h.getLevel(), post);
             QaPlayer.closeAll();
-            arriveSoon(h, post, 2);
-            h.runAfterDelay(3, () -> {
+            arriveNow(h, post);
+            h.runAfterDelay(1, () -> {
                 ThreatResponse.tick(h.getLevel(), post);
                 var after = ThreatResponse.state(h.getLevel(), post); long now = h.getLevel().getGameTime();
                 h.assertTrue(!after.hasPending() && after.raiders().isEmpty() && raiders(h).isEmpty(), "nobody near the post: the wave stands down");
