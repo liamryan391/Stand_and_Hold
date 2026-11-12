@@ -51,6 +51,7 @@ public final class StandAndHold {
         NpcRegistry.register(modEventBus);
         EquipmentRegistry.register(modEventBus);
         BuildingRegistry.register(modEventBus);
+        com.liamryan.standandhold.common.sound.StandAndHoldSounds.register(modEventBus);
         ResistanceSites.register(modEventBus);
         NeoForge.EVENT_BUS.addListener(ThreatEvents::onDrops);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, ResponseEvents::death);

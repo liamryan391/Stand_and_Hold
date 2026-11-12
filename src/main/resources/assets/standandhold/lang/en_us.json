@@ -173,5 +173,8 @@
   "gui.standandhold.order.shared": "Orders are shared by everyone in this world.",
   "gui.standandhold.deployment.4_upgrade": "Post full; Upgrade adds %s slot(s)",
   "message.standandhold.post_too_close": "Too close to another Command Post (%s blocks away). Posts need %s blocks between them: use the existing post or build further away.",
-  "message.standandhold.orders_unavailable": "Orders unavailable: %s"
+  "message.standandhold.orders_unavailable": "Orders unavailable: %s",
+  "subtitles.standandhold.npc.gear": "Soldier's gear rattles",
+  "subtitles.standandhold.launcher.fire": "Launcher fires and cycles",
+  "subtitles.standandhold.post.radio": "Field radio chatters"
 }

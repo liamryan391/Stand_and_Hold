@@ -9,6 +9,8 @@ import com.liamryan.standandhold.common.npc.DefenderCapacity;
 import com.liamryan.standandhold.common.npc.DefenderDuties;
 import com.liamryan.standandhold.common.npc.DefenderDuty;
 import com.liamryan.standandhold.common.npc.HumanNpc;
+import com.liamryan.standandhold.common.npc.HumanTier;
+import com.liamryan.standandhold.common.npc.NpcVariants;
 import com.liamryan.standandhold.config.NpcConfig;
 import com.liamryan.standandhold.common.research.ResearchManager;
 import com.liamryan.standandhold.common.mission.MissionManager;
@@ -95,7 +97,7 @@ public final class QaClient {
     private boolean ordersPressed;
     private static net.minecraft.nbt.Tag ordersBackup;
     private final String id = System.getProperty("standandhold.qa.id", UUID.randomUUID().toString());
-    private final long deadline = System.nanoTime() + 300_000_000_000L;
+    private final long deadline = System.nanoTime() + 360_000_000_000L;
     private CompletableFuture<Void> serverAction;
     private int phase, view, settle, previousPhase = -1, phaseTicks;
     private boolean capturing, finished;
@@ -837,11 +839,29 @@ public final class QaClient {
                     if (++settle >= 10) { capture(mc, "motion-launcher-inventory", 134); }
                 }
                 case 134 -> {
-                    mc.gui.setScreen(null); phase = 135;
-                    onServer(mc, () -> {
-                        var actor = player(mc); actor.closeContainer();
-                        actor.connection.teleport(152.5, -57, 18.5, 180, 10);
-                    });
+                    mc.gui.setScreen(null); if (!mc.gui.hud.isHidden()) { mc.gui.hud.toggle(); }
+                    phase = 141; variantView = 0;
+                    onServer(mc, () -> { player(mc).closeContainer(); variantScene(mc); });
+                }
+                case 141 -> {
+                    if (++settle > 300) { throw new IllegalStateException("Variant lineup did not render: " + VARIANT_VIEWS.get(variantView)); }
+                    if (settle < 30 || !mc.levelRenderer.isSectionCompiledAndVisible(VARIANT_ROW, 0)) { return; }
+                    int seen = 0;
+                    for (var entity : mc.level.entitiesForRendering()) {
+                        if (entity instanceof HumanNpc npc && variantNpcs.containsKey(npc.getUUID())) {
+                            if (NpcVariants.index(npc.getUUID()) != variantNpcs.get(npc.getUUID())) { throw new IllegalStateException("Client variant differs from fixture"); }
+                            seen++;
+                        }
+                    }
+                    if (seen == variantNpcs.size()) { capture(mc, VARIANT_VIEWS.get(variantView), 142); }
+                }
+                case 142 -> {
+                    if (++variantView < VARIANT_VIEWS.size()) { phase = 141; onServer(mc, () -> variantScene(mc)); }
+                    else {
+                        if (mc.gui.hud.isHidden()) { mc.gui.hud.toggle(); }
+                        phase = 135;
+                        onServer(mc, () -> { clearVariants(mc); player(mc).connection.teleport(152.5, -57, 18.5, 180, 10); });
+                    }
                 }
                 case 135 -> {
                     if (++settle > 300) { throw new IllegalStateException("Main Base fixture chunk did not load"); }
@@ -961,6 +981,48 @@ public final class QaClient {
         level.addFreshEntity(npc); motionNpc = npc.getUUID();
         player.getInventory().setItem(player.getInventory().getSelectedSlot(), EquipmentRegistry.PROTOTYPE.get().getDefaultInstance());
         player.connection.teleport(111.5, 64, 10.8, 157, 7);
+    }
+    /** M33 lineups: soldiers with fixture UUIDs chosen to land on known variant indices, posed without AI on a lit platform. */
+    private static final List<String> VARIANT_VIEWS = List.of("variants-riflemen-day", "variants-tiers-day", "variants-closeup", "variants-torchlight");
+    private static final BlockPos VARIANT_ROW = new BlockPos(112, 64, 30);
+    private final Map<UUID, Integer> variantNpcs = new HashMap<>();
+    private int variantView;
+    private static UUID variantId(int index, int salt) {
+        for (int n = 0; ; n++) {
+            var id = UUID.nameUUIDFromBytes(("standandhold-qa-variant-" + salt + "-" + n).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            if (NpcVariants.index(id) == index) { return id; }
+        }
+    }
+    private void clearVariants(Minecraft mc) {
+        var level = mc.getSingleplayerServer().overworld();
+        for (var id : variantNpcs.keySet()) { var entity = level.getEntity(id); if (entity != null) { entity.discard(); } }
+        variantNpcs.clear();
+    }
+    private void variantScene(Minecraft mc) {
+        var level = mc.getSingleplayerServer().overworld(); var player = player(mc);
+        clearVariants(mc);
+        if (variantView == 0) {
+            for (var pos : BlockPos.betweenClosed(100, 63, 24, 126, 63, 42)) { level.setBlockAndUpdate(pos, Blocks.STONE_BRICKS.defaultBlockState()); }
+        }
+        boolean night = variantView == 3, close = variantView == 2;
+        level.clockManager().setTotalTicks(level.dimensionType().defaultClock().orElseThrow(), night ? 18000 : 6000);
+        for (int x = 100; x <= 126; x++) { level.setBlockAndUpdate(new BlockPos(x, 64, 31), night && x % 3 == 0 ? Blocks.TORCH.defaultBlockState() : Blocks.AIR.defaultBlockState()); }
+        int count = close ? 4 : 12;
+        double spacing = close ? 1.0 : 1.5, start = VARIANT_ROW.getX() + 0.5 - spacing * (count - 1) / 2;
+        for (int i = 0; i < count; i++) {
+            HumanTier tier = variantView == 1 ? HumanTier.values()[i / 2] : HumanTier.ARMY_RIFLEMAN;
+            int index = switch (variantView) { case 1 -> (i * 5 + 1) % NpcVariants.COUNT; case 2 -> 1 + i * 3; default -> i; };
+            var npc = NpcRegistry.entityType(tier).create(level, EntitySpawnReason.COMMAND);
+            var id = variantId(index, variantView * 100 + i);
+            npc.setUUID(id); npc.setNoAi(true);
+            npc.snapTo(start + i * spacing, 64, VARIANT_ROW.getZ() + 0.5, 0, 0);
+            npc.setYHeadRot(0); npc.setYBodyRot(0);
+            if (!level.addFreshEntity(npc)) { throw new IllegalStateException("Variant fixture refused"); }
+            variantNpcs.put(id, index);
+        }
+        player.getAbilities().flying = true; player.onUpdateAbilities();
+        if (close) { player.connection.teleport(VARIANT_ROW.getX() + 0.5, 64.1, VARIANT_ROW.getZ() + 3.6, 180, 4); }
+        else { player.connection.teleport(VARIANT_ROW.getX() + 0.5, 65.5, VARIANT_ROW.getZ() + 11.5, 180, 9); }
     }
     private void checkDeckUnchanged(Minecraft mc) {
         var level=mc.getSingleplayerServer().overworld(); var post=tile(level,growthPost);

@@ -19,8 +19,46 @@ import javax.imageio.ImageIO;
 final class ArtChecks {
     private static int assertions;
     static void run() throws Exception {
-        sources(); launcher(); textBounds();
+        sources(); launcher(); textBounds(); variants();
         System.out.println("Art checks passed: " + assertions + " assertions.");
+    }
+    /** M33: shipped soldier variants must match a fresh derivation from the exported atlases, keep every opaque pixel and differ. */
+    private static void variants() throws Exception {
+        Path entity = Path.of("src/main/resources/assets/standandhold/textures/entity");
+        check(NpcVariantArt.COUNT == com.liamryan.standandhold.common.npc.NpcVariants.COUNT, "generator and renderer agree on the variant count");
+        try (var listed = Files.list(entity.resolve("variants"))) {
+            check(listed.count() == (long) NpcVariantArt.TIERS.size() * NpcVariantArt.COUNT, "exactly one PNG per tier and variant, no strays");
+        }
+        for (String tier : NpcVariantArt.TIERS) {
+            BufferedImage base = ImageIO.read(entity.resolve(tier + ".png").toFile());
+            var seen = new java.util.HashSet<String>();
+            for (int i = 0; i < NpcVariantArt.COUNT; i++) {
+                BufferedImage shipped = ImageIO.read(entity.resolve("variants/" + tier + "_" + i + ".png").toFile());
+                BufferedImage fresh = NpcVariantArt.variant(base, tier, i);
+                check(shipped.getWidth() == 64 && shipped.getHeight() == 64, "variant atlas is 64x64");
+                StringBuilder key = new StringBuilder();
+                boolean same = true, alphaKept = true;
+                for (int y = 0; y < 64; y++) { for (int x = 0; x < 64; x++) {
+                    int a = shipped.getRGB(x, y), b = fresh.getRGB(x, y);
+                    same &= a == b || (a >>> 24 == 0 && b >>> 24 == 0);
+                    alphaKept &= (a >>> 24) == (base.getRGB(x, y) >>> 24);
+                    key.append(Integer.toHexString(a));
+                } }
+                check(same, "variant " + tier + "_" + i + " is current with its exported atlas (run gradlew generateNpcVariants)");
+                check(alphaKept, "variant keeps exactly the authored opaque/cutout shape");
+                check(seen.add(key.toString()), "variants of " + tier + " are all different");
+            }
+        }
+        var counts = new int[com.liamryan.standandhold.common.npc.NpcVariants.COUNT];
+        var random = new java.util.Random(4242);
+        for (int i = 0; i < 12000; i++) {
+            var id = new java.util.UUID(random.nextLong(), random.nextLong());
+            counts[com.liamryan.standandhold.common.npc.NpcVariants.index(id)]++;
+            float h = com.liamryan.standandhold.common.npc.NpcVariants.height(id), w = com.liamryan.standandhold.common.npc.NpcVariants.width(id);
+            if (i < 200) { check(h >= 0.949F && h <= 1.051F && w >= 0.959F && w <= 1.041F, "render-only build stays within a few percent"); }
+            if (i < 50) { check(com.liamryan.standandhold.common.npc.NpcVariants.index(id) == com.liamryan.standandhold.common.npc.NpcVariants.index(new java.util.UUID(id.getMostSignificantBits(), id.getLeastSignificantBits())), "same UUID, same look on every client"); }
+        }
+        for (int count : counts) { check(count > 800 && count < 1200, "UUIDs spread evenly over the variants"); }
     }
     private static void sources() throws Exception {
         Path root = Path.of("src/main/resources/assets/standandhold");
