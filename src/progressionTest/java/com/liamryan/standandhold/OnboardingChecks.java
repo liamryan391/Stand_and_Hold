@@ -34,6 +34,7 @@ final class OnboardingChecks {
         autoStart(catalog);
         preCarriedAndShared(catalog);
         earlyImportRecovers(catalog);
+        staleRecordsGrantNothing(catalog);
         earnedStageOne(catalog);
         boundedAndSafe(catalog);
         spacing();
@@ -86,6 +87,18 @@ final class OnboardingChecks {
             check(MissionManager.sync(data, catalog, THRESHOLDS, 3).isEmpty(), "a second player observing the same shared order gets no second reward");
         }
         check(data.points() == 75 && data.supplies() == 20, "shared receipts hold across repeated observations");
+    }
+
+    private static void staleRecordsGrantNothing(FoundationCatalog catalog) {
+        var data = new HumanWorldData();
+        data.registerCommandPost(POST);
+        MissionManager.sync(data, catalog, THRESHOLDS, 3, () -> false);
+        check(data.mission("standandhold:recover_parasite_samples").orElseThrow().completed()
+                && !data.mission("standandhold:establish_field_command").orElseThrow().completed() && data.points() == 25,
+                "a registry record without a live post grants no first-time post credit");
+        var notices = MissionManager.sync(data, catalog, THRESHOLDS, -1, () -> true);
+        check(notices.get(0).change() == Change.COMPLETED && notices.get(0).mission().id().equals("standandhold:establish_field_command"),
+                "the same order completes once a live post is observed");
     }
 
     private static void earlyImportRecovers(FoundationCatalog catalog) {
@@ -174,6 +187,12 @@ final class OnboardingChecks {
         check(PostSpacing.tooClose(data, overworld, new BlockPos(96, 64, 0), 96).isEmpty(), "exactly the configured spacing is allowed");
         check(PostSpacing.tooClose(data, overworld, new BlockPos(5, 64, 0), 0).isEmpty(), "spacing 0 disables the rule");
         check(PostSpacing.tooClose(new HumanWorldData(), overworld, BlockPos.ZERO, 96).isEmpty(), "the first post is always allowed");
+        var checked = new java.util.ArrayList<BlockPos>();
+        data.registerCommandPost(BuildingPosition.parse("minecraft:overworld@500,64,0").orElseThrow());
+        check(PostSpacing.tooClose(data, overworld, new BlockPos(60, 64, 60), 96, record -> { checked.add(record.pos()); return false; }).isEmpty(),
+                "a stale record inside the spacing does not block");
+        check(checked.equals(List.of(POST.pos())), "only records inside the spacing are validated; distant ones are never inspected");
+        check(PostSpacing.tooClose(data, overworld, new BlockPos(60, 64, 60), 96, record -> true).getAsInt() == 84, "an unverified (unloaded) record still blocks");
     }
 
     /** 32.1 measurement and pacing guard. Prints numbers for the roadmap; fails only if the default path stops being earnable. */

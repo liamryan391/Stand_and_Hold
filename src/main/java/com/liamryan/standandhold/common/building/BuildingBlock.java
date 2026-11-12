@@ -10,7 +10,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -30,7 +32,10 @@ public final class BuildingBlock extends BaseEntityBlock {
         if (kind == BuildingKind.COMMAND_POST && context.getLevel() instanceof ServerLevel server) {
             try {
                 int spacing = BuildingConfig.POST_SPACING.get();
-                var close = PostSpacing.tooClose(HumanWorldData.get(server.getServer()), server.dimension().identifier(), context.getClickedPos(), spacing);
+                var data = HumanWorldData.get(server.getServer());
+                // A loaded record with no post is stale and is cleaned instead of blocking; unloaded records still block.
+                var close = PostSpacing.tooClose(data, server.dimension().identifier(), context.getClickedPos(), spacing,
+                        record -> !BuildingPositions.cleanIfStale(server, data, record.key()));
                 if (close.isPresent()) {
                     if (context.getPlayer() instanceof ServerPlayer player) {
                         player.sendSystemMessage(Component.translatable("message.standandhold.post_too_close", close.getAsInt(), spacing));
@@ -42,6 +47,18 @@ public final class BuildingBlock extends BaseEntityBlock {
             }
         }
         return super.getStateForPlacement(context);
+    }
+    /** Registers a placed post in the same call, so a second placement in the same tick sees it; also credits the placer. */
+    @Override public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity by, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, by, stack);
+        if (kind != BuildingKind.COMMAND_POST || !(level instanceof ServerLevel server)
+                || !(level.getBlockEntity(pos) instanceof BuildingBlockEntity post) || post.isMainBase()) { return; }
+        try {
+            HumanWorldData.get(server.getServer()).registerCommandPost(new BuildingPosition(server.dimension().identifier(), pos));
+            MissionNotices.sync(server.getServer(), by instanceof ServerPlayer player ? player : null, MissionNotices.NOT_OBSERVED, false);
+        } catch (IllegalArgumentException | IllegalStateException exception) {
+            LogUtils.getLogger().debug("Placed Command Post registration deferred to load: {}", exception.getMessage());
+        }
     }
     @Override protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (!level.isClientSide() && !player.isSpectator() && level.getBlockEntity(pos) instanceof BuildingBlockEntity building) {

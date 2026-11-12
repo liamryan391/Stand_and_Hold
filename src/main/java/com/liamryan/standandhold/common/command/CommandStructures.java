@@ -140,7 +140,7 @@ final class CommandStructures {
             var data = HumanWorldData.get(source.getServer());
             source.sendSuccess(() -> Component.literal(result.message() + " Registered posts: " + data.commandPostKeys().size()
                     + "; Main Bases: " + data.mainBaseKeys().size() + "."), true);
-            CommandFoundation.orders(data, FoundationResources.get(source.getServer()))
+            CommandFoundation.orders(source.getServer(), data, FoundationResources.get(source.getServer()))
                     .forEach(message -> source.sendSuccess(() -> Component.literal(message), false));
             return 1;
         } catch (IllegalArgumentException | IllegalStateException exception) { throw ERROR.create(exception.getMessage()); }

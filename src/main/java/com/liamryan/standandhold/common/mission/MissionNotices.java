@@ -1,5 +1,6 @@
 package com.liamryan.standandhold.common.mission;
 
+import com.liamryan.standandhold.common.building.BuildingPositions;
 import com.liamryan.standandhold.common.command.CommandGuide;
 import com.liamryan.standandhold.common.foundation.FoundationCatalog;
 import com.liamryan.standandhold.common.foundation.FoundationResources;
@@ -15,8 +16,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 /**
- * Delivers {@link MissionManager#sync} results. World-shared order starts/completions reach every online player once;
- * progress lines reach only the acting player. Server thread only; no ticking, polling or world scans.
+ * Delivers {@link MissionManager#sync} results. A completion changes shared world state, so one short line reaches
+ * every online player once. Start instructions and progress go to the acting player; with no actor, a start is one
+ * short server line and the Orders tab is the place to catch up. Server thread only; no ticking, polling or world scans.
  */
 public final class MissionNotices {
     public static final int NOT_OBSERVED = -1;
@@ -28,7 +30,9 @@ public final class MissionNotices {
         try {
             FoundationCatalog catalog = FoundationResources.get(server);
             long[] thresholds = HumanProgressionConfig.thresholds();
-            deliver(server, actor, MissionManager.sync(HumanWorldData.get(server), catalog, thresholds, carried), catalog, thresholds, explicit);
+            HumanWorldData data = HumanWorldData.get(server);
+            deliver(server, actor, MissionManager.sync(data, catalog, thresholds, carried, () -> BuildingPositions.anyLivePost(server, data)),
+                    catalog, thresholds, explicit);
         } catch (IllegalArgumentException | IllegalStateException exception) {
             if (explicit && actor != null) { actor.sendSystemMessage(Component.translatable("message.standandhold.orders_unavailable", String.valueOf(exception.getMessage()))); }
             else { LogUtils.getLogger().debug("Order update paused: {}", exception.getMessage()); }
@@ -49,8 +53,13 @@ public final class MissionNotices {
         for (var notice : notices) {
             switch (notice.change()) {
                 case STARTED -> {
-                    broadcast(server, Component.literal(notice.text()).withStyle(ChatFormatting.GOLD));
-                    broadcast(server, Component.literal(hint(notice.mission(), catalog, thresholds)).withStyle(ChatFormatting.GRAY));
+                    if (actor != null) {
+                        actor.sendSystemMessage(Component.literal(notice.text()).withStyle(ChatFormatting.GOLD));
+                        actor.sendSystemMessage(Component.literal(hint(notice.mission(), catalog, thresholds)).withStyle(ChatFormatting.GRAY));
+                    } else {
+                        // No acting player (building ticks): one short line; the Orders tab carries the instructions.
+                        broadcast(server, Component.literal(notice.text() + ". Details: any Command Post, Orders tab.").withStyle(ChatFormatting.GOLD));
+                    }
                 }
                 case COMPLETED -> broadcast(server, Component.literal(notice.text()).withStyle(ChatFormatting.GREEN));
                 case PROGRESS -> { if (actor != null) { actor.sendSystemMessage(Component.literal(notice.text())); } }

@@ -50,6 +50,8 @@ final class OnboardingTests {
         tests.put("onboarding_shared_order_two_players", OnboardingTests::shared);
         tests.put("onboarding_ordinary_undead_credit", OnboardingTests::undead);
         tests.put("onboarding_orders_menu_states", OnboardingTests::menu);
+        tests.put("onboarding_spacing_same_tick", OnboardingTests::sameTick);
+        tests.put("onboarding_stale_post_records", OnboardingTests::staleRecords);
         return tests;
     }
 
@@ -143,6 +145,53 @@ final class OnboardingTests {
                 h.assertTrue(data(h).commandPostKeys().size() == 4, "allowed posts register normally");
                 h.succeed();
             });
+        });
+    }
+
+    /** Two item placements in one server tick: the first registers at placement, so the second is refused. */
+    private static void sameTick(GameTestHelper h) {
+        QaWorld.begin(h);
+        int saved = BuildingConfig.POST_SPACING.get();
+        try {
+            BuildingConfig.POST_SPACING.set(96);
+            var player = player(h, HOME.offset(-20, 0, 24));
+            h.assertTrue(placePost(h, player, HOME.offset(-20, 0, 21)), "the first post is placed");
+            h.assertTrue(data(h).commandPostKeys().size() == 1, "it registers in the same call, before its block entity loads");
+            h.assertFalse(placePost(h, player, HOME.offset(0, 0, 21)), "a second post 20 blocks away in the same tick is refused");
+            h.assertTrue(data(h).commandPostKeys().size() == 1 && player.messages("message.standandhold.post_too_close") == 1, "only one post registered");
+        } finally { BuildingConfig.POST_SPACING.set(saved); }
+        h.runAfterDelay(2, () -> {
+            h.assertTrue(data(h).commandPostKeys().size() == 1, "loading the placed post does not register it twice");
+            h.succeed();
+        });
+    }
+
+    /** Loaded records with no post neither block placement nor grant first-time post credit; unloaded records are kept. */
+    private static void staleRecords(GameTestHelper h) {
+        QaWorld.begin(h);
+        var dimension = h.getLevel().dimension().identifier();
+        var stale = new BuildingPosition(dimension, h.absolutePos(HOME.offset(-10, 0, 21)));
+        var far = new BuildingPosition(dimension, h.absolutePos(HOME).offset(100_000, 0, 0));
+        var player = player(h, HOME.offset(-20, 0, 24));
+        h.runAfterDelay(2, () -> {
+            data(h).registerCommandPost(stale); data(h).registerCommandPost(far);
+            carry(player, 3); SampleEvents.observe(player);
+            h.assertTrue(data(h).mission(RECOVER).map(s -> s.completed()).orElse(false)
+                    && data(h).mission("standandhold:establish_field_command").map(s -> !s.completed()).orElse(false),
+                    "stale or unloaded post records grant no Establish credit");
+            h.assertTrue(!data(h).commandPostKeys().contains(stale.key()) && data(h).commandPostKeys().contains(far.key()),
+                    "the loaded stale record is cleaned; the unloaded record is kept without loading its chunk");
+            data(h).registerCommandPost(stale);
+            int saved = BuildingConfig.POST_SPACING.get();
+            try {
+                BuildingConfig.POST_SPACING.set(96);
+                h.assertTrue(placePost(h, player, HOME.offset(-20, 0, 21)), "a stale record 10 blocks away does not block a real post");
+            } finally { BuildingConfig.POST_SPACING.set(saved); }
+            h.assertTrue(!data(h).commandPostKeys().contains(stale.key()) && data(h).commandPostKeys().contains(far.key()),
+                    "placement cleans the stale record it met and keeps the unloaded one");
+            h.assertTrue(data(h).mission("standandhold:establish_field_command").map(s -> s.completed()).orElse(false)
+                    && player.count("Order complete: Establish Field Command") == 1, "the real placed post earns Establish once");
+            h.succeed();
         });
     }
 

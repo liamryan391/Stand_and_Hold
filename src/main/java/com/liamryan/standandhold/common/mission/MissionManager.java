@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 public final class MissionManager {
     private MissionManager() { }
@@ -85,6 +86,11 @@ public final class MissionManager {
      * no inventory was observed. Bounded to one pass per catalog entry; never ticks, scans the world or loads chunks.
      */
     public static List<Notice> sync(HumanWorldData data, FoundationCatalog catalog, long[] thresholds, int carried) {
+        return sync(data, catalog, thresholds, carried, data::hasCommandPosts);
+    }
+
+    /** {@code livePost}: evidence that a real Command Post exists (gameplay passes a loaded-only check, never the bare registry). */
+    public static List<Notice> sync(HumanWorldData data, FoundationCatalog catalog, long[] thresholds, int carried, BooleanSupplier livePost) {
         if (carried < -1) { throw new IllegalArgumentException("Negative carried sample count."); }
         data.requireSupportedVersion();
         List<Notice> notices = new ArrayList<>();
@@ -99,7 +105,8 @@ public final class MissionManager {
                     if (state.isPresent() && state.get().completed()) { continue; }
                     boolean starting = state.isEmpty();
                     if (starting && (!mission.autoStart() || !prerequisitesComplete(data, mission))) { continue; }
-                    long observed = mission.objective() == Mission.Objective.SAMPLE_RECOVERY ? Math.max(0, carried) : observed(data, mission, thresholds);
+                    long observed = mission.objective() == Mission.Objective.SAMPLE_RECOVERY ? Math.max(0, carried)
+                            : mission.objective() == Mission.Objective.COMMAND_POST ? (livePost.getAsBoolean() ? 1 : 0) : observed(data, mission, thresholds);
                     Update update = update(data, mission, thresholds, observed);
                     if (!update.changed()) { continue; }
                     changed = true;
