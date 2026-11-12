@@ -491,3 +491,8 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Codex's PR review: a placement cancelled through NeoForge's place event could keep the Establish receipt and rewards. Registration and order sync moved from `setPlacedBy` to a lowest-priority accepted-placement listener.
 - New GameTest `onboarding_cancelled_placement_no_reward`. Windows CI 43263085596 and PR run 43263099381: build, 55 onboarding assertions, 178/178 GameTests, two-JVM restart passed. No local rerun; no UI change.
 - PR #4 stays draft for Codex's re-review and Liam's cheats-off run.
+
+## 2026-11-12 - M32 PR #4 Re-review Fix (Claude)
+- Codex: a same-priority listener could still cancel after a LOWEST listener saved the reward. Registration and order sync now run in the `onPlace` callback NeoForge calls only for accepted item placements; `setPlacedBy` only marks the tile. The QA cancel guard runs at LOWEST from the later-loading QA mod.
+- CI caught `preview_worldgen_boundary`: the first version created tiles on lookup in `onPlace`. Fixed with a non-creating lookup gated on the item-placement marker. Windows CI 43268709270: 178/178 GameTests, two-JVM restart passed.
+- Liam chose to play M32 later; M33 starts on a branch stacked on M32 with its own PR.
