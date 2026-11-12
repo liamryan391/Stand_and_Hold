@@ -642,7 +642,7 @@ The internal closeout recorded positive maintainer feedback without claiming a c
 Claude owns this roadmap; Codex reviews it and alternates implementation (see the [handoff](../../handoff.md)); Liam approves scope and the numbered decisions. Roadmap 3 has two goals, in order:
 
 1. **A new player in a fresh, cheats-off Survival world reaches a working Command Post, completes first research and sees automatic defenders without an operator, a lucky seed or a wiki** (M32).
-2. **The army starts to look, sound and behave like a living force with a headquarters at its heart**: non-repetitive soldiers on a better model/animation pipeline, a readable attack, a "Phase 0" world of scattered survivors and abandoned or active sites, and the first HQ intelligence (M33-M37).
+2. **The army starts to look, sound and behave like a living force with a headquarters at its heart**: non-repetitive soldiers with original sounds (and, if a tested experiment earns it, a better animation pipeline), a readable attack, a "Phase 0" world of scattered survivors and abandoned or active sites, and the first HQ intelligence (M33-M37).
 
 Everything larger (divisions, facilities, arsenal, vehicles, missiles, jets) is placed in the [future roadmaps](#future-roadmaps-provisional) so Liam can see when it lands. Roadmap 2's Shared Exit Rules still apply unchanged.
 
@@ -673,7 +673,7 @@ Expected default pacing for the M32 path (to be measured, not promised): about 9
 | B. Guaranteed starter site near world spawn ("Phase 0") | Closest to the long-term vision. | Needs a spawn-area terrain search, which breaks the bounded no-retry worldgen rule. Does nothing for existing worlds. One shared site per multiplayer world. Larger test surface. |
 | C. First-join field kit item | Instant start. | Per-player state on world-shared progression. Rejoin/duplication edge cases. Skips the crafting signpost. |
 
-A wins because it is the only option that is small, works on any seed and is fully testable at logic and GameTest level. B returns as M34 once the earned loop is proven.
+A wins because it is the only option that is small, works on any seed and is fully testable at logic and GameTest level. B returns in M35 as an optional discovery route, never as something the earned playthrough depends on.
 
 **Blocker 2: missions need an operator (chosen: B, disagreeing with Codex's input).**
 
@@ -690,13 +690,13 @@ B removes the race and staleness problems instead of testing around them, and th
 | Phase / branch | Priority | Prerequisites | Status | Maximum slice |
 | --- | --- | --- | --- | --- |
 | M32 `claude/m32-earned-outpost` | P1 | M31 baseline; D1-D4 approved 2026-11-12 | Implemented; Codex review fixed; earned run outstanding | Recipes, spacing, auto-started onboarding, Orders view, ordinary undead rewards |
-| M33 `<agent>/m33-army-look-sound` | P2 | M32 merged; D5 for the library part | Provisional | Per-soldier variants, one unit re-authored on an admitted animation library, first original sound set |
+| M33 `<agent>/m33-army-look-sound` | P2 | M32 merged | Provisional | Native per-soldier variants and a first original sound set; the animation library is a separate, test-gated experiment (D5) |
 | M34 `<agent>/m34-defend-the-post` | P2 | M32 | Provisional | One readable attack warning; `defend_outpost` observable in ordinary play |
-| M35 `<agent>/m35-phase-zero-world` | P2 | M32, M34; D6 | Provisional | Stage-aware abandoned/damaged/manned sites, survivor camps, the world's HQ site |
-| M36 `<agent>/m36-hq-intelligence` | P2 | M35 | Provisional | HQ threat profile by category and research recommendations; no autonomous spending |
-| M37 `<agent>/m37-roadmap3-candidate` | P1 | M32-M36 | Provisional | Earned playthrough from spawn to an active HQ, packaged install, bounded load; internal candidate 2 |
+| M35 `<agent>/m35-phase-zero-world` | P2 | M32, M34; D6 | Provisional | Promote an outpost to the world's HQ; stage-aware abandoned/damaged/manned sites and survivor camps; optional ruined-bunker discovery |
+| M36 `<agent>/m36-hq-intelligence` | P2 | M35 | Provisional | Usable HQ: threat profile from vanilla mobs, recommended research started at the HQ, reinforcement dispatch; no autonomous spending |
+| M37 `<agent>/m37-roadmap3-candidate` | P1 | M32-M36 | Provisional | Earned playthrough from spawn to an active HQ with no external mods, packaged install, bounded load; internal candidate 2 |
 
-M33 can run in parallel with M34 on a separate branch because it touches only client art and sound plus NPC appearance data. Later milestones are re-planned against the code before they start. A fresh packaged-install check (P1) is scheduled in M37, or earlier if a distribution claim is wanted.
+M33 can run in parallel with M34 on a separate branch because it touches only client art and sound plus NPC appearance data. **If Liam's earned run shows players reach Stage 1 with nothing meaningful to do, M34 moves ahead of M33.** Order is provisional and evidence-driven. Later milestones are re-planned against the code before they start. A fresh packaged-install check (P1) is scheduled in M37, or earlier if a distribution claim is wanted.
 
 ### Phase M32 - First Earned Outpost
 
@@ -747,24 +747,26 @@ Approved by Liam on 2026-11-12: D1 suggested costs, D2 96 blocks, D3 enable `van
 - **D1 Recipe costs.** Suggested starting point: Post = 4 iron ingots, 1 copper ingot, 4 planks; Lab = 3 glass, 2 iron ingots, 3 stone. No samples, redstone or new components. Adjust after the earned run.
 - **D2 Post spacing.** Suggested 96 blocks: twice the 48-block defender area, so post areas never overlap. Configurable; 0 disables.
 - **D3 Ordinary undead.** Turn on `vanilla_undead` by default for new configs (recommended), or keep zombie-only.
-- **D4 Auto-start scope.** The five onboarding missions (recommended), or all seven. M33 owns the defence mission otherwise.
-- **D5 (for M33) Animation library.** Keep native `HumanoidModel` animation, or admit one exact-artifact candidate for a spike branch: GeckoLib (5.5.7 recorded for 26.3) or AzureLib (4.0.14 recorded for 26.3). Both are MIT. Pick at most one. Recommended: GeckoLib for the spike, because it is the more widely used Blockbench keyframe pipeline; the spike must still prove packaging, dedicated-server loading and frame time before merge.
-- **D6 (for M35) How the HQ exists.** Recommended: a **Command Bunker** generates once near world spawn in new worlds. At Phase 0 it is abandoned; restoring it (an onboarding order costing samples and supplies) makes it the world's single HQ. Existing worlds, or worlds where the bunker cannot fit the terrain, use an **Establish HQ** order that promotes one Level-3 Command Post instead. Alternatives: HQ only by promotion (simpler, no spawn search), or HQ always active from world start (strongest identity, skips the "restore it" moment). One HQ per world in every option.
+- **D4 Auto-start scope.** The five onboarding missions (recommended), or all seven. M34 owns the defence mission otherwise.
+- **D5 (for the M33 experiment) Animation library.** Native `HumanoidModel` animation stays the default. A library is tried only as a separate, test-gated experiment: GeckoLib (5.5.7 recorded for 26.3) or AzureLib (4.0.14 recorded for 26.3), both MIT, at most one. Recommended: GeckoLib, as the more widely used Blockbench keyframe pipeline. It merges only if the tests prove it works (normal jar, dedicated server loads without client classes, frame time with 8 and 32 soldiers) and Liam approves how it moves.
+- **D6 (for M35) How the HQ exists.** Recommended, following Codex's review: **promotion is the reliable path.** An **Establish HQ** order lets the player promote one existing Command Post (suggested: local Level 2 or higher after Field Communications; tune after the earned run) into the world's single HQ, at a real supplies-and-samples cost. A ruined **Command Bunker** near spawn is an optional discovery route that can also become the HQ; the playthrough never depends on finding it, and it can slip to a later milestone without blocking M37. Alternative: HQ active from world start (strongest identity, skips the earned moment).
+
+**Active HQ, defined.** A building the player can use, not just a status: one per world, persisted across restart; its screen shows the world threat profile, the current order and the recommended research; the player can start that research from the HQ using its own local supplies; and the HQ can dispatch one paid reinforcement to any loaded post linked to it, using the existing support call-in rules. Losing the HQ block returns the world to the promotion path without losing research or order history.
 
 ### Provisional Later Milestones
 
 Each one becomes active only when the stated evidence justifies it, after re-checking the code.
 
 - **M33 Army look and sound I (P2).** Justified now by Liam's feedback that soldiers look basic and repetitive.
-  1. Deterministic per-soldier variants from the entity UUID: faces, skin tones, headgear, packs and insignia on the existing rigs. No saved data, no library.
-  2. A spike branch on the D5 library: re-author the Army Rifleman in Blockbench with walk, aim, fire, reload, hurt and death keyframes. Measure it against the native rig for jar size, dedicated-server loading, frame time with 8 and 32 soldiers on screen, and how it looks in motion. It merges only with Liam's approval.
-  3. One original sound set: footsteps on gear, radio chatter at posts, launcher fire and reload.
+  1. Native per-soldier variants from the entity UUID: faces, skin tones, headgear, packs and insignia on the existing rigs. No saved data, no library.
+  2. One original sound set: footsteps on gear, radio chatter at posts, launcher fire and reload.
+  3. Separate experiment on its own branch (D5): re-author the Army Rifleman in Blockbench with walk, aim, fire, reload, hurt and death keyframes on one admitted library, and measure it against the native rig. M33 does not wait for it; it merges later only when its tests pass and Liam approves the motion.
 
-  Other mods are reference for ideas and proportions only; no copied geometry, textures, animations or sounds. *Exit evidence:* QA captures of variants and the spike unit, frame-time numbers, and Liam's motion check.
+  Other mods are reference for ideas and proportions only; no copied geometry, textures, animations or sounds. *Exit evidence:* QA captures of variants at several distances and lighting, sound playback in a GameTest or client check, and Liam's look-and-listen check.
 - **M34 Defend the post (P2).** One readable warning before a raid reaches a post; `defend_outpost` joins the Orders view and becomes observable in ordinary play. Reuses raid reservations, support costs and cooldowns; no new global director. *Moves forward if* the earned run reports "after Stage 1 nothing happened" or "never saw a real attack".
-- **M35 Phase 0 world and the HQ site (P2).** The world starts scattered, as Liam described: new chunks generate checkpoints that are **abandoned, damaged or manned** by world stage (mostly abandoned at Phase 0; manned sites become more common as humanity's stage rises), small **survivor camps** with Survivor-class defenders, and per D6 the **HQ**. New Main Bases generate ruined or dormant until humanity's research and stage earn an active one. Deterministic per chunk, bounded, original layouts; existing sites are not retrofitted and no chunk is force-loaded.
-- **M36 HQ intelligence v1 (P2).** The HQ becomes "the beating heart": a bounded per-world ledger of credited kills by threat category (undead, infection, alien, horror, other, all from tags), an HQ screen that shows the threat profile, and research recommendations that counter the threats actually faced. v1 recommends; it never spends. *Moves forward if* two or more threat categories are in play and players ask what to research.
-- **M37 Roadmap 3 candidate (P1).** Earned cheats-off playthrough from spawn to an active HQ, fresh packaged install, bounded multi-post load with the new art, and fixes for demonstrated defects. Internal candidate 2; no public release without a separate decision.
+- **M35 Phase 0 world and the HQ (P2).** The world starts scattered, as Liam described. First, the reliable HQ path: the **Establish HQ** order promotes an existing Command Post (D6). Then new chunks generate checkpoints that are **abandoned, damaged or manned** by world stage (mostly abandoned at Phase 0; manned sites become more common as humanity's stage rises) and small **survivor camps** with Survivor-class defenders. New Main Bases generate ruined or dormant until humanity's research and stage earn an active one. The ruined Command Bunker is an optional discovery route. Deterministic per chunk, bounded, original layouts; existing sites are not retrofitted and no chunk is force-loaded.
+- **M36 HQ intelligence v1 (P2).** The HQ becomes the usable "beating heart" defined above. It keeps a bounded per-world ledger of credited kills by threat category. Vanilla mobs fill every category it needs on their own (undead, arthropods, explosive, ranged, illagers, other hostile), so the standalone game passes; external infection, alien and horror mods map into the same categories through tags later (M43). The HQ recommends research that counters what the world actually faces; v1 never spends on its own.
+- **M37 Roadmap 3 candidate (P1).** Earned cheats-off playthrough from spawn to an active HQ **with no external mods installed**, fresh packaged install, bounded multi-post load with the new art, and fixes for demonstrated defects. Internal candidate 2; no public release without a separate decision.
 
 ### Automated Proof Versus Player Feedback
 
@@ -772,7 +774,7 @@ Automation owns correctness: numbers, exactly-once rewards, permissions, persist
 
 ## Future Roadmaps (Provisional)
 
-These roadmaps record where the rest of the vision lands and in what order. They are not approved milestones. Each roadmap is planned in detail only after the previous one's candidate passes, and every library, pin or release still needs Liam's approval. Numbers after M37 are reserved slots and may be renumbered when planned.
+These roadmaps record where the rest of the vision lands. They are not approved milestones, their order is not locked and no dates are estimated: Roadmap 2's pace is no guide for systems this large. Each roadmap is planned in detail only after the previous one's candidate passes, and every library, pin or release still needs Liam's approval. Numbers after M37 are reserved slots and may be renumbered when planned.
 
 ### Where Liam's Vision Lands
 
@@ -780,11 +782,11 @@ These roadmaps record where the rest of the vision lands and in what order. They
 | --- | --- | --- |
 | Earned Survival start, craftable posts, orders | M32 | M34, M35 |
 | Soldiers that don't look repetitive (variants) | M33 | M38 |
-| Better 3D models and animation (Blockbench + library) | M33 spike (one unit) | M38 all units, M44+ weapons, M49+ vehicles |
+| Better 3D models and animation (Blockbench + library) | M33 experiment (one unit, test-gated) | M38 all units, M44+ weapons, M49+ vehicles |
 | Army sounds | M33 first set | M38 per unit, M44+ per weapon |
 | Phase 0: scattered survivors, abandoned/destroyed/active outposts, Main Bases appear as research grows | M35 | M42 |
-| HQ as the heart of the army | M35 site, M36 intelligence v1 | M39 HQ orders, M43 HQ v2 |
-| HQ predicts what to research and fields the right troops | M36 (recommends) | M43 (opt-in auto-research and roster bias) |
+| HQ as the heart of the army | M35 (promote an outpost; ruined bunker as a discovery) | M36 usable HQ, M39 HQ orders, M43 HQ v2 |
+| HQ predicts what to research and fields the right troops | M36 (recommends, from vanilla threats) | M43 (opt-in auto-research and roster bias) |
 | Classes, variants, divisions, command structure | M39 | M40, M45 |
 | Smarter AI (cover, suppression, retreat to medics, priorities per threat) | M40 | M45, M50 |
 | Barracks, med camp, armoury, research complex, motor pool | M41 | M42, M49 |
@@ -807,7 +809,7 @@ Goal: a structured force with roles, leaders and facilities, run from the HQ. St
 
 | Slot | Priority | Slice |
 | --- | --- | --- |
-| M38 Unit art rollout | P2 | Every tier on the M33 pipeline: models, animation sets and sounds per role; variants everywhere |
+| M38 Unit art rollout | P2 | Every tier on whichever pipeline M33 proves: models, animation sets and sounds per role; variants everywhere |
 | M39 Command structure | P2 | Squads with a leader, ranks and divisions as rosters bound to the HQ or a Main Base; HQ orders a squad to defend, patrol or reinforce a post |
 | M40 Combat AI v2 | P2 | Cover, suppression, retreat to a medic, per-threat target priority; numeric path, target and spawn budgets defined before work |
 | M41 Facilities I | P2 | Barracks (capacity), Field Hospital / med camp (healing), Armoury (equipment tiers), Research Complex (parallel research); one tested function each; original schematics |

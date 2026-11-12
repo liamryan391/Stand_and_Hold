@@ -2,9 +2,9 @@
 Updated: 2026-11-12
 
 ## Position
-- M32 First Earned Outpost is implemented on `claude/m32-earned-outpost` (Claude writer) and Codex's review findings are fixed. Not merged: Liam asked to play it first.
+- M32 First Earned Outpost is implemented on `claude/m32-earned-outpost` (Claude writer) and Codex's review findings are fixed. The merge is paused only because Liam asked to play it first; D5/D6 do not affect M32.
 - Claude owns [Roadmap 3](phase-roadmap.md#roadmap-3---earned-survival-start-then-a-living-army) (M33-M37 provisional) and the [future roadmaps 4-7](phase-roadmap.md#future-roadmaps-provisional). M31 remains the internal QA baseline on `main`.
-- handoff.md sets ownership, review and working folders; STATUS remains authoritative.
+- Work reaches `main` through pull requests reviewed by the other agent (handoff.md); STATUS remains authoritative.
 - NeoForge-first; Fabric M14 14.4-14.5 deferred. Pins: MC 26.3 / NeoForge 26.3.0.102 / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
 
 ## Verified
@@ -19,5 +19,5 @@ Updated: 2026-11-12
 - Growth remains bounded; no power-loss/claim-mod guarantee or automatic repair. Independent beta/public release approval remains separate.
 
 ## Next Milestone
-Blocked on Liam: one cheats-off Survival earned run of the M32 branch (checklist in the [roadmap](phase-roadmap.md#phase-m32---first-earned-outpost)) and decisions D5-D6. Then:
+Waiting on Liam's cheats-off Survival run of the M32 branch (checklist in the [roadmap](phase-roadmap.md#phase-m32---first-earned-outpost)); then the M32 PR merges. D5 is needed only for the M33 animation experiment and D6 only before M35. Then:
 `Continue: M32 step 32.6 closeout (fix earned-run findings, merge to main after green CI), then M33 army look and sound.`

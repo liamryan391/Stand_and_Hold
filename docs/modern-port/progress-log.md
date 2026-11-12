@@ -481,3 +481,8 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Added two GameTests and five logic assertions. Windows CI 43257273965: build, 55 onboarding assertions, 177/177 GameTests, two-JVM restart passed. No local rerun; QA captures unchanged (no UI change).
 - Liam made Claude the roadmap owner. Roadmap 3 now runs M32-M37 (look/sound, defence, Phase 0 world and HQ site, HQ intelligence, candidate); Roadmaps 4-7 place divisions, facilities, arsenal, vehicles, missiles, jets and Fabric. Handoff, AGENTS branch naming and a CLAUDE.md entry file updated.
 - Not done: Liam's earned run, D5-D6, merge. No pins, dependencies, release or legacy refs changed.
+
+## 2026-11-12 - Roadmap 3 Tightening And PR Workflow (Claude)
+- Took Codex's roadmap advice: M33 starts with native variants and original sounds, the animation library is a separate test-gated experiment; M34 moves ahead if Stage 1 has nothing to do; promoting an outpost is the reliable HQ path with the bunker optional; "active HQ" defined as usable; M36/M37 pass with vanilla mobs only.
+- Liam adopted GitHub pull requests: milestones reach `main` through a PR reviewed by the other agent and merged by Liam. Handoff, AGENTS and STATUS updated; the M32 merge is paused only for Liam's playthrough.
+- `git diff --check` passed. Docs only; no code, pins, dependencies or release changed.

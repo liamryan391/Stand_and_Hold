@@ -69,29 +69,48 @@ releases, and decides any disagreement.
   `codex/roadmap-3-input` did; the writer merges what holds up.
 - **Milestones:** one writer per milestone branch, named
   `<agent>/m<N>-<short-name>` (`claude/` or `codex/`). Liam assigns the writer;
-  by default the agents alternate. The other agent reviews the pushed commit
-  read-only and reports findings with a file, a reproduction and the expected
-  behaviour. The writer fixes real findings, adds a test for each, and records
-  the review in the progress log. M32 is the worked example: Codex found a
+  by default the agents alternate. M32 is the worked example: Codex found a
   same-tick spacing gap and stale-record credit, Claude fixed both with GameTests.
-- **Merging:** the writer merges to `main` when the exit gate has observed
-  evidence and CI is green. Liam's feel check never blocks a technical merge
-  unless he asks for it, as he did for M32.
 
-## Working Folders On Liam's PC
+## Pull Requests
 
-Never share a live run directory. Codex works in
-`C:\Users\liamr\Documents\ChatGPT\Stand and Hold`. Claude works in
-`C:\Users\liamr\Documents\GitHub\Stand_and_Hold`, using a small job runner in
-the ignored `.local/claude/` folder (`start-runner.cmd`) that runs only fixed
-build/test tasks; `play-m32.cmd` there opens a development client for Liam.
-Either agent can also rely on Windows CI, which runs the build, GameTests and
-the two-JVM restart on every push.
+Every milestone reaches `main` through a GitHub pull request; nobody pushes to
+`main` directly.
+
+1. **Open:** the writer opens a PR from its milestone branch once the
+   automated part of the exit gate is green. The description lists what
+   changed, the observed commands and results, what was not run, and anything
+   Liam still has to check. Open it as a draft while Liam's check is pending.
+2. **Review:** the other agent reviews the PR diff read-only and posts its
+   findings as a PR comment, each with a file/line, a reproduction and the
+   expected behaviour, ending with a clear verdict (merge, or fix first). Both
+   agents push as Liam's account, so GitHub's "Approve" button is not
+   available; the comment verdict is the approval.
+3. **Fix:** the writer fixes real findings on the same branch with a test for
+   each and replies on the PR. CI re-runs on every push.
+4. **Merge:** Liam merges when the review verdict is "merge", CI is green and
+   any check he asked for is done. He can tell the writer to merge instead.
+   Use a merge commit to keep the milestone's history and evidence.
+5. **Record:** the writer updates STATUS and the progress log in the PR itself,
+   so `main` never carries an unreviewed status claim.
+
+A useful optional setting for Liam: protect `main` in the GitHub repository
+settings so it requires a pull request and the green "Build" check.
+
+## Audit: Local Working Folders
+
+Recorded so evidence can be traced; the PR is the coordination point. Never
+share a live run directory. Codex runs local builds in
+`C:\Users\liamr\Documents\ChatGPT\Stand and Hold`; Claude runs them in
+`C:\Users\liamr\Documents\GitHub\Stand_and_Hold` through a small job runner in
+the ignored `.local/claude/` folder (`start-runner.cmd`, fixed build/test tasks
+only; `play-m32.cmd` opens a development client). Windows CI runs the build,
+GameTests and two-JVM restart on every push and PR.
 
 ## Next Work
 
-STATUS names the active milestone. After M32 merges, Roadmap 3 continues with
-M33-M37, then the provisional Roadmaps 4-7. Fabric, dependencies and release
+STATUS names the active milestone. After the M32 PR merges, Roadmap 3
+continues with M33-M37, then the provisional Roadmaps 4-7. Fabric, dependencies and release
 decisions remain separate approvals.
 
 ## Future Experiment: Agent Meeting
