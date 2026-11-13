@@ -309,8 +309,8 @@ final class OnboardingTests {
                 MissionManager.advance(data(h), catalog, thresholds, mission.id(), mission.target());
             }
             player.containerMenu = menu; menu.broadcastChanges();
-            h.assertTrue(menu.number(BuildingMenu.ORDER_STATE) == BuildingMenu.ORDER_WAITING && menu.order().id().equals("standandhold:defend_outpost"),
-                    "the operator-started defence order shows Waiting, not Active");
+            h.assertTrue(menu.number(BuildingMenu.ORDER_STATE) == BuildingMenu.ORDER_WAITING && menu.order().id().equals("standandhold:establish_main_base"),
+                    "the operator-started Main Base order shows Waiting, not Active (the defence order auto-starts since M34)");
             h.succeed();
         });
     }

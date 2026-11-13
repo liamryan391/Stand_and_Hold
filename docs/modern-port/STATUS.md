@@ -2,11 +2,11 @@
 Updated: 2026-11-12
 
 ## Position
-- M32 First Earned Outpost is on `main` (PR #4, Codex re-review confirmed); Liam's cheats-off earned run is still outstanding.
-- M33 Army Look And Sound I (soldier variants, original sounds) passed Codex's independent review; PR #5 landed on the M32 branch, so a follow-up PR carries it to `main` after Liam's play check.
-- Liam approved D5 on 2026-11-12. The GeckoLib 5.5.7 Rifleman experiment is implemented on `claude/m33-d5-geckolib` (draft PR); CI is green, and it waits on the PC frame-time comparison and Liam's motion check.
-- Claude owns [Roadmap 3](phase-roadmap.md#roadmap-3---earned-survival-start-then-a-living-army) (M33-M37 provisional) and the [future roadmaps 4-7](phase-roadmap.md#future-roadmaps-provisional). M31 remains the internal QA baseline.
-- Work reaches `main` through pull requests reviewed by the other agent (handoff.md); STATUS remains authoritative. NeoForge-first; Fabric M14 14.4-14.5 deferred. Pins: MC 26.3 / NeoForge 26.3.0.102 / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
+- M32 First Earned Outpost (PR #4) and M33 Army Look And Sound I (PR #6) are on `main`; Liam's cheats-off earned run and M33 look-and-listen check are outstanding.
+- D5 (approved 2026-11-12): the GeckoLib 5.5.7 Army Rifleman is on `main` (PR #7) as a test-gated experiment. Still open: the PC frame-time comparison, a packaged install including GeckoLib, and Liam's motion check.
+- M34 Defend The Post on `claude/m34-defend-the-post` (PR #8, draft): warned natural raids from a named direction; the defence order auto-starts at Stage 1 with threat in Orders. Codex's review fixes are applied.
+- D6 decided 2026-11-13: the HQ is a configurable mode (default: an Establish HQ order promotes an existing Command Post; alternative: an HQ active from world start). The ruined bunker stays an optional extra. It applies from M35.
+- Claude owns [Roadmap 3](phase-roadmap.md#roadmap-3---earned-survival-start-then-a-living-army) (M33-M37 provisional) and the [future roadmaps 4-7](phase-roadmap.md#future-roadmaps-provisional); work reaches `main` through PRs reviewed by the other agent (handoff.md). STATUS remains authoritative. NeoForge-first; Fabric M14 14.4-14.5 deferred. Pins: MC 26.3 / NeoForge 26.3.0.102 / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
 
 ## Verified
 - M32 on Liam's PC: clean build, 175 GameTests, two-JVM restart, 99 QA captures (Orders views and tabs reviewed). After Codex's reviews, Windows CI 43268709270: 178/178 GameTests, restart passed.
@@ -21,5 +21,5 @@ Updated: 2026-11-12
 - Growth remains bounded; no power-loss/claim-mod guarantee or automatic repair. Independent beta/public release approval remains separate.
 
 ## Next Milestone
-Liam's play check (fresh cheats-off Survival world: Orders tab, soldier variety, gear and radio sounds; [checklists](phase-roadmap.md#phase-m33---army-look-and-sound-i)), then the M33 PR to `main` merges. The D5 QA runs are queued on Liam's PC runner (`start-runner.cmd`). D6 is needed only before M35. Then:
-`Continue: M34 defend the post (D5 results reviewed as they arrive).`
+Codex re-review of PR #8 and Liam's play checks: M33 on `main` (Orders tab, soldier variety, sounds) and M34 (warned raid after Stage 1). The D5 and M34 QA runs are queued on Liam's PC runner (`start-runner.cmd`). Then:
+`Continue: M35 Phase 0 world and the HQ (D6 configurable HQ modes), after PR #8 merges.`

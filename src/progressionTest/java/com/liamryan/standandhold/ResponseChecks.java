@@ -57,6 +57,48 @@ final class ResponseChecks {
             check(patrol.distSqr(origin) <= radius * radius && patrol.getY() == 64, "region patrol remains inside home radius");
         } } }
         expect(() -> ResponseRecord.waveSize(7, 4)); expect(() -> ResponseRecord.waveSize(1, 0));
+        // M34 warned raids: pending arrival and octant round-trip, clear, and refuse malformed values; legacy tags load as none.
+        var warned = response.pending(2000, 3);
+        check(warned.hasPending() && warned.pendingRaid() == 2000 && warned.bearing() == 3 && !initial.hasPending(), "warning saves arrival tick and octant");
+        check(ResponseRecord.load(warned.save()).equals(warned) && ResponseRecord.load(response.save()).equals(response), "pending raid survives save/load; none stays none");
+        check(warned.timers(5000, 1400).member(id, false).counted(true).pendingRaid() == 2000, "timers, members and counters keep the warning");
+        check(!warned.clearPending().hasPending() && warned.clearPending().nextRaid() == warned.nextRaid(), "arrival clears the warning, not the cooldown");
+        var ledger = new ThreatWorldData(); ledger.putResponse(post, warned); ledger.putResponse(post, warned.clearPending());
+        check(!ledger.response(post).hasPending(), "clearing a warning survives the ledger's field-preserving merge");
+        var legacy = response.save(); legacy.remove("pending_raid"); legacy.remove("pending_bearing");
+        check(!ResponseRecord.load(legacy).hasPending(), "records saved before M34 load with no warning");
+        expect(() -> response.pending(0, 1)); expect(() -> response.pending(10, 8)); expect(() -> response.pending(10, -1));
+        var badBearing = warned.save(); badBearing.putLong("pending_bearing", 9); expect(() -> ResponseRecord.load(badBearing));
+        var missingBearing = warned.save(); missingBearing.remove("pending_bearing"); expect(() -> ResponseRecord.load(missingBearing));
+        for (int octant = 0; octant < 8; octant++) { for (int spread = -30; spread <= 30; spread += 5) { for (int radius = 8; radius <= 12; radius++) {
+            int[] offset = ThreatResponse.octantOffset(octant, spread, radius);
+            double distance = Math.sqrt(offset[0] * offset[0] + offset[1] * offset[1]);
+            double bearing = Math.toDegrees(Math.atan2(offset[0], -offset[1])), off = Math.abs(((bearing - octant * 45) % 360 + 540) % 360 - 180);
+            check(distance >= radius - 1 && distance <= radius + 1 && off <= 30 + 8, "warned octant spawns stay on the announced side, 7-13 blocks out");
+        } } }
+        check(ThreatResponse.octantOffset(0, 0, 10)[1] < 0 && ThreatResponse.octantOffset(2, 0, 10)[0] > 0
+                && ThreatResponse.octantOffset(4, 0, 10)[1] > 0 && ThreatResponse.octantOffset(6, 0, 10)[0] < 0, "octant 0 is north (-Z) and 2 is east (+X)");
+        // 34.1 measurement (Codex review): simulate real kill-and-decay sequences with the default threat rules, not ten
+        // minutes of assumed eligibility. Reported, not tuned; balance waits for the earned run.
+        int chance = com.liamryan.standandhold.config.ResponseConfig.CHANCE.getDefault(), interval = com.liamryan.standandhold.config.ResponseConfig.CHECK_INTERVAL.getDefault();
+        int lead = com.liamryan.standandhold.config.ResponseConfig.WARNING_TICKS.getDefault(), threshold = com.liamryan.standandhold.config.ResponseConfig.RAID_THRESHOLD.getDefault();
+        int kill = com.liamryan.standandhold.config.ResponseConfig.KILL_SCORE.getDefault(), decayEvery = com.liamryan.standandhold.config.ResponseConfig.DECAY_INTERVAL.getDefault();
+        int decayBy = com.liamryan.standandhold.config.ResponseConfig.DECAY_AMOUNT.getDefault(), kills = (threshold + kill - 1) / kill;
+        var burst = ThreatRecord.empty(0);
+        for (int i = 0; i < kills; i++) { burst = burst.observe(0, kill, true, true, false, false); }
+        var steady = burst; int burstChecks = 0, steadyChecks = 0;
+        for (long t = interval; t <= 12000; t += interval) {
+            if (burst.decay(t, decayEvery, decayBy).score() >= threshold) { burstChecks++; }
+            steady = steady.decay(t, decayEvery, decayBy);
+            if (t % decayEvery == 0) { steady = steady.observe(t, kill, true, true, false, false); } // one more credited kill per decay period
+            if (steady.score() >= threshold) { steadyChecks++; }
+        }
+        double burstChance = 1 - Math.pow(1 - 1.0 / chance, burstChecks), steadyChance = 1 - Math.pow(1 - 1.0 / chance, steadyChecks);
+        check(burstChecks > 0 && burstChecks < steadyChecks && steadyChance > 0.8 && lead >= 400 && lead <= 1200,
+                "a quick burst gives a few eligible checks; steady fighting near a post keeps raids likely; the warning stays playable");
+        System.out.printf(java.util.Locale.ROOT, "M34 pacing (10 min, before terrain/hostile limits): %d quick kills then nothing -> %d eligible checks, %.0f%% chance of a warned raid;"
+                + " one more kill per minute -> %d checks, %.0f%%; warning %d s, resolved on the next %d-tick post check.%n",
+                kills, burstChecks, burstChance * 100, steadyChecks, steadyChance * 100, lead / 20, interval);
         data.putResponse(post, response); data.setDirty(false); data.putResponse(post, response);
         check(!data.isDirty(), "unchanged cooldown/roster does not dirty");
         var saved = encode(data); saved.putString("unknown", "keep");

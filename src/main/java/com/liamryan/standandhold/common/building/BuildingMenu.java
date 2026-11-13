@@ -32,14 +32,15 @@ public final class BuildingMenu extends AbstractContainerMenu {
             UPGRADE_STATUS = 17, BATCH = 18, UPGRADE_RESEARCH = 19, LAB_INTERVAL = 20, HELD_SAMPLES = 21, SAMPLE_ROOM = 22, RUNNING = 23,
             DEFENDERS = 24, DEFENDER_CAP = 25, DEPLOYMENT_STATUS = 26, GROWTH_STATUS = 27, GROWTH_MODE = 28, DUTY_MODE = 29, WATCH_STATUS = 30,
             NEXT_CAPACITY = 31, LEVEL_STORAGE = 32, LAYOUT_REVISION = 33,
-            ORDER = 34, ORDER_STATE = 35, ORDER_PROGRESS = 36, ORDER_NEED = 37, NEXT_DEFENDER_CAP = 38;
+            ORDER = 34, ORDER_STATE = 35, ORDER_PROGRESS = 36, ORDER_NEED = 37, NEXT_DEFENDER_CAP = 38,
+            THREAT = 39, THREAT_NEED = 40, RAID_ETA = 41, RAID_BEARING = 42;
     /** Orders view states: computed on the server, shown in words by the client. */
     public static final int ORDER_ACTIVE = 0, ORDER_WAITING = 1, ORDER_ALL_COMPLETE = 2, ORDER_UNAVAILABLE = 3, ORDER_NONE = 4;
     public static final int IMPORT = 0, EXPORT = 1, UPGRADE = 2, PAUSE = 3, NEXT_RESEARCH = 4, DEPOSIT_SAMPLES = 5, TAKE_SAMPLES = 6, TOGGLE_RESEARCH = 7;
     public static final int EXPAND = 8, GROWTH_MANUAL = 9, GROWTH_AUTOMATIC = 10;
     public static final int DUTY_GUARD = 11, DUTY_PATROL = 12;
     public static final int PREVIEW_DECK = 13;
-    private final long[] numbers = new long[39];
+    private final long[] numbers = new long[43];
     private final BlockPos pos;
     private final BuildingKind kind;
     private final List<Option> options;
@@ -190,6 +191,14 @@ public final class BuildingMenu extends AbstractContainerMenu {
                 numbers[DUTY_MODE] = building.dutySupported() ? building.duty().mode().ordinal() : -1;
                 numbers[WATCH_STATUS] = DefenderDuties.watchStatus(server, building);
                 numbers[NEXT_DEFENDER_CAP] = com.liamryan.standandhold.config.NpcConfig.capacity(Math.min(5, state.level() + 1));
+                // M34: local raid threat and any warned raid, read without creating response records.
+                numbers[THREAT] = com.liamryan.standandhold.common.threat.ThreatResponse.inspect(server,
+                        com.liamryan.standandhold.common.threat.ThreatResponse.region(server, building.getBlockPos())).score();
+                numbers[THREAT_NEED] = com.liamryan.standandhold.config.ResponseConfig.RAID_THRESHOLD.get();
+                var response = com.liamryan.standandhold.common.threat.ThreatWorldData.get(server.getServer())
+                        .response(new BuildingPosition(server.dimension().identifier(), building.getBlockPos()).key());
+                numbers[RAID_ETA] = response != null && response.hasPending() ? Math.max(0, response.pendingRaid() - server.getGameTime()) : -1;
+                numbers[RAID_BEARING] = response != null ? response.bearing() : 0;
                 updateOrder(data);
             }
         } catch (IllegalArgumentException | IllegalStateException exception) {

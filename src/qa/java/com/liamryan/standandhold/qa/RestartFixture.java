@@ -69,6 +69,12 @@ final class RestartFixture {
                 receipt.setProperty("npc", npc.getUUID().toString());
                 receipt.setProperty("response", Long.toString(ThreatResponse.state(level, tile(level, POST)).nextRaid()));
                 receipt.setProperty("supportCooldown", Long.toString(ThreatResponse.state(level, tile(level, POST)).nextReinforcement()));
+                // M34: a real warned natural raid at the generated checkpoint post, persisted across the restart.
+                var warnedPost = tile(level, BlockPos.of(Long.parseLong(receipt.getProperty("checkpoint"))));
+                String warned = ThreatResponse.warnRaid(level, warnedPost);
+                check(warned.startsWith("Raid warned"), "Actual warned raid before restart: " + warned);
+                var pending = ThreatResponse.state(level, warnedPost);
+                receipt.setProperty("warnedDue", Long.toString(pending.pendingRaid())); receipt.setProperty("warnedBearing", Integer.toString(pending.bearing()));
                 try (var out = Files.newOutputStream(path("receipt"), StandardOpenOption.CREATE_NEW)) { receipt.store(out, "Expected values from the first JVM"); }
                 finish(server, true, "Seeded persistent state; clean shutdown requested");
             } else if (PHASE.equals("read") && ticks == 100) {
@@ -198,6 +204,14 @@ final class RestartFixture {
                 && savedRaider.isNoAi() && savedRaider.blockPosition().equals(new BlockPos(30, 64, 2)), "Same isolated real raider and physical position survived restart");
         String home = new BuildingPosition(level.dimension().identifier(), POST).key();
         check(response.reinforcements() == 1 && response.nextReinforcement() == Long.parseLong(receipt.getProperty("supportCooldown")) && data.defenderCount(home) == 5, "Support cooldown/counter/upgraded roster survives restart");
+        var warnedPost = tile(level, checkpoint); var warned = ThreatResponse.state(level, warnedPost);
+        check(warned.hasPending() && warned.pendingRaid() == Long.parseLong(receipt.getProperty("warnedDue")) && warned.bearing() == Integer.parseInt(receipt.getProperty("warnedBearing"))
+                && warned.raiders().isEmpty() && warned.raids() == 0, "Warned raid's arrival tick and side survive a real restart; nothing spawned");
+        com.liamryan.standandhold.common.threat.ThreatWorldData.get(server).putResponse(new BuildingPosition(level.dimension().identifier(), checkpoint).key(),
+                warned.pending(Math.max(1, level.getGameTime()), warned.bearing()));
+        ThreatResponse.tick(level, warnedPost);
+        var resolved = ThreatResponse.state(level, warnedPost);
+        check(!resolved.hasPending() && resolved.raiders().isEmpty() && resolved.raids() == 0, "After restart the due warning resolves on the post check; with nobody near, it stands down");
         check(level.getEntity(UUID.fromString(receipt.getProperty("supportNpc"))) instanceof HumanNpc unit && unit.commandPost().map(p -> p.key().equals(home)).orElse(false), "Same paid defender/home survived, no duplicate on restart");
         var post = tile(level, POST);
         check(post.state().equals(new BuildingState(2, 17, 2, "", 0)), "Upgraded level and local storage survive unchanged");

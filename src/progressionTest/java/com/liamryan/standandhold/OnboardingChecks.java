@@ -32,6 +32,7 @@ final class OnboardingChecks {
         var catalog = FoundationChecks.defaults();
         definitions(catalog);
         autoStart(catalog);
+        existingSaves(catalog);
         preCarriedAndShared(catalog);
         earlyImportRecovers(catalog);
         staleRecordsGrantNothing(catalog);
@@ -45,7 +46,8 @@ final class OnboardingChecks {
     private static void definitions(FoundationCatalog catalog) {
         var flagged = catalog.missions().values().stream().filter(Mission::autoStart).map(Mission::id).toList();
         check(flagged.equals(List.of("standandhold:recover_parasite_samples", "standandhold:establish_field_command", "standandhold:stockpile_supplies",
-                "standandhold:complete_first_research", "standandhold:early_army_response")), "exactly the five onboarding orders auto-start, in order");
+                "standandhold:complete_first_research", "standandhold:early_army_response", "standandhold:defend_outpost")),
+                "the five onboarding orders and (M34) the defence order auto-start, in order");
         String base = "{\"format\":1,\"missions\":[{\"id\":\"pack:a\",\"title\":\"A\",\"objective\":\"supply_total\"";
         check(!FoundationCatalog.parse(base + "}]}").mission("pack:a").autoStart(), "absent flag means operator-started");
         check(FoundationCatalog.parse(base + ",\"auto_start\":true}]}").mission("pack:a").autoStart(), "explicit flag parsed");
@@ -56,6 +58,32 @@ final class OnboardingChecks {
         }
     }
 
+    /** M34 review: existing saves. The defence order needs the saved Stage 1 order receipt, never points alone; receipts stay intact. */
+    private static void existingSaves(FoundationCatalog catalog) {
+        var stageOnly = new HumanWorldData();
+        stageOnly.setProgression(THRESHOLDS[1], ProgressionRules.stageFor(THRESHOLDS[1], THRESHOLDS));
+        MissionManager.sync(stageOnly, catalog, THRESHOLDS, -1);
+        check(stageOnly.mission("standandhold:defend_outpost").isEmpty() && stageOnly.mission("standandhold:early_army_response").isEmpty(),
+                "Stage 1 points without the order chain do not start the defence order");
+        for (int existing : new int[] {-1, 2, 5}) { // absent, partial, completed defence receipt
+            var data = new HumanWorldData();
+            for (String id : List.of("recover_parasite_samples", "establish_field_command", "stockpile_supplies", "complete_first_research", "early_army_response")) {
+                MissionManager.start(data, catalog, THRESHOLDS, id); MissionManager.advance(data, catalog, THRESHOLDS, id, 1_000_000);
+            }
+            if (existing >= 0) { MissionManager.start(data, catalog, THRESHOLDS, "defend_outpost"); MissionManager.advance(data, catalog, THRESHOLDS, "defend_outpost", existing); }
+            long points = data.points(), supplies = data.supplies();
+            var notices = MissionManager.sync(data, catalog, THRESHOLDS, -1);
+            var defence = data.mission("standandhold:defend_outpost").orElseThrow();
+            if (existing < 0) {
+                check(notices.size() == 1 && notices.get(0).change() == Change.STARTED && defence.progress() == 0 && !defence.completed()
+                        && data.points() == points && data.supplies() == supplies, "absent receipt: starts once, unpaid, with no retroactive kill credit");
+            } else {
+                check(notices.isEmpty() && defence.progress() == existing && defence.completed() == (existing >= 5) && data.points() == points && data.supplies() == supplies,
+                        "existing " + (existing >= 5 ? "completed" : "partial") + " receipt kept: no notice, no reward, progress unchanged");
+            }
+            check(MissionManager.sync(data, catalog, THRESHOLDS, -1).isEmpty(), "a second refresh changes nothing");
+        }
+    }
     private static void autoStart(FoundationCatalog catalog) {
         var data = new HumanWorldData();
         var first = MissionManager.sync(data, catalog, THRESHOLDS, -1);
@@ -69,7 +97,7 @@ final class OnboardingChecks {
         check(MissionManager.sync(data, catalog, THRESHOLDS, 1).isEmpty() && data.mission("standandhold:recover_parasite_samples").orElseThrow().progress() == 2,
                 "dropping samples never lowers recorded progress");
         check(data.mission("standandhold:defend_outpost").isEmpty() && data.mission("standandhold:establish_field_command").isEmpty(),
-                "later orders wait for prerequisites; operator-only orders never auto-start");
+                "later orders wait for their prerequisites");
         check(MissionManager.current(data, catalog).orElseThrow().id().equals("standandhold:recover_parasite_samples"), "current order is the active one");
     }
 
@@ -137,8 +165,8 @@ final class OnboardingChecks {
         check(notices.stream().filter(n -> n.change() == Change.COMPLETED).map(n -> n.mission().id()).toList()
                 .equals(List.of("standandhold:complete_first_research", "standandhold:early_army_response")), "first research and Stage 1 complete without an operator");
         check(data.points() == 175 && ProgressionRules.stageFor(data.points(), THRESHOLDS).level() == 1, "eight credited kills plus earned rewards reach Stage 1");
-        check(data.mission("standandhold:defend_outpost").isEmpty() && MissionManager.current(data, catalog).orElseThrow().id().equals("standandhold:defend_outpost"),
-                "the defence order is next but stays operator-started in M32");
+        check(data.mission("standandhold:defend_outpost").filter(state -> !state.completed() && state.progress() == 0).isPresent()
+                && MissionManager.current(data, catalog).orElseThrow().id().equals("standandhold:defend_outpost"), "M34: the defence order starts on its own at Stage 1, unpaid");
         var reloaded = FoundationChecks.decode(FoundationChecks.encode(data));
         long points = reloaded.points(), supplies = reloaded.supplies();
         check(MissionManager.sync(reloaded, catalog, THRESHOLDS, 3).isEmpty() && reloaded.points() == points && reloaded.supplies() == supplies,
@@ -198,7 +226,8 @@ final class OnboardingChecks {
     /** 32.1 measurement and pacing guard. Prints numbers for the roadmap; fails only if the default path stops being earnable. */
     private static void pacing(FoundationCatalog catalog) {
         var zombie = ThreatRules.parse(ThreatRules.DEFAULTS).match("minecraft:zombie", ignored -> false).orElseThrow();
-        long rewards = catalog.missions().values().stream().filter(Mission::autoStart).filter(m -> m.objective() != Mission.Objective.HUMAN_STAGE)
+        long rewards = catalog.missions().values().stream().filter(Mission::autoStart)
+                .filter(m -> m.objective() != Mission.Objective.HUMAN_STAGE && m.objective() != Mission.Objective.OUTPOST_DEFENCE)
                 .mapToLong(m -> m.reward().points()).sum() + catalog.research("parasite_samples").reward().points();
         long killsForStage = Math.max(0, (THRESHOLDS[1] - rewards + zombie.points() - 1) / zombie.points());
         double killsForSamples = catalog.mission("recover_parasite_samples").target() / (zombie.chance() * zombie.samples());

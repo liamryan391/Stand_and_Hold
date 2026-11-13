@@ -53,13 +53,59 @@ public final class ThreatResponse {
     public static void tick(ServerLevel level, BuildingBlockEntity post) {
         requirePost(level, post);
         var response = state(level, post); long now = level.getGameTime();
+        if (response.hasPending() && now >= response.pendingRaid()) { arrive(level, post); response = state(level, post); }
         if (now < response.naturalAfter()) { return; }
         if (ResponseConfig.REINFORCEMENTS.get() && now >= response.nextReinforcement()
                 && inspect(level, patrolRegion(level, post.getBlockPos())).score() >= ResponseConfig.REINFORCEMENT_THRESHOLD.get()) { reinforce(level, post); }
-        if (ResponseConfig.RAIDS.get() && response.raidReady(now)
+        if (ResponseConfig.RAIDS.get() && !response.hasPending() && response.raidReady(now)
                 && inspect(level, region(level, post.getBlockPos())).score() >= ResponseConfig.RAID_THRESHOLD.get()
                 && level.players().stream().anyMatch(p -> !p.isSpectator() && p.blockPosition().distSqr(post.getBlockPos()) <= 4096)
-                && level.getRandom().nextInt(ResponseConfig.CHANCE.get()) == 0) { raid(level, post); }
+                && level.getRandom().nextInt(ResponseConfig.CHANCE.get()) == 0) {
+            if (ResponseConfig.WARNING_TICKS.get() > 0) { warnRaid(level, post); } else { raid(level, post); }
+        }
+    }
+    /**
+     * M34: a natural raid is announced first. The warning reserves the raid cooldown (so no second wave can be scheduled) and
+     * saves the arrival tick and compass octant; the post's next loaded check at or after that tick brings the wave in from
+     * that side. No offline catch-up: an unloaded post resolves its warning on the next loaded check.
+     */
+    public static String warnRaid(ServerLevel level, BuildingBlockEntity post) {
+        requirePost(level, post);
+        if (level.getDifficulty() == Difficulty.PEACEFUL) { return "No raid in Peaceful difficulty."; }
+        var data = ThreatWorldData.get(level.getServer()); var response = state(level, post); long now = level.getGameTime();
+        if (response.hasPending()) { return "Raid already incoming in " + Math.max(0, response.pendingRaid() - now) + " ticks."; }
+        if (!response.raiders().isEmpty()) { return "Raid already reserved: " + response.raiders().size() + " raiders (unloaded UUIDs still count)."; }
+        if (now < response.nextRaid()) { return "Raid cooldown: " + (response.nextRaid() - now) + " ticks."; }
+        var home = new BuildingPosition(level.dimension().identifier(), post.getBlockPos());
+        int octant = level.getRandom().nextInt(8), lead = Math.max(1, ResponseConfig.WARNING_TICKS.get());
+        data.putResponse(home.key(), response.timers(ResponseRecord.after(now, ResponseConfig.RAID_COOLDOWN.get()), response.nextReinforcement())
+                .pending(Math.max(1, ResponseRecord.after(now, lead)), octant));
+        if (ResponseConfig.WARNINGS.get()) {
+            level.playSound(null, post.getBlockPos(), com.liamryan.standandhold.common.sound.StandAndHoldSounds.POST_RADIO.get(), net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);
+            for (var player : level.players()) {
+                if (!player.isSpectator() && player.blockPosition().distSqr(post.getBlockPos()) <= 4096) {
+                    player.sendSystemMessage(Component.translatable("message.standandhold.raid_incoming", post.getBlockPos().toShortString(),
+                            Component.translatable("direction.standandhold." + octant), (lead + 19) / 20));
+                }
+            }
+        }
+        return "Raid warned at " + home.key() + ": arrives from octant " + octant + " in " + lead + " ticks.";
+    }
+    /**
+     * The warned wave arrives, unless natural raids were turned off since the warning, the world became Peaceful, or nobody
+     * is within 64 blocks: then the warning is cleared with backoff and nothing spawns or counts. Arrival resolves on the
+     * post's first loaded check at or after the saved tick, so contact can come up to one check interval late.
+     */
+    private static void arrive(ServerLevel level, BuildingBlockEntity post) {
+        var data = ThreatWorldData.get(level.getServer()); var response = state(level, post); long now = level.getGameTime();
+        var home = new BuildingPosition(level.dimension().identifier(), post.getBlockPos());
+        data.putResponse(home.key(), response.clearPending());
+        boolean witness = level.players().stream().anyMatch(p -> !p.isSpectator() && p.blockPosition().distSqr(post.getBlockPos()) <= 4096);
+        if (!ResponseConfig.RAIDS.get() || level.getDifficulty() == Difficulty.PEACEFUL || !witness) {
+            data.putResponse(home.key(), data.response(home.key()).timers(ResponseRecord.after(now, ResponseConfig.BACKOFF.get()), response.nextReinforcement()));
+            return;
+        }
+        spawnWave(level, post, home, now, java.util.OptionalInt.of(response.bearing()));
     }
     private static void requirePost(ServerLevel level, BuildingBlockEntity post) {
         post.requireWritable();
@@ -92,13 +138,20 @@ public final class ThreatResponse {
         requirePost(level, post);
         if (level.getDifficulty() == Difficulty.PEACEFUL) { return "No raid in Peaceful difficulty."; }
         var data = ThreatWorldData.get(level.getServer()); var response = state(level, post); long now = level.getGameTime();
+        if (response.hasPending()) { return "Raid already incoming in " + Math.max(0, response.pendingRaid() - now) + " ticks."; }
         if (!response.raiders().isEmpty()) { return "Raid already reserved: " + response.raiders().size() + " raiders (unloaded UUIDs still count)."; }
         if (now < response.nextRaid()) { return "Raid cooldown: " + (response.nextRaid() - now) + " ticks."; }
         var home = new BuildingPosition(level.dimension().identifier(), post.getBlockPos());
         // Reserve cooldown before side effects; exceptions/partial waves cannot become rapid retries.
         data.putResponse(home.key(), response.timers(ResponseRecord.after(now, ResponseConfig.RAID_COOLDOWN.get()), response.nextReinforcement()));
+        return spawnWave(level, post, home, now, java.util.OptionalInt.empty());
+    }
+    /** Shared wave body: cooldown is already reserved by the caller; success restarts it, total failure saves backoff. */
+    private static String spawnWave(ServerLevel level, BuildingBlockEntity post, BuildingPosition home, long now, java.util.OptionalInt octant) {
+        var data = ThreatWorldData.get(level.getServer()); var response = data.response(home.key());
         int stage = ProgressionRules.stageFor(HumanWorldData.get(level.getServer()).points(), HumanProgressionConfig.thresholds()).level();
         int wanted = ResponseRecord.waveSize(stage, ResponseConfig.RAID_CAP.get()), spawned = 0;
+        double sumX = 0, sumZ = 0;
         String blocked = "could not create a zombie";
         for (int i = 0; i < wanted; i++) {
             if (hostiles(level, home.pos()) >= ResponseConfig.RAID_AREA_CAP.get()) {
@@ -108,7 +161,7 @@ public final class ThreatResponse {
             }
             Zombie zombie = EntityTypes.ZOMBIE.create(level, EntitySpawnReason.REINFORCEMENT);
             if (zombie == null) { break; }
-            if (!spawnPosition(level, zombie, home.pos())) {
+            if (!spawnPosition(level, zombie, home.pos(), octant)) {
                 blocked = "no safe loaded spawn position found 8-12 blocks from the post; check open dry ground";
                 break;
             }
@@ -119,7 +172,7 @@ public final class ThreatResponse {
             boolean added = false;
             try { added = level.addFreshEntity(zombie); }
             finally { if (!added) { data.releaseRaider(home.key(), zombie.getUUID()); } }
-            if (added) { spawned++; }
+            if (added) { spawned++; sumX += zombie.getX() - (home.pos().getX() + 0.5); sumZ += zombie.getZ() - (home.pos().getZ() + 0.5); }
         }
         if (spawned == 0) {
             data.putResponse(home.key(), data.response(home.key()).timers(ResponseRecord.after(now, ResponseConfig.BACKOFF.get()), response.nextReinforcement()));
@@ -127,7 +180,16 @@ public final class ThreatResponse {
         }
         data.putResponse(home.key(), data.response(home.key()).timers(ResponseRecord.after(now, ResponseConfig.RAID_COOLDOWN.get()), response.nextReinforcement()).counted(true));
         observe(level, home.pos(), ResponseConfig.ATTACK_SCORE.get(), false, false, false, true);
-        warn(level, post, "message.standandhold.raid", String.valueOf(spawned));
+        if (octant.isPresent() && ResponseConfig.WARNINGS.get()) {
+            // Name the side they actually came from: the safe-spawn fallback may not match the warning.
+            int actual = Math.floorMod((int) Math.round(Math.toDegrees(Math.atan2(sumX, -sumZ)) / 45), 8);
+            for (var player : level.players()) {
+                if (!player.isSpectator() && player.blockPosition().distSqr(post.getBlockPos()) <= 4096) {
+                    player.sendSystemMessage(Component.translatable("message.standandhold.raid_contact", post.getBlockPos().toShortString(), spawned,
+                            Component.translatable("direction.standandhold." + actual)));
+                }
+            }
+        } else { warn(level, post, "message.standandhold.raid", String.valueOf(spawned)); }
         return "Outpost raid at " + home.key() + ": " + spawned + " zombies, saved cooldown; post/area caps apply.";
     }
     private static int hostiles(ServerLevel level, BlockPos pos) {
@@ -139,10 +201,18 @@ public final class ThreatResponse {
         });
         return found[0];
     }
-    private static boolean spawnPosition(ServerLevel level, Zombie zombie, BlockPos home) {
-        for (int attempt = 0; attempt < 8; attempt++) {
-            int dx = level.getRandom().nextInt(25) - 12, dz = level.getRandom().nextInt(25) - 12;
-            if (Math.max(Math.abs(dx), Math.abs(dz)) < 8) { continue; }
+    /** Up to 8 tries inside the warned octant (6-12 blocks out), then the original 8 tries anywhere in the 8-12 block ring. */
+    private static boolean spawnPosition(ServerLevel level, Zombie zombie, BlockPos home, java.util.OptionalInt octant) {
+        int attempts = octant.isPresent() ? 16 : 8;
+        for (int attempt = 0; attempt < attempts; attempt++) {
+            int dx, dz;
+            if (octant.isPresent() && attempt < 8) {
+                int[] offset = octantOffset(octant.getAsInt(), level.getRandom().nextInt(61) - 30, 8 + level.getRandom().nextInt(5));
+                dx = offset[0]; dz = offset[1];
+            } else {
+                dx = level.getRandom().nextInt(25) - 12; dz = level.getRandom().nextInt(25) - 12;
+                if (Math.max(Math.abs(dx), Math.abs(dz)) < 8) { continue; }
+            }
             for (int dy : new int[]{0, 1, -1, 2, -2}) {
                 BlockPos pos = home.offset(dx, dy, dz);
                 if (!level.hasChunksAt(pos.offset(-1, -1, -1), pos.offset(1, 2, 1)) || pos.getY() <= level.getMinY() || pos.getY() + 2 >= level.getMaxY()
@@ -153,6 +223,11 @@ public final class ThreatResponse {
             }
         }
         return false;
+    }
+    /** Horizontal offset for a compass octant (0 north/-Z, 2 east/+X), a spread in degrees and a radius in blocks. */
+    public static int[] octantOffset(int octant, int spreadDegrees, int radius) {
+        double angle = Math.toRadians(octant * 45 + spreadDegrees);
+        return new int[] {(int) Math.round(Math.sin(angle) * radius), (int) Math.round(-Math.cos(angle) * radius)};
     }
     private static void warn(ServerLevel level, BuildingBlockEntity post, String key, String detail) {
         if (!ResponseConfig.WARNINGS.get()) { return; }

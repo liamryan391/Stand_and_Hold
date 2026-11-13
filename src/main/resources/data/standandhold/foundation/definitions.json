@@ -76,6 +76,7 @@
       "id": "standandhold:defend_outpost",
       "title": "Defend the Outpost",
       "objective": "outpost_defence",
+      "auto_start": true,
       "target": 5,
       "prerequisites": ["standandhold:early_army_response"],
       "reward": {"points": 25, "supplies": 10}
