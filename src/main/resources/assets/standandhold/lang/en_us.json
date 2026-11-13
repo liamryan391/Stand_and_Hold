@@ -44,6 +44,8 @@
   "tooltip.standandhold.player_targets": "Player hits can hurt any mob, including human units",
   "tooltip.standandhold.player_equipment_free": "Players can use found gear at any stage",
   "tooltip.standandhold.npc_equipment_gate": "NPC use: stage %s, research %s",
+  "tooltip.standandhold.service_rifle": "Issued to Army Riflemen until the prototype launcher unlocks",
+  "tooltip.standandhold.service_rifle_players": "Players can't fire it yet",
   "message.standandhold.raid": "Outpost attack near %s: %s raiders approaching.",
   "message.standandhold.raid_incoming": "Field radio, post %s: hostiles last reported to the %s. Contact expected in about %s seconds.",
   "bossbar.standandhold.raid_warning": "Raid warning, post %s: hostiles last reported to the %s",
@@ -140,6 +142,7 @@
   "gui.standandhold.tip.upgrade": "Attempt the next level using the displayed requirements.",
   "item.standandhold.anti_threat_blade": "Anti-Threat Blade",
   "item.standandhold.prototype_launcher": "Prototype Launcher",
+  "item.standandhold.service_rifle": "Service Rifle",
   "item.standandhold.prototype_bolt": "Prototype Bolt",
   "entity.standandhold.prototype_bolt": "Prototype Bolt",
   "item.standandhold.army_helmet": "Army Helmet",
@@ -192,5 +195,6 @@
   "subtitles.standandhold.npc.gear": "Soldier's kit rustles",
   "subtitles.standandhold.launcher.fire": "Launcher fires and cycles",
   "subtitles.standandhold.post.radio": "Field radio chatters",
-  "subtitles.standandhold.post.radio_urgent": "Field radio: urgent traffic"
+  "subtitles.standandhold.post.radio_urgent": "Field radio: urgent traffic",
+  "subtitles.standandhold.rifle.fire": "Rifle fires"
 }

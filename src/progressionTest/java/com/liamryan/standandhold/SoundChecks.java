@@ -14,10 +14,12 @@ final class SoundChecks {
     private static int assertions;
     /** Event -> {min, max} decoded seconds. */
     private static final Map<String, double[]> EVENTS = Map.of("npc.gear", new double[] {0.1, 0.6},
-            "launcher.fire", new double[] {0.3, 1.2}, "post.radio", new double[] {1.0, 3.6}, "post.radio_urgent", new double[] {0.6, 2.2});
-    /** M35 (Liam's playtest): the kit layer must stay low; M33's clinks measured about 4.2 kHz. Radio stays in the voice band. */
+            "launcher.fire", new double[] {0.3, 1.2}, "post.radio", new double[] {1.0, 3.6}, "post.radio_urgent", new double[] {0.6, 2.2},
+            "rifle.fire", new double[] {0.3, 1.0});
+    /** M35 (Liam's playtest): the kit layer must stay low; M33's clinks measured about 4.2 kHz. Radio stays in the voice band; the rifle report keeps its low boom (about 2.6 kHz). */
     private static final Map<String, double[]> CENTROID_HZ = Map.of("npc.gear", new double[] {150, 1600},
-            "post.radio", new double[] {600, 1800}, "post.radio_urgent", new double[] {800, 2600});
+            "post.radio", new double[] {600, 1800}, "post.radio_urgent", new double[] {800, 2600},
+            "rifle.fire", new double[] {1800, 3400});
     static void run() throws Exception {
         Path assets = Path.of("src/main/resources/assets/standandhold");
         var json = JsonParser.parseString(Files.readString(assets.resolve("sounds.json"))).getAsJsonObject();

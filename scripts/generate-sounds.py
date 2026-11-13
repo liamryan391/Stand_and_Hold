@@ -7,7 +7,7 @@ needs for positional sounds. Requires numpy, scipy and ffmpeg (libvorbis):
     python scripts/generate-sounds.py
 
 Re-run after changing a recipe; the .ogg files are committed and checked by the logic tests. M35 retired the high gear
-clinks for a low kit layer and split the radio into calm and urgent sets.
+clinks for a low kit layer, split the radio into calm and urgent sets and added the service rifle.
 """
 import pathlib
 import subprocess
@@ -84,6 +84,35 @@ def launcher(seed):
     return out
 
 
+def high(signal, cutoff, order=4):
+    return sosfilt(butter(order, cutoff, btype="high", fs=RATE, output="sos"), signal)
+
+
+def rifle(seed):
+    """Service rifle (M35): a sharp supersonic crack over a low muzzle boom, a short outdoor tail and one late echo,
+    then the action cycling (two soft clicks about 0.42 s in, matching the Rifleman's fire clip)."""
+    rng = np.random.default_rng(seed)
+    out = np.zeros(int(RATE * 0.95))
+    crack_time = t(0.03)
+    place(out, high(rng.normal(0, 1, len(crack_time)), 1800) * np.exp(-crack_time / 0.0035) * 1.0, 0.0)
+    boom_time = t(0.35)
+    boom = np.sin(2 * np.pi * np.cumsum(np.linspace(rng.uniform(120, 150), 48, len(boom_time))) / RATE) * np.exp(-boom_time / 0.085)
+    boom += low(rng.normal(0, 1, len(boom_time)), 380) * np.exp(-boom_time / 0.11) * 1.4
+    place(out, boom * 0.9, 0.002)
+    body_time = t(0.2)
+    place(out, band(rng.normal(0, 1, len(body_time)), 280, 2600) * np.exp(-body_time / 0.045) * 0.7, 0.001)
+    tail_time = t(0.75)
+    tail = band(rng.normal(0, 1, len(tail_time)), 140, 1400, 2) * np.exp(-tail_time / 0.28)
+    place(out, tail * 0.22, 0.02)
+    place(out, low(boom, 900) * 0.18, rng.uniform(0.16, 0.22))  # a far bank or treeline
+    cycle = 0.42 + rng.uniform(-0.02, 0.02)
+    for offset, base in ((0.0, rng.uniform(1300, 1600)), (0.085, rng.uniform(1700, 2000))):
+        click = t(0.05)
+        tick = np.sin(2 * np.pi * base * click) * np.exp(-click / 0.008) + band(rng.normal(0, 1, len(click)), 1200, 4500) * np.exp(-click / 0.003)
+        place(out, tick * 0.12, cycle + offset)
+    return np.tanh(out * 1.6) / 1.6
+
+
 VOWELS = [(730, 1090), (530, 1840), (270, 2290), (570, 840), (300, 870), (660, 1720), (490, 1350)]
 
 
@@ -151,4 +180,6 @@ if __name__ == "__main__":
         write(f"post/radio{i + 1}", radio(300 + i, False, length), -9)
     for i, length in enumerate((0.9, 1.3, 1.8)):
         write(f"post/urgent{i + 1}", radio(400 + i, True, length), -6)
-    print("Wrote 11 original sounds to", OUT)
+    for i in range(3):
+        write(f"rifle/fire{i + 1}", rifle(500 + i), -5)  # the crack overshoots in Vorbis; keep decoded peaks under 1
+    print("Wrote 14 original sounds to", OUT)

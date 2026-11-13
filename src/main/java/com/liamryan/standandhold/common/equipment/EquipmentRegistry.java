@@ -32,6 +32,8 @@ public final class EquipmentRegistry {
     public static final List<DeferredItem<EquipmentItem>> ELITE = armor(EquipmentKind.ELITE);
     public static final DeferredItem<PrototypeLauncherItem> PROTOTYPE = ITEMS.registerItem("prototype_launcher", properties -> new PrototypeLauncherItem(properties.durability(256).repairable(net.minecraft.world.item.Items.IRON_INGOT)));
     public static final DeferredItem<Item> BOLT = ITEMS.registerSimpleItem("prototype_bolt");
+    /** M35: the Army Rifleman's issued weapon; ungated, never dropped, and replaced by the launcher once that unlocks. */
+    public static final DeferredItem<ServiceRifleItem> SERVICE_RIFLE = ITEMS.registerItem("service_rifle", properties -> new ServiceRifleItem(properties.stacksTo(1)));
     public static final DeferredHolder<EntityType<?>, EntityType<PrototypeBolt>> PROJECTILE = ENTITIES.register("prototype_bolt", id -> EntityType.Builder.<PrototypeBolt>of(PrototypeBolt::new, MobCategory.MISC)
             .sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(1).build(ResourceKey.create(Registries.ENTITY_TYPE, id)));
     private EquipmentRegistry() { }
@@ -45,8 +47,11 @@ public final class EquipmentRegistry {
                 properties.humanoidArmor(material, type).component(DataComponents.EQUIPPABLE, Equippable.builder(type.getSlot())
                         .setEquipSound(material.equipSound()).setAsset(material.assetId()).setDispensable(false).build()), kind, type))).toList();
     }
+    /** Long guns share the two-handed carry, aim and recoil poses. */
+    public static boolean longGun(net.minecraft.world.item.ItemStack stack) { return stack.is(PROTOTYPE.get()) || stack.is(SERVICE_RIFLE.get()); }
     public static void register(IEventBus bus) { ITEMS.register(bus); ENTITIES.register(bus); }
     public static void creativeItems(java.util.function.Consumer<Item> output) {
         output.accept(BLADE.get()); ARMY.forEach(item -> output.accept(item.get())); ELITE.forEach(item -> output.accept(item.get())); output.accept(PROTOTYPE.get());
+        output.accept(SERVICE_RIFLE.get());
     }
 }

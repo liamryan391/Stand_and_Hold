@@ -16,6 +16,8 @@ public final class StandAndHoldSounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> POST_RADIO = sound("post.radio");
     /** M35: urgent traffic when a raid is warned; M36 switches the ambience by alert level. */
     public static final DeferredHolder<SoundEvent, SoundEvent> POST_RADIO_URGENT = sound("post.radio_urgent");
+    /** M35: the service rifle's report and action cycling. */
+    public static final DeferredHolder<SoundEvent, SoundEvent> RIFLE_FIRE = sound("rifle.fire");
     private StandAndHoldSounds() { }
     private static DeferredHolder<SoundEvent, SoundEvent> sound(String name) {
         return SOUNDS.register(name, () -> SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath(StandAndHoldConstants.MOD_ID, name)));

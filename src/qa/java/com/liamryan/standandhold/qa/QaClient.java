@@ -834,6 +834,8 @@ public final class QaClient {
                 case 131 -> {
                     mc.options.setCameraType(CameraType.FIRST_PERSON);
                     if (mc.gui.hud.isHidden()) { mc.gui.hud.toggle(); }
+                    onServer(mc, () -> { var inventory = player(mc).getInventory(); // M35: the service rifle's menu icon beside the launcher
+                        inventory.setItem(Math.floorMod(inventory.getSelectedSlot() + 1, 9), EquipmentRegistry.SERVICE_RIFLE.get().getDefaultInstance()); });
                     mc.gui.setScreen(new net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen(
                             mc.player, mc.player.connection.enabledFeatures(), mc.options.operatorItemsTab().get()));
                     phase = 132; settle = 0;

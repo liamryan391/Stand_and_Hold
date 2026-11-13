@@ -32,5 +32,13 @@
       "standandhold:post/urgent2",
       "standandhold:post/urgent3"
     ]
+  },
+  "rifle.fire": {
+    "subtitle": "subtitles.standandhold.rifle.fire",
+    "sounds": [
+      "standandhold:rifle/fire1",
+      "standandhold:rifle/fire2",
+      "standandhold:rifle/fire3"
+    ]
   }
 }
