@@ -32,7 +32,7 @@ public final class RaidBars {
         long now = level.getGameTime();
         if (record == null || !record.hasPending() && record.raiders().isEmpty()) { remove(level.getServer(), key); return; }
         var bars = BARS.computeIfAbsent(level.getServer(), server -> new HashMap<>());
-        var bar = bars.computeIfAbsent(key, ignored -> new Bar(new ServerBossEvent(Component.empty(), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.PROGRESS), new int[1]));
+        var bar = bars.computeIfAbsent(key, ignored -> new Bar(new ServerBossEvent(java.util.UUID.randomUUID(), Component.empty(), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.PROGRESS), new int[1]));
         String where = post.getBlockPos().toShortString();
         if (record.hasPending()) {
             int lead = Math.max(1, ResponseConfig.WARNING_TICKS.get());
