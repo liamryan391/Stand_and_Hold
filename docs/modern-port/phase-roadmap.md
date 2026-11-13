@@ -642,7 +642,7 @@ The internal closeout recorded positive maintainer feedback without claiming a c
 Claude owns this roadmap; Codex reviews it and alternates implementation (see the [handoff](../../handoff.md)); Liam approves scope and the numbered decisions. Roadmap 3 has two goals, in order:
 
 1. **A new player in a fresh, cheats-off Survival world reaches a working Command Post, completes first research and sees automatic defenders without an operator, a lucky seed or a wiki** (M32).
-2. **The army starts to look, sound and behave like a living force with a headquarters at its heart**: non-repetitive soldiers with original sounds (and, if a tested experiment earns it, a better animation pipeline), a readable attack, a "Phase 0" world of scattered survivors and abandoned or active sites, and the first HQ intelligence (M33-M37).
+2. **The army starts to look, sound and behave like a living force with a headquarters at its heart**: non-repetitive soldiers with original sounds (and, if a tested experiment earns it, a better animation pipeline), a readable attack, soldiers that sound natural, move visibly and react to danger, guidance for the player, military base designs, a "Phase 0" world of scattered survivors and abandoned or active sites, and the first HQ intelligence (M33-M41; reprioritised 2026-11-13).
 
 Everything larger (divisions, facilities, arsenal, vehicles, missiles, jets) is placed in the [future roadmaps](#future-roadmaps-provisional) so Liam can see when it lands. Roadmap 2's Shared Exit Rules still apply unchanged.
 
@@ -692,11 +692,15 @@ B removes the race and staleness problems instead of testing around them, and th
 | M32 `claude/m32-earned-outpost` | P1 | M31 baseline; D1-D4 approved 2026-11-12 | On `main` (PR #4); earned run outstanding | Recipes, spacing, auto-started onboarding, Orders view, ordinary undead rewards |
 | M33 `claude/m33-army-look-sound` | P2 | M32; D5 approved 2026-11-12 for 33.4 | Codex reviewed (no blocker); PR to `main` after Liam's play check; 33.4 experiment in progress | Native per-soldier variants and a first original sound set; the animation library is a separate, test-gated experiment (D5) |
 | M34 `claude/m34-defend-the-post` | P2 | M32 (branch stacked on M33) | Implemented; review and play check outstanding | One readable attack warning; `defend_outpost` observable in ordinary play |
-| M35 `<agent>/m35-phase-zero-world` | P2 | M32, M34; D6 | Provisional | Promote an outpost to the world's HQ; stage-aware abandoned/damaged/manned sites and survivor camps; optional ruined-bunker discovery |
-| M36 `<agent>/m36-hq-intelligence` | P2 | M35 | Provisional | Usable HQ: threat profile from vanilla mobs, recommended research started at the HQ, reinforcement dispatch; no autonomous spending |
-| M37 `<agent>/m37-roadmap3-candidate` | P1 | M32-M36 | Provisional | Earned playthrough from spawn to an active HQ with no external mods, packaged install, bounded load; internal candidate 2 |
+| M35 `claude/m35-feel-pass` | **P1** | M34 | Planned (Liam's playtest 2026-11-13) | Sound that sounds natural (no high gear rattle; boot and kit footsteps; radio of several lengths and tones), clearly visible soldier motion, Riflemen always armed, a raid bar at the top of the screen, optional JEI support |
+| M36 `<agent>/m36-alert-and-backup` | **P1** | M35 | Planned | Post alert levels (Calm, Alert, Contact, Overrun) that change how soldiers move and what the radio says; quick-reaction backup that arrives from outside the area when a post is losing men |
+| M37 `<agent>/m37-field-manual-and-command-ui` | P2 | M35 | Planned | A Field Manual book at first join (welcome, how to play, every class with pros and cons) and a Campaign screen of story objectives; the Command Post screen redesigned to be clearer and less cramped |
+| M38 `<agent>/m38-base-design` | P2 | M35 | Planned | New military designs for the outpost at every level, the Main Base and an HQ shell, authored as structure templates; each upgrade visibly changes the site |
+| M39 `<agent>/m39-phase-zero-world` | P2 | M34, M38; D6 decided | Planned | The HQ in the mode the config chooses (D6); stage-aware abandoned, damaged and manned sites and survivor camps, built from the M38 designs; optional ruined-bunker discovery |
+| M40 `<agent>/m40-hq-intelligence` | P2 | M39 | Provisional | Usable HQ: threat profile from vanilla mobs, recommended research started at the HQ, dispatch of M36 backup; no autonomous spending |
+| M41 `<agent>/m41-roadmap3-candidate` | P1 | M32-M40 | Provisional | Earned playthrough from spawn to an active HQ with no external mods, packaged install (with GeckoLib), bounded load; internal candidate 2 |
 
-M33 can run in parallel with M34 on a separate branch because it touches only client art and sound plus NPC appearance data. **If Liam's earned run shows players reach Stage 1 with nothing meaningful to do, M34 moves ahead of M33.** Order is provisional and evidence-driven. Later milestones are re-planned against the code before they start. A fresh packaged-install check (P1) is scheduled in M37, or earlier if a distribution claim is wanted.
+**Reprioritised 2026-11-13 after Liam's first five-minute playtest of M33/M34.** The rule now: fix what a player feels in the first hour (sound, motion, armed soldiers, readable raids, guidance) before adding big new systems. M35 and M36 are therefore P1, and the old M35-M37 (Phase 0 world, HQ intelligence, candidate) move to M39-M41. Base design (M38) comes before Phase 0 so the world generates sites from the new designs instead of the old ones. Order stays evidence-driven: Liam's earned run can still move a slice up. Later milestones are re-planned against the code before they start. The fresh packaged-install check (P1) moves to M41; it must now include GeckoLib.
 
 ### Phase M32 - First Earned Outpost
 
@@ -744,7 +748,7 @@ Priority: P1. Prerequisites: M31 internal baseline on `main`; Liam approved D1-D
 
 Priority: P2. Prerequisites: M32 (the branch is stacked on `claude/m32-earned-outpost` and merges after it). No new dependency, pin, saved data, packet, entity ID or AI change. Started early on Liam's choice to play M32 later.
 
-- [x] **33.1 Per-soldier variants on the existing rigs.** Each soldier picks one of 12 appearance variants and a render-only build (height 0.95-1.05, width 0.96-1.04) from its entity UUID, so every client agrees with no saved data or packets and hitboxes, reach and AI are unchanged. Variant 0 is the authored atlas; 1-11 vary skin tone (six tones), eye colour, hair at the sideburns and hairline, facial hair or scars, a headgear pattern (plain, blotch or band), 0-3 rank stripes and boot wear. A pure-JDK generator (`gradlew generateNpcVariants`) derives all 72 atlases from the Blockbench exports and only repaints pixels that are already opaque, so silhouettes and cutouts never change. *Packs need geometry per tier and move to M38 with the unit art rollout.*
+- [x] **33.1 Per-soldier variants on the existing rigs.** Each soldier picks one of 12 appearance variants and a render-only build (height 0.95-1.05, width 0.96-1.04) from its entity UUID, so every client agrees with no saved data or packets and hitboxes, reach and AI are unchanged. Variant 0 is the authored atlas; 1-11 vary skin tone (six tones), eye colour, hair at the sideburns and hairline, facial hair or scars, a headgear pattern (plain, blotch or band), 0-3 rank stripes and boot wear. A pure-JDK generator (`gradlew generateNpcVariants`) derives all 72 atlases from the Blockbench exports and only repaints pixels that are already opaque, so silhouettes and cutouts never change. *Packs need geometry per tier and move to M42 with the unit art rollout.*
 - [x] **33.2 One original sound set.** Three sound events replace the vanilla stand-ins: `npc.gear` (webbing and buckles on about every other soldier step), `launcher.fire` (launch thump, air release and the mechanism cycling; player and soldier launchers) and `post.radio` (garbled radio traffic, client-only ambience at a Command Post, about once a minute nearby). Every sample is synthesised by `scripts/generate-sounds.py` from sine partials, filtered noise and formant pulses: mono 44.1 kHz Vorbis, subtitled, no recordings or other mods' audio.
 - [ ] **33.3 Prove it, then Liam's look-and-listen check.** Automated evidence below on CI, then Liam plays a few minutes near a post with a squad. *Automated evidence passed 2026-11-12: Windows CI 43275994632 (180/180 GameTests, 1,533 art and 62 sound assertions, restart) and a 103-capture QA client run on Liam's PC. The first close-up showed a full-width moustache reading as an open mouth and overlapping arms; fixed with a goatee and wider spacing. Look-and-listen outstanding.*
 - [ ] **33.4 Separate animation experiment (D5).** Approved by Liam on 2026-11-12 with the recommended library, GeckoLib 5.5.7 (MIT; latest release for 26.3, re-checked on its source repository the same day). Branch `claude/m33-d5-geckolib`. Only the Army Rifleman uses it; every other tier keeps the native rig. It merges only when the D5 gate passes and Liam approves the motion. M33 does not wait for it. *Implemented 2026-11-12. Windows CI 43292247436: build, 1,838 art assertions, 180/180 GameTests with GeckoLib loaded on the dedicated server, packaged-QA metadata and restart passed. Outstanding: QA client captures and the 8/32 frame-time comparison on Liam's PC, a packaged install that includes GeckoLib, and Liam's motion check.*
@@ -789,7 +793,16 @@ Approved by Liam on 2026-11-12: D1 suggested costs, D2 96 blocks, D3 enable `van
 - **D3 Ordinary undead.** Turn on `vanilla_undead` by default for new configs (recommended), or keep zombie-only.
 - **D4 Auto-start scope.** The five onboarding missions (recommended), or all seven. M34 owns the defence mission otherwise.
 - **D5 (for the M33 experiment) Animation library.** Native `HumanoidModel` animation stays the default. A library is tried only as a separate, test-gated experiment: GeckoLib (5.5.7 recorded for 26.3) or AzureLib (4.0.14 recorded for 26.3), both MIT, at most one. Recommended: GeckoLib, as the more widely used Blockbench keyframe pipeline. It merges only if the tests prove it works (normal jar, dedicated server loads without client classes, frame time with 8 and 32 soldiers) and Liam approves how it moves.
-- **D6 (for M35) How the HQ exists. Decided by Liam on 2026-11-13: configurable.** The server config chooses the mode. The default is promotion through an **Establish HQ** order, as recommended below. The alternative is an HQ active from world start. The ruined Command Bunker stays an optional extra discovery route in either mode. Original recommendation: Recommended, following Codex's review: **promotion is the reliable path.** An **Establish HQ** order lets the player promote one existing Command Post (suggested: local Level 2 or higher after Field Communications; tune after the earned run) into the world's single HQ, at a real supplies-and-samples cost. A ruined **Command Bunker** near spawn is an optional discovery route that can also become the HQ; the playthrough never depends on finding it, and it can slip to a later milestone without blocking M37. Alternative: HQ active from world start (strongest identity, skips the earned moment).
+- **D6 (for M39, formerly M35) How the HQ exists. Decided by Liam on 2026-11-13: configurable.** The server config chooses the mode. The default is promotion through an **Establish HQ** order, as recommended below. The alternative is an HQ active from world start. The ruined Command Bunker stays an optional extra discovery route in either mode. Original recommendation: Recommended, following Codex's review: **promotion is the reliable path.** An **Establish HQ** order lets the player promote one existing Command Post (suggested: local Level 2 or higher after Field Communications; tune after the earned run) into the world's single HQ, at a real supplies-and-samples cost. A ruined **Command Bunker** near spawn is an optional discovery route that can also become the HQ; the playthrough never depends on finding it, and it can slip to a later milestone without blocking M37. Alternative: HQ active from world start (strongest identity, skips the earned moment).
+
+**Decisions from the 2026-11-13 playtest review** (Liam decides; Claude recommends):
+
+- **D10 (M35) Where better sounds come from.** (a) Claude re-synthesises them, aiming for natural foley; (b) CC0 public-domain packs (Kenney, Freesound CC0), each file listed in a credits file; (c) royalty-free bundles such as Sonniss, after checking each licence. Never audio from other mods. *Recommended: (b), with (a) for anything not found.*
+- **D11 (M35) JEI.** Optional integration compiled against JEI's API (MIT): it shows our recipes and buildings when JEI is installed and is never required. *Recommended: yes.*
+- **D12 (M37) Guide book and quests.** Our own Field Manual and Campaign screens (no dependency), GuideME (26.3 alpha, custom licence), or FTB Quests compatibility (All Rights Reserved; no 26.3 build found). *Recommended: our own screens now; optional FTB Quests chapters later if it reaches our version.*
+- **D13 (M44, M60) Faction identity.** Original factions inspired by the British and US armies (real rank names; original insignia, flags and names), or the real armies themselves. *Recommended: original factions, so we never depict real units or insignia.*
+- **D14 (Roadmap 5) Gun mods.** Our own arsenal, with any TaCZ-family compatibility only as a separate optional add-on, because those mods are GPL-3.0 and Stand and Hold is All Rights Reserved. *Recommended: own arsenal first.*
+- **D15 (M35-M42 tooling) Building tools.** Let Claude run the Blockbench MCP plugin (models) and a Minecraft builder MCP (structure drafts) in its own workspace. Tools only; nothing from them ships except our own finished files. *Recommended: yes, after a licence check of each tool.*
 
 **Active HQ, defined.** A building the player can use, not just a status: one per world, persisted across restart; its screen shows the world threat profile, the current order and the recommended research; the player can start that research from the HQ using its own local supplies; and the HQ can dispatch one paid reinforcement to any loaded post linked to it, using the existing support call-in rules. Losing the HQ block returns the world to the promotion path without losing research or order history.
 
@@ -804,9 +817,18 @@ Each one becomes active only when the stated evidence justifies it, after re-che
 
   Other mods are reference for ideas and proportions only; no copied geometry, textures, animations or sounds. *Exit evidence:* QA captures of variants at several distances and lighting, sound playback in a GameTest or client check, and Liam's look-and-listen check.
 - **M34 Defend the post (P2).** *Implemented; see [Phase M34](#phase-m34---defend-the-post).* One readable warning before a raid reaches a post; `defend_outpost` joins the Orders view and becomes observable in ordinary play. Reuses raid reservations, support costs and cooldowns; no new global director. *Moves forward if* the earned run reports "after Stage 1 nothing happened" or "never saw a real attack".
-- **M35 Phase 0 world and the HQ (P2).** The world starts scattered, as Liam described. First, the reliable HQ path, in the mode the config chooses (D6): by default an **Establish HQ** order promotes an existing Command Post; the alternative makes an HQ active from world start. Then new chunks generate checkpoints that are **abandoned, damaged or manned** by world stage (mostly abandoned at Phase 0; manned sites become more common as humanity's stage rises) and small **survivor camps** with Survivor-class defenders. New Main Bases generate ruined or dormant until humanity's research and stage earn an active one. The ruined Command Bunker is an optional discovery route. Deterministic per chunk, bounded, original layouts; existing sites are not retrofitted and no chunk is force-loaded.
-- **M36 HQ intelligence v1 (P2).** The HQ becomes the usable "beating heart" defined above. It keeps a bounded per-world ledger of credited kills by threat category. Vanilla mobs fill every category it needs on their own (undead, arthropods, explosive, ranged, illagers, other hostile), so the standalone game passes; external infection, alien and horror mods map into the same categories through tags later (M43). The HQ recommends research that counters what the world actually faces; v1 never spends on its own.
-- **M37 Roadmap 3 candidate (P1).** Earned cheats-off playthrough from spawn to an active HQ **with no external mods installed**, fresh packaged install, bounded multi-post load with the new art, and fixes for demonstrated defects. Internal candidate 2; no public release without a separate decision.
+- **M35 Feel pass I (P1).** From Liam's playtest and recording (2026-11-13). The recording's audio shows frequent high-frequency bursts while soldiers walk. The M33 gear clip's spectral centroid is about 4.2 kHz, against 1.8 kHz for the radio, which matches "a high noise that doesn't sound natural".
+  1. **Sound.** Remove the gear rattle. Soldiers keep the block's own footstep and add a quiet, low boot-and-kit layer (target centroid under 1.5 kHz). The radio gets several clips of different lengths and pitch, in calm and urgent sets, so M36 can switch them by alert level. The source follows **D10**. Volumes are tuned against vanilla footsteps, with a listening check.
+  2. **Motion you can see.** Re-key the GeckoLib Rifleman with clearly readable motion: a stronger walk and a run cycle, an idle that looks around and checks the weapon, a ready stance and a clearer recoil and reload. Decide from the D5 frame-time data whether the other tiers move to GeckoLib here or in M42.
+  3. **Riflemen are always armed.** Every Army Rifleman spawns holding an original **service rifle** with a simple ranged attack (an interim of the Roadmap 5 weapon framework). The prototype launcher stays the stage-gated special weapon.
+  4. **Raid bar.** A vanilla boss bar at the top of the screen for players near a post during a warned and an active raid: "Raid warning: post X, from the north", then raiders remaining. It uses Minecraft's own `ServerBossEvent`, so no library is needed.
+  5. **JEI (optional, D11).** Show our recipes, buildings and samples in Just Enough Items when it is installed. Never a required dependency.
+- **M36 Alert levels and quick-reaction backup (P1).** Each loaded post has an alert level computed from threat score, warned raids, live raiders and recent losses: **Calm** (walk, duties, idle chatter), **Alert** (weapons ready, man the watch positions, terse radio), **Contact** (run to the threat, aim, urgent radio), **Overrun** (fall back to the post, call for backup). When a post loses soldiers faster than a set rate, it requests **backup**: a small paid squad appears at a safe, loaded spot 32-48 blocks away on the friendly side and moves in, never inside walls or unloaded chunks. It is bounded by the existing quotas and cooldowns. The raid bar and radio follow the alert level. No global director or off-screen fighting.
+- **M37 Field Manual and Command UI (P2).** A **Field Manual** book at first join: welcome, how the army works, how to play, and every class with pros and cons (for example, Heavy Soldier: high health and armour, carries heavier weapons, slow). A **Campaign** screen lists story objectives in chapters, like the quest books in big modpacks, built on the existing orders so progress stays server-authoritative. The Command Post screen is redesigned: fewer words on screen, clear panels, status at a glance. The book and quest approach follows **D12**.
+- **M38 Base design I (P2).** New military designs authored as structure templates instead of code-placed blocks: outpost Levels 1-3 (sandbags, tents and a radio mast; then barriers, a watchtower and a supply area; then a walled compound with a gate and bunkers), the Main Base, and an HQ shell. Each upgrade visibly changes the site. Real forward-operating-base layouts are reference only. Draft tooling follows **D15**. Existing sites are not retrofitted; upgrades stay guarded like today's growth.
+- **M39 Phase 0 world and the HQ (P2).** The world starts scattered, as Liam described. First, the reliable HQ path, in the mode the config chooses (D6): by default an **Establish HQ** order promotes an existing Command Post; the alternative makes an HQ active from world start. Then new chunks generate checkpoints that are **abandoned, damaged or manned** by world stage (mostly abandoned at Phase 0; manned sites become more common as humanity's stage rises), built from the M38 designs, and small **survivor camps** with Survivor-class defenders. New Main Bases generate ruined or dormant until humanity's research and stage earn an active one. The ruined Command Bunker is an optional discovery route. Deterministic per chunk, bounded; existing sites are not retrofitted and no chunk is force-loaded.
+- **M40 HQ intelligence v1 (P2).** The HQ becomes the usable "beating heart" defined above. It keeps a bounded per-world ledger of credited kills by threat category. Vanilla mobs fill every category it needs on their own (undead, arthropods, explosive, ranged, illagers, other hostile), so the standalone game passes. External infection, alien and horror mods map into the same categories through tags later (M49). The HQ recommends research that counters what the world actually faces and can dispatch M36 backup; v1 never spends on its own.
+- **M41 Roadmap 3 candidate (P1).** Earned cheats-off playthrough from spawn to an active HQ **with no external mods installed**, fresh packaged install including GeckoLib, bounded multi-post load with the new art, and fixes for demonstrated defects. Internal candidate 2; no public release without a separate decision.
 
 ### Automated Proof Versus Player Feedback
 
@@ -818,74 +840,121 @@ These roadmaps record where the rest of the vision lands. They are not approved 
 
 ### Where Liam's Vision Lands
 
+Updated 2026-11-13 with Liam's playtest feedback. Priority is the order the roadmaps run in: Roadmap 3 (feel, guidance, bases, HQ) before Roadmap 4 (who the soldiers are), before Roadmap 5 (weapons), before Roadmap 6 (story, trust and factions), before Roadmap 7 (vehicles).
+
 | Vision item | First lands | Grows in |
 | --- | --- | --- |
-| Earned Survival start, craftable posts, orders | M32 | M34, M35 |
-| Soldiers that don't look repetitive (variants) | M33 | M38 |
-| Better 3D models and animation (Blockbench + library) | M33 experiment (one unit, test-gated) | M38 all units, M44+ weapons, M49+ vehicles |
-| Army sounds | M33 first set | M38 per unit, M44+ per weapon |
-| Phase 0: scattered survivors, abandoned/destroyed/active outposts, Main Bases appear as research grows | M35 | M42 |
-| HQ as the heart of the army | M35 (promote an outpost; ruined bunker as a discovery) | M36 usable HQ, M39 HQ orders, M43 HQ v2 |
-| HQ predicts what to research and fields the right troops | M36 (recommends, from vanilla threats) | M43 (opt-in auto-research and roster bias) |
-| Classes, variants, divisions, command structure | M39 | M40, M45 |
-| Smarter AI (cover, suppression, retreat to medics, priorities per threat) | M40 | M45, M50 |
-| Barracks, med camp, armoury, research complex, motor pool | M41 | M42, M49 |
-| Self-upgrading Main Base and outpost network | M42 | M43 |
-| Infection, zombie, alien and horror mod support | M43 (tag adapters + categories) | Exact-build tests whenever a mod ships for our Minecraft version |
-| Guns and a real arsenal (ammo, reload, recoil) | M44 | M45 |
-| Grenades | M46 | |
-| Flamethrowers, minigun, rocket and missile launchers (several missile types) | M47 | M53 |
-| Turrets, mortars, searchlights, wire that actually works | M48 | |
-| Vehicles | M49 utility vehicle | M50 armour, M51 helicopters |
-| Jets | M52 | |
-| Missile silo and ICBM | M53 | |
-| Fabric or other loaders | M57 at the earliest | |
+| Earned Survival start, craftable posts, orders | M32 | M34, M37 |
+| Soldiers that don't look repetitive (variants) | M33 | M42 |
+| Natural sound: footsteps, kit, radio that changes with the danger | M35 | M36, M42 per unit, M50+ per weapon |
+| Clearly animated soldiers (GeckoLib) | M33 experiment (Rifleman) | M35 stronger clips, M42 every unit |
+| Riflemen always carry a weapon | M35 interim service rifle | M50-M51 weapon framework and small arms |
+| Raid bar at the top of the screen | M35 | M36 alert levels |
+| Alert system: calm duties to battle-ready | M36 | M46 combat AI |
+| Backup when a post is losing men | M36 quick-reaction squad | M40 HQ dispatch, M45 squads, M56+ convoys |
+| JEI and recipe viewers | M35 (optional) | |
+| Field Manual book: welcome, how to play, classes with pros and cons | M37 | M43 per-class pages, M44 ranks |
+| Story objectives screen (quest-book style) | M37 Campaign | M58 story chapters |
+| Clearer, more immersive UI | M37 Command Post redesign | Every later slice keeps the new style |
+| Better base schematics, a new design per level, military feel | M38 | M47 facilities, M48 self-upgrade |
+| Phase 0: scattered survivors, abandoned/destroyed/active outposts, Main Bases appear as research grows | M39 | M48 |
+| HQ as the heart of the army (D6: promote by default, or active from start) | M39 | M40 usable HQ, M45 HQ orders, M49 HQ v2 |
+| HQ predicts what to research and fields the right troops | M40 (recommends, from vanilla threats) | M49 (opt-in auto-research and roster bias) |
+| Real-world military look: armour by role, kit by job | M42 | M43 |
+| Classes with real identity and loadouts | M43 | M51 class loadouts |
+| Conscripts, soldier ranks and officer ranks; promotion by deeds | M44 | M45 orders chain, M60 faction ladders |
+| Officers: planning, research, intel, setting patrols; kept out of danger | M45 | M49 |
+| Smarter AI (cover, suppression, retreat to medics, priorities per threat) | M46 | M51, M57 |
+| Barracks, med camp, armoury, research complex, motor pool | M47 | M48, M56 |
+| Self-upgrading Main Base and outpost network (autonomous) | M48 | M49, M59 |
+| Infection, zombie, alien and horror mod support | M49 (tag adapters + categories) | Exact-build tests whenever a mod ships for our Minecraft version |
+| Guns and a real arsenal (ammo, reload, recoil) | M50 | M51 |
+| Grenades | M52 | |
+| Flamethrowers, minigun, rocket and missile launchers (several missile types) | M53 | M64 |
+| Turrets, mortars, searchlights, wire that actually works | M54 | |
+| Story mode and trust: trading, helping, missions, earning the army's trust | M58 | M59, M60 |
+| Factions: allies, traders, defenders, hostile raiders | M60 | M61 |
+| Vehicles | M62 utility vehicle | M63 armour and helicopters |
+| Jets, missile silo and ICBM | M64 | |
+| Fabric or other loaders | Roadmap 8 at the earliest | |
 
-Infection mods named by Liam are design targets, not current dependencies. As of 2026-11-12, The Flesh That Hates' newest build targets Forge 1.20.1 and Scape and Run: Parasites targets 1.12.2; neither runs on the 26.3 pin. Support is built through entity tags and threat categories (M43) and tested only against an exact compatible build once one exists. The hard design rules still apply: optional, never a hard dependency, nothing copied.
+Infection mods named by Liam are design targets, not current dependencies. As of 2026-11-12, The Flesh That Hates' newest build targets Forge 1.20.1 and Scape and Run: Parasites targets 1.12.2; neither runs on the 26.3 pin. Support is built through entity tags and threat categories (M49) and tested only against an exact compatible build once one exists. The hard design rules still apply: optional, never a hard dependency, nothing copied.
 
-### Roadmap 4 - The Army Takes Shape (M38-M43)
+### Roadmap 4 - Who The Soldiers Are (M42-M49)
 
-Goal: a structured force with roles, leaders and facilities, run from the HQ. Starts after the M37 candidate.
-
-| Slot | Priority | Slice |
-| --- | --- | --- |
-| M38 Unit art rollout | P2 | Every tier on whichever pipeline M33 proves: models, animation sets and sounds per role; variants everywhere |
-| M39 Command structure | P2 | Squads with a leader, ranks and divisions as rosters bound to the HQ or a Main Base; HQ orders a squad to defend, patrol or reinforce a post |
-| M40 Combat AI v2 | P2 | Cover, suppression, retreat to a medic, per-threat target priority; numeric path, target and spawn budgets defined before work |
-| M41 Facilities I | P2 | Barracks (capacity), Field Hospital / med camp (healing), Armoury (equipment tiers), Research Complex (parallel research); one tested function each; original schematics |
-| M42 Self-upgrading bases | P2 | Main Base and outposts grow on their own under a player-set policy and paid supplies, extending the guarded growth system; outposts report to the HQ |
-| M43 Threats and HQ v2 | P2 | Tag-based adapters and threat categories for infection, zombie, alien and horror mods; HQ v2 can queue research and bias recruitment when the player opts in; D7 decides whether a small in-house threat faction is needed |
-
-Candidate gate: earned playthrough to a running division, multiplayer session, load with several squads. **D8:** whether this candidate becomes the first public alpha.
-
-### Roadmap 5 - Arsenal (M44-M48)
-
-Goal: a weapons framework players and soldiers share, then weapon families one at a time.
+Goal: soldiers that look and act like a real army, with classes, ranks, officers and facilities, run from the HQ. Starts after the M41 candidate.
 
 | Slot | Priority | Slice |
 | --- | --- | --- |
-| M44 Weapon framework | P2 | Ammunition, magazines and reload, fire modes, recoil and spread, server-authoritative hits, animation and sound hooks, NPC loadouts |
-| M45 Small arms | P3 | Service rifle, marksman rifle, shotgun, light machine gun; class loadouts |
-| M46 Grenades and explosives | P3 | Frag, smoke and incendiary grenades, with block-damage and griefing controls |
-| M47 Heavy weapons | P3 | Flamethrower (anti-infection), minigun, rocket launcher, guided missiles (anti-armour, incendiary, cluster) |
-| M48 Emplacements | P3 | Sentry turret, mortar, functional searchlight and wire |
+| M42 Unit art rollout | P2 | Every tier re-modelled with real-world military kit on the proven pipeline: helmets, plate carriers, webbing and packs; **armour by role** (patrols fully armoured, base duty in light or no armour); animation sets and sounds per role; variants everywhere |
+| M43 Classes I | P2 | Each class gets a reason to exist: stats, movement, loadout slots and a job (Rifleman: the common default, always armed; Heavy: high health and armour, heavier weapons, slow; and so on), shown with pros and cons in the Field Manual. Adds the **Conscript** entry class: fresh recruits and rescued survivors who become soldiers through a training camp |
+| M44 Ranks I: soldiers | P2 | A soldier rank ladder (see the ranks note below) earned by deeds: objectives, tasks, rescuing survivors, kills of hostile mobs, events. Higher rank unlocks loadouts and better stats (accuracy, damage, health, speed, teamwork), and the right to give orders to lower ranks |
+| M45 Officers and command | P2 | Officer ranks and an orders chain: squads with a leader; officers plan (what to build next, patrol routes, objectives, research, intel) and earn points for that work; senior officers mostly stay at the HQ, because losing one is a heavy blow. The HQ orders a squad to defend, patrol or reinforce a post |
+| M46 Combat AI v2 | P2 | Cover, suppression, retreat to a medic, per-threat target priority; numeric path, target and spawn budgets defined before work |
+| M47 Facilities I | P2 | Barracks (capacity), Field Hospital (healing), Armoury (loadouts), Research Complex (parallel research), Training Camp (conscripts to soldiers); each with an M38-style design per level and one tested function |
+| M48 Self-upgrading bases | P2 | The army upgrades its own bases and outposts under a player-set policy and paid supplies, extending the guarded growth system; outposts report to the HQ |
+| M49 Threats and HQ v2 | P2 | Tag-based adapters and threat categories for infection, zombie, alien and horror mods; HQ v2 can queue research and bias recruitment when the player opts in; D7 decides whether a small in-house threat faction is needed |
 
-### Roadmap 6 - Vehicles And Strategic Warfare (M49-M54)
+**Ranks note (for M44-M45, references checked 2026-11-13).** Real rank names are public, so ladders can follow them; insignia artwork is drawn originally. British Army soldier ranks: Private, Lance Corporal, Corporal, Sergeant, Staff Sergeant, Warrant Officer Class 2, Warrant Officer Class 1; officers: Officer Cadet, Second Lieutenant, Lieutenant, Captain, Major, Lieutenant Colonel, Colonel, Brigadier, Major General, Lieutenant General, General, Field Marshal. US Army enlisted: Private (PV1, PV2), Private First Class, Specialist, Corporal, Sergeant, Staff Sergeant, Sergeant First Class, Master Sergeant, First Sergeant, Sergeant Major, Command Sergeant Major, Sergeant Major of the Army; warrant officers WO1 and CW2-CW5; officers Second Lieutenant to General, and General of the Army. Stand and Hold adds **Conscript** below Private. M44 ships one ladder (D13 decides which); a second ladder arrives with factions (M60).
+
+Candidate gate: earned playthrough to a running division with ranked squads and an officer at the HQ, multiplayer session, load with several squads. **D8:** whether this candidate becomes the first public alpha.
+
+### Roadmap 5 - Arsenal (M50-M54)
+
+Goal: a weapons framework players and soldiers share, then weapon families one at a time. The M35 service rifle moves onto this framework.
+
+| Slot | Priority | Slice |
+| --- | --- | --- |
+| M50 Weapon framework | P2 | Ammunition, magazines and reload, fire modes, recoil and spread, server-authoritative hits, animation and sound hooks, NPC loadouts tied to class and rank |
+| M51 Small arms | P2 | Service rifle (final), marksman rifle, shotgun, light machine gun; class and rank loadouts |
+| M52 Grenades and explosives | P3 | Frag, smoke and incendiary grenades, with block-damage and griefing controls |
+| M53 Heavy weapons | P3 | Flamethrower (anti-infection), minigun, rocket launcher, guided missiles (anti-armour, incendiary, cluster) |
+| M54 Emplacements | P3 | Sentry turret, mortar, functional searchlight and wire |
+
+### Roadmap 6 - Story, Trust And Factions (M55-M61)
+
+Goal: give the player a reason to engage with the army, and the army a world to deal with. Based on Liam's request for more excitement, a story to guide progression, and an army that is partly autonomous.
+
+| Slot | Priority | Slice |
+| --- | --- | --- |
+| M55 Roadmap 5 candidate | P1 | Earned playthrough with the arsenal in use; multiplayer; load |
+| M56 Convoys and rescue | P3 | Supply convoys and survivor rescues between bases; rescued survivors become conscripts |
+| M57 Combat AI v3 | P3 | Squad tactics: flanking, overwatch, fall-back points |
+| M58 Story mode I | P2 | Campaign chapters on the M37 screen: how the outbreak began, finding the army, earning its trust; scripted but replayable objectives |
+| M59 Trust and trade | P2 | A trust score with the army, earned by trading, completing objectives, helping with development and missions; trust unlocks requests, trades, assistance and access, while the army keeps upgrading itself (M48) |
+| M60 Factions I | P2 | Two playable-world factions (D13: original factions inspired by the UK and US forces, or the real ones); their own rank ladders, allies, traders, neutral defenders and hostile raiders |
+| M61 Diplomacy and raids between factions | P3 | Alliances, trade agreements, hostile raids; bounded, never off-screen battles |
+
+### Roadmap 7 - Vehicles And Strategic Warfare (M62-M66)
 
 Goal: mobility, air power and strategic strikes, each behind the existing [vehicle admission gate](warfare-support-design.md#physical-vehicles-deferred-admission-gate).
 
 | Slot | Priority | Slice |
 | --- | --- | --- |
-| M49 Vehicle foundation | P3 | **D9:** vehicle library or in-house physics; one ground utility vehicle with passengers, storage, unload and reconnect recovery; motor pool building |
-| M50 Armour | P3 | Troop truck/APC and a tank; soldier drivers and gunners |
-| M51 Helicopters | P4 | Transport and gunship; landing pad |
-| M52 Jets | P4 | Strike jet and airfield; bounded flight AI |
-| M53 Missile silo and ICBM | P4 | Off by default; operator and claim controls, bounded blast budget, no chunk force-loading |
-| M54 Strategic candidate | P1 | Load with vehicles and strikes; multiplayer; performance on named hardware |
+| M62 Vehicle foundation | P3 | **D9:** vehicle library or in-house physics; one ground utility vehicle with passengers, storage, unload and reconnect recovery; motor pool building |
+| M63 Armour and helicopters | P3 | Troop truck/APC, a tank, transport helicopter; soldier drivers and gunners |
+| M64 Jets, missile silo and ICBM | P4 | Strike jet and airfield; silo off by default, with operator and claim controls, bounded blast budget, no chunk force-loading |
+| M65 Strategic candidate | P1 | Load with vehicles and strikes; multiplayer; performance on named hardware |
 
-### Roadmap 7 - The Long War (M55+)
+Roadmap 8 (The Long War) holds HQ v3 counter-offensives, a world-scale campaign, the Fabric/other-loader evaluation (reopening M14), and public beta and release decisions. It is planned only when Roadmap 7 is stable.
 
-Goal: a full campaign and wider reach. HQ v3 counter-offensives and a world-scale campaign, M57 Fabric/other-loader evaluation (reopening M14), public beta and release decisions. Planned only when Roadmap 6 is stable.
+### Tools And Libraries Checked (2026-11-13)
+
+Checked against the 26.3 pin on the day. Nothing here is approved until Liam decides; every runtime library still needs exact-artifact approval.
+
+| Need | Option | Status for 26.3 | Licence | Recommendation |
+| --- | --- | --- | --- | --- |
+| Recipe viewer | [JEI](https://www.curseforge.com/minecraft/mc-mods/jei/files/8918192) | NeoForge 26.3 builds since September 2026 (latest 31.16.0.85) | MIT | Optional integration in M35 (D11) |
+| Guide book | [GuideME](https://www.curseforge.com/minecraft/mc-mods/guideme/files/8129704) | 26.3 alpha builds | Custom | Own Field Manual first (D12); revisit when stable |
+| Quest book | [FTB Quests](https://www.curseforge.com/minecraft/mc-mods/ftb-quests-forge/files/8574626) | Newest NeoForge build targets 26.1.2, none for 26.3 found | All Rights Reserved | Own Campaign screen (D12); optional chapter export later if it reaches our version |
+| Footsteps | [Tread Lightly](https://modrinth.com/project/EZLEVAhb) | NeoForge 26.3 | LGPL-3.0 | Reference and a compatible companion; not a dependency |
+| Guns | [Custom Gun Continued](https://www.curseforge.com/minecraft/mc-mods/custom-gun-continued/files/9204513) (TaCZ derivative) | NeoForge 26.3 | GPL-3.0 | Own arsenal (Roadmap 5); any compat stays a separate optional add-on (D14) |
+| Sound assets | [Kenney audio packs](https://kenney.nl/assets/rpg-audio), Freesound CC0 | n/a | CC0 | Preferred outside source for D10, with a credits file |
+| Sound assets | Sonniss GDC bundles | n/a | Royalty-free, with redistribution terms | Only after checking the licence text per file |
+| Model authoring | [Blockbench MCP plugin](https://glama.ai/mcp/servers/jasonjgardner/blockbench-mcp-plugin) (desktop plugin or headless `.bbmodel` editing) | Tool only, not shipped | Check before use | D15: lets Claude build and render Blockbench models directly |
+| Structure drafts | [Minecraft Builder MCP](https://glama.ai/mcp/servers/JesperMorais/minecraft-builder-claude-mcp-server) | Tool only; writes `.schem`/`.litematic`, not `.nbt` | MIT | D15: drafts, then converted to structure templates and finished by hand in game |
+| 3D web library | threejsresources.com MCP (from Liam) | The site and its MCP endpoint did not respond to fetches on 2026-11-13 | Unknown | Three.js models are not Minecraft blocks; usable as visual reference only, if it comes back online |
+| Raid UI | Vanilla `ServerBossEvent` | Built into Minecraft | n/a | Use in M35; no library needed |
 
 ## Deferred Expansion Admission
 
