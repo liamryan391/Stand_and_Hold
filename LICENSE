@@ -13,7 +13,8 @@ own licenses. The Mod is the work of Liam Ryan. Nothing here transfers ownership
       link to the official file instead of re-hosting it, please do. Keep the
       Mod's name, author and this license intact, and do not present the Mod as
       your own work.
-   c. Run the Mod on servers, following Minecraft's EULA and usage guidelines.
+   c. Run the Mod, or a modpack containing it, on servers, including servers
+      that earn money within Minecraft's EULA and usage guidelines.
    d. Make and publish videos, streams, screenshots, reviews and guides that show
       the Mod, including monetised ones.
    e. Read the source code to learn from it, and fork the public repository on
@@ -37,6 +38,9 @@ own licenses. The Mod is the work of Liam Ryan. Nothing here transfers ownership
 
 4. Permission requests. Ask through the project's GitHub issues:
    https://github.com/liamryan391/Stand_and_Hold/issues
+   A port or adaptation approved by Liam Ryan must credit him, link to the
+   official project, stay free and stay under this license unless the written
+   permission says otherwise. Permission can be refused or withdrawn.
 
 5. No warranty. The Mod is provided "as is", without warranty of any kind. Back
    up your worlds. Liam Ryan is not liable for any claim, damage or other
