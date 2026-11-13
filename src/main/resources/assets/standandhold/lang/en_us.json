@@ -196,5 +196,12 @@
   "subtitles.standandhold.launcher.fire": "Launcher fires and cycles",
   "subtitles.standandhold.post.radio": "Field radio chatters",
   "subtitles.standandhold.post.radio_urgent": "Field radio: urgent traffic",
-  "subtitles.standandhold.rifle.fire": "Rifle fires"
+  "subtitles.standandhold.rifle.fire": "Rifle fires",
+  "jei.standandhold.info.field_command_post": "Founds an outpost. Players can craft it once they hold iron; place it well away from other posts. While its area is loaded it earns supplies and human points, deploys soldiers up to its level's limit and shows the current order in its Orders tab. Upgrade it with its own supplies to hold more soldiers. A raid is announced on the radio and on a bar at the top of the screen.",
+  "jei.standandhold.info.research_lab": "Unlocks soldiers and equipment. Import supplies (and store samples when a project needs them), choose a project with Next research and press Start. Work only advances while the Lab is loaded, and costs are paid from the Lab's own storage when it finishes.",
+  "jei.standandhold.info.supply_crate": "Storage found at generated outposts. It has no recipe. Move supplies and samples in or out from its menu.",
+  "jei.standandhold.info.parasite_tissue_sample": "Undead that you or your soldiers kill can drop one (zombies, husks, drowned and zombie villagers by default). Store samples in a Command Post or Lab: research and higher post upgrades spend them.",
+  "jei.standandhold.info.service_rifle": "Army Riflemen are issued this rifle and fire it at hostiles in sight, holding fire when a friend is in the way. Once the Prototype Launcher unlocks for soldiers it replaces the rifle. Soldiers never drop it, and players can't fire it yet.",
+  "jei.standandhold.info.prototype_launcher": "A ranged weapon that fires bolts at threats. Its tooltip shows the stage and research it needs. Riflemen carry it once it unlocks for soldiers.",
+  "jei.standandhold.info.anti_threat_blade": "A melee weapon. Survivors, Heavy Soldiers and Super Elites are issued one once it unlocks; its tooltip shows what that needs."
 }

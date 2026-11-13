@@ -50,7 +50,35 @@ final class CompatibilityChecks {
         check(snapshot.active().size() == 1, "resolved snapshot does not reference mutable input");
         tag("test_threats", List.of("minecraft:zombie"));
         tag("vanilla_undead", List.of("minecraft:zombie", "minecraft:husk", "minecraft:drowned", "minecraft:zombie_villager"));
+        jei();
         System.out.println("Compatibility checks passed: " + assertions + " assertions.");
+    }
+    /** M35 (D11): JEI stays optional. Only the annotated plugin touches its API, the build never ships it, and every page has text. */
+    private static void jei() throws Exception {
+        Path main = Path.of("src/main/java"), plugin = main.resolve("com/liamryan/standandhold/common/compat/jei/StandAndHoldJeiPlugin.java");
+        String source = Files.readString(plugin);
+        check(source.contains("@JeiPlugin") && source.contains("implements IModPlugin"), "JEI discovers the plugin by its annotation");
+        try (var files = Files.walk(main)) {
+            for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
+                check(file.equals(plugin) || !Files.readString(file).contains("mezz.jei"), "only the JEI plugin references JEI: " + file);
+            }
+        }
+        String gradle = Files.readString(Path.of("build.gradle"));
+        check(!gradle.contains("implementation \"mezz.jei") && !gradle.contains("jarJar") && gradle.contains("compileOnly \"mezz.jei:jei-${minecraft_version}-common-api"),
+                "JEI is compile-time API only, never bundled");
+        String toml = Files.readString(Path.of("src/main/templates/META-INF/neoforge.mods.toml")).replace("\r\n", "\n"); // Windows checkouts
+        check(toml.contains("modId=\"jei\"\ntype=\"optional\""), "JEI is declared optional");
+        var lang = JsonParser.parseString(Files.readString(Path.of("src/main/resources/assets/standandhold/lang/en_us.json"))).getAsJsonObject();
+        var ids = java.util.regex.Pattern.compile("INFO = List\\.of\\(([^)]*)\\)").matcher(source);
+        check(ids.find(), "info page list found");
+        int pages = 0;
+        for (String raw : ids.group(1).split(",")) {
+            String id = raw.strip().replace("\"", "");
+            check(Files.isRegularFile(Path.of("src/main/resources/assets/standandhold/items/" + id + ".json")), "info page names a real item: " + id);
+            check(lang.has("jei.standandhold.info." + id), "info page translated: " + id);
+            pages++;
+        }
+        check(pages >= 7, "info pages cover the buildings, samples and weapons");
     }
     private static void tag(String name, List<String> expected) throws Exception {
         var json = JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/standandhold/tags/entity_type/" + name + ".json"))).getAsJsonObject();

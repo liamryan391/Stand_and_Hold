@@ -7,6 +7,7 @@ Stand and Hold's own work is covered by [LICENSE](LICENSE). These third-party pa
 | NeoForged MDK template files | Build template the project was started from | MIT, see [TEMPLATE_LICENSE.txt](TEMPLATE_LICENSE.txt) |
 | [GeckoLib](https://github.com/bernie-g/geckolib) 5.5.7 | Required runtime dependency for the Army Rifleman animation; installed as its own mod, not bundled | MIT |
 | Kenney "RPG Audio" (Kenney.nl), files `cloth1.ogg`, `cloth2.ogg`, `cloth3.ogg` | Soldier kit rustle (`sounds/npc/cloth1-3.ogg`), converted to mono, softened and levelled by `scripts/import-cc0-sounds.py` | CC0 1.0 (public domain); credit given with thanks, not required |
+| [Just Enough Items](https://github.com/mezz/JustEnoughItems) (JEI) API 31.17.0.113 | Optional: when players install JEI themselves it shows our info pages; compiled against its API only, never bundled or required | MIT |
 | Minecraft and NeoForge | Game and mod loader the Mod runs on; not distributed with the Mod | Minecraft EULA; NeoForge LGPL-2.1 |
 
 Planned additions are recorded here before they ship:

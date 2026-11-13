@@ -57,6 +57,21 @@ repositories {
 dependencies {
     implementation "com.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
 }
+// M35 (D11): optional Just Enough Items support (MIT). Compiled against JEI's API only: JEI is never bundled or required.
+// Add -PwithJei to put JEI itself in local dev and QA runs.
+repositories {
+    maven {
+        url = 'https://maven.blamejared.com/'
+        content { includeGroup 'mezz.jei' }
+    }
+}
+dependencies {
+    compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
+    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
+    if (providers.gradleProperty('withJei').isPresent()) {
+        runtimeOnly "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+    }
+}
 def qaNativeRifleman = providers.gradleProperty('qaNativeRifleman').orElse('false').get()
 
 def integrationId = providers.gradleProperty('integrationId').orElse('missing').get()
