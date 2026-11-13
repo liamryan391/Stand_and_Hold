@@ -32,6 +32,15 @@ Use the [first playable test loop](docs/modern-port/showcase-loop.md) in a fresh
 
 The human-response theme, original project identity, and design lessons carry forward. The port uses new modern test worlds; legacy world/config conversion is outside the foundation scope.
 
+## License
+
+Stand and Hold is **All Rights Reserved** by Liam Ryan under the [Stand and Hold License](LICENSE), with clear permissions:
+
+- **Yes:** play it, include the unmodified official file in free modpacks on any platform, run it on servers, and make videos, streams and guides about it (monetised is fine). You can read the source to learn and fork it on GitHub to propose changes.
+- **No (without permission):** sell it or paywall it, re-upload it on its own, distribute modified or ported versions, copy its code or assets into other projects, or present it as official when it is not.
+
+Third-party parts keep their own licenses ([THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)). Not an official Minecraft product; not approved by or associated with Mojang or Microsoft.
+
 ## Selected Modern Toolchain
 
 The modern scaffold uses these selected pins:
