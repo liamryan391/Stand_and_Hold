@@ -845,9 +845,22 @@ public final class QaClient {
                 }
                 case 134 -> {
                     mc.gui.setScreen(null); if (!mc.gui.hud.isHidden()) { mc.gui.hud.toggle(); }
+                    if (net.neoforged.fml.ModList.get().isLoaded("jei") && jeiView < JEI_VIEWS.size()) { phase = 150; settle = 0; return; }
                     phase = 141; variantView = 0;
                     onServer(mc, () -> { player(mc).closeContainer(); variantScene(mc); });
                 }
+                // M35 (D11): only in a -PwithJei run. JEI's own recipe view on our items: the real info pages and recipe.
+                case 150 -> {
+                    if (++settle > 400) { throw new IllegalStateException("JEI runtime never became available"); }
+                    if (settle < 20 || !QaJeiPlugin.show(JEI_VIEWS.get(jeiView).get())) { return; }
+                    phase = 151; settle = 0;
+                }
+                case 151 -> {
+                    if (++settle < 15) { return; }
+                    if (mc.gui.screen() == null) { throw new IllegalStateException("JEI recipe view did not open for " + JEI_VIEWS.get(jeiView).get()); }
+                    capture(mc, "jei-" + net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(JEI_VIEWS.get(jeiView).get()).getPath(), 152);
+                }
+                case 152 -> { mc.gui.setScreen(null); jeiView++; phase = 134; settle = 0; }
                 case 141 -> {
                     if (++settle > 300) { throw new IllegalStateException("Variant lineup did not render: " + VARIANT_VIEWS.get(variantView)); }
                     if (settle < 30 || !mc.levelRenderer.isSectionCompiledAndVisible(VARIANT_ROW, 0)) { return; }
@@ -869,8 +882,9 @@ public final class QaClient {
                     int seen = 0;
                     for (var entity : mc.level.entitiesForRendering()) { if (entity instanceof HumanNpc && variantNpcs.containsKey(entity.getUUID())) { seen++; } }
                     if (settle < 40 || seen != variantNpcs.size() || !mc.levelRenderer.isSectionCompiledAndVisible(VARIANT_ROW, 0)) { return; }
-                    if (perfView == 0) { perfLimit = mc.options.framerateLimit().get(); perfVsync = mc.options.enableVsync().get(); }
-                    mc.options.framerateLimit().set(260); mc.options.enableVsync().set(false);
+                    if (perfView == 0) { perfLimit = mc.options.framerateLimit().get(); perfVsync = mc.options.enableVsync().get(); perfInactivity = mc.options.inactivityFpsLimit().get(); }
+                    // The scripted client sends no input, so vanilla's AFK limit would cap both renderers at 30 fps after a minute.
+                    mc.options.framerateLimit().set(260); mc.options.enableVsync().set(false); mc.options.inactivityFpsLimit().set(net.minecraft.client.InactivityFpsLimit.MINIMIZED);
                     perfFrames = 0; perfStart = System.nanoTime(); perfCounting = true; phase = 144;
                 }
                 case 144 -> {
@@ -879,6 +893,7 @@ public final class QaClient {
                     perfCounting = false;
                     String renderer = Boolean.getBoolean("standandhold.nativeRifleman") ? "native" : "geckolib";
                     String line = "renderer=" + renderer + " soldiers=" + PERF_COUNTS.get(perfView) + " frames=" + perfFrames
+                            + " throttle=" + mc.getFramerateLimitTracker().getThrottleReason()
                             + " meanFrameMs=" + String.format(java.util.Locale.ROOT, "%.3f", elapsed / 1_000_000.0 / Math.max(1, perfFrames));
                     perfResults.add(line); com.mojang.logging.LogUtils.getLogger().info("QA frame time: {}", line);
                     capture(mc, "perf-riflemen-" + PERF_COUNTS.get(perfView), 145);
@@ -886,7 +901,7 @@ public final class QaClient {
                 case 145 -> {
                     if (++perfView < PERF_COUNTS.size()) { phase = 143; onServer(mc, () -> perfScene(mc)); }
                     else {
-                        mc.options.framerateLimit().set(perfLimit); mc.options.enableVsync().set(perfVsync);
+                        mc.options.framerateLimit().set(perfLimit); mc.options.enableVsync().set(perfVsync); mc.options.inactivityFpsLimit().set(perfInactivity);
                         writePerf(mc);
                         if (mc.gui.hud.isHidden()) { mc.gui.hud.toggle(); }
                         phase = 135;
@@ -1012,6 +1027,9 @@ public final class QaClient {
         player.getInventory().setItem(player.getInventory().getSelectedSlot(), EquipmentRegistry.PROTOTYPE.get().getDefaultInstance());
         player.connection.teleport(111.5, 64, 10.8, 157, 7);
     }
+    private static final List<java.util.function.Supplier<net.minecraft.world.item.Item>> JEI_VIEWS = List.of(
+            () -> BuildingRegistry.COMMAND_POST.get().asItem(), () -> BuildingRegistry.CRATE.get().asItem(), () -> EquipmentRegistry.SERVICE_RIFLE.get());
+    private int jeiView;
     /** M33 lineups: soldiers with fixture UUIDs chosen to land on known variant indices, posed without AI on a lit platform. */
     private static final List<String> VARIANT_VIEWS = List.of("variants-riflemen-day", "variants-tiers-day", "variants-closeup", "variants-torchlight");
     private static final BlockPos VARIANT_ROW = new BlockPos(112, 64, 30);
@@ -1058,6 +1076,7 @@ public final class QaClient {
     private static final List<Integer> PERF_COUNTS = List.of(8, 32);
     private int perfView, perfFrames, perfLimit;
     private boolean perfCounting, perfVsync;
+    private net.minecraft.client.InactivityFpsLimit perfInactivity = net.minecraft.client.InactivityFpsLimit.AFK;
     private long perfStart;
     private final List<String> perfResults = new ArrayList<>();
     private void frame(net.neoforged.neoforge.client.event.RenderFrameEvent.Post event) { if (perfCounting) { perfFrames++; } }
