@@ -1,0 +1,56 @@
+Stand and Hold License
+Copyright (c) 2026 Liam Ryan. All rights reserved, except as granted below.
+
+This license covers Stand and Hold: its source code, compiled mod files, models,
+textures, animations, sounds, structures, data and documentation (together, "the
+Mod"), except third-party parts listed in THIRD_PARTY_NOTICES.md, which keep their
+own licenses. The Mod is the work of Liam Ryan. Nothing here transfers ownership.
+
+1. You MAY, free of charge:
+   a. Download, install and play the Mod, alone or with other mods.
+   b. Include the unmodified, official Mod file in modpacks, public or private, on
+      any platform (for example CurseForge or Modrinth). Where the platform can
+      link to the official file instead of re-hosting it, please do. Keep the
+      Mod's name, author and this license intact, and do not present the Mod as
+      your own work.
+   c. Run the Mod, or a modpack containing it, on servers, including servers
+      that earn money within Minecraft's EULA and usage guidelines.
+   d. Make and publish videos, streams, screenshots, reviews and guides that show
+      the Mod, including monetised ones.
+   e. Read the source code to learn from it, and fork the public repository on
+      GitHub in order to propose changes back to this project.
+
+2. You MAY NOT, without written permission from Liam Ryan:
+   a. Sell the Mod, put it behind a paywall, charge for access to it, or include
+      it in a paid modpack. Free modpacks remain allowed even where the platform
+      shares revenue with pack authors. A paid modpack needs Liam Ryan's written
+      permission first, and its author alone is responsible for making sure the
+      pack follows Minecraft's EULA and usage guidelines and the platform's
+      rules. Permission from Liam Ryan cannot override those rules.
+   b. Re-upload or distribute the Mod on its own, or distribute a modified,
+      renamed, repackaged or ported version of it.
+   c. Copy any part of the Mod, including code, models, textures, animations,
+      sounds, structures or text, into another project.
+   d. Use the Stand and Hold name or logo in a way that suggests your project is
+      the official Mod or endorsed by its author.
+
+3. Contributions. By submitting a contribution (for example a pull request), you
+   confirm you have the right to submit it, and you grant Liam Ryan a perpetual,
+   worldwide, royalty-free right to use, change and distribute it as part of the
+   Mod under this or any later license.
+
+4. Permission requests. Ask through the project's GitHub issues:
+   https://github.com/liamryan391/Stand_and_Hold/issues
+   A port or adaptation approved by Liam Ryan must credit him, link to the
+   official project, stay free and stay under this license unless the written
+   permission says otherwise. Permission can be refused or withdrawn.
+
+5. No warranty. The Mod is provided "as is", without warranty of any kind. Back
+   up your worlds. Liam Ryan is not liable for any claim, damage or other
+   liability arising from the Mod or its use.
+
+6. Changes to this license apply to versions released after the change. Versions
+   you already received stay under the license they were released with.
+
+NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR
+MICROSOFT.
