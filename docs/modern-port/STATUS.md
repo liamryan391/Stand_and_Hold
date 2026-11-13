@@ -21,5 +21,5 @@ Updated: 2026-11-12
 - Growth remains bounded; no power-loss/claim-mod guarantee or automatic repair. Independent beta/public release approval remains separate.
 
 ## Next Milestone
-Codex re-review of PR #8, then Liam's D10-D15 decisions. Liam's first playtest (2026-11-13) reprioritised Roadmap 3: M35 Feel pass (sound, visible motion, armed Riflemen, raid bar, JEI) and M36 alert levels and backup are now P1, ahead of the Phase 0 world (now M39). The D5 and M34 QA runs are queued on Liam's PC runner (`start-runner.cmd`). Then:
-`Continue: M35 Feel pass after PR #8 merges and D10/D11 are decided.`
+Codex re-review of PR #8 and review of the roadmap PR #9 (Liam decided D10-D12 and D15 on 2026-11-13; D13-D14 wait for their roadmaps). Liam's first playtest (2026-11-13) reprioritised Roadmap 3: M35 Feel pass (sound, visible motion, armed Riflemen, raid bar, JEI) and M36 alert levels and backup are now P1, ahead of the Phase 0 world (now M39). The D5 and M34 QA runs are queued on Liam's PC runner (`start-runner.cmd`). Then:
+`Continue: M35 Feel pass (CC0 sounds, stronger motion, armed Riflemen, raid bar, optional JEI) after PR #8 merges.`
