@@ -214,10 +214,10 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob, co
         if (level() instanceof ServerLevel server && (reason.shouldDestroy() || reason == RemovalReason.CHANGED_DIMENSION)) { releasePost(server); }
         super.onRemoval(reason);
     }
-    /** Webbing and buckles on roughly every other step; same server step cadence as vanilla, quieter than the step. */
+    /** The block's own footstep, plus a soft kit rustle on about one step in three (M35: low cloth and webbing, no metal clinks). */
     @Override protected void playStepSound(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState block) {
         super.playStepSound(pos, block);
-        if (!isSilent() && getRandom().nextBoolean()) { playSound(StandAndHoldSounds.NPC_GEAR.get(), 0.22F, 0.9F + getRandom().nextFloat() * 0.2F); }
+        if (!isSilent() && getRandom().nextInt(3) == 0) { playSound(StandAndHoldSounds.NPC_GEAR.get(), 0.3F, 0.9F + getRandom().nextFloat() * 0.2F); }
     }
     private boolean rangedReady() {
         return level() instanceof ServerLevel server && tier().usesPrototype() && EquipmentConfig.value(EquipmentConfig.NPC_ENABLED)

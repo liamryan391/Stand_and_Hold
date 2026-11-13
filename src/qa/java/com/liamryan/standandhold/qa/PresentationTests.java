@@ -44,7 +44,7 @@ final class PresentationTests {
 
     private static void registered(GameTestHelper h) {
         var expected = Map.of("npc.gear", StandAndHoldSounds.NPC_GEAR.get(), "launcher.fire", StandAndHoldSounds.LAUNCHER_FIRE.get(),
-                "post.radio", StandAndHoldSounds.POST_RADIO.get());
+                "post.radio", StandAndHoldSounds.POST_RADIO.get(), "post.radio_urgent", StandAndHoldSounds.POST_RADIO_URGENT.get());
         expected.forEach((path, sound) -> {
             var id = Identifier.fromNamespaceAndPath(StandAndHoldConstants.MOD_ID, path);
             h.assertTrue(BuiltInRegistries.SOUND_EVENT.containsKey(id) && BuiltInRegistries.SOUND_EVENT.getValue(id) == sound, "registered: " + id);

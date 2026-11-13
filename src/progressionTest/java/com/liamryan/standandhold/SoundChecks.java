@@ -13,8 +13,11 @@ import net.minecraft.client.sounds.JOrbisAudioStream;
 final class SoundChecks {
     private static int assertions;
     /** Event -> {min, max} decoded seconds. */
-    private static final Map<String, double[]> EVENTS = Map.of("npc.gear", new double[] {0.1, 0.5},
-            "launcher.fire", new double[] {0.3, 1.2}, "post.radio", new double[] {0.5, 2.0});
+    private static final Map<String, double[]> EVENTS = Map.of("npc.gear", new double[] {0.1, 0.6},
+            "launcher.fire", new double[] {0.3, 1.2}, "post.radio", new double[] {1.0, 3.6}, "post.radio_urgent", new double[] {0.6, 2.2});
+    /** M35 (Liam's playtest): the kit layer must stay low; M33's clinks measured about 4.2 kHz. Radio stays in the voice band. */
+    private static final Map<String, double[]> CENTROID_HZ = Map.of("npc.gear", new double[] {150, 1600},
+            "post.radio", new double[] {600, 1800}, "post.radio_urgent", new double[] {800, 2600});
     static void run() throws Exception {
         Path assets = Path.of("src/main/resources/assets/standandhold");
         var json = JsonParser.parseString(Files.readString(assets.resolve("sounds.json"))).getAsJsonObject();
@@ -37,7 +40,13 @@ final class SoundChecks {
                     check(format.getChannels() == 1, "mono, so Minecraft can position it: " + id);
                     check(format.getSampleRate() == 44100F, "44.1 kHz: " + id);
                     long[] samples = {0}; float[] peak = {0};
-                    while (stream.readChunk(value -> { samples[0]++; peak[0] = Math.max(peak[0], Math.abs(value)); })) { }
+                    var decoded = new java.util.ArrayList<Float>();
+                    while (stream.readChunk(value -> { samples[0]++; peak[0] = Math.max(peak[0], Math.abs(value)); decoded.add(value); })) { }
+                    var band = CENTROID_HZ.get(event.getKey());
+                    if (band != null) {
+                        double centroid = centroid(decoded);
+                        check(centroid >= band[0] && centroid <= band[1], "spectral centroid of " + id + " is " + Math.round(centroid) + " Hz");
+                    }
                     double seconds = samples[0] / 44100.0;
                     check(seconds >= event.getValue()[0] && seconds <= event.getValue()[1], "duration in range for " + id + ": " + seconds);
                     check(peak[0] > 0.05F && peak[0] <= 1.0F, "audible and not clipped: " + id);
@@ -48,6 +57,18 @@ final class SoundChecks {
             check(files.filter(Files::isRegularFile).allMatch(path -> used.contains(path.normalize())), "no unreferenced sound files ship");
         }
         System.out.println("Sound checks passed: " + assertions + " assertions.");
+    }
+    /** Magnitude-weighted mean frequency of up to 8192 samples, by direct DFT up to 11 kHz (pure JDK, a few million operations). */
+    private static double centroid(java.util.List<Float> samples) {
+        int n = Math.min(8192, samples.size()), offset = (samples.size() - n) / 2, bins = (int) (11000.0 * n / 44100);
+        double weighted = 0, total = 0;
+        for (int k = 1; k < bins; k++) {
+            double re = 0, im = 0, w = 2 * Math.PI * k / n;
+            for (int i = 0; i < n; i++) { double v = samples.get(offset + i); re += v * Math.cos(w * i); im -= v * Math.sin(w * i); }
+            double magnitude = Math.hypot(re, im), frequency = k * 44100.0 / n;
+            weighted += magnitude * frequency; total += magnitude;
+        }
+        return total == 0 ? 0 : weighted / total;
     }
     private static void check(boolean condition, String message) { assertions++; if (!condition) { throw new AssertionError(message); } }
 }

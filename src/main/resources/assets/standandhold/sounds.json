@@ -1,14 +1,36 @@
 {
   "npc.gear": {
     "subtitle": "subtitles.standandhold.npc.gear",
-    "sounds": ["standandhold:npc/gear1", "standandhold:npc/gear2", "standandhold:npc/gear3"]
+    "sounds": [
+      "standandhold:npc/cloth1",
+      "standandhold:npc/cloth2",
+      "standandhold:npc/cloth3",
+      "standandhold:npc/kit1",
+      "standandhold:npc/kit2"
+    ]
   },
   "launcher.fire": {
     "subtitle": "subtitles.standandhold.launcher.fire",
-    "sounds": ["standandhold:launcher/fire1", "standandhold:launcher/fire2"]
+    "sounds": [
+      "standandhold:launcher/fire1",
+      "standandhold:launcher/fire2"
+    ]
   },
   "post.radio": {
     "subtitle": "subtitles.standandhold.post.radio",
-    "sounds": ["standandhold:post/radio1", "standandhold:post/radio2", "standandhold:post/radio3", "standandhold:post/radio4"]
+    "sounds": [
+      "standandhold:post/radio1",
+      "standandhold:post/radio2",
+      "standandhold:post/radio3",
+      "standandhold:post/radio4"
+    ]
+  },
+  "post.radio_urgent": {
+    "subtitle": "subtitles.standandhold.post.radio_urgent",
+    "sounds": [
+      "standandhold:post/urgent1",
+      "standandhold:post/urgent2",
+      "standandhold:post/urgent3"
+    ]
   }
 }
