@@ -32,6 +32,7 @@ final class OnboardingChecks {
         var catalog = FoundationChecks.defaults();
         definitions(catalog);
         autoStart(catalog);
+        existingSaves(catalog);
         preCarriedAndShared(catalog);
         earlyImportRecovers(catalog);
         staleRecordsGrantNothing(catalog);
@@ -57,6 +58,32 @@ final class OnboardingChecks {
         }
     }
 
+    /** M34 review: existing saves. The defence order needs the saved Stage 1 order receipt, never points alone; receipts stay intact. */
+    private static void existingSaves(FoundationCatalog catalog) {
+        var stageOnly = new HumanWorldData();
+        stageOnly.setProgression(THRESHOLDS[1], ProgressionRules.stageFor(THRESHOLDS[1], THRESHOLDS));
+        MissionManager.sync(stageOnly, catalog, THRESHOLDS, -1);
+        check(stageOnly.mission("standandhold:defend_outpost").isEmpty() && stageOnly.mission("standandhold:early_army_response").isEmpty(),
+                "Stage 1 points without the order chain do not start the defence order");
+        for (int existing : new int[] {-1, 2, 5}) { // absent, partial, completed defence receipt
+            var data = new HumanWorldData();
+            for (String id : List.of("recover_parasite_samples", "establish_field_command", "stockpile_supplies", "complete_first_research", "early_army_response")) {
+                MissionManager.start(data, catalog, THRESHOLDS, id); MissionManager.advance(data, catalog, THRESHOLDS, id, 1_000_000);
+            }
+            if (existing >= 0) { MissionManager.start(data, catalog, THRESHOLDS, "defend_outpost"); MissionManager.advance(data, catalog, THRESHOLDS, "defend_outpost", existing); }
+            long points = data.points(), supplies = data.supplies();
+            var notices = MissionManager.sync(data, catalog, THRESHOLDS, -1);
+            var defence = data.mission("standandhold:defend_outpost").orElseThrow();
+            if (existing < 0) {
+                check(notices.size() == 1 && notices.get(0).change() == Change.STARTED && defence.progress() == 0 && !defence.completed()
+                        && data.points() == points && data.supplies() == supplies, "absent receipt: starts once, unpaid, with no retroactive kill credit");
+            } else {
+                check(notices.isEmpty() && defence.progress() == existing && defence.completed() == (existing >= 5) && data.points() == points && data.supplies() == supplies,
+                        "existing " + (existing >= 5 ? "completed" : "partial") + " receipt kept: no notice, no reward, progress unchanged");
+            }
+            check(MissionManager.sync(data, catalog, THRESHOLDS, -1).isEmpty(), "a second refresh changes nothing");
+        }
+    }
     private static void autoStart(FoundationCatalog catalog) {
         var data = new HumanWorldData();
         var first = MissionManager.sync(data, catalog, THRESHOLDS, -1);

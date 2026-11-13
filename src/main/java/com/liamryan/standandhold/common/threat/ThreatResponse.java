@@ -91,13 +91,17 @@ public final class ThreatResponse {
         }
         return "Raid warned at " + home.key() + ": arrives from octant " + octant + " in " + lead + " ticks.";
     }
-    /** The warned wave arrives, unless nobody is there to face it or the world became Peaceful: then backoff, no spawn. */
+    /**
+     * The warned wave arrives, unless natural raids were turned off since the warning, the world became Peaceful, or nobody
+     * is within 64 blocks: then the warning is cleared with backoff and nothing spawns or counts. Arrival resolves on the
+     * post's first loaded check at or after the saved tick, so contact can come up to one check interval late.
+     */
     private static void arrive(ServerLevel level, BuildingBlockEntity post) {
         var data = ThreatWorldData.get(level.getServer()); var response = state(level, post); long now = level.getGameTime();
         var home = new BuildingPosition(level.dimension().identifier(), post.getBlockPos());
         data.putResponse(home.key(), response.clearPending());
         boolean witness = level.players().stream().anyMatch(p -> !p.isSpectator() && p.blockPosition().distSqr(post.getBlockPos()) <= 4096);
-        if (level.getDifficulty() == Difficulty.PEACEFUL || !witness) {
+        if (!ResponseConfig.RAIDS.get() || level.getDifficulty() == Difficulty.PEACEFUL || !witness) {
             data.putResponse(home.key(), data.response(home.key()).timers(ResponseRecord.after(now, ResponseConfig.BACKOFF.get()), response.nextReinforcement()));
             return;
         }
@@ -147,6 +151,7 @@ public final class ThreatResponse {
         var data = ThreatWorldData.get(level.getServer()); var response = data.response(home.key());
         int stage = ProgressionRules.stageFor(HumanWorldData.get(level.getServer()).points(), HumanProgressionConfig.thresholds()).level();
         int wanted = ResponseRecord.waveSize(stage, ResponseConfig.RAID_CAP.get()), spawned = 0;
+        double sumX = 0, sumZ = 0;
         String blocked = "could not create a zombie";
         for (int i = 0; i < wanted; i++) {
             if (hostiles(level, home.pos()) >= ResponseConfig.RAID_AREA_CAP.get()) {
@@ -167,7 +172,7 @@ public final class ThreatResponse {
             boolean added = false;
             try { added = level.addFreshEntity(zombie); }
             finally { if (!added) { data.releaseRaider(home.key(), zombie.getUUID()); } }
-            if (added) { spawned++; }
+            if (added) { spawned++; sumX += zombie.getX() - (home.pos().getX() + 0.5); sumZ += zombie.getZ() - (home.pos().getZ() + 0.5); }
         }
         if (spawned == 0) {
             data.putResponse(home.key(), data.response(home.key()).timers(ResponseRecord.after(now, ResponseConfig.BACKOFF.get()), response.nextReinforcement()));
@@ -175,7 +180,16 @@ public final class ThreatResponse {
         }
         data.putResponse(home.key(), data.response(home.key()).timers(ResponseRecord.after(now, ResponseConfig.RAID_COOLDOWN.get()), response.nextReinforcement()).counted(true));
         observe(level, home.pos(), ResponseConfig.ATTACK_SCORE.get(), false, false, false, true);
-        warn(level, post, "message.standandhold.raid", String.valueOf(spawned));
+        if (octant.isPresent() && ResponseConfig.WARNINGS.get()) {
+            // Name the side they actually came from: the safe-spawn fallback may not match the warning.
+            int actual = Math.floorMod((int) Math.round(Math.toDegrees(Math.atan2(sumX, -sumZ)) / 45), 8);
+            for (var player : level.players()) {
+                if (!player.isSpectator() && player.blockPosition().distSqr(post.getBlockPos()) <= 4096) {
+                    player.sendSystemMessage(Component.translatable("message.standandhold.raid_contact", post.getBlockPos().toShortString(), spawned,
+                            Component.translatable("direction.standandhold." + actual)));
+                }
+            }
+        } else { warn(level, post, "message.standandhold.raid", String.valueOf(spawned)); }
         return "Outpost raid at " + home.key() + ": " + spawned + " zombies, saved cooldown; post/area caps apply.";
     }
     private static int hostiles(ServerLevel level, BlockPos pos) {

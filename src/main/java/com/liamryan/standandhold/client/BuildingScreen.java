@@ -225,10 +225,14 @@ public final class BuildingScreen extends AbstractContainerScreen<BuildingMenu> 
             case 2 -> Component.translatable("gui.standandhold.order.stockpile", menu.number(GLOBAL), need, menu.number(BATCH), menu.number(LOCAL));
             case 3 -> Component.translatable("gui.standandhold.order.research", menu.researchTitle(order.research()), need);
             case 4 -> Component.translatable("gui.standandhold.order.stage", menu.number(POINTS), need);
-            case 5 -> menu.number(RAID_ETA) >= 0
-                    ? Component.translatable("gui.standandhold.order.raid_incoming", Component.translatable("direction.standandhold." + Math.clamp(menu.number(RAID_BEARING), 0, 7)),
-                            (menu.number(RAID_ETA) + 19) / 20)
-                    : Component.translatable("gui.standandhold.order.defence_threat", menu.number(THREAT), menu.number(THREAT_NEED));
+            case 5 -> {
+                var side = Component.translatable("direction.standandhold." + Math.clamp(menu.number(RAID_BEARING), 0, 7));
+                long eta = menu.number(RAID_ETA);
+                // Arrival resolves on the post's next loaded check, so the countdown can reach zero before contact.
+                yield eta < 0 ? Component.translatable("gui.standandhold.order.defence_threat", menu.number(THREAT), menu.number(THREAT_NEED))
+                        : eta == 0 ? Component.translatable("gui.standandhold.order.raid_imminent", side)
+                        : Component.translatable("gui.standandhold.order.raid_incoming", side, (eta + 19) / 20);
+            }
             default -> Component.translatable("gui.standandhold.order.main_base");
         };
         wrap(g, step.getString(), 114);

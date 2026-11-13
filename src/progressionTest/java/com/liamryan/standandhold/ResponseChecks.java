@@ -78,15 +78,27 @@ final class ResponseChecks {
         } } }
         check(ThreatResponse.octantOffset(0, 0, 10)[1] < 0 && ThreatResponse.octantOffset(2, 0, 10)[0] > 0
                 && ThreatResponse.octantOffset(4, 0, 10)[1] > 0 && ThreatResponse.octantOffset(6, 0, 10)[0] < 0, "octant 0 is north (-Z) and 2 is east (+X)");
-        // 34.1 pacing guard: once local threat is over the line and a player is near, a raid should be likely within ten minutes,
-        // and the warning long enough to react to but short enough to stay connected to it.
+        // 34.1 measurement (Codex review): simulate real kill-and-decay sequences with the default threat rules, not ten
+        // minutes of assumed eligibility. Reported, not tuned; balance waits for the earned run.
         int chance = com.liamryan.standandhold.config.ResponseConfig.CHANCE.getDefault(), interval = com.liamryan.standandhold.config.ResponseConfig.CHECK_INTERVAL.getDefault();
         int lead = com.liamryan.standandhold.config.ResponseConfig.WARNING_TICKS.getDefault(), threshold = com.liamryan.standandhold.config.ResponseConfig.RAID_THRESHOLD.getDefault();
-        double within10 = 1 - Math.pow(1 - 1.0 / chance, 12000.0 / interval), meanSeconds = chance * interval / 20.0;
-        int kills = (threshold + com.liamryan.standandhold.config.ResponseConfig.KILL_SCORE.getDefault() - 1) / com.liamryan.standandhold.config.ResponseConfig.KILL_SCORE.getDefault();
-        check(within10 > 0.8 && lead >= 400 && lead <= 1200 && kills <= 6, "defaults keep a warned raid observable in ordinary play");
-        System.out.printf(java.util.Locale.ROOT, "M34 pacing: %d credited kills near a post reach the raid line; mean %.0f s to a raid once eligible, %.0f%% within 10 min; warning %d s.%n",
-                kills, meanSeconds, within10 * 100, lead / 20);
+        int kill = com.liamryan.standandhold.config.ResponseConfig.KILL_SCORE.getDefault(), decayEvery = com.liamryan.standandhold.config.ResponseConfig.DECAY_INTERVAL.getDefault();
+        int decayBy = com.liamryan.standandhold.config.ResponseConfig.DECAY_AMOUNT.getDefault(), kills = (threshold + kill - 1) / kill;
+        var burst = ThreatRecord.empty(0);
+        for (int i = 0; i < kills; i++) { burst = burst.observe(0, kill, true, true, false, false); }
+        var steady = burst; int burstChecks = 0, steadyChecks = 0;
+        for (long t = interval; t <= 12000; t += interval) {
+            if (burst.decay(t, decayEvery, decayBy).score() >= threshold) { burstChecks++; }
+            steady = steady.decay(t, decayEvery, decayBy);
+            if (t % decayEvery == 0) { steady = steady.observe(t, kill, true, true, false, false); } // one more credited kill per decay period
+            if (steady.score() >= threshold) { steadyChecks++; }
+        }
+        double burstChance = 1 - Math.pow(1 - 1.0 / chance, burstChecks), steadyChance = 1 - Math.pow(1 - 1.0 / chance, steadyChecks);
+        check(burstChecks > 0 && burstChecks < steadyChecks && steadyChance > 0.8 && lead >= 400 && lead <= 1200,
+                "a quick burst gives a few eligible checks; steady fighting near a post keeps raids likely; the warning stays playable");
+        System.out.printf(java.util.Locale.ROOT, "M34 pacing (10 min, before terrain/hostile limits): %d quick kills then nothing -> %d eligible checks, %.0f%% chance of a warned raid;"
+                + " one more kill per minute -> %d checks, %.0f%%; warning %d s, resolved on the next %d-tick post check.%n",
+                kills, burstChecks, burstChance * 100, steadyChecks, steadyChance * 100, lead / 20, interval);
         data.putResponse(post, response); data.setDirty(false); data.putResponse(post, response);
         check(!data.isDirty(), "unchanged cooldown/roster does not dirty");
         var saved = encode(data); saved.putString("unknown", "keep");

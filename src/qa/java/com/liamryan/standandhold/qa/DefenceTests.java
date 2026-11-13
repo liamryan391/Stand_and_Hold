@@ -25,6 +25,7 @@ final class DefenceTests {
         tests.put("defence_warned_raid_arrives", DefenceTests::arrives);
         tests.put("defence_warned_raid_needs_witness", DefenceTests::witness);
         tests.put("defence_order_runs_itself", DefenceTests::order);
+        tests.put("defence_warned_raid_natural_off", DefenceTests::naturalOff);
         return tests;
     }
 
@@ -74,12 +75,39 @@ final class DefenceTests {
                     double off = Math.abs(((bearing - warned.bearing() * 45) % 360 + 540) % 360 - 180);
                     h.assertTrue(off <= 45, "raider comes from the announced side: off by " + off + " degrees");
                 }
-                h.assertTrue(player.messages("message.standandhold.raid") == 1, "arrival is announced as before");
+                h.assertTrue(player.messages("message.standandhold.raid_contact") == 1 && player.messages("message.standandhold.raid") == 0,
+                        "arrival names the side the raiders actually came from");
                 h.succeed();
             });
         });
     }
 
+    /** Turning natural raids off after a warning clears it at arrival: no wave, no counters; operator raids still work. */
+    private static void naturalOff(GameTestHelper h) {
+        QaWorld.begin(h); var post = post(h); var player = player(h, HOME.offset(0, 0, 3)); stage(h, HumanStage.LOCAL_ARMY_RESPONSE);
+        boolean natural = ResponseConfig.RAIDS.get();
+        h.testInfo.addListener(new net.minecraft.gametest.framework.GameTestListener() {
+            private void restore() { ResponseConfig.RAIDS.set(natural); }
+            public void testStructureLoaded(net.minecraft.gametest.framework.GameTestInfo info) { }
+            public void testPassed(net.minecraft.gametest.framework.GameTestInfo info, net.minecraft.gametest.framework.GameTestRunner runner) { restore(); }
+            public void testFailed(net.minecraft.gametest.framework.GameTestInfo info, net.minecraft.gametest.framework.GameTestRunner runner) { restore(); }
+            public void testAddedForRerun(net.minecraft.gametest.framework.GameTestInfo old, net.minecraft.gametest.framework.GameTestInfo copy, net.minecraft.gametest.framework.GameTestRunner runner) { }
+        });
+        h.runAfterDelay(2, () -> {
+            h.assertTrue(ThreatResponse.warnRaid(h.getLevel(), post).startsWith("Raid warned"), "warned while natural raids were on");
+            ResponseConfig.RAIDS.set(false);
+            arriveNow(h, post);
+            h.runAfterDelay(1, () -> {
+                ThreatResponse.tick(h.getLevel(), post);
+                var after = ThreatResponse.state(h.getLevel(), post); long now = h.getLevel().getGameTime();
+                h.assertTrue(!after.hasPending() && after.raiders().isEmpty() && raiders(h).isEmpty() && after.raids() == 0
+                        && player.messages("message.standandhold.raid_contact") == 0, "natural raids off: the warned wave never arrives and nothing counts: " + after);
+                ThreatWorldData.get(h.getLevel().getServer()).putResponse(key(h, post), after.timers(0, after.nextReinforcement()));
+                h.assertTrue(ThreatResponse.raid(h.getLevel(), post).startsWith("Outpost raid") && !raiders(h).isEmpty(), "operator debug raids stay independent of the natural toggle");
+                h.succeed();
+            });
+        });
+    }
     private static void witness(GameTestHelper h) {
         QaWorld.begin(h); var post = post(h); stage(h, HumanStage.LOCAL_ARMY_RESPONSE);
         var player = player(h, HOME.offset(0, 0, 3));
