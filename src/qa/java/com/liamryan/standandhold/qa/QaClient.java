@@ -131,7 +131,7 @@ public final class QaClient {
     private String consentCommand, expansionProtected;
     private net.minecraft.nbt.CompoundTag previewPostBefore, previewGlobalBefore;
     public QaClient() {
-        if (Boolean.getBoolean("standandhold.qa.client")) { NeoForge.EVENT_BUS.addListener(this::tick); NeoForge.EVENT_BUS.addListener(this::chat); }
+        if (Boolean.getBoolean("standandhold.qa.client")) { NeoForge.EVENT_BUS.addListener(this::tick); NeoForge.EVENT_BUS.addListener(this::chat); NeoForge.EVENT_BUS.addListener(this::frame); }
     }
     private void chat(ClientChatReceivedEvent event) {
         String text = event.getMessage().getString();
@@ -860,7 +860,32 @@ public final class QaClient {
                 }
                 case 142 -> {
                     if (++variantView < VARIANT_VIEWS.size()) { phase = 141; onServer(mc, () -> variantScene(mc)); }
+                    else { phase = 143; perfView = 0; onServer(mc, () -> perfScene(mc)); }
+                }
+                case 143 -> {
+                    if (++settle > 300) { throw new IllegalStateException("Frame-time squad did not render: " + PERF_COUNTS.get(perfView)); }
+                    int seen = 0;
+                    for (var entity : mc.level.entitiesForRendering()) { if (entity instanceof HumanNpc && variantNpcs.containsKey(entity.getUUID())) { seen++; } }
+                    if (settle < 40 || seen != variantNpcs.size() || !mc.levelRenderer.isSectionCompiledAndVisible(VARIANT_ROW, 0)) { return; }
+                    if (perfView == 0) { perfLimit = mc.options.framerateLimit().get(); perfVsync = mc.options.enableVsync().get(); }
+                    mc.options.framerateLimit().set(260); mc.options.enableVsync().set(false);
+                    perfFrames = 0; perfStart = System.nanoTime(); perfCounting = true; phase = 144;
+                }
+                case 144 -> {
+                    long elapsed = System.nanoTime() - perfStart;
+                    if (elapsed < 5_000_000_000L) { return; }
+                    perfCounting = false;
+                    String renderer = Boolean.getBoolean("standandhold.nativeRifleman") ? "native" : "geckolib";
+                    String line = "renderer=" + renderer + " soldiers=" + PERF_COUNTS.get(perfView) + " frames=" + perfFrames
+                            + " meanFrameMs=" + String.format(java.util.Locale.ROOT, "%.3f", elapsed / 1_000_000.0 / Math.max(1, perfFrames));
+                    perfResults.add(line); com.mojang.logging.LogUtils.getLogger().info("QA frame time: {}", line);
+                    capture(mc, "perf-riflemen-" + PERF_COUNTS.get(perfView), 145);
+                }
+                case 145 -> {
+                    if (++perfView < PERF_COUNTS.size()) { phase = 143; onServer(mc, () -> perfScene(mc)); }
                     else {
+                        mc.options.framerateLimit().set(perfLimit); mc.options.enableVsync().set(perfVsync);
+                        writePerf(mc);
                         if (mc.gui.hud.isHidden()) { mc.gui.hud.toggle(); }
                         phase = 135;
                         onServer(mc, () -> { clearVariants(mc); player(mc).connection.teleport(152.5, -57, 18.5, 180, 10); });
@@ -1026,6 +1051,36 @@ public final class QaClient {
         player.getAbilities().flying = true; player.onUpdateAbilities();
         if (close) { player.connection.teleport(VARIANT_ROW.getX() + 0.5, 64.1, VARIANT_ROW.getZ() + 4.3, 180, 4); }
         else { player.connection.teleport(VARIANT_ROW.getX() + 0.5, 65.5, VARIANT_ROW.getZ() + 11.5, 180, 9); }
+    }
+    /** D5 frame-time fixture: 8 then 32 standing Riflemen with launchers, uncapped frame rate, five seconds each. */
+    private static final List<Integer> PERF_COUNTS = List.of(8, 32);
+    private int perfView, perfFrames, perfLimit;
+    private boolean perfCounting, perfVsync;
+    private long perfStart;
+    private final List<String> perfResults = new ArrayList<>();
+    private void frame(net.neoforged.neoforge.client.event.RenderFrameEvent.Post event) { if (perfCounting) { perfFrames++; } }
+    private void perfScene(Minecraft mc) {
+        var level = mc.getSingleplayerServer().overworld();
+        clearVariants(mc);
+        level.clockManager().setTotalTicks(level.dimensionType().defaultClock().orElseThrow(), 6000);
+        for (int x = 100; x <= 126; x++) { level.setBlockAndUpdate(new BlockPos(x, 64, 31), Blocks.AIR.defaultBlockState()); }
+        int count = PERF_COUNTS.get(perfView), columns = count == 8 ? 4 : 8;
+        for (int i = 0; i < count; i++) {
+            var npc = NpcRegistry.ARMY.get().create(level, EntitySpawnReason.COMMAND);
+            var id = variantId(i % NpcVariants.COUNT, 1000 + perfView * 100 + i);
+            npc.setUUID(id); npc.setNoAi(true);
+            npc.setItemSlot(EquipmentSlot.MAINHAND, EquipmentRegistry.PROTOTYPE.get().getDefaultInstance());
+            npc.snapTo(VARIANT_ROW.getX() + 0.5 + (i % columns - (columns - 1) / 2.0) * 1.4, 64, VARIANT_ROW.getZ() + 0.5 - (i / columns) * 1.6, 0, 0);
+            npc.setYHeadRot(0); npc.setYBodyRot(0);
+            if (!level.addFreshEntity(npc)) { throw new IllegalStateException("Frame-time fixture refused"); }
+            variantNpcs.put(id, i % NpcVariants.COUNT);
+        }
+        var player = player(mc); player.getAbilities().flying = true; player.onUpdateAbilities();
+        player.connection.teleport(VARIANT_ROW.getX() + 0.5, 65.5, VARIANT_ROW.getZ() + 9.5, 180, 12);
+    }
+    private void writePerf(Minecraft mc) {
+        try { Files.write(mc.gameDirectory.toPath().resolve(id + "-frametime.txt"), perfResults); }
+        catch (java.io.IOException exception) { throw new IllegalStateException("Frame-time results not written", exception); }
     }
     private void checkDeckUnchanged(Minecraft mc) {
         var level=mc.getSingleplayerServer().overworld(); var post=tile(level,growthPost);

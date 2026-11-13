@@ -507,8 +507,18 @@ Follow [AGENTS.md](../../AGENTS.md) for session workflow and the eight-line log 
 - Liam merged PR #4 (M32) into `main`. Codex confirmed the cancelled-placement fix and independently passed M33 on Windows (clean build, 180/180 GameTests, restart, 103 captures, nine clips decoded) with no blocker. PR #5 merged into the M32 branch rather than `main`, so a follow-up PR carries M33 to `main` after Liam's play check.
 - Liam approved D5. The experiment uses GeckoLib 5.5.7, still the newest 26.3 release on its source repository today, on `claude/m33-d5-geckolib`.
 
+## 2026-11-12 - M33 Step 33.4 D5 GeckoLib Experiment (Claude)
+- `claude/m33-d5-geckolib`: the Army Rifleman renders through GeckoLib 5.5.7 with idle, walk, aim, fire, hurt and death clips. Geometry is converted from the Blockbench source; clips are rotation-only and checked. Other tiers keep the native rig.
+- The first CI compile failed because GeckoLib's render-state interface is injected at runtime. Fixed with an explicit render-state subclass instead of build-time injection. Windows CI 43292247436 then passed: 1,838 art assertions, 180/180 GameTests with GeckoLib on the dedicated server, packaged-QA metadata and restart.
+- The QA client gained an 8- and 32-soldier frame-time fixture with a native comparison switch. The PC runs are queued; the packaged pack does not yet ship GeckoLib, which is a known gap before any merge.
+
 ## 2026-11-12 - M34 Defend The Post (Claude)
 - Branch `claude/m34-defend-the-post`, stacked on M33. Re-planned against the code: raids, cooldowns, reservations and arrival warnings already existed, but there was no warning before contact and no player route to the defence order.
 - Natural raids are now radioed in about 30 s ahead (`raidWarningTicks`) with the direction; the wave arrives from that side, or stands down with backoff if nobody is near. The warning is saved in two optional response-record fields. Operator raids stay immediate.
-- `defend_outpost` auto-starts at Stage 1; the Orders view shows local threat against the raid line, or the incoming raid. Tests updated for six auto-started orders; new logic checks, three GameTests and two Orders captures. Measured: 5 credited kills reach the raid line; then a raid averages about 300 s (87% within 10 min).
+- `defend_outpost` auto-starts at Stage 1; the Orders view shows local threat against the raid line, or the incoming raid. Tests updated for six auto-started orders; new logic checks, three GameTests and two Orders captures. Measured (corrected after Codex's review): 5 credited kills reach the raid line; the 87%-in-10-minutes figure holds only while the post stays over the line.
 - CI caught that the response ledger's field-preserving merge resurrected a cleared warning; fixed by always writing the warning fields, with a logic check. Windows CI 43296972229: 183/183 GameTests, two-JVM restart. QA captures queued on Liam's PC runner.
+
+## 2026-11-13 - M34 Review Fixes And D6 (Claude)
+- Liam merged PRs #6 (M33) and #7 (D5) into `main`; `main` was merged into the M34 branch.
+- Codex's PR #8 review, fixed: a warned raid now stands down if natural raids were turned off since the warning (new GameTest; the two-JVM fixture persists a real warning at the checkpoint post and resolves it after restart). Pacing is now simulated from real kill-and-decay sequences: a quick burst of 5 kills then nothing gives only a few eligible checks, while one more kill per minute keeps raids likely. Numbers are reported, not tuned. Orders shows "contact imminent" at zero, the warning says "last reported", and arrival names the real approach side. Logic checks cover absent, partial and completed existing defence receipts.
+- Liam decided D6: configurable HQ modes, default promotion through an Establish HQ order, alternative HQ active from world start; the ruined bunker stays an optional extra.
