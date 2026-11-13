@@ -60,10 +60,11 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob, co
     @Override public com.geckolib.animatable.instance.AnimatableInstanceCache getAnimatableInstanceCache() { return geoCache; }
     private static final EntityDataAccessor<Boolean> LAUNCHER_AIM =
             SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.BOOLEAN);
+    /** Entity event for any long-gun shot (launcher or service rifle): recoil pose, and the Rifleman's fire clip. */
     private static final byte LAUNCHER_SHOT = 100;
     private static final int SHOT_POSE_TICKS = 5;
     private String commandPost = "";
-    private long nextPrototypeShot;
+    private long nextPrototypeShot, nextRifleShot;
     private boolean issuedBlade;
     private BlockPos patrolTarget;
     private long patrolUntil;
@@ -75,7 +76,16 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob, co
     public HumanNpc(EntityType<? extends HumanNpc> type, Level level) {
         super(type, level);
         setPersistenceRequired();
-        if (!level.isClientSide()) { applyStats(true); }
+        if (!level.isClientSide()) {
+            applyStats(true);
+            // M35: Riflemen arrive armed. A saved soldier's own equipment replaces this when it loads.
+            if (carriesServiceRifle()) { issue(EquipmentRegistry.SERVICE_RIFLE.get().getDefaultInstance()); }
+        }
+    }
+    private boolean carriesServiceRifle() { return tier() == HumanTier.ARMY_RIFLEMAN && NpcConfig.SERVICE_RIFLE.get(); }
+    private void issue(net.minecraft.world.item.ItemStack weapon) {
+        setItemSlot(EquipmentSlot.MAINHAND, weapon);
+        setDropChance(EquipmentSlot.MAINHAND, 0);
     }
     public HumanTier tier() { return NpcRegistry.tier(getType()); }
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder) {
@@ -126,7 +136,8 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob, co
     }
     @Override protected void registerGoals() {
         goalSelector.addGoal(0, new FloatGoal(this));
-        goalSelector.addGoal(1, new PrototypeGoal(this));
+        goalSelector.addGoal(1, new WeaponGoal(this, 12, HumanNpc::rangedReady));
+        goalSelector.addGoal(1, new WeaponGoal(this, NpcConfig.RIFLE_RANGE.get(), HumanNpc::rifleReady));
         goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0, false));
         goalSelector.addGoal(3, new MoveTowardsRestrictionGoal(this, 0.9));
         goalSelector.addGoal(3, new PatrolGoal());
@@ -190,10 +201,15 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob, co
             setItemSlot(EquipmentSlot.MAINHAND, EquipmentRegistry.BLADE.get().getDefaultInstance());
             setDropChance(EquipmentSlot.MAINHAND, 0); issuedBlade = true;
         }
-        if (tier().usesPrototype() && EquipmentConfig.value(EquipmentConfig.NPC_ENABLED) && getMainHandItem().isEmpty()
+        var held = getMainHandItem();
+        boolean issuedRifle = held.is(EquipmentRegistry.SERVICE_RIFLE.get());
+        if (tier().usesPrototype() && EquipmentConfig.value(EquipmentConfig.NPC_ENABLED) && (held.isEmpty() || issuedRifle)
                 && EquipmentAccess.allowed(level, EquipmentKind.PROTOTYPE)) {
-            setItemSlot(EquipmentSlot.MAINHAND, EquipmentRegistry.PROTOTYPE.get().getDefaultInstance());
-            setDropChance(EquipmentSlot.MAINHAND, 0);
+            issue(EquipmentRegistry.PROTOTYPE.get().getDefaultInstance()); // the launcher replaces only the issued rifle
+        } else if (held.isEmpty() && carriesServiceRifle()) {
+            issue(EquipmentRegistry.SERVICE_RIFLE.get().getDefaultInstance());
+        } else if (issuedRifle && !carriesServiceRifle()) {
+            setItemSlot(EquipmentSlot.MAINHAND, net.minecraft.world.item.ItemStack.EMPTY);
         }
         if (commandPost.isEmpty()) { return; }
         var home = BuildingPosition.parse(commandPost).orElseThrow();
@@ -214,17 +230,49 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob, co
         if (level() instanceof ServerLevel server && (reason.shouldDestroy() || reason == RemovalReason.CHANGED_DIMENSION)) { releasePost(server); }
         super.onRemoval(reason);
     }
-    /** Webbing and buckles on roughly every other step; same server step cadence as vanilla, quieter than the step. */
+    /** The block's own footstep, plus a soft kit rustle on about one step in three (M35: low cloth and webbing, no metal clinks). */
     @Override protected void playStepSound(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState block) {
         super.playStepSound(pos, block);
-        if (!isSilent() && getRandom().nextBoolean()) { playSound(StandAndHoldSounds.NPC_GEAR.get(), 0.22F, 0.9F + getRandom().nextFloat() * 0.2F); }
+        if (!isSilent() && getRandom().nextInt(3) == 0) { playSound(StandAndHoldSounds.NPC_GEAR.get(), 0.3F, 0.9F + getRandom().nextFloat() * 0.2F); }
     }
     private boolean rangedReady() {
         return level() instanceof ServerLevel server && tier().usesPrototype() && EquipmentConfig.value(EquipmentConfig.NPC_ENABLED)
                 && getMainHandItem().is(EquipmentRegistry.PROTOTYPE.get()) && EquipmentAccess.allowed(server, EquipmentKind.PROTOTYPE)
                 && getTarget() != null && canAttack(getTarget()) && distanceToSqr(getTarget()) > 9;
     }
+    /** M35: the service rifle fires at a hostile in sight between 3 blocks and its configured range. */
+    private boolean rifleReady() {
+        var target = getTarget();
+        int range = NpcConfig.RIFLE_RANGE.get();
+        return level() instanceof ServerLevel && carriesServiceRifle() && getMainHandItem().is(EquipmentRegistry.SERVICE_RIFLE.get())
+                && target != null && canAttack(target) && distanceToSqr(target) > 9 && distanceToSqr(target) <= range * range;
+    }
+    /**
+     * Hitscan: holds fire if a player or another soldier is in the line of fire, then hits with a chance that falls from
+     * 90% up close to 60% at full range. Bounded: one block ray and one entity box along the shot.
+     */
+    private void fireRifle(ServerLevel server, LivingEntity target) {
+        if (!rifleReady() || target != getTarget() || !getSensing().hasLineOfSight(target) || server.getGameTime() < nextRifleShot) { return; }
+        var from = getEyePosition();
+        var to = target.getBoundingBox().getCenter();
+        var path = to.subtract(from);
+        boolean friendlyInLine = !server.getEntities(this, getBoundingBox().expandTowards(path).inflate(0.5),
+                entity -> entity != target && !entity.isSpectator() && (entity instanceof Player || entity instanceof HumanNpc)
+                        && entity.getBoundingBox().inflate(0.3).clip(from, to).isPresent()).isEmpty();
+        if (friendlyInLine) { return; }
+        nextRifleShot = server.getGameTime() + NpcConfig.RIFLE_INTERVAL.get();
+        server.broadcastEntityEvent(this, LAUNCHER_SHOT);
+        server.playSound(null, getX(), getEyeY(), getZ(), StandAndHoldSounds.RIFLE_FIRE.get(), SoundSource.NEUTRAL, 1.6F, 0.95F + getRandom().nextFloat() * 0.1F);
+        var muzzle = from.add(path.normalize().scale(1.1)).add(0, -0.2, 0);
+        server.sendParticles(net.minecraft.core.particles.ParticleTypes.SMOKE, muzzle.x, muzzle.y, muzzle.z, 3, 0.04, 0.04, 0.04, 0.01);
+        double chance = 0.9 - 0.3 * Math.min(1, Math.sqrt(distanceToSqr(target)) / NpcConfig.RIFLE_RANGE.get());
+        if (getRandom().nextDouble() < chance) {
+            target.hurtServer(server, damageSources().mobAttack(this), NpcConfig.RIFLE_DAMAGE.get().floatValue());
+            server.sendParticles(net.minecraft.core.particles.ParticleTypes.CRIT, to.x, to.y, to.z, 4, 0.1, 0.1, 0.1, 0.05);
+        }
+    }
     @Override public void performRangedAttack(LivingEntity target, float power) {
+        if (level() instanceof ServerLevel rifleServer && getMainHandItem().is(EquipmentRegistry.SERVICE_RIFLE.get())) { fireRifle(rifleServer, target); return; }
         if (!(level() instanceof ServerLevel server) || !rangedReady() || !canAttack(target) || distanceToSqr(target) > 144
                 || !getSensing().hasLineOfSight(target) || server.getGameTime() < nextPrototypeShot) { return; }
         var bolt = new PrototypeBolt(server, this);
@@ -235,10 +283,15 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob, co
             server.playSound(null, getX(), getY(), getZ(), StandAndHoldSounds.LAUNCHER_FIRE.get(), SoundSource.NEUTRAL, 0.6F, 0.95F + getRandom().nextFloat() * 0.1F);
         }
     }
-    private static final class PrototypeGoal extends RangedAttackGoal {
+    /** The vanilla ranged goal for one long gun: closes to range, aims while the target is in sight and fires on its timer. */
+    private static final class WeaponGoal extends RangedAttackGoal {
         private final HumanNpc npc;
-        PrototypeGoal(HumanNpc npc) { super(npc, 1.0, 10, 12); this.npc = npc; }
-        @Override public boolean canUse() { return npc.rangedReady() && super.canUse(); }
+        private final java.util.function.Predicate<HumanNpc> ready;
+        private final double reachSqr;
+        WeaponGoal(HumanNpc npc, int reach, java.util.function.Predicate<HumanNpc> ready) {
+            super(npc, 1.0, 10, reach); this.npc = npc; this.ready = ready; this.reachSqr = reach * reach;
+        }
+        @Override public boolean canUse() { return ready.test(npc) && super.canUse(); }
         @Override public boolean canContinueToUse() { return canUse(); }
         @Override public void tick() {
             super.tick();
@@ -246,7 +299,7 @@ public final class HumanNpc extends PathfinderMob implements RangedAttackMob, co
                 var target = npc.getTarget();
                 // Reuse the running goal's cached sight check. Synched data sends only changes.
                 double distance = target == null ? 0 : npc.distanceToSqr(target);
-                npc.entityData.set(LAUNCHER_AIM, target != null && distance > 9 && distance <= 144
+                npc.entityData.set(LAUNCHER_AIM, target != null && distance > 9 && distance <= reachSqr
                         && npc.getSensing().hasLineOfSight(target));
             }
         }

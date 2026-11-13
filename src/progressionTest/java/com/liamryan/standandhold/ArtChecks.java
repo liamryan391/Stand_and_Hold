@@ -61,7 +61,7 @@ final class ArtChecks {
         var clips = JsonParser.parseString(Files.readString(geckolib.resolve("animations/entity/army_rifleman.animation.json"))).getAsJsonObject().getAsJsonObject("animations");
         String controller = Files.readString(Path.of("src/main/java/com/liamryan/standandhold/common/npc/RiflemanAnimation.java"));
         var allowed = java.util.regex.Pattern.compile("(query\\.(head_x_rotation|head_y_rotation|limb_swing_amount|limb_swing|anim_time)|math\\.(sin|cos)|[-+*/(). 0-9])*");
-        for (String clip : java.util.List.of("idle", "walk", "aim", "fire", "hurt", "death")) {
+        for (String clip : java.util.List.of("idle", "walk", "run", "aim", "fire", "hurt", "death")) {
             check(clips.has(clip) && controller.contains('"' + clip + '"'), "clip exists and is used: " + clip);
             var animation = clips.getAsJsonObject(clip); double length = animation.get("animation_length").getAsDouble();
             for (var bone : animation.getAsJsonObject("bones").entrySet()) {
@@ -165,28 +165,32 @@ final class ArtChecks {
         var lang = JsonParser.parseString(Files.readString(root.resolve("lang/en_us.json"))).getAsJsonObject();
         for (int i = 0; i <= 10; i++) { check(lang.has("gui.standandhold.status." + i), "translated GUI status " + i); }
     }
-    private static void launcher() throws Exception {
+    private static void launcher() throws Exception { heldModel("prototype_launcher", 8); heldModel("service_rifle", 10); }
+    /** Held 3D items (the M28 launcher, the M35 service rifle): the shipped model and atlas are exact exports of the original Blockbench source. */
+    private static void heldModel(String name, int parts) throws Exception {
         var root = Path.of("src/main/resources/assets/standandhold");
-        var source = JsonParser.parseString(Files.readString(Path.of("art/blockbench/prototype_launcher.bbmodel"))).getAsJsonObject();
-        var model = JsonParser.parseString(Files.readString(root.resolve("models/item/prototype_launcher.json"))).getAsJsonObject();
-        check(source.get("credit").getAsString().contains("Original"), "launcher has original editable source");
+        var source = JsonParser.parseString(Files.readString(Path.of("art/blockbench/" + name + ".bbmodel"))).getAsJsonObject();
+        var model = JsonParser.parseString(Files.readString(root.resolve("models/item/" + name + ".json"))).getAsJsonObject();
+        var item = JsonParser.parseString(Files.readString(root.resolve("items/" + name + ".json"))).getAsJsonObject();
+        check(source.get("credit").getAsString().contains("Original"), name + " has original editable source");
+        check(item.getAsJsonObject("model").get("model").getAsString().equals("standandhold:item/" + name), name + " item definition points at its model");
         var textures = source.getAsJsonArray("textures");
-        check(textures.size() == 1, "one launcher atlas");
+        check(textures.size() == 1, "one " + name + " atlas");
         String data = textures.get(0).getAsJsonObject().get("source").getAsString();
-        check(data.startsWith("data:image/png;base64,"), "launcher atlas embedded");
+        check(data.startsWith("data:image/png;base64,"), name + " atlas embedded");
         byte[] bytes = Base64.getDecoder().decode(data.substring(data.indexOf(',') + 1));
         var atlas = ImageIO.read(new ByteArrayInputStream(bytes));
-        check(atlas != null && atlas.getWidth() == 16 && atlas.getHeight() == 16 && opaque(atlas, 0, 0, 16, 16), "opaque launcher atlas");
-        check(Arrays.equals(bytes, Files.readAllBytes(root.resolve("textures/item/prototype_launcher.png"))), "launcher texture export exact");
-        check(model.getAsJsonObject("display").equals(source.getAsJsonObject("display")), "held, menu and ground transforms match source");
+        check(atlas != null && atlas.getWidth() == 16 && atlas.getHeight() == 16 && opaque(atlas, 0, 0, 16, 16), "opaque " + name + " atlas");
+        check(Arrays.equals(bytes, Files.readAllBytes(root.resolve("textures/item/" + name + ".png"))), name + " texture export exact");
+        check(model.getAsJsonObject("display").equals(source.getAsJsonObject("display")), name + " held, menu and ground transforms match source");
         var authored = source.getAsJsonArray("elements"); var exported = model.getAsJsonArray("elements");
-        check(authored.size() == 8 && exported.size() == authored.size(), "bounded original launcher geometry");
+        check(authored.size() == parts && exported.size() == authored.size(), "bounded original " + name + " geometry");
         for (int i = 0; i < authored.size(); i++) {
             var box = authored.get(i).getAsJsonObject(); var output = exported.get(i).getAsJsonObject();
-            check(box.get("from").equals(output.get("from")) && box.get("to").equals(output.get("to")), "launcher box preserved");
+            check(box.get("from").equals(output.get("from")) && box.get("to").equals(output.get("to")), name + " box preserved");
             for (String side : List.of("north", "east", "south", "west", "up", "down")) {
                 var face = output.getAsJsonObject("faces").getAsJsonObject(side);
-                check(face.get("texture").getAsString().equals("#0") && face.get("uv").equals(box.getAsJsonObject("faces").getAsJsonObject(side).get("uv")), "launcher face preserved");
+                check(face.get("texture").getAsString().equals("#0") && face.get("uv").equals(box.getAsJsonObject("faces").getAsJsonObject(side).get("uv")), name + " face preserved");
             }
         }
     }

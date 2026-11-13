@@ -44,14 +44,14 @@ public final class HumanNpcRenderer extends HumanoidMobRenderer<HumanNpc, HumanN
     }
     @Override public State createRenderState() { return new State(); }
     @Override protected HumanoidModel.ArmPose getArmPose(HumanNpc mob, HumanoidArm arm) {
-        return mob.getMainHandItem().is(EquipmentRegistry.PROTOTYPE.get()) && arm == mob.getMainArm()
+        return EquipmentRegistry.longGun(mob.getMainHandItem()) && arm == mob.getMainArm()
                 ? mob.tier().usesLauncherMotion() ? HumanoidModel.ArmPose.ITEM : HumanoidModel.ArmPose.CROSSBOW_HOLD
                 : super.getArmPose(mob, arm);
     }
     @Override public void extractRenderState(HumanNpc mob, State state, float partialTick) {
         super.extractRenderState(mob, state, partialTick);
         state.launcherMotion = mob.tier().usesLauncherMotion() && mob.isAlive()
-                && mob.getMainHandItem().is(EquipmentRegistry.PROTOTYPE.get()) && mob.getOffhandItem().isEmpty();
+                && EquipmentRegistry.longGun(mob.getMainHandItem()) && mob.getOffhandItem().isEmpty();
         state.launcherAim = state.launcherMotion ? mob.launcherAim(partialTick) : 0;
         state.launcherKick = state.launcherMotion ? mob.launcherKick(partialTick) : 0;
         state.variant = NpcVariants.index(mob.getUUID());

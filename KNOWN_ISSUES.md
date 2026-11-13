@@ -15,6 +15,12 @@ These notes describe the modern NeoForge foundation. The retained `0.1.0-alpha.1
 - One combined M24 build/native/client invocation exited the client before the menu with native process code `-1073740771`, without a Minecraft crash report. The isolated `runQaClient --no-parallel` retry passed unchanged action/screenshot assertions. Cause is unverified: do not label this a mod crash or a driver fix. Retest launches separately and retain the failed log; this limits unattended/all-environment launch claims, not the observed isolated pass.
 - During M24 repeat verification, `duty_blocked_backoff` once failed its existing total-loaded-chunk equality assertion; the following full 121-case run passed with that assertion unchanged and before/after diagnostics added. Impact/cause remains unverified, not assumed to be harmless chunk unloading. Retest the full native suite and inspect the recorded counts if reproduced; never skip or weaken the required test to get green CI. A reproducing failure blocks that verification gate; wider reliability is not implied by a later pass.
 
+## M35 Feel Pass Limits
+
+- The Service Rifle is a soldier weapon only: players can hold it but not fire it until the Roadmap 6 weapon framework. Its cooldown is not saved, so a soldier can fire once early after a world reload.
+- The D5 frame-time comparison is not measured yet: the first PC runs were capped at 30 fps by vanilla's AFK limit. Other tiers stay on the native rig until a valid comparison exists.
+- JEI support is checked by logic checks and a QA run with JEI installed; it is not tested against every JEI release. The optional dependency accepts JEI 31 and later.
+
 ## Observed Compatibility Blocker
 
 - **Contagion 2.1.1-NeoForge-mc26.3 fails on NeoForge 26.3.0.57-beta / FML 12.0.9.** Both isolated client and dedicated server stop during Contagion construction with `NoSuchFieldError: ModConfig.Type.SERVER`; the pinned loader exposes `SYNCED` instead. Impact: no menu/world/server gameplay test is possible with this exact jar. Do not install it for play or treat its reproduction preset as supported compatibility. Suggested retest: a separately verified/approved compatible artifact must pass both launches and actual mapping/gameplay/removal tests. Liam explicitly deferred that external-infection gate for the generic foundation merge on 2026-10-22; this does not fix or pass the external test. No pin change, copied code or external jar patch is applied; see [exact results and retained crash paths](docs/modern-port/compatibility.md).

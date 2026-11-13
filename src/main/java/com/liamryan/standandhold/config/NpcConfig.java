@@ -59,6 +59,15 @@ public final class NpcConfig {
             .defineInRange("spawnRadius", 6, 2, 8);
     public static final ModConfigSpec.IntValue TARGET_INTERVAL = B.comment("Minimum ticks between target searches per NPC; only the local follow-range box is queried.")
             .defineInRange("targetSearchIntervalTicks", 20, 20, 200);
+    public static final ModConfigSpec.BooleanValue SERVICE_RIFLE = B.comment("M35: Army Riflemen are issued the service rifle and fire it at hostiles in sight. Once the prototype launcher unlocks for soldiers it replaces the rifle.",
+                    "The rifle never drops; disabling this takes issued rifles back at the next equipment check.")
+            .define("serviceRifleEnabled", true);
+    public static final ModConfigSpec.DoubleValue RIFLE_DAMAGE = B.comment("Damage per service-rifle hit. Hit chance falls from 90% up close to 60% at full range.")
+            .defineInRange("serviceRifleDamage", 4.0, 0, 64);
+    public static final ModConfigSpec.IntValue RIFLE_INTERVAL = B.comment("Minimum ticks between one soldier's service-rifle shots.")
+            .defineInRange("serviceRifleIntervalTicks", 30, 10, 200);
+    public static final ModConfigSpec.IntValue RIFLE_RANGE = B.comment("Service-rifle range in blocks. The target must also be in sight, more than 3 blocks away (closer, soldiers fight hand to hand) and inside the 16-block target range.")
+            .defineInRange("serviceRifleRange", 14, 4, 16);
     public static final ModConfigSpec SPEC = B.build();
     private NpcConfig() { }
     public static Stats stats(HumanTier tier) {

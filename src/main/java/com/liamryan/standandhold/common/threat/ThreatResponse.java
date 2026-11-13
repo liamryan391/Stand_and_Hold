@@ -81,7 +81,7 @@ public final class ThreatResponse {
         data.putResponse(home.key(), response.timers(ResponseRecord.after(now, ResponseConfig.RAID_COOLDOWN.get()), response.nextReinforcement())
                 .pending(Math.max(1, ResponseRecord.after(now, lead)), octant));
         if (ResponseConfig.WARNINGS.get()) {
-            level.playSound(null, post.getBlockPos(), com.liamryan.standandhold.common.sound.StandAndHoldSounds.POST_RADIO.get(), net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);
+            level.playSound(null, post.getBlockPos(), com.liamryan.standandhold.common.sound.StandAndHoldSounds.POST_RADIO_URGENT.get(), net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);
             for (var player : level.players()) {
                 if (!player.isSpectator() && player.blockPosition().distSqr(post.getBlockPos()) <= 4096) {
                     player.sendSystemMessage(Component.translatable("message.standandhold.raid_incoming", post.getBlockPos().toShortString(),

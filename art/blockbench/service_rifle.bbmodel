@@ -1,0 +1,877 @@
+{
+  "meta": {
+    "format_version": "4.12",
+    "model_format": "java_block",
+    "box_uv": false
+  },
+  "name": "Service Rifle",
+  "credit": "Original Stand and Hold service rifle art (M35)",
+  "resolution": {
+    "width": 16,
+    "height": 16
+  },
+  "elements": [
+    {
+      "name": "Muzzle device",
+      "type": "cube",
+      "uuid": "5e7a1f1e-35a0-4c2b-8d11-000000000001",
+      "from": [
+        7.25,
+        7.75,
+        -9
+      ],
+      "to": [
+        8.75,
+        9.25,
+        -8
+      ],
+      "box_uv": false,
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            4,
+            5.5,
+            5.5
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            4,
+            1,
+            5.5
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            4,
+            1.5,
+            5.5
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            4,
+            1,
+            5.5
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            4,
+            1.5,
+            5
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            4,
+            1.5,
+            5
+          ],
+          "texture": 0
+        }
+      }
+    },
+    {
+      "name": "Barrel",
+      "type": "cube",
+      "uuid": "5e7a1f1e-35a0-4c2b-8d11-000000000002",
+      "from": [
+        7.5,
+        8,
+        -8
+      ],
+      "to": [
+        8.5,
+        9,
+        -2.5
+      ],
+      "box_uv": false,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            1,
+            1
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            4,
+            1
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            1,
+            1
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            4,
+            1
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            4,
+            0,
+            5,
+            4
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            4,
+            1,
+            8
+          ],
+          "texture": 0
+        }
+      }
+    },
+    {
+      "name": "Front sight",
+      "type": "cube",
+      "uuid": "5e7a1f1e-35a0-4c2b-8d11-000000000003",
+      "from": [
+        7.75,
+        9,
+        -6.5
+      ],
+      "to": [
+        8.25,
+        10,
+        -6
+      ],
+      "box_uv": false,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            8,
+            1,
+            9
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            8,
+            1,
+            9
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            8,
+            1,
+            9
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            8,
+            1,
+            9
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            8,
+            1,
+            9
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            8,
+            1,
+            9
+          ],
+          "texture": 0
+        }
+      }
+    },
+    {
+      "name": "Handguard",
+      "type": "cube",
+      "uuid": "5e7a1f1e-35a0-4c2b-8d11-000000000004",
+      "from": [
+        7,
+        7.25,
+        -2.5
+      ],
+      "to": [
+        9,
+        9.25,
+        3.5
+      ],
+      "box_uv": false,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            4,
+            10,
+            6
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            0,
+            12,
+            2
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            0,
+            10,
+            2
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            0,
+            12,
+            2
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            12,
+            0,
+            14,
+            4
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            4,
+            10,
+            8
+          ],
+          "texture": 0
+        }
+      }
+    },
+    {
+      "name": "Receiver",
+      "type": "cube",
+      "uuid": "5e7a1f1e-35a0-4c2b-8d11-000000000005",
+      "from": [
+        7,
+        7.5,
+        3.5
+      ],
+      "to": [
+        9,
+        9.75,
+        9.5
+      ],
+      "box_uv": false,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            4,
+            2,
+            6.25
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            4,
+            2.25
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            2,
+            2.25
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            4,
+            2.25
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            4,
+            0,
+            6,
+            4
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            4,
+            2,
+            8
+          ],
+          "texture": 0
+        }
+      }
+    },
+    {
+      "name": "Rear sight",
+      "type": "cube",
+      "uuid": "5e7a1f1e-35a0-4c2b-8d11-000000000006",
+      "from": [
+        7.5,
+        9.75,
+        5.5
+      ],
+      "to": [
+        8.5,
+        10.5,
+        8
+      ],
+      "box_uv": false,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            8,
+            1,
+            9
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            8,
+            2.5,
+            9
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            0,
+            8,
+            1,
+            9
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            0,
+            8,
+            2.5,
+            9
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            8,
+            1,
+            10.5
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            8,
+            1,
+            10.5
+          ],
+          "texture": 0
+        }
+      }
+    },
+    {
+      "name": "Magazine",
+      "type": "cube",
+      "uuid": "5e7a1f1e-35a0-4c2b-8d11-000000000007",
+      "from": [
+        7.25,
+        5,
+        4.5
+      ],
+      "to": [
+        8.75,
+        7.5,
+        6
+      ],
+      "box_uv": false,
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            8,
+            5.5,
+            10.5
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            4,
+            8,
+            5.5,
+            10.5
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            4,
+            8,
+            5.5,
+            10.5
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            4,
+            8,
+            5.5,
+            10.5
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            4,
+            8,
+            5.5,
+            9.5
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            4,
+            1.5,
+            5.5
+          ],
+          "texture": 0
+        }
+      }
+    },
+    {
+      "name": "Pistol grip",
+      "type": "cube",
+      "uuid": "5e7a1f1e-35a0-4c2b-8d11-000000000008",
+      "from": [
+        7.25,
+        5,
+        8
+      ],
+      "to": [
+        8.75,
+        7.5,
+        9.25
+      ],
+      "box_uv": false,
+      "faces": {
+        "north": {
+          "uv": [
+            12,
+            4,
+            13.5,
+            6.5
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            12,
+            4,
+            13.25,
+            6.5
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            12,
+            4,
+            13.5,
+            6.5
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            12,
+            4,
+            13.25,
+            6.5
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            12,
+            4,
+            13.5,
+            5.25
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            4,
+            9.5,
+            5.25
+          ],
+          "texture": 0
+        }
+      }
+    },
+    {
+      "name": "Stock",
+      "type": "cube",
+      "uuid": "5e7a1f1e-35a0-4c2b-8d11-000000000009",
+      "from": [
+        7,
+        6.75,
+        9.5
+      ],
+      "to": [
+        9,
+        9.25,
+        15
+      ],
+      "box_uv": false,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            0,
+            10,
+            2.5
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            0,
+            12,
+            2.5
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            0,
+            10,
+            2.5
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            0,
+            12,
+            2.5
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            12,
+            0,
+            14,
+            4
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            4,
+            10,
+            8
+          ],
+          "texture": 0
+        }
+      }
+    },
+    {
+      "name": "Butt pad",
+      "type": "cube",
+      "uuid": "5e7a1f1e-35a0-4c2b-8d11-000000000010",
+      "from": [
+        7,
+        6.5,
+        15
+      ],
+      "to": [
+        9,
+        9.5,
+        15.5
+      ],
+      "box_uv": false,
+      "faces": {
+        "north": {
+          "uv": [
+            8,
+            8,
+            10,
+            11
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            8,
+            8,
+            9,
+            11
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            8,
+            8,
+            10,
+            11
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            8,
+            8,
+            9,
+            11
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            8,
+            8,
+            10,
+            9
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            8,
+            8,
+            10,
+            9
+          ],
+          "texture": 0
+        }
+      }
+    }
+  ],
+  "outliner": [
+    "5e7a1f1e-35a0-4c2b-8d11-000000000001",
+    "5e7a1f1e-35a0-4c2b-8d11-000000000002",
+    "5e7a1f1e-35a0-4c2b-8d11-000000000003",
+    "5e7a1f1e-35a0-4c2b-8d11-000000000004",
+    "5e7a1f1e-35a0-4c2b-8d11-000000000005",
+    "5e7a1f1e-35a0-4c2b-8d11-000000000006",
+    "5e7a1f1e-35a0-4c2b-8d11-000000000007",
+    "5e7a1f1e-35a0-4c2b-8d11-000000000008",
+    "5e7a1f1e-35a0-4c2b-8d11-000000000009",
+    "5e7a1f1e-35a0-4c2b-8d11-000000000010"
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        26,
+        137,
+        0
+      ],
+      "translation": [
+        1.78,
+        0.96,
+        0
+      ],
+      "scale": [
+        0.55,
+        0.55,
+        0.55
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        2.11,
+        0
+      ],
+      "scale": [
+        0.45,
+        0.45,
+        0.45
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        90,
+        0
+      ],
+      "translation": [
+        2.61,
+        0.14,
+        0
+      ],
+      "scale": [
+        0.55,
+        0.55,
+        0.55
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        10,
+        0
+      ],
+      "translation": [
+        1.5,
+        1.5,
+        -2
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        10,
+        0
+      ],
+      "translation": [
+        1.5,
+        1.5,
+        -2
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        1.4,
+        -0.5
+      ],
+      "scale": [
+        0.8,
+        0.8,
+        0.8
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        1.4,
+        -0.5
+      ],
+      "scale": [
+        0.8,
+        0.8,
+        0.8
+      ]
+    }
+  },
+  "textures": [
+    {
+      "name": "service_rifle.png",
+      "id": "0",
+      "uuid": "5e7a1f1e-35a0-4c2b-8d11-1000000000aa",
+      "mode": "bitmap",
+      "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAABJUlEQVR4nM1Su0pDQRCdx2YvZCVYKImprBRRwUoQbG38eht/IdhEsNh79zE7a7G6iRDB0lOd4rwGBu8fHnPO1tqU0nJ1JiKNHx2/AQAAMPPJ6YKIiCjGaEopIoKIIlJrFRFmVlVVJaKcMwCEEJozpUS11lorIgJA8zRbSqmJQgillGEYjDEAYIioGVSVmWutfUlrsNZaa1UVAKy1eH17l1IyxpRSwjTCNy5vFuM4zudzEXnffjjnvPfOORNCUFVEbEM3mw0ArNfraZoQMcaoql3tvTctr+0porCHfsbo466hjW4TW3YjRMTMwzAAAILZNeQUe6SZzTp/fdl2/vR8tdPsb3DOdV4kwyH8MHjvD/JfDX9qOF2uDv7S+cWXgpndgv/zL30CnE8OO9ks4e8AAAAASUVORK5CYII="
+    }
+  ]
+}

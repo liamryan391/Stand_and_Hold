@@ -9,6 +9,10 @@ Historical M11 runtime checks on 2026-10-22 used Minecraft 26.3, NeoForge 26.3.0
 - `minecraft:zombie` remains the safe default test mapping. An infection-themed mod title does not establish new entity IDs, and infected players must not become NPC targets.
 - Keep approved external test mods in separate disposable client/server instances, outside normal development runs, build dependencies and the release jar. Never install a legacy SRP jar on the modern loader.
 
+## Optional JEI (M35, D11)
+
+Just Enough Items is optional and never required or bundled. The build compiles against JEI's API only (`jei_version=31.17.0.113`, MIT, from `maven.blamejared.com` restricted to the `mezz.jei` group), and `neoforge.mods.toml` declares JEI optional (`[31,)`). `StandAndHoldJeiPlugin` is found by JEI through its annotation and is the only class that touches JEI, so nothing loads it without JEI. It adds info pages (`jei.standandhold.info.*`) for the Field Command Post, Research Lab, Supply Crate, Parasite Tissue Sample, Service Rifle, Prototype Launcher and Anti-Threat Blade. Our crafting recipes are vanilla recipes, which JEI lists by itself. `CompatibilityChecks` fails if any other class references JEI, if the build bundles it or if a page names a missing item or lacks text. Run the QA client with `-PwithJei` to add JEI: it captures JEI's own recipe view for the Command Post, Supply Crate and Service Rifle (`jei-*` captures).
+
 ## M30 Artifact Screening (2026-11-11)
 
 None of the screened candidates was eligible on the original M30 beta pin. The exact

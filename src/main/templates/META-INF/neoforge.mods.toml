@@ -26,6 +26,14 @@ versionRange="[5.5.7,)"
 ordering="NONE"
 side="BOTH"
 
+# M35 (D11): Just Enough Items is optional; when installed it shows our info pages.
+[[dependencies.${mod_id}]]
+modId="jei"
+type="optional"
+versionRange="[31,)"
+ordering="NONE"
+side="BOTH"
+
 [[dependencies.${mod_id}]]
 modId="minecraft"
 type="required"

@@ -70,10 +70,11 @@ final class EquipmentChecks {
     private static void assetsAndRecipes() throws Exception {
         Path assets = Path.of("src/main/resources/assets/standandhold"), data = Path.of("src/main/resources/data/standandhold");
         JsonObject lang = json(assets.resolve("lang/en_us.json"));
-        for (String key : List.of("message.standandhold.equipment_locked", "tooltip.standandhold.equipment_gate", "tooltip.standandhold.friendly_safe")) {
+        for (String key : List.of("message.standandhold.equipment_locked", "tooltip.standandhold.equipment_gate", "tooltip.standandhold.friendly_safe",
+                "tooltip.standandhold.service_rifle", "tooltip.standandhold.service_rifle_players")) {
             check(lang.has(key), "translated equipment feedback");
         }
-        List<String> ids = new ArrayList<>(List.of("anti_threat_blade", "prototype_launcher", "prototype_bolt"));
+        List<String> ids = new ArrayList<>(List.of("anti_threat_blade", "prototype_launcher", "prototype_bolt", "service_rifle"));
         for (String tier : List.of("army", "elite")) {
             for (String part : List.of("helmet", "chestplate", "leggings", "boots")) { ids.add(tier + "_" + part); }
             var equipment = json(assets.resolve("equipment/" + tier + ".json")).getAsJsonObject("layers");
@@ -92,7 +93,7 @@ final class EquipmentChecks {
             var clientItem = json(assets.resolve("items/" + id + ".json"));
             check(clientItem.getAsJsonObject("model").get("model").getAsString().equals("standandhold:item/" + id), "item points to its own model");
             var model = json(assets.resolve("models/item/" + id + ".json"));
-            boolean launcher = id.equals("prototype_launcher");
+            boolean launcher = id.equals("prototype_launcher") || id.equals("service_rifle"); // 3D models on a 16px atlas
             check(model.getAsJsonObject("textures").get(launcher ? "0" : "layer0").getAsString().equals("standandhold:item/" + id), "model points to own texture");
             var image = ImageIO.read(assets.resolve("textures/item/" + id + ".png").toFile());
             check(image.getWidth() == 16 && image.getHeight() == 16 && image.getRGB(0, 0) >>> 24 == (launcher ? 255 : 0), "original 16px model atlas or cutout icon");
@@ -102,7 +103,7 @@ final class EquipmentChecks {
             if (id.equals("elite_helmet")) {
                 for (int y = 11; y < 16; y++) { for (int x = 0; x < 16; x++) { check(image.getRGB(x, y) >>> 24 == 0, "no detached helmet icon pixels"); } }
             }
-            if (id.equals("prototype_bolt")) { continue; }
+            if (id.equals("prototype_bolt") || id.equals("service_rifle")) { continue; } // no recipe: projectile, and M35 soldier issue
             var recipe = json(data.resolve("recipe/" + id + ".json"));
             check(recipe.getAsJsonObject("result").get("id").getAsString().equals("standandhold:" + id), "recipe result correct");
             if (recipe.get("type").getAsString().equals("minecraft:crafting_shaped")) {
