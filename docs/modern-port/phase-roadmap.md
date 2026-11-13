@@ -965,6 +965,21 @@ Goal: mobility, air power and strategic strikes, each behind the existing [vehic
 
 Roadmap 9 (The Long War) holds HQ v3 counter-offensives, a world-scale campaign, the Fabric/other-loader evaluation (reopening M14), and public beta and release decisions. It is planned only when Roadmap 7 is stable.
 
+### Legal And Licensing Track
+
+Runs alongside every roadmap; each item is small, but the ones marked "before public" block any public upload (D8). This is a checklist, not legal advice; Liam may want a lawyer to review the licence before a public release.
+
+| Item | When | What |
+| --- | --- | --- |
+| L1 Licence | Now (licence PR) | The Stand and Hold License: All Rights Reserved by Liam Ryan, with permission to play, use in free modpacks on any platform, run servers and make videos. No selling, standalone re-uploads, modified or ported redistribution, or copying code or assets without permission. Third-party notices, README section and the `mods.toml` licence string |
+| L2 Third-party credits | Every slice that adds one | Every library, CC0 sound (D10) or other outside file is listed in `THIRD_PARTY_NOTICES.md` with its source and licence before it merges. GPL-family mods are never linked into the main mod; any compatibility stays a separate optional add-on (D14) |
+| L3 Minecraft rules | Before public | Re-read Mojang's EULA and Usage Guidelines on the day: the Mod stays free (the EULA forbids selling mods), contains no substantial Mojang code or assets, never looks official, and carries the "Not an official Minecraft product" line on every listing |
+| L4 Real-world names and insignia | M42, M44, M54, M65, M71 | Real rank titles may be used; real unit names (SAS, Delta Force, Navy SEALs, CDC and so on), badges, flags and insignia are not. Factions, agencies and special forces get original names and original artwork (D13) |
+| L5 Platform listings | Before public | CurseForge and Modrinth pages state the licence ("Custom" or "All Rights Reserved" plus a link to LICENSE) and the modpack permission, with no misleading Mojang or Microsoft branding |
+| L6 Contributions | Ongoing | Code from Codex, Claude or anyone else reaches `main` only through Liam's repository and pull requests, under the licence's contribution clause. Outside contributors agree to that clause when they open a pull request |
+| L7 Privacy and content | Before public | The Mod collects no personal data and has no telemetry or network calls of its own. Content stays suitable for a general Minecraft audience; violence against infected mobs stays at vanilla's level of gore |
+| L8 Name protection (optional) | When Liam wants | Optional trademark search or registration for "Stand and Hold"; a cost decision for Liam, not needed for release |
+
 ### Tools And Libraries Checked (2026-11-13)
 
 Checked against the 26.3 pin on the day. Nothing here is approved until Liam decides; every runtime library still needs exact-artifact approval.
