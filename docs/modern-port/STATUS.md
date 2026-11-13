@@ -6,7 +6,7 @@ Updated: 2026-11-12
 - D5 (approved 2026-11-12): the GeckoLib 5.5.7 Army Rifleman is on `main` (PR #7) as a test-gated experiment. Still open: the PC frame-time comparison, a packaged install including GeckoLib, and Liam's motion check.
 - M34 Defend The Post on `claude/m34-defend-the-post` (PR #8, draft): warned natural raids from a named direction; the defence order auto-starts at Stage 1 with threat in Orders. Codex's review fixes are applied.
 - D6 decided 2026-11-13: the HQ is a configurable mode (default: an Establish HQ order promotes an existing Command Post; alternative: an HQ active from world start). The ruined bunker stays an optional extra. It applies from M35.
-- Claude owns [Roadmap 3](phase-roadmap.md#roadmap-3---earned-survival-start-then-a-living-army) (M33-M41, reprioritised 2026-11-13) and the [future roadmaps 4-7](phase-roadmap.md#future-roadmaps-provisional); work reaches `main` through PRs reviewed by the other agent (handoff.md). STATUS remains authoritative. NeoForge-first; Fabric M14 14.4-14.5 deferred. Pins: MC 26.3 / NeoForge 26.3.0.102 / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
+- Claude owns [Roadmap 3](phase-roadmap.md#roadmap-3---earned-survival-start-then-a-living-army) (M33-M41, reprioritised 2026-11-13) and the [future roadmaps 4-9](phase-roadmap.md#future-roadmaps-provisional); work reaches `main` through PRs reviewed by the other agent (handoff.md). STATUS remains authoritative. NeoForge-first; Fabric M14 14.4-14.5 deferred. Pins: MC 26.3 / NeoForge 26.3.0.102 / Java 25 / Gradle 9.2.1 / MDG 2.0.148.
 
 ## Verified
 - M32 on Liam's PC: clean build, 175 GameTests, two-JVM restart, 99 QA captures (Orders views and tabs reviewed). After Codex's reviews, Windows CI 43268709270: 178/178 GameTests, restart passed.

@@ -800,8 +800,8 @@ Approved by Liam on 2026-11-12: D1 suggested costs, D2 96 blocks, D3 enable `van
 - **D10 (M35) Where better sounds come from.** (a) Claude re-synthesises them, aiming for natural foley; (b) CC0 public-domain packs (Kenney, Freesound CC0), each file listed in a credits file; (c) royalty-free bundles such as Sonniss, after checking each licence. Never audio from other mods. *Recommended: (b), with (a) for anything not found.* **Decided: (b) CC0 packs with a credits file, plus Claude-made sounds for gaps.**
 - **D11 (M35) JEI.** Optional integration compiled against JEI's API (MIT): it shows our recipes and buildings when JEI is installed and is never required. *Recommended: yes.* **Decided: yes, optional.**
 - **D12 (M37) Guide book and quests.** Our own Field Manual and Campaign screens (no dependency), GuideME (26.3 alpha, custom licence), or FTB Quests compatibility (All Rights Reserved; no 26.3 build found). *Recommended: our own screens now; optional FTB Quests chapters later if it reaches our version.* **Decided: layered.** Our own Field Manual and Campaign screens are built first and always work alone. When GuideME has a stable 26.3 release, the same guide content is also offered through GuideME as an optional integration. When FTB Quests supports our Minecraft version, the Campaign objectives are mirrored as optional FTB Quests chapters, after checking that its API terms allow it. Our screens stay the source of truth, so neither library is ever required.
-- **D13 (M44, M60) Faction identity.** Original factions inspired by the British and US armies (real rank names; original insignia, flags and names), or the real armies themselves. *Recommended: original factions, so we never depict real units or insignia.*
-- **D14 (Roadmap 5) Gun mods.** Our own arsenal, with any TaCZ-family compatibility only as a separate optional add-on, because those mods are GPL-3.0 and Stand and Hold is All Rights Reserved. *Recommended: own arsenal first.*
+- **D13 (M44, M65) Faction identity.** Original factions inspired by the British and US armies (real rank names; original insignia, flags and names), or the real armies themselves. *Recommended: original factions, so we never depict real units or insignia.*
+- **D14 (Roadmap 6) Gun mods.** Our own arsenal, with any TaCZ-family compatibility only as a separate optional add-on, because those mods are GPL-3.0 and Stand and Hold is All Rights Reserved. *Recommended: own arsenal first.*
 - **D15 (M35-M42 tooling) Building tools.** Let Claude run the Blockbench MCP plugin (models) and a Minecraft builder MCP (structure drafts) in its own workspace. Tools only; nothing from them ships except our own finished files. *Recommended: yes, after a licence check of each tool.* **Decided: yes, after licence checks.**
 
 **Active HQ, defined.** A building the player can use, not just a status: one per world, persisted across restart; its screen shows the world threat profile, the current order and the recommended research; the player can start that research from the HQ using its own local supplies; and the HQ can dispatch one paid reinforcement to any loaded post linked to it, using the existing support call-in rules. Losing the HQ block returns the world to the promotion path without losing research or order history.
@@ -820,7 +820,7 @@ Each one becomes active only when the stated evidence justifies it, after re-che
 - **M35 Feel pass I (P1).** From Liam's playtest and recording (2026-11-13). The recording's audio shows frequent high-frequency bursts while soldiers walk. The M33 gear clip's spectral centroid is about 4.2 kHz, against 1.8 kHz for the radio, which matches "a high noise that doesn't sound natural".
   1. **Sound.** Remove the gear rattle. Soldiers keep the block's own footstep and add a quiet, low boot-and-kit layer (target centroid under 1.5 kHz). The radio gets several clips of different lengths and pitch, in calm and urgent sets, so M36 can switch them by alert level. The source follows **D10**. Volumes are tuned against vanilla footsteps, with a listening check.
   2. **Motion you can see.** Re-key the GeckoLib Rifleman with clearly readable motion: a stronger walk and a run cycle, an idle that looks around and checks the weapon, a ready stance and a clearer recoil and reload. Decide from the D5 frame-time data whether the other tiers move to GeckoLib here or in M42.
-  3. **Riflemen are always armed.** Every Army Rifleman spawns holding an original **service rifle** with a simple ranged attack (an interim of the Roadmap 5 weapon framework). The prototype launcher stays the stage-gated special weapon.
+  3. **Riflemen are always armed.** Every Army Rifleman spawns holding an original **service rifle** with a simple ranged attack (an interim of the Roadmap 6 weapon framework). The prototype launcher stays the stage-gated special weapon.
   4. **Raid bar.** A vanilla boss bar at the top of the screen for players near a post during a warned and an active raid: "Raid warning: post X, from the north", then raiders remaining. It uses Minecraft's own `ServerBossEvent`, so no library is needed.
   5. **JEI (optional, D11).** Show our recipes, buildings and samples in Just Enough Items when it is installed. Never a required dependency.
 - **M36 Alert levels and quick-reaction backup (P1).** Each loaded post has an alert level computed from threat score, warned raids, live raiders and recent losses: **Calm** (walk, duties, idle chatter), **Alert** (weapons ready, man the watch positions, terse radio), **Contact** (run to the threat, aim, urgent radio), **Overrun** (fall back to the post, call for backup). When a post loses soldiers faster than a set rate, it requests **backup**: a small paid squad appears at a safe, loaded spot 32-48 blocks away on the friendly side and moves in, never inside walls or unloaded chunks. It is bounded by the existing quotas and cooldowns. The raid bar and radio follow the alert level. No global director or off-screen fighting.
@@ -840,43 +840,49 @@ These roadmaps record where the rest of the vision lands. They are not approved 
 
 ### Where Liam's Vision Lands
 
-Updated 2026-11-13 with Liam's playtest feedback. Priority is the order the roadmaps run in: Roadmap 3 (feel, guidance, bases, HQ) before Roadmap 4 (who the soldiers are), before Roadmap 5 (weapons), before Roadmap 6 (story, trust and factions), before Roadmap 7 (vehicles).
+Updated 2026-11-13 with Liam's playtest feedback. Priority is the order the roadmaps run in: Roadmap 3 (feel, guidance, bases, HQ), then Roadmap 4 (who the soldiers are), Roadmap 5 (specialist roles and branches), Roadmap 6 (weapons), Roadmap 7 (story, trust and factions) and Roadmap 8 (vehicles, Navy and Air Force).
 
 | Vision item | First lands | Grows in |
 | --- | --- | --- |
 | Earned Survival start, craftable posts, orders | M32 | M34, M37 |
 | Soldiers that don't look repetitive (variants) | M33 | M42 |
-| Natural sound: footsteps, kit, radio that changes with the danger | M35 | M36, M42 per unit, M50+ per weapon |
+| Natural sound: footsteps, kit, radio that changes with the danger | M35 | M36, M42 per unit, M55+ per weapon |
 | Clearly animated soldiers (GeckoLib) | M33 experiment (Rifleman) | M35 stronger clips, M42 every unit |
-| Riflemen always carry a weapon | M35 interim service rifle | M50-M51 weapon framework and small arms |
+| Riflemen always carry a weapon | M35 interim service rifle | M55-M56 weapon framework and small arms |
 | Raid bar at the top of the screen | M35 | M36 alert levels |
 | Alert system: calm duties to battle-ready | M36 | M46 combat AI |
-| Backup when a post is losing men | M36 quick-reaction squad | M40 HQ dispatch, M45 squads, M56+ convoys |
+| Backup when a post is losing men | M36 quick-reaction squad | M40 HQ dispatch, M45 squads, M61+ convoys |
 | JEI and recipe viewers | M35 (optional) | |
 | Field Manual book: welcome, how to play, classes with pros and cons | M37 | M43 per-class pages, M44 ranks |
-| Story objectives screen (quest-book style) | M37 Campaign | M58 story chapters |
+| Story objectives screen (quest-book style) | M37 Campaign | M63 story chapters |
 | Clearer, more immersive UI | M37 Command Post redesign | Every later slice keeps the new style |
 | Better base schematics, a new design per level, military feel | M38 | M47 facilities, M48 self-upgrade |
 | Phase 0: scattered survivors, abandoned/destroyed/active outposts, Main Bases appear as research grows | M39 | M48 |
 | HQ as the heart of the army (D6: promote by default, or active from start) | M39 | M40 usable HQ, M45 HQ orders, M49 HQ v2 |
 | HQ predicts what to research and fields the right troops | M40 (recommends, from vanilla threats) | M49 (opt-in auto-research and roster bias) |
 | Real-world military look: armour by role, kit by job | M42 | M43 |
-| Classes with real identity and loadouts | M43 | M51 class loadouts |
-| Conscripts, soldier ranks and officer ranks; promotion by deeds | M44 | M45 orders chain, M60 faction ladders |
+| Classes with real identity and loadouts | M43 | M56 class loadouts |
+| Conscripts, soldier ranks and officer ranks; promotion by deeds | M44 | M45 orders chain, M65 faction ladders |
 | Officers: planning, research, intel, setting patrols; kept out of danger | M45 | M49 |
-| Smarter AI (cover, suppression, retreat to medics, priorities per threat) | M46 | M51, M57 |
-| Barracks, med camp, armoury, research complex, motor pool | M47 | M48, M56 |
-| Self-upgrading Main Base and outpost network (autonomous) | M48 | M49, M59 |
+| Smarter AI (cover, suppression, retreat to medics, priorities per threat) | M46 | M56, M62 |
+| Barracks, med camp, armoury, research complex, motor pool | M47 | M48, M61 |
+| Self-upgrading Main Base and outpost network (autonomous) | M48 | M49, M64 |
 | Infection, zombie, alien and horror mod support | M49 (tag adapters + categories) | Exact-build tests whenever a mod ships for our Minecraft version |
-| Guns and a real arsenal (ammo, reload, recoil) | M50 | M51 |
-| Grenades | M52 | |
-| Flamethrowers, minigun, rocket and missile launchers (several missile types) | M53 | M64 |
-| Turrets, mortars, searchlights, wire that actually works | M54 | |
-| Story mode and trust: trading, helping, missions, earning the army's trust | M58 | M59, M60 |
-| Factions: allies, traders, defenders, hostile raiders | M60 | M61 |
-| Vehicles | M62 utility vehicle | M63 armour and helicopters |
-| Jets, missile silo and ICBM | M64 | |
-| Fabric or other loaders | Roadmap 8 at the earliest | |
+| Guns and a real arsenal (ammo, reload, recoil) | M55 | M56 |
+| Grenades | M57 | |
+| Flamethrowers, minigun, rocket and missile launchers (several missile types) | M58 | M69 |
+| Turrets, mortars, searchlights, wire that actually works | M59 | |
+| Story mode and trust: trading, helping, missions, earning the army's trust | M63 | M64, M65 |
+| Factions: allies, traders, defenders, hostile raiders | M65 | M66 |
+| Vehicles | M67 utility vehicle | M68 armour and helicopters |
+| Jets, missile silo and ICBM | M69 | |
+| Specialist roles: Medic, Engineer, Military Police | M50 | M56 loadouts |
+| Logistics soldiers and the Supply Depot | M51 | M61 convoys |
+| Recon teams that scout away from base and report back | M52 | M40 HQ intel, M65 factions |
+| Radioman: calls backup, supplies and later strikes | M53 | M36 backup, M68-M69 air support |
+| Branches of the same side: Intelligence, the outbreak science agency, civilian workers | M54 | M63-M65 story, trust and factions |
+| Navy and Air Force branches | M67 | M68, M69 |
+| Fabric or other loaders | Roadmap 9 at the earliest | |
 
 Infection mods named by Liam are design targets, not current dependencies. As of 2026-11-12, The Flesh That Hates' newest build targets Forge 1.20.1 and Scape and Run: Parasites targets 1.12.2; neither runs on the 26.3 pin. Support is built through entity tags and threat categories (M49) and tested only against an exact compatible build once one exists. The hard design rules still apply: optional, never a hard dependency, nothing copied.
 
@@ -895,48 +901,66 @@ Goal: soldiers that look and act like a real army, with classes, ranks, officers
 | M48 Self-upgrading bases | P2 | The army upgrades its own bases and outposts under a player-set policy and paid supplies, extending the guarded growth system; outposts report to the HQ |
 | M49 Threats and HQ v2 | P2 | Tag-based adapters and threat categories for infection, zombie, alien and horror mods; HQ v2 can queue research and bias recruitment when the player opts in; D7 decides whether a small in-house threat faction is needed |
 
-**Ranks note (for M44-M45, references checked 2026-11-13).** Real rank names are public, so ladders can follow them; insignia artwork is drawn originally. British Army soldier ranks: Private, Lance Corporal, Corporal, Sergeant, Staff Sergeant, Warrant Officer Class 2, Warrant Officer Class 1; officers: Officer Cadet, Second Lieutenant, Lieutenant, Captain, Major, Lieutenant Colonel, Colonel, Brigadier, Major General, Lieutenant General, General, Field Marshal. US Army enlisted: Private (PV1, PV2), Private First Class, Specialist, Corporal, Sergeant, Staff Sergeant, Sergeant First Class, Master Sergeant, First Sergeant, Sergeant Major, Command Sergeant Major, Sergeant Major of the Army; warrant officers WO1 and CW2-CW5; officers Second Lieutenant to General, and General of the Army. Stand and Hold adds **Conscript** below Private. M44 ships one ladder (D13 decides which); a second ladder arrives with factions (M60).
+**Ranks note (for M44-M45, references checked 2026-11-13).** Real rank names are public, so ladders can follow them; insignia artwork is drawn originally. British Army soldier ranks: Private, Lance Corporal, Corporal, Sergeant, Staff Sergeant, Warrant Officer Class 2, Warrant Officer Class 1; officers: Officer Cadet, Second Lieutenant, Lieutenant, Captain, Major, Lieutenant Colonel, Colonel, Brigadier, Major General, Lieutenant General, General, Field Marshal. US Army enlisted: Private (PV1, PV2), Private First Class, Specialist, Corporal, Sergeant, Staff Sergeant, Sergeant First Class, Master Sergeant, First Sergeant, Sergeant Major, Command Sergeant Major, Sergeant Major of the Army; warrant officers WO1 and CW2-CW5; officers Second Lieutenant to General, and General of the Army. Stand and Hold adds **Conscript** below Private. M44 ships one ladder (D13 decides which); a second ladder arrives with factions (M65).
 
 Candidate gate: earned playthrough to a running division with ranked squads and an officer at the HQ, multiplayer session, load with several squads. **D8:** whether this candidate becomes the first public alpha.
 
-### Roadmap 5 - Arsenal (M50-M54)
+### Roadmap 5 - Specialists And Branches (M50-M54)
+
+Goal: more kinds of soldier, each with a job the base depends on, and the other organisations on the army's side. Added at Liam's request on 2026-11-13. More roles can join later roadmaps the same way.
+
+| Slot | Priority | Slice |
+| --- | --- | --- |
+| M50 Specialist roles I | P2 | **Medic** (treats the wounded, works from the Field Hospital), **Engineer** (builds, repairs and fortifies, helps bases upgrade), **Military Police** (base security, discipline, escorts and guarding prisoners); each with pros and cons in the Field Manual |
+| M51 Logistics | P2 | A **Supply Depot** building (designed in the M38 style) and **Logistics** soldiers who carry supplies from it to outposts, Main Bases and the HQ along loaded routes; deliveries are visible and can be ambushed |
+| M52 Recon | P2 | **Recon** teams that do not stay at a base: they scout ahead, find sites, survivors and threats, and report back to the HQ. They only act in loaded areas; anything farther away is an abstract, bounded expedition with a report, never force-loaded chunks |
+| M53 Radioman and call-ins | P2 | A **Radioman** in each squad links it to the HQ: calls in M36 backup and supply drops now, and artillery or air support once Roadmap 8 exists |
+| M54 Branches I | P2 | Organisations on the same side, each with its own tasks and objectives: **Intelligence** (intelligence officers: threat intel for the HQ, later spying on rival factions), an original **outbreak science agency** (scientists who study samples, quarantine and cure research), and **civilian workers** (researchers, communications, admin and other back-end work) |
+
+**Branches note.** Liam's list, sorted so each item sits where it belongs:
+- **Branches** are separate organisations on the same side: Army (the default and the player's main partner), Navy, Air Force, Intelligence, the outbreak science agency and civilian workers.
+- **Roles** are jobs within a branch. Recon, Radioman (a signaller in the British Army, a radio telephone operator in the US Army), Logistics, Medic, Engineer and Military Police are Army roles. In both real armies, the military police are an Army corps, not a separate branch.
+- **WO1** (Warrant Officer Class One) is a rank, already in the ranks note, not a branch.
+- The US CDC is a real civilian agency. Following D13, Stand and Hold uses an original agency in its place, with the same kind of job.
+
+### Roadmap 6 - Arsenal (M55-M59)
 
 Goal: a weapons framework players and soldiers share, then weapon families one at a time. The M35 service rifle moves onto this framework.
 
 | Slot | Priority | Slice |
 | --- | --- | --- |
-| M50 Weapon framework | P2 | Ammunition, magazines and reload, fire modes, recoil and spread, server-authoritative hits, animation and sound hooks, NPC loadouts tied to class and rank |
-| M51 Small arms | P2 | Service rifle (final), marksman rifle, shotgun, light machine gun; class and rank loadouts |
-| M52 Grenades and explosives | P3 | Frag, smoke and incendiary grenades, with block-damage and griefing controls |
-| M53 Heavy weapons | P3 | Flamethrower (anti-infection), minigun, rocket launcher, guided missiles (anti-armour, incendiary, cluster) |
-| M54 Emplacements | P3 | Sentry turret, mortar, functional searchlight and wire |
+| M55 Weapon framework | P2 | Ammunition, magazines and reload, fire modes, recoil and spread, server-authoritative hits, animation and sound hooks, NPC loadouts tied to class and rank |
+| M56 Small arms | P2 | Service rifle (final), marksman rifle, shotgun, light machine gun; class and rank loadouts |
+| M57 Grenades and explosives | P3 | Frag, smoke and incendiary grenades, with block-damage and griefing controls |
+| M58 Heavy weapons | P3 | Flamethrower (anti-infection), minigun, rocket launcher, guided missiles (anti-armour, incendiary, cluster) |
+| M59 Emplacements | P3 | Sentry turret, mortar, functional searchlight and wire |
 
-### Roadmap 6 - Story, Trust And Factions (M55-M61)
+### Roadmap 7 - Story, Trust And Factions (M60-M66)
 
 Goal: give the player a reason to engage with the army, and the army a world to deal with. Based on Liam's request for more excitement, a story to guide progression, and an army that is partly autonomous.
 
 | Slot | Priority | Slice |
 | --- | --- | --- |
-| M55 Roadmap 5 candidate | P1 | Earned playthrough with the arsenal in use; multiplayer; load |
-| M56 Convoys and rescue | P3 | Supply convoys and survivor rescues between bases; rescued survivors become conscripts |
-| M57 Combat AI v3 | P3 | Squad tactics: flanking, overwatch, fall-back points |
-| M58 Story mode I | P2 | Campaign chapters on the M37 screen: how the outbreak began, finding the army, earning its trust; scripted but replayable objectives |
-| M59 Trust and trade | P2 | A trust score with the army, earned by trading, completing objectives, helping with development and missions; trust unlocks requests, trades, assistance and access, while the army keeps upgrading itself (M48) |
-| M60 Factions I | P2 | Two playable-world factions (D13: original factions inspired by the UK and US forces, or the real ones); their own rank ladders, allies, traders, neutral defenders and hostile raiders |
-| M61 Diplomacy and raids between factions | P3 | Alliances, trade agreements, hostile raids; bounded, never off-screen battles |
+| M60 Roadmap 6 candidate | P1 | Earned playthrough with the arsenal in use; multiplayer; load |
+| M61 Convoys and rescue | P3 | Supply convoys and survivor rescues between bases; rescued survivors become conscripts |
+| M62 Combat AI v3 | P3 | Squad tactics: flanking, overwatch, fall-back points |
+| M63 Story mode I | P2 | Campaign chapters on the M37 screen: how the outbreak began, finding the army, earning its trust; scripted but replayable objectives |
+| M64 Trust and trade | P2 | A trust score with the army, earned by trading, completing objectives, helping with development and missions; trust unlocks requests, trades, assistance and access, while the army keeps upgrading itself (M48) |
+| M65 Factions I | P2 | Two playable-world factions (D13: original factions inspired by the UK and US forces, or the real ones); their own rank ladders, allies, traders, neutral defenders and hostile raiders |
+| M66 Diplomacy and raids between factions | P3 | Alliances, trade agreements, hostile raids; bounded, never off-screen battles |
 
-### Roadmap 7 - Vehicles And Strategic Warfare (M62-M66)
+### Roadmap 8 - Vehicles, Navy And Air Force (M67-M70)
 
 Goal: mobility, air power and strategic strikes, each behind the existing [vehicle admission gate](warfare-support-design.md#physical-vehicles-deferred-admission-gate).
 
 | Slot | Priority | Slice |
 | --- | --- | --- |
-| M62 Vehicle foundation | P3 | **D9:** vehicle library or in-house physics; one ground utility vehicle with passengers, storage, unload and reconnect recovery; motor pool building |
-| M63 Armour and helicopters | P3 | Troop truck/APC, a tank, transport helicopter; soldier drivers and gunners |
-| M64 Jets, missile silo and ICBM | P4 | Strike jet and airfield; silo off by default, with operator and claim controls, bounded blast budget, no chunk force-loading |
-| M65 Strategic candidate | P1 | Load with vehicles and strikes; multiplayer; performance on named hardware |
+| M67 Vehicle foundation | P3 | **D9:** vehicle library or in-house physics; one ground utility vehicle with passengers, storage, unload and reconnect recovery; motor pool building. The **Navy** and **Air Force** branches arrive with the vehicles they operate |
+| M68 Armour and helicopters | P3 | Troop truck/APC, a tank, transport helicopter; soldier drivers and gunners |
+| M69 Jets, missile silo and ICBM | P4 | Strike jet and airfield; silo off by default, with operator and claim controls, bounded blast budget, no chunk force-loading |
+| M70 Strategic candidate | P1 | Load with vehicles and strikes; multiplayer; performance on named hardware |
 
-Roadmap 8 (The Long War) holds HQ v3 counter-offensives, a world-scale campaign, the Fabric/other-loader evaluation (reopening M14), and public beta and release decisions. It is planned only when Roadmap 7 is stable.
+Roadmap 9 (The Long War) holds HQ v3 counter-offensives, a world-scale campaign, the Fabric/other-loader evaluation (reopening M14), and public beta and release decisions. It is planned only when Roadmap 7 is stable.
 
 ### Tools And Libraries Checked (2026-11-13)
 
