@@ -882,6 +882,7 @@ Updated 2026-11-13 with Liam's playtest feedback. Priority is the order the road
 | Radioman: calls backup, supplies and later strikes | M53 | M36 backup, M68-M69 air support |
 | Branches of the same side: Intelligence, the outbreak science agency, civilian workers | M54 | M63-M65 story, trust and factions |
 | Navy and Air Force branches | M67 | M68, M69 |
+| Marines and special forces (sub-branches) | M71 | Roadmap 9 |
 | Fabric or other loaders | Roadmap 9 at the earliest | |
 
 Infection mods named by Liam are design targets, not current dependencies. As of 2026-11-12, The Flesh That Hates' newest build targets Forge 1.20.1 and Scape and Run: Parasites targets 1.12.2; neither runs on the 26.3 pin. Support is built through entity tags and threat categories (M49) and tested only against an exact compatible build once one exists. The hard design rules still apply: optional, never a hard dependency, nothing copied.
@@ -921,6 +922,7 @@ Goal: more kinds of soldier, each with a job the base depends on, and the other 
 - **Branches** are separate organisations on the same side: Army (the default and the player's main partner), Navy, Air Force, Intelligence, the outbreak science agency and civilian workers.
 - **Roles** are jobs within a branch. Recon, Radioman (a signaller in the British Army, a radio telephone operator in the US Army), Logistics, Medic, Engineer and Military Police are Army roles. In both real armies, the military police are an Army corps, not a separate branch.
 - **WO1** (Warrant Officer Class One) is a rank, already in the ranks note, not a branch.
+- **Sub-branches** sit inside a branch: Marines (US Marines are their own service under the Department of the Navy; the Royal Marines are part of the UK's Naval Service), and special forces such as the SAS (British Army), the Royal Marines Commandos, Delta Force (US Army) and the Navy SEALs (US Navy). Under D13 they get original names, with the real units as reference only.
 - The US CDC is a real civilian agency. Following D13, Stand and Hold uses an original agency in its place, with the same kind of job.
 
 ### Roadmap 6 - Arsenal (M55-M59)
@@ -959,6 +961,7 @@ Goal: mobility, air power and strategic strikes, each behind the existing [vehic
 | M68 Armour and helicopters | P3 | Troop truck/APC, a tank, transport helicopter; soldier drivers and gunners |
 | M69 Jets, missile silo and ICBM | P4 | Strike jet and airfield; silo off by default, with operator and claim controls, bounded blast budget, no chunk force-loading |
 | M70 Strategic candidate | P1 | Load with vehicles and strikes; multiplayer; performance on named hardware |
+| M71 Marines and special forces | P3 | Sub-branches with their own missions: **Marines** (amphibious and shore assault with the Navy) and **special forces** in the style of the SAS, Royal Marines Commandos, Delta Force and the Navy SEALs (raids, hostage and survivor rescue, sabotage, deep reconnaissance). The existing Special Division Operative tier becomes their first unit. Added at Liam's request; detailed later |
 
 Roadmap 9 (The Long War) holds HQ v3 counter-offensives, a world-scale campaign, the Fabric/other-loader evaluation (reopening M14), and public beta and release decisions. It is planned only when Roadmap 7 is stable.
 
