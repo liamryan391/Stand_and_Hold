@@ -61,7 +61,7 @@ final class ArtChecks {
         var clips = JsonParser.parseString(Files.readString(geckolib.resolve("animations/entity/army_rifleman.animation.json"))).getAsJsonObject().getAsJsonObject("animations");
         String controller = Files.readString(Path.of("src/main/java/com/liamryan/standandhold/common/npc/RiflemanAnimation.java"));
         var allowed = java.util.regex.Pattern.compile("(query\\.(head_x_rotation|head_y_rotation|limb_swing_amount|limb_swing|anim_time)|math\\.(sin|cos)|[-+*/(). 0-9])*");
-        for (String clip : java.util.List.of("idle", "walk", "aim", "fire", "hurt", "death")) {
+        for (String clip : java.util.List.of("idle", "walk", "run", "aim", "fire", "hurt", "death")) {
             check(clips.has(clip) && controller.contains('"' + clip + '"'), "clip exists and is used: " + clip);
             var animation = clips.getAsJsonObject(clip); double length = animation.get("animation_length").getAsDouble();
             for (var bone : animation.getAsJsonObject("bones").entrySet()) {
