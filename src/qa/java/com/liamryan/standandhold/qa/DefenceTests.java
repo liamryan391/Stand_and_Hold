@@ -26,6 +26,7 @@ final class DefenceTests {
         tests.put("defence_warned_raid_needs_witness", DefenceTests::witness);
         tests.put("defence_order_runs_itself", DefenceTests::order);
         tests.put("defence_warned_raid_natural_off", DefenceTests::naturalOff);
+        tests.put("defence_raid_bar", DefenceTests::raidBar);
         return tests;
     }
 
@@ -82,6 +83,36 @@ final class DefenceTests {
         });
     }
 
+    private static String barKey(net.minecraft.server.level.ServerBossEvent bar) {
+        return bar.getName().getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents text ? text.getKey() : "";
+    }
+    /** M35: a yellow countdown bar while warned, a red raider bar during the raid, gone when it is over; nearby players only. */
+    private static void raidBar(GameTestHelper h) {
+        QaWorld.begin(h); var post = post(h); var player = player(h, HOME.offset(0, 0, 3)); stage(h, HumanStage.LOCAL_ARMY_RESPONSE);
+        var server = h.getLevel().getServer();
+        h.runAfterDelay(2, () -> {
+            RaidBars.update(h.getLevel(), post);
+            h.assertTrue(RaidBars.bar(server, key(h, post)).isEmpty(), "no bar without a raid");
+            ThreatResponse.warnRaid(h.getLevel(), post);
+            RaidBars.update(h.getLevel(), post);
+            var warning = RaidBars.bar(server, key(h, post)).orElseThrow();
+            h.assertTrue(barKey(warning).equals("bossbar.standandhold.raid_warning") && warning.getColor() == net.minecraft.world.BossEvent.BossBarColor.YELLOW
+                    && warning.getPlayers().contains(player) && warning.getProgress() > 0 && warning.getProgress() <= 1, "yellow warning bar shown to the nearby player");
+            arriveNow(h, post);
+            h.runAfterDelay(1, () -> {
+                ThreatResponse.tick(h.getLevel(), post);
+                RaidBars.update(h.getLevel(), post);
+                var raid = RaidBars.bar(server, key(h, post)).orElseThrow();
+                h.assertTrue(barKey(raid).equals("bossbar.standandhold.raid") && raid.getColor() == net.minecraft.world.BossEvent.BossBarColor.RED
+                        && raid.getProgress() == 1F && raid.getPlayers().contains(player), "red raid bar while raiders are reserved");
+                var data = ThreatWorldData.get(server);
+                for (var id : ThreatResponse.state(h.getLevel(), post).raiders()) { data.releaseRaider(key(h, post), id); }
+                RaidBars.update(h.getLevel(), post);
+                h.assertTrue(RaidBars.bar(server, key(h, post)).isEmpty() && raid.getPlayers().isEmpty(), "the bar is removed when the raid is over");
+                h.succeed();
+            });
+        });
+    }
     /** Turning natural raids off after a warning clears it at arrival: no wave, no counters; operator raids still work. */
     private static void naturalOff(GameTestHelper h) {
         QaWorld.begin(h); var post = post(h); var player = player(h, HOME.offset(0, 0, 3)); stage(h, HumanStage.LOCAL_ARMY_RESPONSE);

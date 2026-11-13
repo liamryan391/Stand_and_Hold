@@ -46,6 +46,8 @@
   "tooltip.standandhold.npc_equipment_gate": "NPC use: stage %s, research %s",
   "message.standandhold.raid": "Outpost attack near %s: %s raiders approaching.",
   "message.standandhold.raid_incoming": "Field radio, post %s: hostiles last reported to the %s. Contact expected in about %s seconds.",
+  "bossbar.standandhold.raid_warning": "Raid warning, post %s: hostiles last reported to the %s",
+  "bossbar.standandhold.raid": "Raid on post %s: %s raiders",
   "message.standandhold.raid_contact": "Contact at post %s: %s raiders coming in from the %s.",
   "direction.standandhold.0": "north",
   "direction.standandhold.1": "north-east",

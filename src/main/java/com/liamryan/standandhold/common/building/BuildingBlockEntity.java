@@ -328,6 +328,14 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
         }
     }
 
+    /** Broken or unloaded: drop its raid bar (M35); the saved raid record rebuilds it when the post loads again. */
+    @Override public void setRemoved() {
+        super.setRemoved();
+        if (kind() == BuildingKind.COMMAND_POST && level instanceof ServerLevel server) {
+            com.liamryan.standandhold.common.threat.RaidBars.remove(server.getServer(), new BuildingPosition(server.dimension().identifier(), getBlockPos()).key());
+        }
+    }
+
     public static void tick(Level level, BlockPos pos, BlockState block, BuildingBlockEntity building) {
         if (!(level instanceof ServerLevel server)) { return; }
         if (building.kind() == BuildingKind.COMMAND_POST && ++building.responseElapsed >= ResponseConfig.CHECK_INTERVAL.get()) {
@@ -337,6 +345,10 @@ public final class BuildingBlockEntity extends BlockEntity implements MenuProvid
                 OutpostGrowth.tick(server, building);
                 if (building.operational(HumanWorldData.get(server.getServer()))) { ThreatResponse.tick(server, building); }
             } catch (IllegalArgumentException | IllegalStateException exception) { building.reportOnce(exception); }
+        }
+        if (building.kind() == BuildingKind.COMMAND_POST && server.getGameTime() % 20 == building.getBlockPos().asLong() % 20) {
+            try { com.liamryan.standandhold.common.threat.RaidBars.update(server, building); }
+            catch (IllegalArgumentException | IllegalStateException exception) { building.reportOnce(exception); }
         }
         if (building.kind() == BuildingKind.COMMAND_POST && ++building.deploymentElapsed >= NpcConfig.INTERVAL.get()) {
             building.deploymentElapsed = 0;
