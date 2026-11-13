@@ -5,7 +5,7 @@ copies no real-world product's markings and no other mod's model or texture. Req
 
     python scripts/generate-service-rifle.py
 
-Outputs (all committed and compared by ArtChecks):
+Outputs (all committed; ArtChecks and scripts/export-art.ps1 -Check compare them):
   art/blockbench/service_rifle.bbmodel                          editable source with the atlas embedded
   src/main/resources/assets/standandhold/textures/item/service_rifle.png
   src/main/resources/assets/standandhold/models/item/service_rifle.json
@@ -95,10 +95,9 @@ PARTS = [
 def faces(start, end, materials):
     sides, top, bottom, front, back = materials
     dx, dy, dz = (end[i] - start[i] for i in range(3))
-    return {
-        "north": uv(front, dx, dy), "south": uv(back, dx, dy),
-        "east": uv(sides, dz, dy), "west": uv(sides, dz, dy),
-        "up": uv(top, dx, dz), "down": uv(bottom, dx, dz),
+    return {  # scripts/export-art.ps1 emits faces in this order
+        "north": uv(front, dx, dy), "east": uv(sides, dz, dy), "south": uv(back, dx, dy),
+        "west": uv(sides, dz, dy), "up": uv(top, dx, dz), "down": uv(bottom, dx, dz),
     }
 
 
@@ -132,6 +131,17 @@ def display():
     }
 
 
+def tidy(value):
+    """Whole numbers as integers, as PowerShell's ConvertTo-Json writes them, so both exporters agree byte for byte."""
+    if isinstance(value, dict):
+        return {key: tidy(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [tidy(item) for item in value]
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    return value
+
+
 def main():
     image = atlas()
     buffer = io.BytesIO()
@@ -145,7 +155,7 @@ def main():
         elements.append({"name": name, "type": "cube", "uuid": f"5e7a1f1e-35a0-4c2b-8d11-{index + 1:012d}", "from": start, "to": end,
                          "box_uv": False, "faces": {side: {"uv": value, "texture": 0} for side, value in face_uv.items()}})
         model_elements.append({"from": start, "to": end, "faces": {side: {"uv": value, "texture": "#0"} for side, value in face_uv.items()}})
-    shown = display()
+    shown = tidy(display())
     source = {
         "meta": {"format_version": "4.12", "model_format": "java_block", "box_uv": False},
         "name": "Service Rifle", "credit": "Original Stand and Hold service rifle art (M35)",
@@ -154,9 +164,10 @@ def main():
         "textures": [{"name": "service_rifle.png", "id": "0", "uuid": "5e7a1f1e-35a0-4c2b-8d11-1000000000aa", "mode": "bitmap",
                       "source": "data:image/png;base64," + base64.b64encode(png).decode()}],
     }
-    (ROOT / "art/blockbench/service_rifle.bbmodel").write_text(json.dumps(source, indent=2) + "\n")
-    model = {"textures": {"particle": "#0", "0": "standandhold:item/service_rifle"}, "display": shown, "elements": model_elements}
-    (ASSETS / "models/item/service_rifle.json").write_text(json.dumps(model, indent=2) + "\n")
+    (ROOT / "art/blockbench/service_rifle.bbmodel").write_text(json.dumps(tidy(source), indent=2) + "\n")
+    model = tidy({"textures": {"particle": "#0", "0": "standandhold:item/service_rifle"}, "display": shown, "elements": model_elements})
+    # Same compact form as scripts/export-art.ps1, which re-exports this from the .bbmodel and fails CI on any difference.
+    (ASSETS / "models/item/service_rifle.json").write_text(json.dumps(model, separators=(",", ":")) + "\n")
     item = {"model": {"type": "minecraft:model", "model": "standandhold:item/service_rifle"}}
     (ASSETS / "items/service_rifle.json").write_text(json.dumps(item, indent=2) + "\n")
     print("Wrote the service rifle source, model, atlas and item definition.")

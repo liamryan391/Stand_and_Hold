@@ -63,10 +63,12 @@ function AddGroup($node, $parent, $parentOrigin, $cubes, $seen, $names, $atlas) 
     $lines.Add("        PartDefinition $($node.name) = $parent.addOrReplaceChild(`"$($node.name)`", $builder, PartPose.offset($dx, $dy, $dz));")
     foreach ($child in $node.children) { if ($child -isnot [string]) { AddGroup $child $node.name $node.origin $cubes $seen $names $atlas } }
 }
-function ExportLauncher($model, $id) {
+# Held 3D items: the prototype launcher (eight boxes inside one block) and the M35 service rifle (twelve boxes, and as
+# long as Minecraft's -16..32 model bounds allow, because a rifle is longer than a block).
+function ExportLauncher($model, $id, [int]$maxBoxes = 8, [double]$low = 0, [double]$high = 16) {
     if ($model.meta.model_format -ne 'java_block' -or $model.resolution.width -ne 16 -or $model.resolution.height -ne 16 -or
         $model.textures.Count -ne 1 -or $model.textures[0].name -ne "$id.png" -or
-        $model.elements.Count -lt 1 -or $model.elements.Count -gt 8) { throw 'Launcher requires one 16px atlas and at most eight boxes.' }
+        $model.elements.Count -lt 1 -or $model.elements.Count -gt $maxBoxes) { throw "Held item requires one 16px atlas and at most $maxBoxes boxes: $id" }
     $ids = @($model.elements | ForEach-Object { $_.uuid })
     if ($model.outliner.Count -ne $ids.Count -or @($ids | Select-Object -Unique).Count -ne $ids.Count -or
         ($model.outliner -join ',') -ne ($ids -join ',')) { throw 'Launcher boxes must be ordered directly in the root outliner.' }
@@ -75,7 +77,7 @@ function ExportLauncher($model, $id) {
         if ($cube.type -ne 'cube' -or $cube.export -eq $false -or $cube.box_uv -or $cube.from.Count -ne 3 -or $cube.to.Count -ne 3 -or
             [double]$cube.inflate -ne 0 -or @($cube.rotation | Where-Object { $null -ne $_ -and $_ -ne 0 }).Count -gt 0) { throw 'Unsupported launcher cube.' }
         for ($axis = 0; $axis -lt 3; $axis++) {
-            if ($cube.from[$axis] -lt 0 -or $cube.to[$axis] -gt 16 -or $cube.from[$axis] -ge $cube.to[$axis]) { throw 'Launcher box outside 0..16.' }
+            if ($cube.from[$axis] -lt $low -or $cube.to[$axis] -gt $high -or $cube.from[$axis] -ge $cube.to[$axis]) { throw "Held item box outside ${low}..${high}: $id" }
         }
         $faces = [ordered]@{}
         foreach ($face in @('north','east','south','west','up','down')) {
@@ -104,10 +106,12 @@ $models = @(Get-ChildItem (Join-Path $root 'art/blockbench') -Filter '*.bbmodel'
 if ($models.Count -eq 0) { throw 'No editable art sources found.' }
 foreach ($file in $models) {
     $id = $file.BaseName
-    if ($id -notin @('survivor_defender','army_rifleman','heavy_soldier','elite_soldier','super_elite','special_division_operative','field_command_post','research_lab','supply_crate','prototype_launcher')) { throw "Unknown source id: $id" }
+    if ($id -notin @('survivor_defender','army_rifleman','heavy_soldier','elite_soldier','super_elite','special_division_operative','field_command_post','research_lab','supply_crate','prototype_launcher','service_rifle')) { throw "Unknown source id: $id" }
     $model = Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8 | ConvertFrom-Json
     if ($id -eq 'prototype_launcher') {
         ExportLauncher $model $id
+    } elseif ($id -eq 'service_rifle') {
+        ExportLauncher $model $id 12 -16 32
     } elseif ($model.meta.model_format -eq 'modded_entity') {
         if ($model.elements.Count -gt 64 -or $model.textures.Count -ne 1 -or $model.resolution.width -ne 64 -or $model.resolution.height -ne 64) { throw 'Humanoid source must have <=64 cubes and one 64x64 texture.' }
         if ($model.textures[0].name -ne "$id.png") { throw 'Humanoid texture name must match its model id.' }
