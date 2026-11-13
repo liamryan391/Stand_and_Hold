@@ -690,9 +690,9 @@ B removes the race and staleness problems instead of testing around them, and th
 | Phase / branch | Priority | Prerequisites | Status | Maximum slice |
 | --- | --- | --- | --- | --- |
 | M32 `claude/m32-earned-outpost` | P1 | M31 baseline; D1-D4 approved 2026-11-12 | On `main` (PR #4); earned run outstanding | Recipes, spacing, auto-started onboarding, Orders view, ordinary undead rewards |
-| M33 `claude/m33-army-look-sound` | P2 | M32; D5 approved 2026-11-12 for 33.4 | Codex reviewed (no blocker); PR to `main` after Liam's play check; 33.4 experiment in progress | Native per-soldier variants and a first original sound set; the animation library is a separate, test-gated experiment (D5) |
-| M34 `claude/m34-defend-the-post` | P2 | M32 (branch stacked on M33) | Implemented; review and play check outstanding | One readable attack warning; `defend_outpost` observable in ordinary play |
-| M35 `claude/m35-feel-pass` | **P1** | M34 | Planned (Liam's playtest 2026-11-13) | Sound that sounds natural (no high gear rattle; boot and kit footsteps; radio of several lengths and tones), clearly visible soldier motion, Riflemen always armed, a raid bar at the top of the screen, optional JEI support |
+| M33 `claude/m33-army-look-sound` | P2 | M32; D5 approved 2026-11-12 for 33.4 | On `main` (PRs #6, #7); Liam's look-and-listen check outstanding | Native per-soldier variants and a first original sound set; the animation library is a separate, test-gated experiment (D5) |
+| M34 `claude/m34-defend-the-post` | P2 | M32 (branch stacked on M33) | On `main` (PR #8); Liam's check outstanding | One readable attack warning; `defend_outpost` observable in ordinary play |
+| M35 `claude/m35-feel-pass` | **P1** | M34 | Implemented; review, QA run and Liam's check outstanding | Sound that sounds natural (no high gear rattle; boot and kit footsteps; radio of several lengths and tones), clearly visible soldier motion, Riflemen always armed, a raid bar at the top of the screen, optional JEI support |
 | M36 `<agent>/m36-alert-and-backup` | **P1** | M35 | Planned | Post alert levels (Calm, Alert, Contact, Overrun) that change how soldiers move and what the radio says; quick-reaction backup that arrives from outside the area when a post is losing men |
 | M37 `<agent>/m37-field-manual-and-command-ui` | P2 | M35 | Planned | A Field Manual book at first join (welcome, how to play, every class with pros and cons) and a Campaign screen of story objectives; the Command Post screen redesigned to be clearer and less cramped |
 | M38 `<agent>/m38-base-design` | P2 | M35 | Planned | New military designs for the outpost at every level, the Main Base and an HQ shell, authored as structure templates; each upgrade visibly changes the site |
@@ -784,6 +784,33 @@ Priority: P2. Prerequisites: M32; the branch is stacked on M33 and merges after 
 
 **Non-goals:** No new raid types, sizes, mobs or spawn rules; no global director; no change to cooldown lengths, thresholds or rewards; no off-screen or unloaded raids.
 
+### Phase M35 - Feel Pass I
+
+Priority: P1. Prerequisites: M34 on `main` (PR #8). From Liam's first playtest and recording (2026-11-13). Uses D10 (CC0 sound with credits), D11 (optional JEI) and the D5 GeckoLib Rifleman. No new mission, saved-data schema or required dependency. JEI is a compile-time API only.
+
+- [x] **35.1 Sound that sounds natural.** The M33 gear clinks (centroid about 4.2 kHz) are gone. Soldiers keep the block's own footstep and add a soft kit rustle on about one step in three: Kenney's CC0 cloth recordings plus a synthesised low webbing-and-knock layer (centroids about 0.5-1.35 kHz). The radio has four calm clips of 1.4-3.3 s (lower, slower voices with pauses) and three urgent clips of 1.0-2.0 s (higher, faster, double squelch); a raid warning now plays the urgent set, ready for M36 to switch by alert level. `SoundChecks` enforces a centroid band per event. Credits are in `THIRD_PARTY_NOTICES.md`.
+- [x] **35.2 Motion you can see.** The GeckoLib Rifleman's clips are re-keyed: an 8-second idle that breathes, looks left and right and checks the weapon; a stronger walk with hip sway; a new run with the rifle at port arms when closing on a target; aim sway; a sharper recoil with the support hand working the action; a clearer flinch. *The D5 frame-time data cannot decide the other tiers yet:* the first PC run (2026-11-12) measured 33.4 ms for both renderers at 8 and 32 soldiers because vanilla's AFK limit capped the scripted client at 30 fps. The fixture now lifts that limit; the rerun is queued. Other tiers move to GeckoLib here only if it is no slower than the native rig; otherwise in M42.
+- [x] **35.3 Riflemen are always armed.** Every Army Rifleman is created holding an original service rifle (Blockbench source, atlas and generator) and fires it through the vanilla ranged goal: hitscan between 3 and 14 blocks, 4 damage every 30 ticks, 90% to 60% hit chance by range, holding fire while a player or soldier is in the line of fire, with an original report and the long-gun poses. It never drops. The launcher replaces it once the launcher unlocks for soldiers; a retained launcher is never taken back. Four `serviceRifle*` keys in the NPC config. Players can hold it but not fire it until Roadmap 6.
+- [x] **35.4 Raid bar.** A vanilla boss bar for players within 64 blocks: yellow "Raid warning, post X: hostiles last reported to the north" that empties as contact nears, then red "Raid on post X: N raiders" that shrinks as they fall. Refreshed about once a second by the loaded post from its saved record; removed when the raid ends, the post unloads or the server stops.
+- [x] **35.5 JEI (optional, D11).** Info pages for the Command Post, Lab, Supply Crate, samples, service rifle, launcher and blade when JEI is installed. Our recipes already appear, because they are vanilla recipes. Never required or bundled.
+- [ ] **35.6 Prove it, then Liam's check.** *Windows CI 43356710864 passed 2026-11-13 on `91694b9`: 186/186 GameTests (new `defence_raid_bar` and `presentation_rifleman_rifle`), 2,041 art, 129 sound, 153 compatibility and 778 equipment assertions, art export check, packaged-QA preparation and two-JVM restart.* The QA client runs on Liam's PC (default, native Rifleman, with JEI) are queued; then Liam listens to the soldiers and radio, watches them move, and watches Riflemen fight.
+
+**Systems reused:** `HumanNpc` goals and equipment issue, the vanilla `RangedAttackGoal`, the long-gun poses and GeckoLib controllers, the threat response record, `ServerBossEvent`, `SoundChecks`, `ArtChecks`, `export-art.ps1`, the QA client and the PC runner.
+
+**Non-goals:** No player gun, ammunition or reload (Roadmap 6). No new raid rules, alert levels or backup (M36). No GeckoLib for other tiers until the frame-time rerun. No per-unit sound sets (M42). No Field Manual (M37).
+
+**Exit gate (observable):**
+
+| Claim | Proof |
+| --- | --- |
+| Every clip decodes as mono 44.1 kHz Vorbis, in its length and centroid band; subtitles translated; CC0 files credited; no orphan files | `SoundChecks`, `THIRD_PARTY_NOTICES.md` |
+| Clips use only real bones, rotation only, known Molang, keyframes inside each clip; the controller uses every clip | `ArtChecks` |
+| A Rifleman arrives armed, holds fire with a player in the line of fire, hits at range with the rifle report, and swaps to the launcher on unlock; existing kit retention still holds | GameTest `presentation_rifleman_rifle`; `TierTests`, `SpecialistTests`, restart tier fixture |
+| The rifle model and atlas are exact exports of the original source | `ArtChecks`, `EquipmentChecks`, `export-art.ps1 -Check` |
+| Warning bar for nearby players only, then raiders remaining, removed when the raid ends | GameTest `defence_raid_bar` |
+| JEI stays optional and every page has text; JEI shows the pages | `CompatibilityChecks`; QA run with `-PwithJei` (`jei-*` captures) |
+| Soldiers sound natural, move visibly and fight with the rifle | Liam's check |
+
 ### Decisions Before M32 Starts
 
 Approved by Liam on 2026-11-12: D1 suggested costs, D2 96 blocks, D3 enable `vanilla_undead`, D4 the five onboarding missions. D5 approved later the same day (GeckoLib experiment). D6 stays open.
@@ -817,7 +844,7 @@ Each one becomes active only when the stated evidence justifies it, after re-che
 
   Other mods are reference for ideas and proportions only; no copied geometry, textures, animations or sounds. *Exit evidence:* QA captures of variants at several distances and lighting, sound playback in a GameTest or client check, and Liam's look-and-listen check.
 - **M34 Defend the post (P2).** *Implemented; see [Phase M34](#phase-m34---defend-the-post).* One readable warning before a raid reaches a post; `defend_outpost` joins the Orders view and becomes observable in ordinary play. Reuses raid reservations, support costs and cooldowns; no new global director. *Moves forward if* the earned run reports "after Stage 1 nothing happened" or "never saw a real attack".
-- **M35 Feel pass I (P1).** From Liam's playtest and recording (2026-11-13). The recording's audio shows frequent high-frequency bursts while soldiers walk. The M33 gear clip's spectral centroid is about 4.2 kHz, against 1.8 kHz for the radio, which matches "a high noise that doesn't sound natural".
+- **M35 Feel pass I (P1).** *Implemented; see [Phase M35](#phase-m35---feel-pass-i).* From Liam's playtest and recording (2026-11-13). The recording's audio shows frequent high-frequency bursts while soldiers walk. The M33 gear clip's spectral centroid is about 4.2 kHz, against 1.8 kHz for the radio, which matches "a high noise that doesn't sound natural".
   1. **Sound.** Remove the gear rattle. Soldiers keep the block's own footstep and add a quiet, low boot-and-kit layer (target centroid under 1.5 kHz). The radio gets several clips of different lengths and pitch, in calm and urgent sets, so M36 can switch them by alert level. The source follows **D10**. Volumes are tuned against vanilla footsteps, with a listening check.
   2. **Motion you can see.** Re-key the GeckoLib Rifleman with clearly readable motion: a stronger walk and a run cycle, an idle that looks around and checks the weapon, a ready stance and a clearer recoil and reload. Decide from the D5 frame-time data whether the other tiers move to GeckoLib here or in M42.
   3. **Riflemen are always armed.** Every Army Rifleman spawns holding an original **service rifle** with a simple ranged attack (an interim of the Roadmap 6 weapon framework). The prototype launcher stays the stage-gated special weapon.
@@ -971,7 +998,7 @@ Checked against the 26.3 pin on the day. Nothing here is approved until Liam dec
 
 | Need | Option | Status for 26.3 | Licence | Recommendation |
 | --- | --- | --- | --- | --- |
-| Recipe viewer | [JEI](https://www.curseforge.com/minecraft/mc-mods/jei/files/8918192) | NeoForge 26.3 builds since September 2026 (latest 31.16.0.85) | MIT | Optional integration in M35 (D11) |
+| Recipe viewer | [JEI](https://www.curseforge.com/minecraft/mc-mods/jei/files/8918192) | NeoForge 26.3 builds since September 2026 (31.17.0.113 on its Maven on 2026-11-13) | MIT | Optional integration in M35 (D11): compile-time API 31.17.0.113 |
 | Guide book | [GuideME](https://www.curseforge.com/minecraft/mc-mods/guideme/files/8129704) | 26.3 alpha builds | Custom | D12 decided: own Field Manual first, GuideME as an optional extra once a stable 26.3 release exists |
 | Quest book | [FTB Quests](https://www.curseforge.com/minecraft/mc-mods/ftb-quests-forge/files/8574626) | Newest NeoForge build targets 26.1.2, none for 26.3 found | All Rights Reserved | D12 decided: own Campaign screen; optional FTB Quests chapters once it supports our version and its API terms allow it |
 | Footsteps | [Tread Lightly](https://modrinth.com/project/EZLEVAhb) | NeoForge 26.3 | LGPL-3.0 | Reference and a compatible companion; not a dependency |

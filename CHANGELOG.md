@@ -4,19 +4,28 @@
 
 Modern port work uses one phase branch at a time, merged into `main` after verification. No modern release, version bump, or retag is announced by this entry. The source/build version remains `0.1.0-alpha.1`; observed verification results are recorded in [STATUS.md](docs/modern-port/STATUS.md).
 
-### Defend The Post (M34, unmerged work branch stacked on M33)
+### Feel Pass I (M35, unmerged work branch)
+
+- Soldiers no longer make a high rattle when they walk: the block's own footstep plus a soft kit rustle on about one step in three, partly from Kenney's CC0 cloth recordings (credited in `THIRD_PARTY_NOTICES.md`).
+- The Command Post radio has four calm clips of different lengths and three urgent clips; a raid warning plays the urgent radio.
+- The Army Rifleman moves visibly: it looks around and checks its weapon when idle, walks with a stronger stride, runs when closing on a target, and shows clearer recoil and flinches.
+- Army Riflemen always carry an original Service Rifle and shoot hostiles in sight up to 14 blocks, holding fire when a player or soldier is in the way. It never drops; the Prototype Launcher replaces it once it unlocks for soldiers. Players can hold it but not fire it yet. New NPC config keys `serviceRifleEnabled`, `serviceRifleDamage`, `serviceRifleIntervalTicks` and `serviceRifleRange`.
+- A raid bar at the top of the screen for players near a post: the warning with its direction and countdown, then raiders remaining.
+- Optional Just Enough Items support: info pages for the buildings, samples and weapons. JEI is never required or bundled.
+
+### Defend The Post (M34, on `main`)
 
 - Natural raids are radioed in first: nearby players hear the post's radio and get the direction and about 30 seconds of warning before contact. The wave then arrives from that side. If nobody is near the post when it is due, it stands down. Operator debug raids are unchanged.
 - "Defend the Outpost" now starts on its own at Stage 1. The Orders view shows the local threat against the raid line, or the incoming raid's direction and countdown.
 - New server config `raidWarningTicks` (default 600; 0 restores immediate natural raids). Existing config files gain it with the default.
 
-### Army Look And Sound I (M33, unmerged work branch stacked on M32)
+### Army Look And Sound I (M33, on `main`)
 
 - Soldiers no longer look identical: each picks one of 12 appearance variants (skin tone, eyes, hair, facial hair or scar, headgear pattern, rank stripes, wear) and a slightly different build from its UUID. Render-only; stats, hitboxes, AI and saves are unchanged.
 - Added original synthesised sounds with subtitles: soldier gear on steps, launcher fire and cycle for players and soldiers (replacing the snowball throw), and occasional radio chatter at Command Posts.
 - Added variant and sound logic checks, two GameTests and four soldier lineup captures.
 
-### Earned Survival Start (M32, unmerged work branch)
+### Earned Survival Start (M32, on `main`)
 
 - Added Field Command Post and Research Lab crafting recipes (unlocked by iron) and a 96-block player-placement spacing rule; generated sites and admin placement are unaffected.
 - The five onboarding missions now start themselves (`auto_start` catalog flag) and progress from kills, pickups, login, building use and menu actions. Starts/completions are announced once; operator mission commands are unchanged.
